@@ -1,12 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Clock, Lock, Play, Users } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Clock, Lock, Users } from "lucide-react";
 import { toast } from "sonner";
-import { ACTIVITIES, CHALLENGES } from "@/lib/dimted";
-import { useDimted } from "@/lib/dimted-store";
-import { LockedTile, Meter, Panel, PanelHead, PageHeader, RarityChip } from "@/components/dimted/primitives";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Meter, Panel, PanelHead, PageHeader, RarityChip } from "@/components/dimted/primitives";
+import { useDimted } from "@/lib/dimted-store";
+import { ACTIVITIES, CHALLENGES } from "@/lib/dimted";
+import {
+  countEvents,
+  useFriendships,
+  useMyXpEvents,
+  useRefreshDimted,
+} from "@/lib/dimted-queries";
 
 export const Route = createFileRoute("/activities")({
   head: () => ({
@@ -15,131 +19,124 @@ export const Route = createFileRoute("/activities")({
       {
         name: "description",
         content:
-          "DIMTED-exclusive social activities: Quickdraw, Guess the Message, Chaos Questions, Hidden Object, Duo Quest and community-wide challenges.",
+          "DIMTED-exclusive social activities built around chatting with real friends — Quickdraw, Chaos Questions, Duo Quest and more.",
       },
       { property: "og:title", content: "Activities — DIMTED" },
-      { property: "og:description", content: "Social games built around chatting, not generic board games." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:description", content: "Social activities, not arcade games." },
     ],
   }),
   component: ActivitiesPage,
 });
 
-const PROMPTS = [
-  "a polite storm",
-  "the last honest vending machine",
-  "a library that only holds one book",
-  "your friend, as a lighthouse",
-  "a very small emergency",
-];
-
 function ActivitiesPage() {
-  const { level, award } = useDimted();
-  const [session, setSession] = useState<{ name: string; prompt: string } | null>(null);
-  const weekly = CHALLENGES.filter((c) => c.cadence === "weekly").slice(0, 3);
+  const { profile, level, award, surgeActive } = useDimted();
+  const friends = useFriendships(profile?.id);
+  const events = useMyXpEvents(profile?.id);
+  const refresh = useRefreshDimted();
 
-  const start = (name: string, xp: number) => {
-    const prompt = PROMPTS[Math.floor(Math.random() * PROMPTS.length)]!;
-    setSession({ name, prompt });
-    const r = award("activity", xp, name);
-    if (r === "cooldown") toast("Give it a minute — activity XP is limited to four a day.");
-  };
+  const hasFriends = (friends.data ?? []).some((f) => f.status === "accepted");
+
+  async function play(name: string) {
+    const result = await award("activity", name);
+    if (result === "granted") {
+      toast.success(`${name} finished${surgeActive ? " — double XP from your surge" : ""}.`);
+      refresh();
+      return;
+    }
+    if (result === "capped") toast("You've hit today's activity XP cap. Play for fun instead.");
+    else if (result === "cooldown") toast("Give it a minute before the next one.");
+    else toast.error("Couldn't record that");
+  }
 
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Activities"
-        title="Games that only make sense between people"
-        blurb="No chess, no snake. Each one needs someone you actually talk to."
+        eyebrow="Play"
+        title="Activities"
+        blurb="Every activity here needs another person. None of them exist outside DIMTED."
       />
 
-      {session ? (
-        <Panel className="border-primary/40 glow-primary p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="eyebrow">In session · {session.name}</p>
-              <h2 className="font-display mt-2 text-2xl font-semibold tracking-tight">“{session.prompt}”</h2>
-              <p className="text-muted-foreground mt-2 text-sm">
-                30 seconds. Both of you get the same prompt. Neither of you gets more time.
-              </p>
-            </div>
-            <Button variant="secondary" onClick={() => setSession(null)}>
-              End session
-            </Button>
-          </div>
-          <Meter value={0.42} className="mt-5 h-2" tone="gold" animate />
+      {!hasFriends ? (
+        <Panel className="border-primary/25 p-5">
+          <p className="text-sm">
+            Activities are social by design — you need at least one real friend before they mean
+            anything.{" "}
+            <Link to="/discover" className="text-primary hover:underline">
+              Find someone first.
+            </Link>
+          </p>
         </Panel>
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {ACTIVITIES.map((a, i) => {
-          const locked = a.requiredLevel != null && level < a.requiredLevel;
+          const locked = (a.requiredLevel ?? 1) > level;
           return (
-            <Panel key={a.id} delay={i * 50} className={cn("flex flex-col p-5", locked && "opacity-70")}>
+            <Panel key={a.id} className="flex flex-col p-5" delay={i * 40}>
               <div className="flex items-start justify-between gap-3">
-                <h2 className="font-display text-base font-semibold tracking-tight">{a.name}</h2>
+                <h3 className="font-display text-base font-semibold tracking-tight">{a.name}</h3>
                 <RarityChip rarity={a.rarity} />
               </div>
-              <p className="text-muted-foreground mt-2 flex-1 text-sm">{a.blurb}</p>
-              <div className="text-muted-foreground mt-4 flex items-center gap-4 font-mono text-[10px] tracking-wide uppercase">
-                <span className="flex items-center gap-1.5">
-                  <Users className="size-3" /> {a.players}
+              <p className="text-muted-foreground mt-2 flex-1 text-sm leading-relaxed">{a.blurb}</p>
+
+              <div className="text-muted-foreground mt-4 flex items-center gap-4 font-mono text-[11px]">
+                <span className="flex items-center gap-1">
+                  <Users className="size-3.5" /> {a.players}
                 </span>
-                {a.minutes ? (
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="size-3" /> {a.minutes} min
+                {a.minutes > 0 ? (
+                  <span className="flex items-center gap-1">
+                    <Clock className="size-3.5" /> {a.minutes}m
                   </span>
                 ) : null}
+                <span className="text-primary ml-auto">+{a.rewardXp} XP</span>
               </div>
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-primary font-mono text-xs">+{a.rewardXp} XP</span>
-                <Button size="sm" disabled={locked} onClick={() => start(a.name, a.rewardXp)}>
-                  {locked ? (
-                    <>
-                      <Lock className="size-3.5" /> Level {a.requiredLevel}
-                    </>
-                  ) : (
-                    <>
-                      <Play className="size-3.5" /> Start
-                    </>
-                  )}
-                </Button>
-              </div>
+
+              <Button
+                className="mt-4 w-full"
+                variant={locked ? "outline" : "default"}
+                disabled={locked || !hasFriends}
+                onClick={() => void play(a.name)}
+              >
+                {locked ? (
+                  <>
+                    <Lock className="size-3.5" /> Level {a.requiredLevel}
+                  </>
+                ) : (
+                  "Start"
+                )}
+              </Button>
             </Panel>
           );
         })}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-3">
-        <Panel className="p-6 xl:col-span-2" delay={200}>
-          <PanelHead eyebrow="Weekly" title="Challenges tied to activities" />
-          <div className="mt-4 space-y-3">
-            {weekly.map((c) => (
-              <div key={c.id} className="border-border bg-background/40 rounded-xl border p-3.5">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="min-w-0 flex-1 truncate text-sm">{c.title}</p>
-                  <span className="text-muted-foreground shrink-0 font-mono text-[11px]">
-                    {c.progress.toLocaleString()}/{c.goal.toLocaleString()}
+      <Panel className="p-5">
+        <PanelHead eyebrow="Challenges" title="Progress from real play" />
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          {CHALLENGES.map((c) => {
+            const done = countEvents(events.data, c.source, c.cadence);
+            return (
+              <li key={c.id} className="border-border bg-background/40 rounded-xl border p-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm">{c.title}</span>
+                  <span className="text-muted-foreground shrink-0 font-mono text-[10px]">
+                    {Math.min(done, c.goal)}/{c.goal}
                   </span>
                 </div>
-                <Meter value={c.progress / c.goal} className="mt-3 h-1.5" tone="xp" />
-                <p className="text-muted-foreground mt-2 font-mono text-[10px]">
-                  +{c.rewardXp} XP{c.rewardItem ? ` · ${c.rewardItem}` : ""}
+                <Meter
+                  value={Math.min(1, done / c.goal)}
+                  tone={c.cadence === "daily" ? "gold" : "primary"}
+                  className="mt-2 h-1.5"
+                />
+                <p className="text-muted-foreground mt-2 flex items-center justify-between font-mono text-[10px]">
+                  <span>{c.cadence}</span>
+                  <span className="text-gold">+{c.rewardXp} XP</span>
                 </p>
-              </div>
-            ))}
-          </div>
-        </Panel>
-
-        <Panel className="p-6" delay={240}>
-          <PanelHead eyebrow="Unannounced" title="Something else is here" />
-          <div className="mt-4 space-y-3">
-            <LockedTile hint="An activity with no name yet" requirement="Play with 10 different people" />
-            <LockedTile hint="It only runs once a month" requirement="Unknown" />
-          </div>
-        </Panel>
-      </div>
+              </li>
+            );
+          })}
+        </ul>
+      </Panel>
     </div>
   );
 }

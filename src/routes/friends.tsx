@@ -1,14 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { EyeOff, Flame } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Check, Flame, X } from "lucide-react";
 import { toast } from "sonner";
-import { FEED, FRIENDS, FRIENDSHIP_TIERS, friendshipLevel } from "@/lib/dimted";
-import { useDimted } from "@/lib/dimted-store";
-import { Meter, Panel, PanelHead, PageHeader, RarityChip } from "@/components/dimted/primitives";
-import { rarityDot, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+import { Meter, Panel, PanelHead, PageHeader, RarityChip } from "@/components/dimted/primitives";
+import { useDimted } from "@/lib/dimted-store";
+import { FRIENDSHIP_TIERS, friendshipLevel } from "@/lib/dimted";
+import { isRecentlyActive, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
+import { respondToFriendRequest } from "@/lib/dimted-actions";
 
 export const Route = createFileRoute("/friends")({
   head: () => ({
@@ -17,185 +15,175 @@ export const Route = createFileRoute("/friends")({
       {
         name: "description",
         content:
-          "Friendship levels in DIMTED: every friendship progresses on its own, unlocking shared badges, matching effects and duo challenges.",
+          "Friendship Levels, streaks and duo rewards in DIMTED. Every friendship has its own progression track.",
       },
       { property: "og:title", content: "Friends — DIMTED" },
-      { property: "og:description", content: "Friendships that level up, privately and optionally." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:description", content: "Friendships level up too." },
     ],
   }),
   component: FriendsPage,
 });
 
-const DUO_REWARDS = [
-  { level: 2, name: "Shared badge", rarity: "common" as const },
-  { level: 3, name: "Matching profile effect", rarity: "uncommon" as const },
-  { level: 5, name: "Shared Realm decoration", rarity: "epic" as const },
-  { level: 7, name: "Private chat reaction", rarity: "rare" as const },
-  { level: 10, name: "Legendary Duo animation", rarity: "legendary" as const },
-];
+export function FriendsPage() {
+  const { profile, award } = useDimted();
+  const friends = useFriendships(profile?.id);
+  const refresh = useRefreshDimted();
 
-function FriendsPage() {
-  const { award } = useDimted();
-  const [selectedId, setSelectedId] = useState(FRIENDS[0]!.id);
-  const [publicBonds, setPublicBonds] = useState(false);
-  const friend = FRIENDS.find((f) => f.id === selectedId)!;
-  const bond = friendshipLevel(friend.friendshipXp);
+  const rows = friends.data ?? [];
+  const accepted = rows.filter((f) => f.status === "accepted");
+  const incoming = rows.filter((f) => f.status === "pending" && f.requesterId !== profile?.id);
+  const outgoing = rows.filter((f) => f.status === "pending" && f.requesterId === profile?.id);
+
+  async function respond(id: string, accept: boolean) {
+    try {
+      await respondToFriendRequest(id, accept);
+      await friends.refetch();
+      if (accept) {
+        await award("friend", "New friend");
+        toast.success("Friendship started at Level 1.");
+      }
+      refresh();
+    } catch {
+      toast.error("Couldn't update that request");
+    }
+  }
 
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Friends"
-        title="Every friendship keeps its own level"
-        blurb="Built by talking, not by clicking. You can hide all of it from everyone else."
+        eyebrow="Social"
+        title="Friends"
+        blurb="Each friendship has its own level. Talking regularly is the only thing that raises it."
         aside={
-          <label className="glass flex items-center gap-3 rounded-full px-4 py-2">
-            <EyeOff className="text-muted-foreground size-3.5" />
-            <span className="text-muted-foreground font-mono text-[11px]">Show bonds publicly</span>
-            <Switch checked={publicBonds} onCheckedChange={setPublicBonds} />
-          </label>
+          <div className="text-right">
+            <p className="numeral text-3xl">{accepted.length}</p>
+            <p className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
+              friends
+            </p>
+          </div>
         }
       />
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_1.1fr]">
-        <Panel className="p-4">
-          <ul className="space-y-1.5">
-            {FRIENDS.map((f) => {
-              const b = friendshipLevel(f.friendshipXp);
-              return (
-                <li key={f.id}>
-                  <button
-                    onClick={() => setSelectedId(f.id)}
-                    className={cn(
-                      "hover:bg-secondary/50 w-full rounded-xl p-3 text-left transition-colors",
-                      selectedId === f.id && "bg-secondary",
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={cn(
-                          "numeral text-primary-foreground grid size-10 shrink-0 place-items-center rounded-xl",
-                          rarityDot[f.accent],
-                        )}
-                      >
-                        {f.name[0]}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-medium">{f.name}</p>
-                          {f.online ? <span className="bg-uncommon size-1.5 rounded-full" /> : null}
-                        </div>
-                        <p className="text-muted-foreground truncate font-mono text-[10px]">
-                          Lv {f.level} · {f.title}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <p className={cn("font-mono text-[11px]", rarityText[f.accent])}>FL {b.level}</p>
-                        <p className="text-muted-foreground/70 font-mono text-[10px]">{b.name}</p>
-                      </div>
-                    </div>
-                    <div className="mt-2.5 flex items-center gap-3">
-                      <Meter value={b.into / b.needed} className="h-1 flex-1" tone="xp" />
-                      {f.streak ? (
-                        <span className="text-energy flex shrink-0 items-center gap-1 font-mono text-[10px]">
-                          <Flame className="size-3" /> {f.streak}d
-                        </span>
-                      ) : (
-                        <span className="text-muted-foreground/50 shrink-0 font-mono text-[10px]">no streak</span>
-                      )}
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
+      {incoming.length > 0 ? (
+        <Panel className="p-5">
+          <PanelHead eyebrow="Waiting on you" title="Friend requests" />
+          <ul className="mt-4 space-y-2">
+            {incoming.map((f) => (
+              <li
+                key={f.friendshipId}
+                className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium">{f.profile.display_name}</span>
+                  <span className="text-muted-foreground block truncate text-xs">
+                    @{f.profile.username}
+                  </span>
+                </span>
+                <Button size="sm" onClick={() => void respond(f.friendshipId, true)}>
+                  <Check className="size-3.5" /> Accept
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void respond(f.friendshipId, false)}
+                >
+                  <X className="size-3.5" />
+                </Button>
+              </li>
+            ))}
           </ul>
         </Panel>
+      ) : null}
 
-        <div className="space-y-5">
-          <Panel className="p-6" delay={80}>
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div>
-                <p className="eyebrow">Friendship</p>
-                <h2 className="font-display mt-1 text-2xl font-semibold tracking-tight">
-                  {friend.name.split(" ")[0]} & you
-                </h2>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Level {bond.level} · {bond.name}
-                  {friend.streak ? ` · ${friend.streak}-day streak` : " · streak paused, nothing lost"}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                onClick={() => {
-                  const r = award("activity", 180, `Duo Quest with ${friend.name.split(" ")[0]}`);
-                  if (r === "cooldown") toast("Duo Quests are limited — the point is that they mean something.");
-                }}
-              >
-                Start Duo Quest
-              </Button>
-            </div>
-
-            <Meter value={bond.into / bond.needed} className="mt-5 h-2.5" tone="xp" animate />
-            <p className="text-muted-foreground mt-2 font-mono text-[11px]">
-              {bond.into}/{bond.needed} toward Friendship Level {bond.level + 1}
-            </p>
-
-            <div className="border-border mt-5 grid gap-2 border-t pt-4 sm:grid-cols-2">
-              {FRIENDSHIP_TIERS.map((t) => (
-                <div
-                  key={t.level}
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 font-mono text-[11px]",
-                    bond.level >= t.level ? "bg-secondary text-foreground" : "text-muted-foreground/70",
-                  )}
-                >
-                  <span className="numeral">{t.level}</span> {t.name}
-                </div>
-              ))}
-            </div>
-          </Panel>
-
-          <Panel className="p-6" delay={120}>
-            <PanelHead eyebrow="Together" title="Shared rewards" />
-            <div className="mt-4 space-y-2.5">
-              {DUO_REWARDS.map((r) => {
-                const earned = bond.level >= r.level;
-                return (
-                  <div
-                    key={r.level}
-                    className={cn(
-                      "flex items-center gap-3 rounded-xl border p-3",
-                      earned ? "border-border bg-background/40" : "border-border/60 border-dashed opacity-70",
-                    )}
-                  >
-                    <span className="bg-secondary numeral grid size-8 shrink-0 place-items-center rounded-lg text-xs">
-                      {r.level}
-                    </span>
-                    <p className="min-w-0 flex-1 truncate text-sm">{r.name}</p>
-                    <RarityChip rarity={r.rarity} />
+      {accepted.length === 0 ? (
+        <Panel className="p-8 text-center">
+          <p className="font-display text-lg font-semibold">Nobody here yet</p>
+          <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
+            DIMTED never gives you fake friends. Every name on this page is a real account that
+            accepted you.
+          </p>
+          <Button asChild className="mt-5">
+            <Link to="/discover">Find real people</Link>
+          </Button>
+        </Panel>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {accepted.map((f, i) => {
+            const lvl = friendshipLevel(f.friendshipXp);
+            const tier = FRIENDSHIP_TIERS.find((t) => t.level > lvl.level);
+            return (
+              <Panel key={f.friendshipId} className="p-4" delay={i * 40}>
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{f.profile.display_name}</p>
+                    <p className="text-muted-foreground truncate text-xs">@{f.profile.username}</p>
                   </div>
-                );
-              })}
-            </div>
-          </Panel>
+                  <span className="text-primary shrink-0 font-mono text-[11px]">FL {lvl.level}</span>
+                </div>
 
-          <Panel className="p-6" delay={160}>
-            <PanelHead eyebrow="Friend activity" title="What they've been up to" />
-            <ul className="mt-4 space-y-1">
-              {FEED.slice(0, 5).map((e) => (
-                <li key={e.id} className="flex items-start gap-3 px-1 py-1.5">
-                  <span className={cn("mt-1.5 size-1.5 shrink-0 rounded-full", rarityDot[e.tone])} />
-                  <p className="text-muted-foreground min-w-0 flex-1 text-sm">
-                    <span className="text-foreground">{e.who}</span> {e.what}{" "}
-                    <span className={rarityText[e.tone]}>{e.highlight}</span>
+                <Meter value={lvl.into / lvl.needed} tone="gold" className="mt-3 h-1.5" />
+                <p className="text-muted-foreground mt-2 font-mono text-[10px]">
+                  {lvl.into}/{lvl.needed} · {lvl.name}
+                </p>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {f.streak > 0 ? (
+                    <span className="border-gold/30 bg-gold/10 text-gold flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px]">
+                      <Flame className="size-3" />
+                      {f.streak}d
+                    </span>
+                  ) : null}
+                  {isRecentlyActive(f.profile.last_active_at) ? (
+                    <span className="border-primary/30 bg-primary/10 text-primary rounded-full border px-2 py-0.5 font-mono text-[10px]">
+                      around now
+                    </span>
+                  ) : null}
+                </div>
+
+                {tier ? (
+                  <p className="text-muted-foreground mt-3 text-xs">
+                    Level {tier.level} makes you <span className="text-foreground/85">{tier.name}</span>.
                   </p>
-                </li>
-              ))}
-            </ul>
-          </Panel>
+                ) : null}
+
+                <Button asChild size="sm" variant="outline" className="mt-3 w-full">
+                  <Link to="/messages">Open chat</Link>
+                </Button>
+              </Panel>
+            );
+          })}
         </div>
-      </div>
+      )}
+
+      {outgoing.length > 0 ? (
+        <Panel className="p-5">
+          <PanelHead eyebrow="Sent" title="Waiting on them" />
+          <ul className="mt-3 space-y-1.5">
+            {outgoing.map((f) => (
+              <li key={f.friendshipId} className="flex items-baseline justify-between gap-3 text-sm">
+                <span className="truncate">{f.profile.display_name}</span>
+                <span className="text-muted-foreground shrink-0 font-mono text-[10px]">pending</span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
+
+      <Panel className="p-5">
+        <PanelHead eyebrow="Duo rewards" title="What friendships unlock" />
+        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+          {FRIENDSHIP_TIERS.map((t) => (
+            <li
+              key={t.level}
+              className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
+            >
+              <span className="numeral text-muted-foreground w-8 shrink-0 text-lg">{t.level}</span>
+              <span className="flex-1 text-sm">{t.name}</span>
+              <RarityChip rarity={t.level >= 10 ? "legendary" : t.level >= 5 ? "epic" : "uncommon"} />
+            </li>
+          ))}
+        </ul>
+      </Panel>
     </div>
   );
 }

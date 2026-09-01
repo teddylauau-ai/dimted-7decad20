@@ -1,12 +1,19 @@
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Hash, Radio, Users } from "lucide-react";
+import { Plus, Send } from "lucide-react";
 import { toast } from "sonner";
-import { COMMUNITIES } from "@/lib/dimted";
-import { useDimted } from "@/lib/dimted-store";
-import { LockedTile, Meter, Panel, PanelHead, PageHeader, RarityChip } from "@/components/dimted/primitives";
-import { rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Meter, Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { useDimted } from "@/lib/dimted-store";
+import { COMMUNITY_UNLOCKS, communityLevel, nextCommunityUnlock } from "@/lib/dimted";
+import {
+  useChannelMessages,
+  useChannels,
+  useCommunities,
+  useRefreshDimted,
+} from "@/lib/dimted-queries";
+import { createCommunity, joinCommunity, postChannelMessage } from "@/lib/dimted-actions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/communities")({
@@ -16,147 +23,261 @@ export const Route = createFileRoute("/communities")({
       {
         name: "description",
         content:
-          "Communities in DIMTED level up too. Active members, events and shared challenges unlock layouts, banners and larger community spaces.",
+          "Communities in DIMTED level up from real participation, unlocking channels, roles and shared spaces.",
       },
       { property: "og:title", content: "Communities — DIMTED" },
-      { property: "og:description", content: "Grow a community and unlock what it can become." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:description", content: "Communities have their own progression." },
     ],
   }),
   component: CommunitiesPage,
 });
 
-const COMMUNITY_UNLOCKS = [
-  { level: 5, name: "Channel layouts", rarity: "common" as const },
-  { level: 10, name: "Custom role colours", rarity: "uncommon" as const },
-  { level: 15, name: "Animated background", rarity: "rare" as const },
-  { level: 20, name: "Community decorations", rarity: "epic" as const },
-  { level: 25, name: "Larger community space", rarity: "legendary" as const },
-];
-
 function CommunitiesPage() {
-  const { award } = useDimted();
-  const [activeId, setActiveId] = useState(COMMUNITIES[0]!.id);
-  const community = COMMUNITIES.find((c) => c.id === activeId)!;
+  const { profile, award } = useDimted();
+  const communities = useCommunities(profile?.id);
+  const refresh = useRefreshDimted();
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [name, setName] = useState("");
+  const [tagline, setTagline] = useState("");
+  const [draft, setDraft] = useState("");
+
+  const rows = communities.data ?? [];
+  const mine = rows.filter((c) => c.isMember);
+  const active = mine.find((c) => c.id === activeId) ?? mine[0] ?? null;
+  const channels = useChannels(active?.id);
+  const [channelId, setChannelId] = useState<string | null>(null);
+  const activeChannel = (channels.data ?? []).find((c) => c.id === channelId) ?? channels.data?.[0] ?? null;
+  const messages = useChannelMessages(activeChannel?.id);
+
+  useEffect(() => {
+    setChannelId(null);
+  }, [active?.id]);
+
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    if (!profile || !name.trim()) return;
+    try {
+      const id = await createCommunity(profile.id, name.trim(), tagline.trim());
+      setName("");
+      setTagline("");
+      setCreating(false);
+      await communities.refetch();
+      setActiveId(id);
+      await award("community", "Founded a community");
+      refresh();
+      toast.success("Community created. It starts at Level 1 too.");
+    } catch {
+      toast.error("Couldn't create that community");
+    }
+  }
+
+  async function join(id: string) {
+    if (!profile) return;
+    try {
+      await joinCommunity(id, profile.id);
+      await communities.refetch();
+      await award("discovery", "Joined a community");
+      refresh();
+    } catch {
+      toast.error("Couldn't join");
+    }
+  }
+
+  async function post(e: React.FormEvent) {
+    e.preventDefault();
+    const body = draft.trim();
+    if (!body || !profile || !active || !activeChannel) return;
+    setDraft("");
+    try {
+      await postChannelMessage(active.id, activeChannel.id, profile.id, body);
+      await messages.refetch();
+      const result = await award("community", `Posted in #${activeChannel.name}`);
+      if (result === "capped") toast("Community XP is capped for today.");
+      refresh();
+    } catch {
+      toast.error("Message didn't post");
+    }
+  }
 
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Communities"
-        title="Places that grow with the people in them"
-        blurb="A community earns XP from real participation — events, conversations, challenges, and members who stay."
+        eyebrow="Shared"
+        title="Communities"
+        blurb="A community earns its own XP from the people in it. Levels unlock channels, roles and space."
+        aside={
+          <Button size="sm" onClick={() => setCreating((v) => !v)}>
+            <Plus className="size-3.5" /> New community
+          </Button>
+        }
       />
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {COMMUNITIES.map((c, i) => (
-          <Panel
-            key={c.id}
-            delay={i * 60}
-            className={cn(
-              "cursor-pointer p-5 transition-colors",
-              activeId === c.id ? "border-primary/40" : "hover:border-primary/25",
-            )}
-          >
-            <button className="w-full text-left" onClick={() => setActiveId(c.id)}>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="font-display text-base font-semibold tracking-tight">{c.name}</h2>
-                  <p className="text-muted-foreground mt-1 text-xs">{c.tagline}</p>
-                </div>
-                <RarityChip rarity={c.accent} />
-              </div>
-              <div className="mt-4 flex items-baseline gap-2">
-                <span className="numeral text-2xl">{c.level}</span>
-                <span className="text-muted-foreground font-mono text-[10px] tracking-[0.18em] uppercase">
-                  community level
-                </span>
-              </div>
-              <Meter value={c.xpInto / c.xpNeeded} className="mt-2 h-1.5" tone="primary" />
-              <div className="text-muted-foreground mt-2 flex items-center justify-between font-mono text-[10px]">
-                <span>
-                  {c.xpInto.toLocaleString()}/{c.xpNeeded.toLocaleString()} XP
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Users className="size-3" /> {c.members.toLocaleString()} · {c.online} online
-                </span>
-              </div>
-              <p className={cn("mt-3 text-[11px]", rarityText[c.accent])}>{c.unlockNext}</p>
-            </button>
-          </Panel>
-        ))}
-      </div>
-
-      <div className="grid gap-5 xl:grid-cols-3">
-        <Panel className="p-6 xl:col-span-2" delay={160}>
-          <PanelHead eyebrow={community.name} title="Channels" aside={`${community.channels.length} open`} />
-          <div className="mt-4 space-y-2">
-            {community.channels.map((ch) => (
-              <div
-                key={ch.name}
-                className="border-border bg-background/40 hover:border-primary/30 flex items-center gap-3 rounded-xl border p-3.5 transition-colors"
-              >
-                <Hash className="text-muted-foreground size-4 shrink-0" strokeWidth={1.75} />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm">{ch.name}</p>
-                  <p className="text-muted-foreground truncate text-xs">{ch.topic}</p>
-                </div>
-                {ch.live ? (
-                  <span className="text-uncommon flex shrink-0 items-center gap-1.5 font-mono text-[10px] tracking-[0.16em] uppercase">
-                    <Radio className="size-3" /> live
-                  </span>
-                ) : null}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  className="shrink-0"
-                  onClick={() => {
-                    const r = award("community", 60, `${community.name} · #${ch.name}`);
-                    if (r === "cooldown") toast("Already counted today for this community.");
-                  }}
-                >
-                  Join in
-                </Button>
-              </div>
-            ))}
-          </div>
-
-          <div className="border-border mt-5 border-t pt-4">
-            <p className="eyebrow">Community challenge</p>
-            <div className="mt-3 flex items-center gap-4">
-              <Meter value={0.62} className="h-2 flex-1" tone="gold" />
-              <span className="text-muted-foreground font-mono text-[11px]">62% · everyone contributes</span>
-            </div>
-          </div>
+      {creating ? (
+        <Panel className="p-5">
+          <PanelHead eyebrow="Found one" title="Create a community" />
+          <form onSubmit={create} className="mt-4 flex flex-wrap gap-3">
+            <Input
+              className="min-w-48 flex-1"
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <Input
+              className="min-w-48 flex-1"
+              placeholder="Tagline (optional)"
+              value={tagline}
+              onChange={(e) => setTagline(e.target.value)}
+            />
+            <Button type="submit">Create</Button>
+          </form>
         </Panel>
+      ) : null}
 
-        <Panel className="p-6" delay={200}>
-          <PanelHead eyebrow="Community path" title="What growing unlocks" />
-          <div className="mt-4 space-y-2.5">
-            {COMMUNITY_UNLOCKS.map((u) => {
-              const unlocked = community.level >= u.level;
+      {mine.length === 0 ? (
+        <Panel className="p-8 text-center">
+          <p className="font-display text-lg font-semibold">You're not in a community yet</p>
+          <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
+            Create one, or join a real one below. There are no seeded servers here.
+          </p>
+        </Panel>
+      ) : (
+        <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
+          <div className="space-y-3">
+            {mine.map((c) => {
+              const lvl = communityLevel(c.total_xp);
+              const next = nextCommunityUnlock(lvl.level);
+              const isActive = c.id === active?.id;
               return (
-                <div
-                  key={u.level}
+                <button
+                  key={c.id}
+                  onClick={() => setActiveId(c.id)}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border p-3",
-                    unlocked ? "border-border bg-background/40" : "border-dashed border-border/60 opacity-70",
+                    "glass w-full rounded-2xl p-4 text-left transition-colors",
+                    isActive && "border-primary/40 ring-primary/25 ring-1",
                   )}
                 >
-                  <span className="bg-secondary numeral grid size-8 shrink-0 place-items-center rounded-lg text-xs">
-                    {u.level}
-                  </span>
-                  <p className="min-w-0 flex-1 truncate text-sm">{u.name}</p>
-                  <RarityChip rarity={u.rarity} />
-                </div>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="truncate text-sm font-medium">{c.name}</span>
+                    <span className="text-primary shrink-0 font-mono text-[10px]">Lv {lvl.level}</span>
+                  </div>
+                  <p className="text-muted-foreground mt-1 truncate text-xs">
+                    {c.tagline ?? `${c.memberCount} member${c.memberCount === 1 ? "" : "s"}`}
+                  </p>
+                  <Meter value={lvl.into / lvl.needed} tone="primary" className="mt-3 h-1.5" />
+                  {next ? (
+                    <p className="text-muted-foreground mt-2 text-[11px]">
+                      Lv {next.level} · {next.name}
+                    </p>
+                  ) : null}
+                </button>
               );
             })}
           </div>
-          <LockedTile
-            className="mt-4"
-            hint="A community-only area"
-            requirement="Community Level 30 · never announced"
-          />
+
+          <Panel className="flex min-h-[560px] flex-col p-0" delay={60}>
+            <header className="border-border flex flex-wrap items-center gap-2 border-b px-5 py-4">
+              {(channels.data ?? []).map((ch) => (
+                <button
+                  key={ch.id}
+                  onClick={() => setChannelId(ch.id)}
+                  className={cn(
+                    "rounded-full px-3 py-1 font-mono text-xs transition-colors",
+                    ch.id === activeChannel?.id
+                      ? "bg-secondary text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  #{ch.name}
+                </button>
+              ))}
+            </header>
+
+            <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
+              {(messages.data ?? []).length === 0 ? (
+                <p className="text-muted-foreground py-10 text-center text-sm">
+                  Empty channel. The first post earns community XP for everyone.
+                </p>
+              ) : (
+                (messages.data ?? []).map((m) => (
+                  <div key={m.id} className="animate-pop-in">
+                    <p className="text-muted-foreground font-mono text-[10px]">
+                      {m.author?.display_name ?? "Someone"} ·{" "}
+                      {new Date(m.created_at).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    <p className="mt-0.5 text-sm leading-relaxed">{m.body}</p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <form onSubmit={post} className="border-border flex gap-2 border-t px-5 py-4">
+              <Input
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder={activeChannel ? `Message #${activeChannel.name}` : "Pick a channel"}
+                disabled={!activeChannel}
+              />
+              <Button type="submit" disabled={!draft.trim() || !activeChannel}>
+                <Send className="size-4" />
+              </Button>
+            </form>
+          </Panel>
+        </div>
+      )}
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        <Panel className="p-5">
+          <PanelHead eyebrow="Open" title="Communities to join" />
+          {rows.filter((c) => !c.isMember).length === 0 ? (
+            <p className="text-muted-foreground mt-4 text-sm">
+              Nobody else has created a community yet. Be first.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-2">
+              {rows
+                .filter((c) => !c.isMember)
+                .map((c) => {
+                  const lvl = communityLevel(c.total_xp);
+                  return (
+                    <li
+                      key={c.id}
+                      className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium">{c.name}</span>
+                        <span className="text-muted-foreground block truncate text-xs">
+                          Lv {lvl.level} · {c.memberCount} member{c.memberCount === 1 ? "" : "s"}
+                        </span>
+                      </span>
+                      <Button size="sm" variant="outline" onClick={() => void join(c.id)}>
+                        Join
+                      </Button>
+                    </li>
+                  );
+                })}
+            </ul>
+          )}
+        </Panel>
+
+        <Panel className="p-5" delay={60}>
+          <PanelHead eyebrow="Community ladder" title="What community levels unlock" />
+          <ul className="mt-4 space-y-2">
+            {COMMUNITY_UNLOCKS.map((u) => (
+              <li
+                key={u.level}
+                className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
+              >
+                <span className="numeral text-muted-foreground w-8 shrink-0 text-lg">{u.level}</span>
+                <span className="flex-1 text-sm">{u.name}</span>
+              </li>
+            ))}
+          </ul>
         </Panel>
       </div>
     </div>

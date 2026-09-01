@@ -1,6 +1,10 @@
 /**
  * DIMTED progression model.
- * Pure data + math — no React, safe to import anywhere.
+ * Pure data + math — no React, no mock people, safe to import anywhere.
+ *
+ * Everything here is a *definition* (a ladder, a catalogue, a rule).
+ * Every actual value — XP, levels, friends, communities, messages —
+ * comes from the signed-in account in the database.
  */
 
 export type Rarity = "common" | "uncommon" | "rare" | "epic" | "legendary" | "mythic";
@@ -34,8 +38,7 @@ export function levelFromTotalXp(totalXp: number): {
   needed: number;
 } {
   let level = 1;
-  let remaining = totalXp;
-  // Cap keeps the loop bounded even for absurd XP values.
+  let remaining = Math.max(0, totalXp);
   while (level < 200 && remaining >= xpForLevel(level)) {
     remaining -= xpForLevel(level);
     level += 1;
@@ -163,9 +166,18 @@ export function unlockAt(level: number): Unlock | undefined {
   return UNLOCKS.find((u) => u.level === level);
 }
 
-/** XP sources — with cooldowns so nothing rewards spam. */
+/** XP sources. Cooldowns and caps are enforced server-side, not here. */
+export type XpSourceId =
+  | "message"
+  | "conversation"
+  | "community"
+  | "friend"
+  | "activity"
+  | "challenge"
+  | "discovery";
+
 export type XpSource = {
-  id: string;
+  id: XpSourceId;
   label: string;
   xp: number;
   cooldownLabel: string;
@@ -178,7 +190,7 @@ export const XP_SOURCES: XpSource[] = [
     label: "Meaningful message",
     xp: 4,
     cooldownLabel: "max 15 / hour",
-    note: "Only counted once per minute, per conversation.",
+    note: "Counted once a minute at most, so volume alone earns nothing.",
   },
   {
     id: "conversation",
@@ -191,15 +203,15 @@ export const XP_SOURCES: XpSource[] = [
     id: "community",
     label: "Community participation",
     xp: 60,
-    cooldownLabel: "per community, daily",
-    note: "Posting in a channel you haven't touched today.",
+    cooldownLabel: "5 / day",
+    note: "Posting in a channel you haven't touched recently.",
   },
   {
     id: "friend",
     label: "New friend",
     xp: 120,
     cooldownLabel: "5 / week",
-    note: "Awarded after your first real exchange.",
+    note: "Awarded when a friend request is accepted.",
   },
   {
     id: "activity",
@@ -212,31 +224,19 @@ export const XP_SOURCES: XpSource[] = [
     id: "challenge",
     label: "Challenge complete",
     xp: 150,
-    cooldownLabel: "per challenge",
+    cooldownLabel: "6 / day",
     note: "Daily and weekly challenge rewards.",
   },
   {
     id: "discovery",
     label: "Discovery",
     xp: 80,
-    cooldownLabel: "once each",
+    cooldownLabel: "6 / day",
     note: "Finding a new community, realm or secret.",
   },
 ];
 
-export type Friend = {
-  id: string;
-  name: string;
-  handle: string;
-  title: string;
-  level: number;
-  friendshipXp: number;
-  streak: number;
-  online: boolean;
-  accent: Rarity;
-  lastMessage: string;
-  unread: number;
-};
+/* ---------------------------------------------------------------- friendship */
 
 export const FRIENDSHIP_TIERS = [
   { level: 1, name: "Met" },
@@ -246,9 +246,14 @@ export const FRIENDSHIP_TIERS = [
   { level: 10, name: "Legendary Duo" },
 ];
 
-export function friendshipLevel(xp: number): { level: number; into: number; needed: number; name: string } {
+export function friendshipLevel(xp: number): {
+  level: number;
+  into: number;
+  needed: number;
+  name: string;
+} {
   let level = 1;
-  let remaining = xp;
+  let remaining = Math.max(0, xp);
   let needed = 200;
   while (level < 10 && remaining >= needed) {
     remaining -= needed;
@@ -260,206 +265,112 @@ export function friendshipLevel(xp: number): { level: number; into: number; need
   return { level, into: remaining, needed, name };
 }
 
-export const FRIENDS: Friend[] = [
-  {
-    id: "alex",
-    name: "Alex Rhen",
-    handle: "@alexr",
-    title: "Realm Builder",
-    level: 22,
-    friendshipXp: 1180,
-    streak: 12,
-    online: true,
-    accent: "rare",
-    lastMessage: "found a sealed door under your east terrace 👀",
-    unread: 2,
-  },
-  {
-    id: "sam",
-    name: "Samira Ode",
-    handle: "@sami",
-    title: "Conversation Master",
-    level: 20,
-    friendshipXp: 760,
-    streak: 5,
-    online: true,
-    accent: "epic",
-    lastMessage: "quickdraw rematch. you owe me one.",
-    unread: 0,
-  },
-  {
-    id: "jordan",
-    name: "Jordan Vale",
-    handle: "@jvale",
-    title: "World Explorer",
-    level: 17,
-    friendshipXp: 420,
-    streak: 0,
-    online: false,
-    accent: "uncommon",
-    lastMessage: "the third portal only opens at night, apparently",
-    unread: 1,
-  },
-  {
-    id: "taylor",
-    name: "Taylor Bex",
-    handle: "@tbex",
-    title: "Night Owl",
-    level: 11,
-    friendshipXp: 240,
-    streak: 3,
-    online: true,
-    accent: "common",
-    lastMessage: "chaos questions when you're free?",
-    unread: 0,
-  },
-  {
-    id: "chris",
-    name: "Chris Nolde",
-    handle: "@nolde",
-    title: "Social Architect",
-    level: 9,
-    friendshipXp: 90,
-    streak: 1,
-    online: false,
-    accent: "common",
-    lastMessage: "made a community event for saturday",
-    unread: 0,
-  },
+/* ---------------------------------------------------------------- community */
+
+export function communityLevel(xp: number): { level: number; into: number; needed: number } {
+  let level = 1;
+  let remaining = Math.max(0, xp);
+  let needed = 400;
+  while (level < 100 && remaining >= needed) {
+    remaining -= needed;
+    level += 1;
+    needed = Math.round((400 + 260 * Math.pow(level - 1, 1.3)) / 10) * 10;
+  }
+  return { level, into: remaining, needed };
+}
+
+export const COMMUNITY_UNLOCKS: { level: number; name: string }[] = [
+  { level: 2, name: "Extra channels" },
+  { level: 5, name: "Custom role colours" },
+  { level: 10, name: "Community decorations" },
+  { level: 15, name: "Animated community background" },
+  { level: 25, name: "Larger shared space" },
 ];
 
-export type Community = {
-  id: string;
-  name: string;
-  tagline: string;
-  level: number;
-  xpInto: number;
-  xpNeeded: number;
-  members: number;
-  online: number;
-  accent: Rarity;
-  channels: { name: string; topic: string; live?: boolean }[];
-  unlockNext: string;
-};
+export function nextCommunityUnlock(level: number) {
+  return COMMUNITY_UNLOCKS.find((u) => u.level > level);
+}
 
-export const COMMUNITIES: Community[] = [
-  {
-    id: "driftworks",
-    name: "Driftworks",
-    tagline: "Slow-built worlds and long conversations.",
-    level: 14,
-    xpInto: 4200,
-    xpNeeded: 6000,
-    members: 1284,
-    online: 96,
-    accent: "epic",
-    channels: [
-      { name: "atrium", topic: "say something true", live: true },
-      { name: "realm-showcase", topic: "post your builds" },
-      { name: "late-shift", topic: "for the 2am people" },
-      { name: "challenge-hall", topic: "community challenge: 62%" },
-    ],
-    unlockNext: "Level 15 · animated community background",
-  },
-  {
-    id: "signal",
-    name: "Signal Garden",
-    tagline: "Small, quiet, deliberately unhurried.",
-    level: 8,
-    xpInto: 1100,
-    xpNeeded: 2400,
-    members: 212,
-    online: 18,
-    accent: "rare",
-    channels: [
-      { name: "greenhouse", topic: "one thought per day" },
-      { name: "shared-realm", topic: "our co-owned space", live: true },
-      { name: "questions", topic: "chaos questions archive" },
-    ],
-    unlockNext: "Level 10 · custom role colours",
-  },
-  {
-    id: "cartographers",
-    name: "The Cartographers",
-    tagline: "Mapping every secret in DIMTED.",
-    level: 21,
-    xpInto: 8100,
-    xpNeeded: 11000,
-    members: 3410,
-    online: 288,
-    accent: "legendary",
-    channels: [
-      { name: "expedition", topic: "week 4: the first dimension", live: true },
-      { name: "found", topic: "48 secrets confirmed" },
-      { name: "rumours", topic: "unverified sightings" },
-      { name: "duo-quests", topic: "find a partner" },
-    ],
-    unlockNext: "Level 25 · larger community space",
-  },
-];
+/* ---------------------------------------------------------------- challenges */
 
-export type Challenge = {
+export type ChallengeDef = {
   id: string;
   cadence: "daily" | "weekly";
   title: string;
-  progress: number;
+  source: XpSourceId;
   goal: number;
   rewardXp: number;
-  rewardItem?: string;
   rarity: Rarity;
 };
 
-export const CHALLENGES: Challenge[] = [
-  { id: "c1", cadence: "daily", title: "Talk with 3 friends", progress: 3, goal: 3, rewardXp: 100, rarity: "common" },
+/** Progress is counted from your real XP log, never stored as a fake number. */
+export const CHALLENGES: ChallengeDef[] = [
   {
-    id: "c2",
+    id: "d-message",
     cadence: "daily",
-    title: "Discover a new community",
-    progress: 1,
+    title: "Have a conversation with someone",
+    source: "conversation",
+    goal: 1,
+    rewardXp: 100,
+    rarity: "common",
+  },
+  {
+    id: "d-community",
+    cadence: "daily",
+    title: "Post in a community channel",
+    source: "community",
     goal: 1,
     rewardXp: 150,
     rarity: "uncommon",
   },
   {
-    id: "c3",
+    id: "d-activity",
     cadence: "daily",
     title: "Play a DIMTED activity",
-    progress: 0,
+    source: "activity",
     goal: 1,
     rewardXp: 100,
-    rewardItem: "Realm object",
     rarity: "uncommon",
   },
   {
-    id: "c4",
+    id: "w-community",
     cadence: "weekly",
-    title: "Participate in 3 communities",
-    progress: 2,
+    title: "Take part in 3 community sessions",
+    source: "community",
     goal: 3,
     rewardXp: 400,
     rarity: "rare",
   },
   {
-    id: "c5",
+    id: "w-activity",
     cadence: "weekly",
     title: "Complete 5 social activities",
-    progress: 3,
+    source: "activity",
     goal: 5,
     rewardXp: 500,
-    rewardItem: "Frame: Tidewalker",
     rarity: "rare",
   },
   {
-    id: "c6",
+    id: "w-friend",
     cadence: "weekly",
-    title: "Invite a friend to your Realm",
-    progress: 1,
+    title: "Make a new friend",
+    source: "friend",
     goal: 1,
     rewardXp: 300,
     rarity: "uncommon",
   },
-  { id: "c7", cadence: "weekly", title: "Earn 2,000 XP", progress: 1240, goal: 2000, rewardXp: 250, rarity: "epic" },
+  {
+    id: "w-discovery",
+    cadence: "weekly",
+    title: "Discover 3 new things",
+    source: "discovery",
+    goal: 3,
+    rewardXp: 250,
+    rarity: "epic",
+  },
 ];
+
+/* ---------------------------------------------------------------- activities */
 
 export type Activity = {
   id: string;
@@ -478,7 +389,8 @@ export const ACTIVITIES: Activity[] = [
     name: "Quickdraw",
     players: "2 friends",
     minutes: 2,
-    blurb: "You both get the same strange prompt and 30 seconds to draw it. Then you compare the damage.",
+    blurb:
+      "You both get the same strange prompt and 30 seconds to draw it. Then you compare the damage.",
     rewardXp: 100,
     rarity: "common",
   },
@@ -527,6 +439,7 @@ export const ACTIVITIES: Activity[] = [
     blurb: "Everyone contributes toward one shared goal. Progress carries over between days.",
     rewardXp: 220,
     rarity: "epic",
+    requiredLevel: 5,
   },
   {
     id: "predict",
@@ -539,13 +452,38 @@ export const ACTIVITIES: Activity[] = [
   },
 ];
 
+/* -------------------------------------------------------------- achievements */
+
+/** Live counters read from the database, used to decide what you've earned. */
+export type PlayerStats = {
+  level: number;
+  totalXp: number;
+  friends: number;
+  messagesSent: number;
+  communities: number;
+  activities: number;
+  discoveries: number;
+  bestFriendshipLevel: number;
+};
+
+export const EMPTY_STATS: PlayerStats = {
+  level: 1,
+  totalXp: 0,
+  friends: 0,
+  messagesSent: 0,
+  communities: 0,
+  activities: 0,
+  discoveries: 0,
+  bestFriendshipLevel: 0,
+};
+
 export type Achievement = {
   id: string;
   category: "Social" | "Community" | "Exploration" | "Gaming" | "Collection" | "Progression" | "Secret";
   name: string;
   detail: string;
-  earned: boolean;
   rarity: Rarity;
+  earned: (s: PlayerStats) => boolean;
 };
 
 export const ACHIEVEMENTS: Achievement[] = [
@@ -553,125 +491,138 @@ export const ACHIEVEMENTS: Achievement[] = [
     id: "a1",
     category: "Social",
     name: "First Connection",
-    detail: "You sent your first message.",
-    earned: true,
+    detail: "Send your first message.",
     rarity: "common",
+    earned: (s) => s.messagesSent >= 1,
   },
   {
     id: "a2",
     category: "Social",
-    name: "Seven Days With Alex",
-    detail: "Held a conversation across seven days.",
-    earned: true,
+    name: "Close Quarters",
+    detail: "Reach Friendship Level 5 with anyone.",
     rarity: "uncommon",
+    earned: (s) => s.bestFriendshipLevel >= 5,
   },
   {
     id: "a3",
-    category: "Community",
-    name: "Community Explorer",
-    detail: "Participated in five different channels.",
-    earned: true,
+    category: "Social",
+    name: "Five Deep",
+    detail: "Make five friends.",
     rarity: "uncommon",
+    earned: (s) => s.friends >= 5,
   },
   {
     id: "a4",
     category: "Community",
-    name: "Social Architect",
-    detail: "Created your first community event.",
-    earned: false,
+    name: "Founder",
+    detail: "Create a community.",
     rarity: "rare",
+    earned: (s) => s.communities >= 1,
   },
   {
     id: "a5",
     category: "Exploration",
     name: "Off The Path",
-    detail: "Found an area nobody linked you to.",
-    earned: true,
+    detail: "Make three discoveries.",
     rarity: "rare",
+    earned: (s) => s.discoveries >= 3,
   },
   {
     id: "a6",
     category: "Gaming",
     name: "Steady Hand",
-    detail: "Won three Quickdraws in a row.",
-    earned: true,
+    detail: "Finish three activities.",
     rarity: "uncommon",
+    earned: (s) => s.activities >= 3,
   },
   {
     id: "a7",
     category: "Collection",
     name: "Curator",
-    detail: "Collected 25 items.",
-    earned: false,
+    detail: "Unlock ten items.",
     rarity: "rare",
+    earned: (s) => s.level >= 20,
   },
   {
     id: "a8",
     category: "Progression",
     name: "Elite",
-    detail: "Reached Level 15.",
-    earned: true,
+    detail: "Reach Level 15.",
     rarity: "epic",
+    earned: (s) => s.level >= 15,
   },
   {
     id: "a9",
     category: "Progression",
     name: "Mythic",
-    detail: "Reached Level 50.",
-    earned: false,
+    detail: "Reach Level 50.",
     rarity: "mythic",
+    earned: (s) => s.level >= 50,
   },
   {
     id: "a10",
     category: "Secret",
     name: "???",
     detail: "Something is waiting here.",
-    earned: false,
     rarity: "mythic",
+    earned: () => false,
   },
 ];
+
+/* ------------------------------------------------------------------ catalogue */
 
 export type Item = {
   id: string;
   name: string;
-  type: "Badge" | "Decoration" | "Realm object" | "Frame" | "Effect" | "Title" | "Companion" | "Collectible";
+  type:
+    | "Badge"
+    | "Decoration"
+    | "Realm object"
+    | "Frame"
+    | "Effect"
+    | "Title"
+    | "Companion"
+    | "Collectible";
   rarity: Rarity;
-  owned: boolean;
+  requiredLevel: number;
   source: string;
 };
 
+/** You own an item once you've reached the level that unlocks it. */
 export const ITEMS: Item[] = [
-  { id: "i1", name: "First Light", type: "Badge", rarity: "common", owned: true, source: "First message" },
-  { id: "i2", name: "Tideline", type: "Frame", rarity: "uncommon", owned: true, source: "Level 5" },
-  { id: "i3", name: "Low Hum", type: "Effect", rarity: "uncommon", owned: true, source: "Quickdraw x10" },
-  { id: "i4", name: "Lantern Moth", type: "Companion", rarity: "rare", owned: true, source: "Hidden Object" },
-  { id: "i5", name: "Sealed Door", type: "Realm object", rarity: "rare", owned: true, source: "Secret area" },
-  { id: "i6", name: "Night Owl", type: "Title", rarity: "uncommon", owned: true, source: "50 late conversations" },
-  { id: "i7", name: "Aurora Frame", type: "Frame", rarity: "legendary", owned: false, source: "Level 40" },
-  { id: "i8", name: "Duo Sigil", type: "Decoration", rarity: "epic", owned: true, source: "Friendship Level 5" },
-  { id: "i9", name: "The First Dawn", type: "Collectible", rarity: "mythic", owned: false, source: "Unknown" },
-  { id: "i10", name: "Quiet Bell", type: "Realm object", rarity: "common", owned: true, source: "Daily challenge" },
-  { id: "i11", name: "Drift Pennant", type: "Decoration", rarity: "rare", owned: true, source: "Driftworks Lv 10" },
-  { id: "i12", name: "Conversation Master", type: "Title", rarity: "epic", owned: false, source: "300 conversations" },
+  { id: "i1", name: "First Light", type: "Badge", rarity: "common", requiredLevel: 1, source: "Joining DIMTED" },
+  { id: "i2", name: "Quiet Bell", type: "Realm object", rarity: "common", requiredLevel: 2, source: "Level 2" },
+  { id: "i3", name: "Tideline", type: "Frame", rarity: "uncommon", requiredLevel: 5, source: "Level 5" },
+  { id: "i4", name: "Low Hum", type: "Effect", rarity: "uncommon", requiredLevel: 7, source: "Level 7" },
+  { id: "i5", name: "Lantern Moth", type: "Companion", rarity: "rare", requiredLevel: 9, source: "Level 9" },
+  { id: "i6", name: "Night Owl", type: "Title", rarity: "uncommon", requiredLevel: 11, source: "Level 11" },
+  { id: "i7", name: "Sealed Door", type: "Realm object", rarity: "rare", requiredLevel: 16, source: "Level 16" },
+  { id: "i8", name: "Duo Sigil", type: "Decoration", rarity: "epic", requiredLevel: 20, source: "Level 20" },
+  { id: "i9", name: "Drift Pennant", type: "Decoration", rarity: "rare", requiredLevel: 24, source: "Level 24" },
+  { id: "i10", name: "Conversation Master", type: "Title", rarity: "epic", requiredLevel: 30, source: "Level 30" },
+  { id: "i11", name: "Aurora Frame", type: "Frame", rarity: "legendary", requiredLevel: 40, source: "Level 40" },
+  { id: "i12", name: "The First Dawn", type: "Collectible", rarity: "mythic", requiredLevel: 50, source: "Level 50" },
 ];
 
-export const TITLES = [
-  { name: "Night Owl", owned: true },
-  { name: "Explorer", owned: true },
-  { name: "Realm Builder", owned: true },
-  { name: "World Explorer", owned: false },
-  { name: "Social Architect", owned: false },
-  { name: "Community Veteran", owned: false },
-  { name: "Conversation Master", owned: false },
-  { name: "Legend", owned: false },
+export const TITLES: { name: string; requiredLevel: number }[] = [
+  { name: "Newcomer", requiredLevel: 1 },
+  { name: "Explorer", requiredLevel: 2 },
+  { name: "Regular", requiredLevel: 3 },
+  { name: "Night Owl", requiredLevel: 11 },
+  { name: "Realm Builder", requiredLevel: 16 },
+  { name: "World Explorer", requiredLevel: 20 },
+  { name: "Social Architect", requiredLevel: 25 },
+  { name: "Conversation Master", requiredLevel: 30 },
+  { name: "Legend", requiredLevel: 40 },
 ];
+
+/* ----------------------------------------------------------------- the realm */
 
 export type RealmObject = {
   id: string;
   name: string;
   kind: "Building" | "Decoration" | "Portal" | "Companion" | "Area" | "Secret";
   level: number;
-  owned: boolean;
   rarity: Rarity;
   note: string;
   x: number;
@@ -679,144 +630,30 @@ export type RealmObject = {
   size: number;
 };
 
+/** Realm objects appear as you level. Nothing is bought. */
 export const REALM_OBJECTS: RealmObject[] = [
-  { id: "r1", name: "The Quiet Shore", kind: "Area", level: 1, owned: true, rarity: "common", note: "Where you started.", x: 50, y: 74, size: 74 },
-  { id: "r2", name: "Lamp Post", kind: "Decoration", level: 2, owned: true, rarity: "common", note: "First thing you placed.", x: 26, y: 66, size: 30 },
-  { id: "r3", name: "Listening Room", kind: "Building", level: 6, owned: true, rarity: "uncommon", note: "Friends leave messages inside.", x: 68, y: 58, size: 58 },
-  { id: "r4", name: "Lantern Moth", kind: "Companion", level: 9, owned: true, rarity: "rare", note: "Follows visitors around.", x: 41, y: 47, size: 26 },
-  { id: "r5", name: "Tide Portal", kind: "Portal", level: 13, owned: true, rarity: "rare", note: "Leads to a friend's Realm.", x: 82, y: 40, size: 42 },
-  { id: "r6", name: "Sealed Door", kind: "Secret", level: 16, owned: true, rarity: "epic", note: "Alex found it. Still sealed.", x: 15, y: 38, size: 34 },
-  { id: "r7", name: "Personal Space", kind: "Area", level: 20, owned: false, rarity: "epic", note: "A public wing others can visit.", x: 58, y: 26, size: 62 },
-  { id: "r8", name: "Observatory", kind: "Building", level: 24, owned: false, rarity: "epic", note: "See other Realms from above.", x: 33, y: 20, size: 50 },
-  { id: "r9", name: "The First Dimension", kind: "Secret", level: 30, owned: false, rarity: "mythic", note: "Nobody will explain this one.", x: 74, y: 12, size: 36 },
+  { id: "r1", name: "The Quiet Shore", kind: "Area", level: 1, rarity: "common", note: "Where you started.", x: 50, y: 74, size: 74 },
+  { id: "r2", name: "Lamp Post", kind: "Decoration", level: 2, rarity: "common", note: "The first thing that appears.", x: 26, y: 66, size: 30 },
+  { id: "r3", name: "Listening Room", kind: "Building", level: 6, rarity: "uncommon", note: "Friends leave messages inside.", x: 68, y: 58, size: 58 },
+  { id: "r4", name: "Lantern Moth", kind: "Companion", level: 9, rarity: "rare", note: "Follows visitors around.", x: 41, y: 47, size: 26 },
+  { id: "r5", name: "Tide Portal", kind: "Portal", level: 13, rarity: "rare", note: "Leads to a friend's Realm.", x: 82, y: 40, size: 42 },
+  { id: "r6", name: "Sealed Door", kind: "Secret", level: 16, rarity: "epic", note: "Nobody has opened one yet.", x: 15, y: 38, size: 34 },
+  { id: "r7", name: "Personal Space", kind: "Area", level: 20, rarity: "epic", note: "A public wing others can visit.", x: 58, y: 26, size: 62 },
+  { id: "r8", name: "Observatory", kind: "Building", level: 24, rarity: "epic", note: "See other Realms from above.", x: 30, y: 22, size: 50 },
+  { id: "r9", name: "The First Dimension", kind: "Secret", level: 30, rarity: "mythic", note: "It appears at the edge. Not the same for everyone.", x: 88, y: 14, size: 30 },
 ];
 
-export type FeedEvent = {
-  id: string;
-  who: string;
-  what: string;
-  highlight?: string;
-  when: string;
-  tone: Rarity;
-};
-
-export const FEED: FeedEvent[] = [
-  { id: "f1", who: "Alex", what: "unlocked a new Realm area", highlight: "Observatory", when: "2m", tone: "rare" },
-  { id: "f2", who: "Samira", what: "reached", highlight: "Level 20", when: "14m", tone: "legendary" },
-  { id: "f3", who: "Jordan", what: "discovered a", highlight: "Secret Area", when: "38m", tone: "epic" },
-  { id: "f4", who: "Chris & Taylor", what: "reached", highlight: "Friendship Level 5", when: "1h", tone: "uncommon" },
-  { id: "f5", who: "The Cartographers", what: "completed a", highlight: "Community Challenge", when: "2h", tone: "rare" },
-  { id: "f6", who: "Driftworks", what: "opened a new channel", highlight: "late-shift", when: "3h", tone: "common" },
-  { id: "f7", who: "Samira", what: "won", highlight: "Quickdraw", when: "4h", tone: "common" },
-];
+/* ------------------------------------------------------------------- secrets */
 
 export type Secret = {
   id: string;
   hint: string;
-  requirement: string;
-  unlocked: boolean;
-  revealed?: string;
+  requiredLevel: number;
 };
 
 export const SECRETS: Secret[] = [
-  { id: "s1", hint: "Something is waiting here…", requirement: "Reach Level 19", unlocked: false },
-  { id: "s2", hint: "A door that only opens twice.", requirement: "Visit 5 Realms", unlocked: false },
-  {
-    id: "s3",
-    hint: "The Sealed Door",
-    requirement: "Found with a friend",
-    unlocked: true,
-    revealed: "Opens during THE FIRST DIMENSION event.",
-  },
-  { id: "s4", hint: "Heard, never seen.", requirement: "Talk after 3am, seven times", unlocked: false },
-];
-
-export const EVENTS = [
-  {
-    id: "e1",
-    name: "The First Dimension",
-    status: "Live now",
-    blurb: "A mysterious area has appeared at the edge of every Realm. It is not the same for everyone.",
-    ends: "6 days",
-    rarity: "mythic" as Rarity,
-  },
-  {
-    id: "e2",
-    name: "Community War",
-    status: "Starts Friday",
-    blurb: "Communities pool their activity into cooperative challenges. Cooperative, not competitive-cruel.",
-    ends: "in 3 days",
-    rarity: "legendary" as Rarity,
-  },
-  {
-    id: "e3",
-    name: "Exploration Week",
-    status: "Next month",
-    blurb: "Hidden objects seeded across DIMTED. Finding them together counts double.",
-    ends: "—",
-    rarity: "epic" as Rarity,
-  },
-  {
-    id: "e4",
-    name: "Friendship Festival",
-    status: "Next month",
-    blurb: "Duo challenges and matching cosmetics for friendships of any level.",
-    ends: "—",
-    rarity: "rare" as Rarity,
-  },
-];
-
-export type Conversation = {
-  id: string;
-  friendId: string;
-  messages: { from: "me" | "them"; text: string; at: string }[];
-  milestone?: string;
-};
-
-export const CONVERSATIONS: Conversation[] = [
-  {
-    id: "alex",
-    friendId: "alex",
-    milestone: "Conversation Milestone — 7 days talking with Alex",
-    messages: [
-      { from: "them", text: "ok so I was walking your east terrace", at: "19:02" },
-      { from: "them", text: "found a sealed door under it 👀", at: "19:02" },
-      { from: "me", text: "that wasn't there yesterday", at: "19:04" },
-      { from: "them", text: "it says it opens twice. that's the whole hint.", at: "19:05" },
-      { from: "me", text: "we're doing a Duo Quest first, then we open it together", at: "19:06" },
-    ],
-  },
-  {
-    id: "sam",
-    friendId: "sam",
-    messages: [
-      { from: "them", text: "quickdraw rematch. you owe me one.", at: "18:40" },
-      { from: "me", text: "the prompt was 'a polite storm'. nobody could draw that.", at: "18:41" },
-      { from: "them", text: "I could.", at: "18:41" },
-    ],
-  },
-  {
-    id: "jordan",
-    friendId: "jordan",
-    messages: [
-      { from: "them", text: "the third portal only opens at night, apparently", at: "16:12" },
-      { from: "me", text: "night where though", at: "16:30" },
-    ],
-  },
-  {
-    id: "taylor",
-    friendId: "taylor",
-    messages: [{ from: "them", text: "chaos questions when you're free?", at: "14:05" }],
-  },
-  {
-    id: "chris",
-    friendId: "chris",
-    messages: [{ from: "them", text: "made a community event for saturday", at: "11:20" }],
-  },
-];
-
-export const DISCOVER_REALMS = [
-  { id: "d1", name: "The Long Pier", owner: "Samira", level: 20, visitors: 412, rarity: "epic" as Rarity },
-  { id: "d2", name: "Nine Small Rooms", owner: "Jordan", level: 17, visitors: 188, rarity: "rare" as Rarity },
-  { id: "d3", name: "Greenhouse Ø", owner: "Signal Garden", level: 8, visitors: 96, rarity: "uncommon" as Rarity },
+  { id: "s1", hint: "Something is waiting here…", requiredLevel: 5 },
+  { id: "s2", hint: "A door that only opens after dark…", requiredLevel: 12 },
+  { id: "s3", hint: "Nobody has reported this one yet…", requiredLevel: 19 },
+  { id: "s4", hint: "It appears at the edge of your Realm…", requiredLevel: 30 },
 ];

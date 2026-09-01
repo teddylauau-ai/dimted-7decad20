@@ -1,12 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Send, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Send } from "lucide-react";
 import { toast } from "sonner";
-import { CONVERSATIONS, FRIENDS, friendshipLevel } from "@/lib/dimted";
-import { useDimted } from "@/lib/dimted-store";
-import { Meter, Panel, PageHeader, RarityChip } from "@/components/dimted/primitives";
-import { rarityDot } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Meter, Panel, PageHeader } from "@/components/dimted/primitives";
+import { useDimted } from "@/lib/dimted-store";
+import { friendshipLevel } from "@/lib/dimted";
+import { useDirectMessages, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
+import { sendDirectMessage } from "@/lib/dimted-actions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/messages")({
@@ -16,175 +18,171 @@ export const Route = createFileRoute("/messages")({
       {
         name: "description",
         content:
-          "DMs where conversations become progression: friendship levels, conversation milestones and chat cosmetics unlocked by talking.",
+          "Direct messages in DIMTED raise your Level and your Friendship Level. Real replies count; spam does not.",
       },
       { property: "og:title", content: "Messages — DIMTED" },
-      { property: "og:description", content: "Conversations that raise friendship levels and unlock shared rewards." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:description", content: "Conversations are the game." },
     ],
   }),
   component: MessagesPage,
 });
 
-type Msg = { from: "me" | "them"; text: string; at: string };
-
 function MessagesPage() {
-  const { award, level } = useDimted();
-  const [activeId, setActiveId] = useState(CONVERSATIONS[0]!.id);
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
-  const [extra, setExtra] = useState<Record<string, Msg[]>>({});
+  const { profile, award } = useDimted();
+  const friends = useFriendships(profile?.id);
+  const refresh = useRefreshDimted();
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const endRef = useRef<HTMLDivElement>(null);
 
-  const conversation = CONVERSATIONS.find((c) => c.id === activeId)!;
-  const friend = FRIENDS.find((f) => f.id === conversation.friendId)!;
-  const bond = friendshipLevel(friend.friendshipXp);
-  const messages: Msg[] = [...conversation.messages, ...(extra[activeId] ?? [])];
-  const draft = drafts[activeId] ?? "";
+  const accepted = useMemo(
+    () => (friends.data ?? []).filter((f) => f.status === "accepted"),
+    [friends.data],
+  );
+  const active = accepted.find((f) => f.friendshipId === activeId) ?? accepted[0] ?? null;
+  const messages = useDirectMessages(active?.friendshipId);
 
-  const send = () => {
-    const text = draft.trim();
-    if (!text) return;
-    setExtra((prev) => ({
-      ...prev,
-      [activeId]: [
-        ...(prev[activeId] ?? []),
-        { from: "me", text, at: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) },
-      ],
-    }));
-    setDrafts((prev) => ({ ...prev, [activeId]: "" }));
-    const result = award("message", 4, `message to ${friend.name.split(" ")[0]}`);
-    if (result === "cooldown") {
-      toast("No XP for that one — one reward per minute, per conversation.");
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: "end" });
+  }, [messages.data?.length]);
+
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    const body = draft.trim();
+    if (!body || !active || !profile) return;
+    setDraft("");
+    try {
+      await sendDirectMessage(active.friendshipId, profile.id, body);
+      await messages.refetch();
+      const result = await award("message", `Message to ${active.profile.display_name}`);
+      if (result === "capped") toast("Message XP is capped for this hour — keep talking anyway.");
+      refresh();
+    } catch {
+      toast.error("Message didn't send");
     }
-  };
+  }
+
+  const fl = active ? friendshipLevel(active.friendshipXp) : null;
 
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Messages"
-        title="Chat is the progression"
-        blurb="Every real exchange raises a friendship. Milestones unlock things you keep."
+        eyebrow="Direct"
+        title="Messages"
+        blurb="Every real exchange feeds two ladders at once: your Level and this friendship."
       />
 
-      <div className="grid gap-5 lg:grid-cols-[300px_1fr]">
-        <Panel className="p-3">
-          <ul className="space-y-1">
-            {CONVERSATIONS.map((c) => {
-              const f = FRIENDS.find((x) => x.id === c.friendId)!;
-              const b = friendshipLevel(f.friendshipXp);
-              return (
-                <li key={c.id}>
-                  <button
-                    onClick={() => setActiveId(c.id)}
-                    className={cn(
-                      "hover:bg-secondary/50 w-full rounded-xl px-3 py-3 text-left transition-colors",
-                      activeId === c.id && "bg-secondary",
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className={cn("numeral text-primary-foreground grid size-9 shrink-0 place-items-center rounded-xl text-sm", rarityDot[f.accent])}>
-                        {f.name[0]}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-medium">{f.name}</p>
-                          {f.online ? <span className="bg-uncommon size-1.5 rounded-full" /> : null}
-                        </div>
-                        <p className="text-muted-foreground truncate text-xs">{f.lastMessage}</p>
-                      </div>
-                      {f.unread ? (
-                        <span className="bg-primary/15 text-primary rounded-full px-2 font-mono text-[10px]">
-                          {f.unread}
-                        </span>
-                      ) : null}
-                    </div>
-                    <div className="mt-2 flex items-center gap-2">
-                      <Meter value={b.into / b.needed} className="h-1 flex-1" tone="primary" />
-                      <span className="text-muted-foreground/70 font-mono text-[10px]">FL {b.level}</span>
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+      {accepted.length === 0 ? (
+        <Panel className="p-8 text-center">
+          <p className="font-display text-lg font-semibold">No conversations yet</p>
+          <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
+            DIMTED has no pre-made friends. Find real accounts in Discover, send a request, and this
+            page opens up.
+          </p>
+          <Button asChild className="mt-5">
+            <Link to="/discover">Find people</Link>
+          </Button>
         </Panel>
+      ) : (
+        <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
+          <Panel className="p-3">
+            <ul className="space-y-1">
+              {accepted.map((f) => {
+                const lvl = friendshipLevel(f.friendshipXp);
+                const isActive = f.friendshipId === active?.friendshipId;
+                return (
+                  <li key={f.friendshipId}>
+                    <button
+                      onClick={() => setActiveId(f.friendshipId)}
+                      className={cn(
+                        "w-full rounded-xl px-3 py-2.5 text-left transition-colors",
+                        isActive ? "bg-secondary" : "hover:bg-secondary/60",
+                      )}
+                    >
+                      <span className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-sm font-medium">{f.profile.display_name}</span>
+                        <span className="text-primary shrink-0 font-mono text-[10px]">
+                          FL {lvl.level}
+                        </span>
+                      </span>
+                      <span className="text-muted-foreground block truncate text-xs">
+                        @{f.profile.username}
+                      </span>
+                      <Meter value={lvl.into / lvl.needed} tone="primary" className="mt-2 h-1" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
 
-        <Panel className="flex min-h-[560px] flex-col p-0" delay={80}>
-          <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b p-5">
-            <div>
-              <h2 className="font-display text-lg font-semibold tracking-tight">{friend.name}</h2>
-              <p className="text-muted-foreground font-mono text-[11px]">
-                Lv {friend.level} · {friend.title} · {friend.online ? "online" : "away"}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="eyebrow">Friendship</p>
-              <p className="font-display text-sm">
-                Level {bond.level} · <span className="text-primary">{bond.name}</span>
-              </p>
-              <Meter value={bond.into / bond.needed} className="mt-1.5 h-1.5 w-40" tone="xp" />
-            </div>
-          </header>
-
-          {conversation.milestone ? (
-            <div className="border-border bg-gold/[0.07] flex items-center gap-3 border-b px-5 py-3">
-              <Sparkles className="text-gold size-4 shrink-0" strokeWidth={1.75} />
-              <p className="min-w-0 flex-1 text-sm">{conversation.milestone}</p>
-              <RarityChip rarity="uncommon" />
-            </div>
-          ) : null}
-
-          <div className="flex-1 space-y-3 overflow-y-auto p-5">
-            {messages.map((m, i) => (
-              <div key={i} className={cn("flex", m.from === "me" ? "justify-end" : "justify-start")}>
-                <div
-                  className={cn(
-                    "animate-rise max-w-[76%] rounded-2xl px-4 py-2.5 text-sm",
-                    m.from === "me"
-                      ? "bg-primary text-primary-foreground rounded-br-md"
-                      : "bg-secondary text-foreground rounded-bl-md",
-                  )}
-                >
-                  <p>{m.text}</p>
-                  <p
-                    className={cn(
-                      "mt-1 font-mono text-[10px]",
-                      m.from === "me" ? "text-primary-foreground/70" : "text-muted-foreground",
-                    )}
-                  >
-                    {m.at}
+          <Panel className="flex min-h-[560px] flex-col p-0" delay={60}>
+            <header className="border-border flex items-center justify-between gap-4 border-b px-5 py-4">
+              <div className="min-w-0">
+                <p className="font-display truncate text-base font-semibold">
+                  {active?.profile.display_name}
+                </p>
+                <p className="text-muted-foreground truncate text-xs">
+                  {fl ? `${fl.name} · Friendship Level ${fl.level}` : ""}
+                  {active?.streak ? ` · ${active.streak} day streak` : ""}
+                </p>
+              </div>
+              {fl ? (
+                <div className="w-28 shrink-0">
+                  <Meter value={fl.into / fl.needed} tone="gold" className="h-1.5" />
+                  <p className="text-muted-foreground mt-1 text-right font-mono text-[10px]">
+                    {fl.into}/{fl.needed}
                   </p>
                 </div>
-              </div>
-            ))}
-          </div>
+              ) : null}
+            </header>
 
-          <div className="border-border border-t p-4">
-            <div className="border-border bg-background/50 flex items-end gap-2 rounded-2xl border p-2">
-              <textarea
+            <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
+              {(messages.data ?? []).length === 0 ? (
+                <p className="text-muted-foreground py-10 text-center text-sm">
+                  Say something first. The first message is worth XP to both of you.
+                </p>
+              ) : (
+                (messages.data ?? []).map((m) => {
+                  const mine = m.author?.id === profile?.id;
+                  return (
+                    <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
+                      <div
+                        className={cn(
+                          "animate-pop-in max-w-[76%] rounded-2xl px-4 py-2.5 text-sm",
+                          mine
+                            ? "bg-primary/15 border-primary/25 border"
+                            : "bg-secondary border-border border",
+                        )}
+                      >
+                        <p className="leading-relaxed">{m.body}</p>
+                        <p className="text-muted-foreground mt-1 font-mono text-[10px]">
+                          {new Date(m.created_at).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              <div ref={endRef} />
+            </div>
+
+            <form onSubmit={send} className="border-border flex gap-2 border-t px-5 py-4">
+              <Input
                 value={draft}
-                onChange={(e) => setDrafts((prev) => ({ ...prev, [activeId]: e.target.value }))}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                rows={2}
-                placeholder={`Message ${friend.name.split(" ")[0]}…`}
-                className="placeholder:text-muted-foreground/70 max-h-32 min-h-11 flex-1 resize-none bg-transparent px-3 py-2 text-sm outline-none"
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="Write something worth replying to…"
               />
-              <Button size="icon" onClick={send} aria-label="Send message" className="shrink-0">
+              <Button type="submit" disabled={!draft.trim()}>
                 <Send className="size-4" />
               </Button>
-            </div>
-            <p className="text-muted-foreground/70 mt-2 font-mono text-[10px]">
-              {level >= 12 ? "Chat effects unlocked · Level 12" : "Chat effects unlock at Level 12"} · XP is capped per
-              conversation
-            </p>
-          </div>
-        </Panel>
-      </div>
+            </form>
+          </Panel>
+        </div>
+      )}
     </div>
   );
 }
