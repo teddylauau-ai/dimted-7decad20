@@ -8,6 +8,11 @@ import { IdentityRow } from "@/components/dimted/Identity";
 import { NovaBlocks } from "@/components/games/NovaBlocks";
 import { AuroraDrift } from "@/components/games/AuroraDrift";
 import { PulseGrid } from "@/components/games/PulseGrid";
+import { SpectreDash } from "@/components/games/SpectreDash";
+import { PrismBreak } from "@/components/games/PrismBreak";
+import { CometSling } from "@/components/games/CometSling";
+import { NovaFusion } from "@/components/games/NovaFusion";
+import { SignalType } from "@/components/games/SignalType";
 import { GAMES, type GameId } from "@/lib/games";
 import {
   awardArcadeXp,
@@ -172,8 +177,18 @@ function ArcadePage() {
                   <NovaBlocks running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "aurora-drift" ? (
                   <AuroraDrift running onScore={handleScore} onEnd={handleEnd} />
-                ) : (
+                ) : gameId === "pulse-grid" ? (
                   <PulseGrid running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "spectre-dash" ? (
+                  <SpectreDash running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "prism-break" ? (
+                  <PrismBreak running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "comet-sling" ? (
+                  <CometSling running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "nova-fusion" ? (
+                  <NovaFusion running onScore={handleScore} onEnd={handleEnd} />
+                ) : (
+                  <SignalType running onScore={handleScore} onEnd={handleEnd} />
                 )}
               </div>
             ) : (

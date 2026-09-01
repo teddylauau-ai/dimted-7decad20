@@ -58,8 +58,8 @@ export function SignalType({
     return () => window.clearInterval(id);
   }, [running]);
 
-  function submit() {
-    const ok = typed.trim().toLowerCase() === word;
+  function submit(value: string = typed) {
+    const ok = value.trim().toLowerCase() === word;
     if (ok) {
       const next = streak + 1;
       const mult = Math.min(8, 1 + Math.floor(next / 3));
@@ -125,10 +125,8 @@ export function SignalType({
         aria-label="Type the transmission"
         onChange={(e) => {
           const v = e.target.value;
-          if (v.endsWith(" ")) {
-            setTyped(v.trimEnd());
-            window.setTimeout(submit, 0);
-          } else setTyped(v);
+          if (v.endsWith(" ")) submit(v.trimEnd());
+          else setTyped(v);
         }}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
