@@ -85,7 +85,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* Persistent progression HUD */}
             <div className="border-border bg-background/40 mt-6 rounded-2xl border p-3">
               <div className="flex items-baseline justify-between">
-                <span className="numeral text-2xl">{hydrated ? level : "—"}</span>
+                <span className="numeral text-2xl">{level}</span>
                 <span className="text-muted-foreground font-mono text-[10px] tracking-[0.18em] uppercase">
                   {rank}
                 </span>
