@@ -579,9 +579,12 @@ function AdminPage() {
               </p>
             )}
           </Panel>
+          ) : null}
 
           {/* ---- Roles ---- */}
+          {me.isStaff ? (
           <Panel className="p-5">
+
             <PanelHead eyebrow="Hierarchy" title="Roles" aside="owner › admin › moderator › member" />
             <ul className="mt-4 grid gap-2">
               {(roles.data ?? []).map((r) => (
