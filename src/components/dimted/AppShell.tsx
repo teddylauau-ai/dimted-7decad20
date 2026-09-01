@@ -14,11 +14,13 @@ import { useDimted } from "@/lib/dimted-store";
 import { nextUnlock } from "@/lib/dimted";
 import { cn } from "@/lib/utils";
 import { Meter } from "./primitives";
+import { AuthScreen } from "./AuthScreen";
+import { Button } from "@/components/ui/button";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 
 const NAV = [
   { to: "/", label: "Home", icon: Home },
-  { to: "/messages", label: "Messages", icon: MessageCircle, badge: 3 },
+  { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/communities", label: "Communities", icon: Users },
   { to: "/realm", label: "Realm", icon: Globe2 },
   { to: "/activities", label: "Activities", icon: Gamepad2 },
@@ -41,9 +43,32 @@ function XpTicker() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { level, rank, intoLevel, needed, progress, energy, surgeActive, surgeSecondsLeft } =
-    useDimted();
+  const {
+    loading,
+    session,
+    profile,
+    level,
+    rank,
+    intoLevel,
+    needed,
+    progress,
+    energy,
+    surgeActive,
+    surgeSecondsLeft,
+    signOut,
+  } = useDimted();
   const upcoming = nextUnlock(level);
+
+  if (loading) {
+    return (
+      <div className="text-muted-foreground grid min-h-screen place-items-center font-mono text-xs">
+        Loading your progress…
+      </div>
+    );
+  }
+
+  // No account, no world: DIMTED has no guest mode and no demo data.
+  if (!session) return <AuthScreen />;
 
   return (
     <div className="min-h-screen">
@@ -121,6 +146,20 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p className="text-muted-foreground mt-2 text-[11px]">
                 {surgeActive ? "Surge active — double XP." : "Surge ready at 100%."}
               </p>
+            </div>
+
+            <div className="border-border mt-3 flex items-center gap-2 border-t pt-3">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-xs font-medium">
+                  {profile?.display_name ?? "You"}
+                </span>
+                <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                  @{profile?.username ?? "…"}
+                </span>
+              </span>
+              <Button size="sm" variant="ghost" onClick={() => void signOut()}>
+                Sign out
+              </Button>
             </div>
           </div>
         </aside>
