@@ -89,7 +89,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Dimted" },
       { property: "og:description", content: "Chat. Level up. Unlock. Explore." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Dimted" },
+      { property: "og:url", content: "https://dimted.com/" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "theme-color", content: "#04121c" },
+      { name: "application-name", content: "Dimted" },
+      { name: "apple-mobile-web-app-title", content: "Dimted" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -102,9 +107,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "canonical", href: "https://dimted.com/" },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "alternate icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/icon-32.png", type: "image/png", sizes: "32x32" },
+      { rel: "icon", href: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "manifest", href: "/site.webmanifest" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Dimted",
+          url: "https://dimted.com/",
+          description:
+            "Dimted is a social platform where chatting, friendships, communities and arcade games feed one connected progression system.",
+        }),
+      },
+    ],
+
   }),
   shellComponent: RootShell,
   component: RootComponent,
