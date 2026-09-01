@@ -27,7 +27,7 @@ export type LevelUpPayload = {
   level: number;
   rank: string;
   gained: number;
-  unlock?: Unlock;
+  unlock?: Unlock | undefined;
 };
 
 type Persisted = { totalXp: number; energy: number; surgeUntil: number };
