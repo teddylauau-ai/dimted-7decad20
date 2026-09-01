@@ -639,11 +639,36 @@ function AdminPage() {
               ) : null}
             </div>
           </Panel>
+          ) : null}
         </div>
       ) : null}
 
-      {/* ---- Moderation ---- */}
+      {/* ---- Who can do what ---- */}
       <Panel className="p-5">
+        <PanelHead eyebrow="Hierarchy" title="Who can do what" aside="enforced in the database" />
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {ROLE_ORDER.map((role) => (
+            <div
+              key={role}
+              className={cn(
+                "border-border bg-background/40 rounded-xl border p-3",
+                role === me.role && "border-primary/50 bg-primary/5",
+              )}
+            >
+              <RoleChip role={role} />
+              <ul className="text-muted-foreground mt-2 space-y-1 text-xs leading-relaxed">
+                {ROLE_POWERS[role].map((power) => (
+                  <li key={power}>· {power}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      {/* ---- Arcade scores ---- */}
+      <Panel className="p-5">
+
         <PanelHead eyebrow="Moderation" title="Arcade scores" />
         <div className="mt-4 flex flex-wrap gap-2">
           {GAMES.map((g) => (
