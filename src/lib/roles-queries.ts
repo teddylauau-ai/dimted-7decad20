@@ -250,7 +250,7 @@ export function useSetBan() {
       const { data, error } = await supabase.rpc("admin_set_ban", {
         _user_id: userId,
         _minutes: minutes,
-        _reason: reason ?? undefined,
+        ...(reason ? { _reason: reason } : {}),
       });
       if (error) throw error;
       return unwrap(data);
@@ -265,7 +265,7 @@ export function useSetMute() {
       const { data, error } = await supabase.rpc("mod_set_mute", {
         _user_id: userId,
         _minutes: minutes,
-        _reason: reason ?? undefined,
+        ...(reason ? { _reason: reason } : {}),
       });
       if (error) throw error;
       return unwrap(data);
