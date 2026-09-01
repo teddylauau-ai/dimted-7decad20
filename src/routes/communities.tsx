@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Meter, Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
+import { Avatar, ProfileLink } from "@/components/dimted/Identity";
+import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { COMMUNITY_UNLOCKS, communityLevel, nextCommunityUnlock } from "@/lib/dimted";
 import {
   useChannelMessages,
@@ -195,24 +197,51 @@ function CommunitiesPage() {
               ))}
             </header>
 
-            <div className="flex-1 space-y-3 overflow-y-auto px-5 py-4">
+            <div className="flex-1 overflow-y-auto px-3 py-4">
               {(messages.data ?? []).length === 0 ? (
                 <p className="text-muted-foreground py-10 text-center text-sm">
                   Empty channel. The first post earns community XP for everyone.
                 </p>
               ) : (
-                (messages.data ?? []).map((m) => (
-                  <div key={m.id} className="animate-pop-in">
-                    <p className="text-muted-foreground font-mono text-[10px]">
-                      {m.author?.display_name ?? "Someone"} ·{" "}
-                      {new Date(m.created_at).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                    <p className="mt-0.5 text-sm leading-relaxed">{m.body}</p>
-                  </div>
-                ))
+                (messages.data ?? []).map((m, i, list) => {
+                  const prev = list[i - 1];
+                  const grouped =
+                    !!prev &&
+                    prev.author?.id === m.author?.id &&
+                    Date.parse(m.created_at) - Date.parse(prev.created_at) < 5 * 60 * 1000;
+                  const fx = m.author?.equipped_effect
+                    ? EFFECT_CLASS[m.author.equipped_effect]
+                    : undefined;
+                  const time = new Date(m.created_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+                  return (
+                    <div
+                      key={m.id}
+                      className={`chat-row group flex gap-3 ${grouped ? "mt-0" : "mt-3"} ${fx ?? ""}`}
+                    >
+                      {grouped ? (
+                        <span className="text-muted-foreground/0 group-hover:text-muted-foreground/70 w-9 shrink-0 pt-0.5 text-right font-mono text-[9px]">
+                          {time}
+                        </span>
+                      ) : (
+                        <Avatar profile={m.author} size={36} className="mt-0.5" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        {grouped ? null : (
+                          <p className="flex items-baseline gap-2">
+                            <ProfileLink profile={m.author} className="text-sm" />
+                            <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
+                          </p>
+                        )}
+                        <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                          {m.body}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </div>
 

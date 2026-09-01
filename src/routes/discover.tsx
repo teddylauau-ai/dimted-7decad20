@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LockedTile, Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
+import { IdentityRow } from "@/components/dimted/Identity";
 import { SECRETS, communityLevel, levelFromTotalXp } from "@/lib/dimted";
 import {
   isRecentlyActive,
@@ -126,18 +127,13 @@ function DiscoverPage() {
                 key={p.id}
                 className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
               >
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline gap-2">
-                    <span className="truncate text-sm font-medium">{p.display_name}</span>
-                    <span className="text-primary shrink-0 font-mono text-[10px]">
-                      Lv {levelFromTotalXp(p.total_xp).level}
-                    </span>
-                  </span>
-                  <span className="text-muted-foreground block truncate text-xs">
-                    @{p.username}
-                    {isRecentlyActive(p.last_active_at) ? " · around now" : ""}
-                  </span>
-                </span>
+                <IdentityRow
+                  profile={p}
+                  className="flex-1 p-1"
+                  meta={`Lv ${levelFromTotalXp(p.total_xp).level} · @${p.username}${
+                    isRecentlyActive(p.last_active_at) ? " · around now" : ""
+                  }`}
+                />
                 {knownIds.has(p.id) ? (
                   <span className="text-muted-foreground shrink-0 font-mono text-[10px]">known</span>
                 ) : (

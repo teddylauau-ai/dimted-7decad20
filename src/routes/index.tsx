@@ -3,6 +3,7 @@ import { Flame, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, PageHeader, RarityChip, LockedTile } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
+import { ProfileLink } from "@/components/dimted/Identity";
 import {
   CHALLENGES,
   REALM_OBJECTS,
@@ -206,9 +207,11 @@ function HomePage() {
               {feed.data.slice(0, 10).map((e) => (
                 <li key={e.id} className="flex items-baseline justify-between gap-3">
                   <span className="min-w-0 truncate text-sm">
-                    <span className="text-foreground/70">
-                      {e.user_id === profile?.id ? "You" : (e.author?.display_name ?? "Someone")}
-                    </span>{" "}
+                    {e.user_id === profile?.id ? (
+                      <span className="text-foreground/70">You</span>
+                    ) : (
+                      <ProfileLink profile={e.author} className="text-foreground/70 text-sm" />
+                    )}{" "}
                     · {e.label ?? e.source}
                   </span>
                   <span className="text-primary shrink-0 font-mono text-[11px]">+{e.amount}</span>
