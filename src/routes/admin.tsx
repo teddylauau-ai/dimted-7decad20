@@ -1,16 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Crown, Gem, ShieldCheck, Sparkles, Trash2, UserMinus, Zap } from "lucide-react";
+import {
+  Ban,
+  Crown,
+  Gem,
+  MicOff,
+  Pencil,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  UserMinus,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { Avatar, IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
-import { useCosmetics, useNewestProfiles } from "@/lib/dimted-queries";
+import { useCosmetics } from "@/lib/dimted-queries";
 import {
   ROLE_LABEL,
+  ROLE_ORDER,
+  ROLE_POWERS,
   ROLE_RANK,
+  useAllAccounts,
+  useEditProfile,
   useForceSurge,
   useGrantCosmetic,
   useGrantCurrency,
@@ -18,14 +33,19 @@ import {
   useMyRole,
   useRevokeRole,
   useRoles,
+  useSetBan,
+  useSetMute,
   useSetTitle,
   useStaffLog,
   useTitles,
   type AppRole,
+  type ProfilePatch,
+  type StaffAccount,
 } from "@/lib/roles-queries";
 import { GAMES } from "@/lib/games";
 import { useDeleteScore, useLeaderboard } from "@/lib/games-queries";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
