@@ -499,9 +499,12 @@ function AdminPage() {
               </Button>
             </div>
           </Panel>
+          ) : null}
 
           {/* ---- Cosmetics ---- */}
+          {me.isStaff ? (
           <Panel className="p-5">
+
             <PanelHead eyebrow="Wardrobe" title="Unlock cosmetics" aside={`${(cosmetics.data ?? []).length} items`} />
             <select
               value={cosmeticSlug}
