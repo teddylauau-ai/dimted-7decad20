@@ -80,13 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "DIMTED — a social world that levels up with you" },
+      { title: "Dimted — a social world that levels up with you" },
       {
         name: "description",
         content:
-          "DIMTED is a communication platform where chatting, friendships and communities feed one connected progression system.",
+          "Dimted is a communication platform where chatting, friendships and communities feed one connected progression system.",
       },
-      { property: "og:title", content: "DIMTED" },
+      { property: "og:title", content: "Dimted" },
       { property: "og:description", content: "Chat. Level up. Unlock. Explore." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

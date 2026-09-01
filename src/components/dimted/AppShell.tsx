@@ -121,7 +121,7 @@ function Sidebar() {
   return (
     <aside className="glass hidden w-[236px] shrink-0 flex-col rounded-2xl lg:flex">
       <div className="border-border flex items-center justify-between border-b px-3.5 py-3">
-        <span className="font-display text-[15px] font-semibold tracking-tight">DIMTED</span>
+        <span className="font-display text-[15px] font-semibold tracking-tight">Dimted</span>
         <span className="text-gold flex items-center gap-1 font-mono text-[10px]">
           ✦ {formatSparks(sparks)}
         </span>
@@ -224,7 +224,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  // No account, no world: DIMTED has no guest mode and no demo data.
+  // No account, no world: Dimted has no guest mode and no demo data.
   if (!session) return <AuthScreen />;
 
   return (

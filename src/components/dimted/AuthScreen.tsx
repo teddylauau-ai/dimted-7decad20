@@ -10,7 +10,7 @@ import { UNLOCKS, XP_SOURCES } from "@/lib/dimted";
 
 /**
  * Everyone starts at Level 1 with zero XP. There are no demo accounts and no
- * pre-made friends — the only people in DIMTED are people who signed up.
+ * pre-made friends — the only people in Dimted are people who signed up.
  */
 export function AuthScreen() {
   const [mode, setMode] = useState<"signin" | "signup">("signup");
@@ -69,7 +69,7 @@ export function AuthScreen() {
           A social world that levels up with you.
         </h1>
         <p className="text-muted-foreground mt-4 max-w-md text-sm leading-relaxed">
-          DIMTED is not a chat app with games bolted on. Talking to people <em>is</em> the game.
+          Dimted is not a chat app with games bolted on. Talking to people <em>is</em> the game.
           Real conversations earn XP, XP raises your Level, and every Level opens something that was
           hidden before.
         </p>
@@ -177,7 +177,7 @@ export function AuthScreen() {
         </Button>
 
         <p className="text-muted-foreground mt-6 text-center text-xs">
-          {mode === "signup" ? "Already have an account?" : "New to DIMTED?"}{" "}
+          {mode === "signup" ? "Already have an account?" : "New to Dimted?"}{" "}
           <button
             type="button"
             className="text-primary hover:underline"

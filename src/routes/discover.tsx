@@ -22,13 +22,13 @@ import { joinCommunity, sendFriendRequest } from "@/lib/dimted-actions";
 export const Route = createFileRoute("/discover")({
   head: () => ({
     meta: [
-      { title: "Discover — DIMTED" },
+      { title: "Discover — Dimted" },
       {
         name: "description",
         content:
-          "Find real DIMTED accounts, open communities, visitable Realms and the secrets still hidden at your level.",
+          "Find real Dimted accounts, open communities, visitable Realms and the secrets still hidden at your level.",
       },
-      { property: "og:title", content: "Discover — DIMTED" },
+      { property: "og:title", content: "Discover — Dimted" },
       { property: "og:description", content: "Everything you find here is real." },
     ],
   }),
@@ -101,7 +101,7 @@ function DiscoverPage() {
       />
 
       <Panel className="p-5">
-        <PanelHead eyebrow="People" title={results ? "Search results" : "Newest in DIMTED"} />
+        <PanelHead eyebrow="People" title={results ? "Search results" : "Newest in Dimted"} />
         <form onSubmit={search} className="mt-4 flex gap-2">
           <Input
             value={term}
@@ -118,7 +118,7 @@ function DiscoverPage() {
 
         {people.length === 0 ? (
           <p className="text-muted-foreground mt-4 text-sm">
-            Nobody matches yet. DIMTED is only as full as the people who join it.
+            Nobody matches yet. Dimted is only as full as the people who join it.
           </p>
         ) : (
           <ul className="mt-4 grid gap-2 md:grid-cols-2">

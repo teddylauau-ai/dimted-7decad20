@@ -18,13 +18,13 @@ import { countEvents, useMyXpEvents, usePlayerStats, useXpFeed } from "@/lib/dim
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "DIMTED — chat, level up, unlock a world" },
+      { title: "Dimted — chat, level up, unlock a world" },
       {
         name: "description",
         content:
-          "Your DIMTED progression hub: level, XP, Energy Surge, daily and weekly challenges, and what unlocks next.",
+          "Your Dimted progression hub: level, XP, Energy Surge, daily and weekly challenges, and what unlocks next.",
       },
-      { property: "og:title", content: "DIMTED — your progression hub" },
+      { property: "og:title", content: "Dimted — your progression hub" },
       {
         property: "og:description",
         content: "Real conversations earn XP. XP raises your Level. Levels open the world.",
