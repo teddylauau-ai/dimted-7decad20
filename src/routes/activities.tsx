@@ -10,10 +10,12 @@ import { AuroraDrift } from "@/components/games/AuroraDrift";
 import { PulseGrid } from "@/components/games/PulseGrid";
 import { GAMES, type GameId } from "@/lib/games";
 import {
+  awardArcadeXp,
   personalBest,
   useLeaderboard,
   useMyScores,
   useSubmitScore,
+  type ArcadeReward,
 } from "@/lib/games-queries";
 import { useDimted } from "@/lib/dimted-store";
 import { useRefreshDimted } from "@/lib/dimted-queries";
