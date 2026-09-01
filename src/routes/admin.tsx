@@ -242,6 +242,51 @@ function AdminPage() {
     }
   }
 
+  async function applyBan(minutes: number) {
+    if (!target) return;
+    try {
+      await setBan.mutateAsync({ userId: target.id, minutes, reason: reason.trim() });
+      toast.success(
+        minutes === 0
+          ? `${target.display_name} unbanned.`
+          : `${target.display_name} banned${minutes < 0 ? " permanently" : ""}.`,
+      );
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  async function applyMute(minutes: number) {
+    if (!target) return;
+    try {
+      await setMute.mutateAsync({ userId: target.id, minutes, reason: reason.trim() });
+      toast.success(minutes === 0 ? `${target.display_name} unmuted.` : `${target.display_name} muted.`);
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  async function saveEdits() {
+    if (!target) return;
+    const patch: Record<string, string | number> = {};
+    for (const field of EDIT_FIELDS) {
+      const raw = edits[field.key as string];
+      if (raw === undefined) continue;
+      patch[field.key as string] = field.numeric ? Number(raw) || 0 : raw;
+    }
+    if (Object.keys(patch).length === 0) {
+      toast.error("Change a field first.");
+      return;
+    }
+    try {
+      await editProfile.mutateAsync({ userId: target.id, patch: patch as ProfilePatch });
+      setEdits({});
+      toast.success(`${target.display_name}'s account updated.`);
+    } catch (e) {
+      fail(e);
+    }
+  }
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -249,9 +294,12 @@ function AdminPage() {
         title="Control panel"
         blurb={
           me.isOwner
-            ? "Owner access: full grants, the title ladder, and the role hierarchy. Admins get a capped version of this desk."
-            : "Admin access: capped grants and moderation. Titles and admin roles are owner-only."
+            ? "Owner access: edit any account field, full grants, the title ladder, bans and the role hierarchy."
+            : me.isStaff
+              ? "Admin access: capped grants, bans, mutes and moderation. Titles, profile edits and admin roles are owner-only."
+              : "Moderator access: mutes up to 24 hours and message clean-up. Grants and bans are for admins and the owner."
         }
+
         aside={
           <span className="flex items-center gap-2">
             {me.isOwner ? <Crown className="text-gold size-4" /> : <ShieldCheck className="text-primary size-4" />}
