@@ -88,9 +88,6 @@ function DiscoverPage() {
   }
 
   const openCommunities = (communities.data ?? []).filter((c) => !c.isMember);
-  const _unusedRealms = ([] as never[]).filter(
-    (p) => levelFromTotalXp(p.total_xp).level >= 20,
-  );
 
   return (
     <div className="space-y-5">
