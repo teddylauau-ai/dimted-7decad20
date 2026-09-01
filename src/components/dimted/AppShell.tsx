@@ -41,7 +41,7 @@ function XpTicker() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { level, rank, intoLevel, needed, progress, energy, surgeActive, surgeSecondsLeft, hydrated } =
+  const { level, rank, intoLevel, needed, progress, energy, surgeActive, surgeSecondsLeft } =
     useDimted();
   const upcoming = nextUnlock(level);
 
