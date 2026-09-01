@@ -1,13 +1,29 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
  * Pulse Grid — pure reaction. A tile lights for a shrinking window; hit it to
  * build a multiplier, miss three and the run ends.
+ *
+ * The whole run is driven by one rAF loop reading a mutable run object, so a
+ * parent re-render can never clear a pending timer mid-run.
  */
 
 const SIZE = 4;
 const TILES = SIZE * SIZE;
+const GAP_MS = 320;
+
+type Run = {
+  round: number;
+  score: number;
+  combo: number;
+  misses: number;
+  window: number;
+  active: number | null;
+  shownAt: number;
+  nextAt: number;
+  over: boolean;
+};
 
 export function PulseGrid({
   running,
@@ -18,96 +34,99 @@ export function PulseGrid({
   onScore: (score: number) => void;
   onEnd: (score: number) => void;
 }) {
-  const [active, setActive] = useState<number | null>(null);
+  const run = useRef<Run>({
+    round: 0,
+    score: 0,
+    combo: 1,
+    misses: 0,
+    window: 1250,
+    active: null,
+    shownAt: 0,
+    nextAt: 0,
+    over: false,
+  });
+
+  const [view, setView] = useState({ score: 0, combo: 1, misses: 0, window: 1250, round: 0, active: null as number | null });
   const [hit, setHit] = useState<number | null>(null);
   const [miss, setMiss] = useState<number | null>(null);
-  const [hud, setHud] = useState({ score: 0, combo: 1, misses: 0, window: 1200 });
 
-  const score = useRef(0);
-  const combo = useRef(1);
-  const misses = useRef(0);
-  const round = useRef(0);
-  const timer = useRef<number | null>(null);
-  const shownAt = useRef(0);
-  const dead = useRef(false);
-
-  const sync = useCallback((windowMs: number) => {
-    setHud({ score: score.current, combo: combo.current, misses: misses.current, window: windowMs });
-  }, []);
-
-  const nextRound = useCallback(() => {
-    if (dead.current) return;
-    round.current += 1;
-    const windowMs = Math.max(420, 1250 - round.current * 26);
-    const tile = Math.floor(Math.random() * TILES);
-    setActive(tile);
-    shownAt.current = performance.now();
-    sync(windowMs);
-
-    if (timer.current) window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => {
-      // Missed the window.
-      setActive(null);
-      setMiss(tile);
-      window.setTimeout(() => setMiss(null), 220);
-      combo.current = 1;
-      misses.current += 1;
-      sync(windowMs);
-      if (misses.current >= 3) {
-        dead.current = true;
-        onEnd(score.current);
-        return;
-      }
-      window.setTimeout(nextRound, 340);
-    }, windowMs);
-  }, [onEnd, sync]);
+  const cbs = useRef({ onScore, onEnd });
+  cbs.current = { onScore, onEnd };
 
   useEffect(() => {
     if (!running) return;
-    score.current = 0;
-    combo.current = 1;
-    misses.current = 0;
-    round.current = 0;
-    dead.current = false;
-    setActive(null);
-    onScore(0);
-    const start = window.setTimeout(nextRound, 600);
-    return () => {
-      window.clearTimeout(start);
-      if (timer.current) window.clearTimeout(timer.current);
-      dead.current = true;
+    const r = run.current;
+    r.round = 0;
+    r.score = 0;
+    r.combo = 1;
+    r.misses = 0;
+    r.window = 1250;
+    r.active = null;
+    r.over = false;
+    r.nextAt = performance.now() + 500;
+    cbs.current.onScore(0);
+
+    let frame = 0;
+    const tick = (now: number) => {
+      const s = run.current;
+      if (!s.over) {
+        if (s.active == null) {
+          if (now >= s.nextAt) {
+            s.round += 1;
+            s.window = Math.max(420, 1250 - s.round * 26);
+            s.active = Math.floor(Math.random() * TILES);
+            s.shownAt = now;
+          }
+        } else if (now - s.shownAt >= s.window) {
+          const missed = s.active;
+          s.active = null;
+          s.combo = 1;
+          s.misses += 1;
+          s.nextAt = now + GAP_MS;
+          setMiss(missed);
+          window.setTimeout(() => setMiss(null), 200);
+          if (s.misses >= 3) {
+            s.over = true;
+            cbs.current.onEnd(s.score);
+          }
+        }
+        setView({ score: s.score, combo: s.combo, misses: s.misses, window: s.window, round: s.round, active: s.active });
+      }
+      frame = requestAnimationFrame(tick);
     };
-  }, [running, nextRound, onScore]);
+    frame = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(frame);
+      run.current.over = true;
+    };
+  }, [running]);
 
   function tap(index: number) {
-    if (!running || dead.current) return;
-    if (index !== active) {
-      // Wrong tile: costs the combo, not a life.
-      combo.current = 1;
+    const s = run.current;
+    if (!running || s.over) return;
+    if (index !== s.active) {
+      s.combo = 1;
       setMiss(index);
       window.setTimeout(() => setMiss(null), 180);
-      sync(hud.window);
       return;
     }
-    if (timer.current) window.clearTimeout(timer.current);
-    const reaction = performance.now() - shownAt.current;
-    const speedBonus = Math.max(10, Math.round((hud.window - reaction) / 4));
-    combo.current = Math.min(10, combo.current + 1);
-    score.current += (50 + speedBonus) * combo.current;
-    onScore(score.current);
-    setActive(null);
+    const reaction = performance.now() - s.shownAt;
+    const speedBonus = Math.max(10, Math.round((s.window - reaction) / 4));
+    s.combo = Math.min(10, s.combo + 1);
+    s.score += (50 + speedBonus) * s.combo;
+    s.active = null;
+    s.nextAt = performance.now() + 180;
+    cbs.current.onScore(s.score);
     setHit(index);
     window.setTimeout(() => setHit(null), 160);
-    sync(hud.window);
-    window.setTimeout(nextRound, 200);
   }
 
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="text-muted-foreground flex w-full max-w-[340px] items-baseline justify-between font-mono text-[11px]">
-        <span className="text-foreground numeral text-base">{hud.score.toLocaleString()}</span>
-        <span className="text-gold">×{hud.combo}</span>
-        <span>{"♥".repeat(Math.max(0, 3 - hud.misses)) || "—"}</span>
+        <span className="text-foreground numeral text-base">{view.score.toLocaleString()}</span>
+        <span className="text-gold">×{view.combo}</span>
+        <span>{"♥".repeat(Math.max(0, 3 - view.misses)) || "—"}</span>
       </div>
 
       <div
@@ -118,9 +137,10 @@ export function PulseGrid({
           <button
             key={i}
             onPointerDown={() => tap(i)}
+            data-live={i === view.active ? "true" : undefined}
             className={cn(
               "aspect-square rounded-xl border transition-[background-color,box-shadow,transform] duration-100",
-              i === active
+              i === view.active
                 ? "border-primary bg-primary/80 shadow-[0_0_28px_-4px_var(--color-primary)] scale-[1.03]"
                 : "border-border bg-secondary/40 hover:bg-secondary/70",
               i === hit && "border-gold bg-gold/70 shadow-[0_0_28px_-4px_var(--color-gold)]",
@@ -131,7 +151,7 @@ export function PulseGrid({
         ))}
       </div>
       <p className="text-muted-foreground font-mono text-[10px]">
-        window {hud.window}ms · round {round.current}
+        window {view.window}ms · round {view.round}
       </p>
     </div>
   );
