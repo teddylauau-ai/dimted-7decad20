@@ -45,7 +45,7 @@ export const Route = createFileRoute("/activities")({
 type Phase = "idle" | "playing" | "over";
 
 function ArcadePage() {
-  const { profile, award, surgeActive } = useDimted();
+  const { profile, surgeActive } = useDimted();
   const [gameId, setGameId] = useState<GameId>("nova-blocks");
   const [phase, setPhase] = useState<Phase>("idle");
   const [score, setScore] = useState(0);
@@ -108,7 +108,7 @@ function ArcadePage() {
       <PageHeader
         eyebrow="Arcade"
         title="Play something"
-        blurb="Three real games. No partner needed, no waiting — press start and go. Every run earns XP and lands on the leaderboard."
+        blurb="Three real games. No partner needed, no waiting — press start and go. Every run pays XP and sparks that scale with your score, so you can level up entirely solo."
       />
 
       {/* Game picker */}
@@ -178,6 +178,25 @@ function ArcadePage() {
                     <p className="text-muted-foreground text-sm">
                       Your best is {Math.max(best, Math.round(score)).toLocaleString()}.
                     </p>
+                    {reward?.status === "granted" ? (
+                      <div className="border-border/70 bg-secondary/40 rounded-xl border px-4 py-2.5">
+                        <p className="font-mono text-[11px] tracking-wide">
+                          <span className="text-primary">+{reward.gained} XP</span>
+                          <span className="text-muted-foreground"> · </span>
+                          <span className="text-gold">+{reward.sparks_gained} sparks</span>
+                        </p>
+                        <p className="text-muted-foreground mt-1 text-[11px]">
+                          {reward.personal_best ? "Personal-best bonus included. " : ""}
+                          {reward.runs_left != null && reward.runs_left <= 5
+                            ? `${reward.runs_left} paid runs left today.`
+                            : "Higher scores pay more XP."}
+                        </p>
+                      </div>
+                    ) : reward?.status === "capped" ? (
+                      <p className="text-muted-foreground text-[11px]">
+                        Daily arcade XP maxed — scores still count on the leaderboard.
+                      </p>
+                    ) : null}
                     <Button onClick={start}>
                       <RotateCcw className="size-4" /> Play again
                     </Button>
