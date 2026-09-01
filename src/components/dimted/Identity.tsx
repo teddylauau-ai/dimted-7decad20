@@ -14,6 +14,7 @@ export type IdentityProfile = {
   equipped_nametag?: string | null;
   equipped_badge?: string | null;
   equipped_frame?: string | null;
+  avatar_url?: string | null;
 };
 
 export function worn(p: IdentityProfile | null | undefined): WornCosmetics {
@@ -48,12 +49,21 @@ export function Avatar({
     <span
       style={{ width: size, height: size, fontSize: Math.round(size / 2.6) }}
       className={cn(
-        "bg-secondary text-foreground/90 font-display grid shrink-0 place-items-center rounded-xl font-semibold select-none",
+        "bg-secondary text-foreground/90 font-display grid shrink-0 place-items-center overflow-hidden rounded-xl font-semibold select-none",
         frame,
         className,
       )}
     >
-      {initials(profile?.display_name ?? "?")}
+      {profile?.avatar_url ? (
+        <img
+          src={profile.avatar_url}
+          alt={`${profile.display_name}'s profile picture`}
+          loading="lazy"
+          className="h-full w-full rounded-xl object-cover"
+        />
+      ) : (
+        initials(profile?.display_name ?? "?")
+      )}
     </span>
   );
 }
