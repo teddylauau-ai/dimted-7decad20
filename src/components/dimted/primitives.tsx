@@ -1,0 +1,148 @@
+import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
+import { RARITY_LABEL, type Rarity } from "@/lib/dimted";
+import { rarityBg, rarityBorder, rarityText } from "./rarity";
+
+export function Panel({
+  className,
+  children,
+  delay = 0,
+}: {
+  className?: string;
+  children: ReactNode;
+  delay?: number;
+}) {
+  return (
+    <section
+      className={cn("glass animate-rise rounded-2xl", className)}
+      style={delay ? { animationDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </section>
+  );
+}
+
+export function PanelHead({
+  eyebrow,
+  title,
+  aside,
+  className,
+}: {
+  eyebrow?: string;
+  title: string;
+  aside?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("flex items-end justify-between gap-4", className)}>
+      <div className="min-w-0">
+        {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+        <h2 className="font-display mt-1 text-lg font-semibold tracking-tight text-balance">{title}</h2>
+      </div>
+      {aside ? <div className="text-muted-foreground shrink-0 font-mono text-[11px]">{aside}</div> : null}
+    </div>
+  );
+}
+
+export function RarityChip({ rarity, className }: { rarity: Rarity; className?: string }) {
+  return (
+    <span
+      className={cn(
+        "rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.16em] uppercase",
+        rarityBorder[rarity],
+        rarityBg[rarity],
+        rarityText[rarity],
+        className,
+      )}
+    >
+      {RARITY_LABEL[rarity]}
+    </span>
+  );
+}
+
+export function Meter({
+  value,
+  className,
+  tone = "primary",
+  animate = false,
+}: {
+  value: number;
+  className?: string;
+  tone?: "primary" | "gold" | "xp" | "energy";
+  animate?: boolean;
+}) {
+  const fill = {
+    primary: "from-primary/70 to-primary",
+    gold: "from-gold/60 to-gold",
+    xp: "from-xp/60 to-primary",
+    energy: "from-energy/60 to-gold",
+  }[tone];
+
+  return (
+    <div className={cn("bg-background/70 ring-border h-2 overflow-hidden rounded-full ring-1", className)}>
+      <div
+        className={cn(
+          "relative h-full origin-left rounded-full bg-gradient-to-r",
+          fill,
+          animate && "animate-xp-fill",
+        )}
+        style={{ width: `${Math.max(2, Math.min(100, value * 100))}%` }}
+      >
+        <span
+          className="animate-shimmer absolute inset-0 opacity-70"
+          style={{
+            background:
+              "linear-gradient(100deg, transparent 30%, oklch(1 0 0 / 0.55) 50%, transparent 70%)",
+            backgroundSize: "220% 100%",
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+export function LockedTile({
+  hint,
+  requirement,
+  className,
+}: {
+  hint: string;
+  requirement: string;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "border-secret/25 bg-secret/[0.06] group relative overflow-hidden rounded-xl border border-dashed p-4 text-center transition-colors hover:border-secret/50",
+        className,
+      )}
+    >
+      <p className="numeral text-secret/70 text-2xl">???</p>
+      <p className="text-foreground/85 mt-2 text-sm">{hint}</p>
+      <p className="text-muted-foreground mt-2 font-mono text-[11px]">{requirement}</p>
+    </div>
+  );
+}
+
+export function PageHeader({
+  eyebrow,
+  title,
+  blurb,
+  aside,
+}: {
+  eyebrow: string;
+  title: string;
+  blurb?: string;
+  aside?: ReactNode;
+}) {
+  return (
+    <header className="border-border animate-rise flex flex-wrap items-end justify-between gap-4 border-b pb-5">
+      <div className="min-w-0">
+        <p className="eyebrow">{eyebrow}</p>
+        <h1 className="font-display mt-1.5 text-3xl font-semibold tracking-tight text-balance">{title}</h1>
+        {blurb ? <p className="text-muted-foreground mt-2 max-w-xl text-sm">{blurb}</p> : null}
+      </div>
+      {aside}
+    </header>
+  );
+}
