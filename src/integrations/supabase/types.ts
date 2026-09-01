@@ -266,6 +266,41 @@ export type Database = {
           },
         ]
       }
+      game_scores: {
+        Row: {
+          created_at: string
+          detail: Json
+          game: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          game: string
+          id?: string
+          score?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          game?: string
+          id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           acquired_at: string
@@ -404,6 +439,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       xp_events: {
         Row: {
           amount: number
@@ -446,6 +505,13 @@ export type Database = {
     Functions: {
       award_xp: { Args: { _label?: string; _source: string }; Returns: Json }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       ignite_surge: { Args: never; Returns: Json }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
@@ -455,10 +521,11 @@ export type Database = {
         Args: { _friendship_id: string; _user_id: string }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       purchase_cosmetic: { Args: { _slug: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "admin" | "moderator" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -585,6 +652,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "admin", "moderator", "member"],
+    },
   },
 } as const

@@ -1,142 +1,233 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { Clock, Lock, Users } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useCallback, useState } from "react";
+import { Play, RotateCcw, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Meter, Panel, PanelHead, PageHeader, RarityChip } from "@/components/dimted/primitives";
-import { useDimted } from "@/lib/dimted-store";
-import { ACTIVITIES, CHALLENGES } from "@/lib/dimted";
+import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { IdentityRow } from "@/components/dimted/Identity";
+import { NovaBlocks } from "@/components/games/NovaBlocks";
+import { AuroraDrift } from "@/components/games/AuroraDrift";
+import { PulseGrid } from "@/components/games/PulseGrid";
+import { GAMES, type GameId } from "@/lib/games";
 import {
-  countEvents,
-  useFriendships,
-  useMyXpEvents,
-  useRefreshDimted,
-} from "@/lib/dimted-queries";
+  personalBest,
+  useLeaderboard,
+  useMyScores,
+  useSubmitScore,
+} from "@/lib/games-queries";
+import { useDimted } from "@/lib/dimted-store";
+import { useRefreshDimted } from "@/lib/dimted-queries";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/activities")({
   head: () => ({
     meta: [
-      { title: "Activities — Dimted" },
+      { title: "Arcade — Dimted" },
       {
         name: "description",
         content:
-          "Dimted-exclusive social activities built around chatting with real friends — Quickdraw, Chaos Questions, Duo Quest and more.",
+          "Three real minigames you can play right now: Nova Blocks, Aurora Drift and Pulse Grid. Every run earns XP and lands on the leaderboard.",
       },
-      { property: "og:title", content: "Activities — Dimted" },
-      { property: "og:description", content: "Social activities, not arcade games." },
+      { property: "og:title", content: "Dimted Arcade" },
+      {
+        property: "og:description",
+        content: "Nova Blocks, Aurora Drift, Pulse Grid — play solo, climb the leaderboard.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ActivitiesPage,
+  component: ArcadePage,
 });
 
-function ActivitiesPage() {
-  const { profile, level, award, surgeActive } = useDimted();
-  const friends = useFriendships(profile?.id);
-  const events = useMyXpEvents(profile?.id);
+type Phase = "idle" | "playing" | "over";
+
+function ArcadePage() {
+  const { profile, award, surgeActive } = useDimted();
+  const [gameId, setGameId] = useState<GameId>("nova-blocks");
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [score, setScore] = useState(0);
+  const [runKey, setRunKey] = useState(0);
+
+  const board = useLeaderboard(gameId);
+  const myScores = useMyScores(profile?.id);
+  const submit = useSubmitScore(profile?.id);
   const refresh = useRefreshDimted();
 
-  const hasFriends = (friends.data ?? []).some((f) => f.status === "accepted");
+  const game = GAMES.find((g) => g.id === gameId)!;
+  const best = personalBest(myScores.data, gameId);
+  const isNewBest = phase === "over" && score > best;
 
-  async function play(name: string) {
-    const result = await award("activity", name);
-    if (result === "granted") {
-      toast.success(`${name} finished${surgeActive ? " — double XP from your surge" : ""}.`);
-      refresh();
-      return;
-    }
-    if (result === "capped") toast("You've hit today's activity XP cap. Play for fun instead.");
-    else if (result === "cooldown") toast("Give it a minute before the next one.");
-    else toast.error("Couldn't record that");
-  }
+  const start = () => {
+    setScore(0);
+    setRunKey((k) => k + 1);
+    setPhase("playing");
+  };
+
+  const end = useCallback(
+    async (finalScore: number) => {
+      setScore(finalScore);
+      setPhase("over");
+      if (finalScore <= 0) return;
+      try {
+        await submit.mutateAsync({ game: gameId, score: finalScore });
+      } catch {
+        toast.error("Couldn't save that score");
+      }
+      const result = await award("activity", `${game.name} · ${Math.round(finalScore)}`);
+      if (result === "granted") {
+        toast.success(`Run saved${surgeActive ? " — double XP from your surge" : ""}.`);
+        refresh();
+      } else if (result === "capped") {
+        toast("Score saved. You've hit today's XP cap — keep playing for the leaderboard.");
+      } else if (result === "cooldown") {
+        toast("Score saved. XP again in a moment.");
+      }
+    },
+    [award, game.name, gameId, refresh, submit, surgeActive],
+  );
+
+  const playing = phase === "playing";
 
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Play"
-        title="Activities"
-        blurb="Every activity here needs another person. None of them exist outside Dimted."
+        eyebrow="Arcade"
+        title="Play something"
+        blurb="Three real games. No partner needed, no waiting — press start and go. Every run earns XP and lands on the leaderboard."
       />
 
-      {!hasFriends ? (
-        <Panel className="border-primary/25 p-5">
-          <p className="text-sm">
-            Activities are social by design — you need at least one real friend before they mean
-            anything.{" "}
-            <Link to="/discover" className="text-primary hover:underline">
-              Find someone first.
-            </Link>
-          </p>
-        </Panel>
-      ) : null}
-
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {ACTIVITIES.map((a, i) => {
-          const locked = (a.requiredLevel ?? 1) > level;
+      {/* Game picker */}
+      <div className="grid gap-3 md:grid-cols-3">
+        {GAMES.map((g, i) => {
+          const selected = g.id === gameId;
+          const gBest = personalBest(myScores.data, g.id);
           return (
-            <Panel key={a.id} className="flex flex-col p-5" delay={i * 40}>
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="font-display text-base font-semibold tracking-tight">{a.name}</h3>
-                <RarityChip rarity={a.rarity} />
-              </div>
-              <p className="text-muted-foreground mt-2 flex-1 text-sm leading-relaxed">{a.blurb}</p>
-
-              <div className="text-muted-foreground mt-4 flex items-center gap-4 font-mono text-[11px]">
-                <span className="flex items-center gap-1">
-                  <Users className="size-3.5" /> {a.players}
+            <button
+              key={g.id}
+              onClick={() => {
+                setGameId(g.id);
+                setPhase("idle");
+                setScore(0);
+              }}
+              className={cn(
+                "glass animate-rise rounded-2xl p-4 text-left transition-colors",
+                selected ? "ring-primary/60 ring-2" : "hover:bg-secondary/40",
+              )}
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <h3 className="font-display text-base font-semibold tracking-tight">{g.name}</h3>
+                <span className="text-muted-foreground shrink-0 font-mono text-[10px]">
+                  best {gBest.toLocaleString()}
                 </span>
-                {a.minutes > 0 ? (
-                  <span className="flex items-center gap-1">
-                    <Clock className="size-3.5" /> {a.minutes}m
-                  </span>
-                ) : null}
-                <span className="text-primary ml-auto">+{a.rewardXp} XP</span>
               </div>
-
-              <Button
-                className="mt-4 w-full"
-                variant={locked ? "outline" : "default"}
-                disabled={locked || !hasFriends}
-                onClick={() => void play(a.name)}
-              >
-                {locked ? (
-                  <>
-                    <Lock className="size-3.5" /> Level {a.requiredLevel}
-                  </>
-                ) : (
-                  "Start"
-                )}
-              </Button>
-            </Panel>
+              <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{g.tagline}</p>
+            </button>
           );
         })}
       </div>
 
-      <Panel className="p-5">
-        <PanelHead eyebrow="Challenges" title="Progress from real play" />
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-          {CHALLENGES.map((c) => {
-            const done = countEvents(events.data, c.source, c.cadence);
-            return (
-              <li key={c.id} className="border-border bg-background/40 rounded-xl border p-3">
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-sm">{c.title}</span>
-                  <span className="text-muted-foreground shrink-0 font-mono text-[10px]">
-                    {Math.min(done, c.goal)}/{c.goal}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+        {/* Play surface */}
+        <Panel className="relative flex flex-col items-center gap-4 p-5">
+          <div className="flex w-full items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="eyebrow">Now playing</p>
+              <h2 className="font-display mt-1 text-lg font-semibold tracking-tight">{game.name}</h2>
+              <p className="text-muted-foreground mt-1 font-mono text-[11px]">{game.controls}</p>
+            </div>
+            {playing ? (
+              <Button variant="outline" size="sm" onClick={() => void end(score)}>
+                End run
+              </Button>
+            ) : null}
+          </div>
+
+          <div className="relative w-full">
+            {playing ? (
+              <div key={runKey} className="flex justify-center">
+                {gameId === "nova-blocks" ? (
+                  <NovaBlocks running onScore={setScore} onEnd={(s) => void end(s)} />
+                ) : gameId === "aurora-drift" ? (
+                  <AuroraDrift running onScore={setScore} onEnd={(s) => void end(s)} />
+                ) : (
+                  <PulseGrid running onScore={setScore} onEnd={(s) => void end(s)} />
+                )}
+              </div>
+            ) : (
+              <div className="border-border bg-background/40 flex min-h-[380px] flex-col items-center justify-center gap-4 rounded-xl border border-dashed p-6 text-center">
+                {phase === "over" ? (
+                  <>
+                    <p className="eyebrow">{isNewBest ? "New personal best" : "Run over"}</p>
+                    <p className="numeral text-5xl">{Math.round(score).toLocaleString()}</p>
+                    <p className="text-muted-foreground text-sm">
+                      Your best is {Math.max(best, Math.round(score)).toLocaleString()}.
+                    </p>
+                    <Button onClick={start}>
+                      <RotateCcw className="size-4" /> Play again
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-muted-foreground max-w-sm text-sm leading-relaxed">{game.how}</p>
+                    <Button onClick={start}>
+                      <Play className="size-4" /> Start {game.name}
+                    </Button>
+                    {best > 0 ? (
+                      <p className="text-muted-foreground font-mono text-[11px]">
+                        your best · {best.toLocaleString()}
+                      </p>
+                    ) : null}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        </Panel>
+
+        {/* Leaderboard */}
+        <Panel className="p-5">
+          <PanelHead
+            eyebrow="Leaderboard"
+            title={game.name}
+            aside={<Trophy className="text-gold size-4" />}
+          />
+          {board.isLoading ? (
+            <p className="text-muted-foreground mt-4 font-mono text-[11px]">Loading…</p>
+          ) : (board.data ?? []).length === 0 ? (
+            <p className="text-muted-foreground mt-4 text-sm">
+              Nobody has scored here yet. First run sets the bar.
+            </p>
+          ) : (
+            <ol className="mt-4 space-y-2">
+              {(board.data ?? []).slice(0, 10).map((row, i) => (
+                <li
+                  key={row.id}
+                  className={cn(
+                    "border-border bg-background/40 flex items-center gap-2 rounded-xl border px-2.5 py-2",
+                    row.profile?.id === profile?.id && "border-primary/40",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "numeral w-5 shrink-0 text-sm",
+                      i === 0 && "text-gold",
+                      i > 0 && "text-muted-foreground",
+                    )}
+                  >
+                    {i + 1}
                   </span>
-                </div>
-                <Meter
-                  value={Math.min(1, done / c.goal)}
-                  tone={c.cadence === "daily" ? "gold" : "primary"}
-                  className="mt-2 h-1.5"
-                />
-                <p className="text-muted-foreground mt-2 flex items-center justify-between font-mono text-[10px]">
-                  <span>{c.cadence}</span>
-                  <span className="text-gold">+{c.rewardXp} XP</span>
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-      </Panel>
+                  <div className="min-w-0 flex-1">
+                    {row.profile ? <IdentityRow profile={row.profile} size={26} /> : null}
+                  </div>
+                  <span className="numeral shrink-0 text-sm">{row.score.toLocaleString()}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }
