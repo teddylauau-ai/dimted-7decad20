@@ -4,23 +4,32 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { levelFromTotalXp, rankForLevel, unlockAt, xpForLevel, type Unlock } from "./dimted";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  levelFromTotalXp,
+  rankForLevel,
+  unlockAt,
+  type Unlock,
+  type XpSourceId,
+} from "./dimted";
 
-const STORAGE_KEY = "dimted.progress.v1";
-
-/** Cooldown windows keep XP tied to real activity rather than volume. */
-const COOLDOWN_MS: Record<string, number> = {
-  message: 60_000,
-  conversation: 20_000,
-  community: 30_000,
-  friend: 30_000,
-  activity: 15_000,
-  challenge: 0,
-  discovery: 0,
+export type Profile = {
+  id: string;
+  username: string;
+  display_name: string;
+  bio: string | null;
+  title: string;
+  total_xp: number;
+  energy: number;
+  surge_until: string | null;
+  streak: number;
+  realm_name: string;
+  last_active_at: string;
+  created_at: string;
 };
 
 export type LevelUpPayload = {
@@ -30,9 +39,12 @@ export type LevelUpPayload = {
   unlock?: Unlock | undefined;
 };
 
-type Persisted = { totalXp: number; energy: number; surgeUntil: number };
+export type AwardResult = "granted" | "cooldown" | "capped" | "error";
 
 type Ctx = {
+  loading: boolean;
+  session: Session | null;
+  profile: Profile | null;
   totalXp: number;
   level: number;
   rank: string;
@@ -43,123 +55,179 @@ type Ctx = {
   surgeActive: boolean;
   surgeSecondsLeft: number;
   levelUp: LevelUpPayload | null;
-  hydrated: boolean;
-  award: (sourceId: string, amount: number, label?: string) => "granted" | "cooldown";
-  igniteSurge: () => void;
-  dismissLevelUp: () => void;
   lastGain: { amount: number; label: string; at: number } | null;
+  award: (source: XpSourceId, label?: string) => Promise<AwardResult>;
+  igniteSurge: () => Promise<void>;
+  dismissLevelUp: () => void;
+  refreshProfile: () => Promise<void>;
+  signOut: () => Promise<void>;
 };
 
 const DimtedContext = createContext<Ctx | null>(null);
 
-const START_XP = (() => {
-  // Seeded so the demo profile opens at Level 17 · 2,430 / 3,000-ish.
-  let total = 0;
-  for (let l = 1; l < 17; l++) total += xpForLevel(l);
-  return total + Math.round(xpForLevel(17) * 0.81);
-})();
-
 export function DimtedProvider({ children }: { children: ReactNode }) {
-  const [totalXp, setTotalXp] = useState(START_XP);
-  const [energy, setEnergy] = useState(68);
-  const [surgeUntil, setSurgeUntil] = useState(0);
-  const [now, setNow] = useState(0);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [levelUp, setLevelUp] = useState<LevelUpPayload | null>(null);
   const [lastGain, setLastGain] = useState<Ctx["lastGain"]>(null);
-  const [hydrated, setHydrated] = useState(false);
-  const cooldowns = useRef<Record<string, number>>({});
+  const [now, setNow] = useState(0);
 
-  // Read persisted progress after hydration only, to avoid SSR mismatch.
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const p = JSON.parse(raw) as Partial<Persisted>;
-        if (typeof p.totalXp === "number") setTotalXp(p.totalXp);
-        if (typeof p.energy === "number") setEnergy(p.energy);
-        if (typeof p.surgeUntil === "number") setSurgeUntil(p.surgeUntil);
-      }
-    } catch {
-      /* first visit, or storage unavailable */
-    }
-    setHydrated(true);
-    setNow(Date.now());
+  const loadProfile = useCallback(async (userId: string) => {
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
+    setProfile((data as Profile | null) ?? null);
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ totalXp, energy, surgeUntil }));
-    } catch {
-      /* ignore */
-    }
-  }, [hydrated, totalXp, energy, surgeUntil]);
+    let active = true;
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      if (!active) return;
+      setSession(next);
+      if (!next) {
+        setProfile(null);
+        setLoading(false);
+      }
+    });
+
+    void (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!active) return;
+      setSession(data.session ?? null);
+      if (data.session) await loadProfile(data.session.user.id);
+      setLoading(false);
+      setNow(Date.now());
+    })();
+
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, [loadProfile]);
+
+  // Fetch the profile whenever a session appears (including right after sign-up).
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    void (async () => {
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .maybeSingle();
+        if (cancelled) return;
+        if (data) {
+          setProfile(data as Profile);
+          break;
+        }
+        // The profile row is created by the backend on signup; give it a moment.
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      if (!cancelled) setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
 
   useEffect(() => {
-    if (!hydrated) return;
     const t = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(t);
-  }, [hydrated]);
+  }, []);
 
+  const totalXp = profile?.total_xp ?? 0;
   const derived = useMemo(() => levelFromTotalXp(totalXp), [totalXp]);
-  const surgeActive = hydrated && surgeUntil > now;
+  const surgeUntil = profile?.surge_until ? Date.parse(profile.surge_until) : 0;
+  const surgeActive = surgeUntil > now && now > 0;
 
   const award = useCallback<Ctx["award"]>(
-    (sourceId, amount, label) => {
-      const gate = COOLDOWN_MS[sourceId] ?? 0;
-      const last = cooldowns.current[sourceId] ?? 0;
-      const stamp = Date.now();
-      if (gate > 0 && stamp - last < gate) return "cooldown";
-      cooldowns.current[sourceId] = stamp;
+    async (source, label) => {
+      if (!profile) return "error";
+      const before = levelFromTotalXp(profile.total_xp).level;
+      const { data, error } = await supabase.rpc(
+        "award_xp",
+        label ? { _source: source, _label: label } : { _source: source },
+      );
+      if (error) return "error";
 
-      const multiplier = surgeUntil > stamp ? 2 : 1;
-      const gained = amount * multiplier;
+      const result = (data ?? {}) as {
+        status?: string;
+        gained?: number;
+        total_xp?: number;
+        energy?: number;
+        surge_until?: string | null;
+      };
 
-      setTotalXp((prev) => {
-        const before = levelFromTotalXp(prev).level;
-        const next = prev + gained;
-        const after = levelFromTotalXp(next).level;
+      if (result.status === "granted") {
+        const nextXp = result.total_xp ?? profile.total_xp;
+        setProfile((p) =>
+          p
+            ? {
+                ...p,
+                total_xp: nextXp,
+                energy: result.energy ?? p.energy,
+                surge_until: result.surge_until ?? p.surge_until,
+              }
+            : p,
+        );
+        setLastGain({ amount: result.gained ?? 0, label: label ?? source, at: Date.now() });
+        const after = levelFromTotalXp(nextXp).level;
         if (after > before) {
           setLevelUp({
             level: after,
             rank: rankForLevel(after),
-            gained,
+            gained: result.gained ?? 0,
             unlock: unlockAt(after),
           });
         }
-        return next;
-      });
-      setEnergy((e) => Math.min(100, e + Math.max(1, Math.round(gained / 25))));
-      setLastGain({ amount: gained, label: label ?? sourceId, at: stamp });
-      return "granted";
+        return "granted";
+      }
+      if (result.status === "capped") return "capped";
+      if (result.status === "cooldown") return "cooldown";
+      return "error";
     },
-    [surgeUntil],
+    [profile],
   );
 
-  const igniteSurge = useCallback(() => {
-    setEnergy((e) => {
-      if (e < 100) return e;
-      setSurgeUntil(Date.now() + 30 * 60 * 1000);
-      return 10;
-    });
+  const igniteSurge = useCallback(async () => {
+    const { data } = await supabase.rpc("ignite_surge");
+    const result = (data ?? {}) as { status?: string; energy?: number; surge_until?: string };
+    if (result.status === "ignited") {
+      setProfile((p) =>
+        p ? { ...p, energy: result.energy ?? 0, surge_until: result.surge_until ?? null } : p,
+      );
+    }
   }, []);
 
+  const refreshProfile = useCallback(async () => {
+    if (session) await loadProfile(session.user.id);
+  }, [session, loadProfile]);
+
   const value: Ctx = {
+    loading,
+    session,
+    profile,
     totalXp,
     level: derived.level,
     rank: rankForLevel(derived.level),
     intoLevel: derived.intoLevel,
     needed: derived.needed,
     progress: Math.min(1, derived.intoLevel / derived.needed),
-    energy,
+    energy: profile?.energy ?? 0,
     surgeActive,
     surgeSecondsLeft: surgeActive ? Math.max(0, Math.round((surgeUntil - now) / 1000)) : 0,
     levelUp,
-    hydrated,
+    lastGain,
     award,
     igniteSurge,
     dismissLevelUp: () => setLevelUp(null),
-    lastGain,
+    refreshProfile,
+    signOut: async () => {
+      await supabase.auth.signOut();
+      setProfile(null);
+      setSession(null);
+    },
   };
 
   return <DimtedContext.Provider value={value}>{children}</DimtedContext.Provider>;

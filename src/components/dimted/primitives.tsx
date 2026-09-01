@@ -8,9 +8,9 @@ export function Panel({
   children,
   delay = 0,
 }: {
-  className?: string;
+  className?: string | undefined;
   children: ReactNode;
-  delay?: number;
+  delay?: number | undefined;
 }) {
   return (
     <section
@@ -28,10 +28,10 @@ export function PanelHead({
   aside,
   className,
 }: {
-  eyebrow?: string;
+  eyebrow?: string | undefined;
   title: string;
-  aside?: ReactNode;
-  className?: string;
+  aside?: ReactNode | undefined;
+  className?: string | undefined;
 }) {
   return (
     <div className={cn("flex items-end justify-between gap-4", className)}>
@@ -67,9 +67,9 @@ export function Meter({
   animate = false,
 }: {
   value: number;
-  className?: string;
-  tone?: "primary" | "gold" | "xp" | "energy";
-  animate?: boolean;
+  className?: string | undefined;
+  tone?: "primary" | "gold" | "xp" | "energy" | undefined;
+  animate?: boolean | undefined;
 }) {
   const fill = {
     primary: "from-primary/70 to-primary",
@@ -108,7 +108,7 @@ export function LockedTile({
 }: {
   hint: string;
   requirement: string;
-  className?: string;
+  className?: string | undefined;
 }) {
   return (
     <div
@@ -132,8 +132,8 @@ export function PageHeader({
 }: {
   eyebrow: string;
   title: string;
-  blurb?: string;
-  aside?: ReactNode;
+  blurb?: string | undefined;
+  aside?: ReactNode | undefined;
 }) {
   return (
     <header className="border-border animate-rise flex flex-wrap items-end justify-between gap-4 border-b pb-5">
