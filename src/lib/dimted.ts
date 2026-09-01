@@ -344,7 +344,7 @@ export const CHALLENGES: ChallengeDef[] = [
   {
     id: "w-activity",
     cadence: "weekly",
-    title: "Complete 5 social activities",
+    title: "Play 5 arcade runs",
     source: "activity",
     goal: 5,
     rewardXp: 500,
