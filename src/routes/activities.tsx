@@ -120,11 +120,11 @@ function ArcadePage() {
       <PageHeader
         eyebrow="Arcade"
         title="Play something"
-        blurb="Three real games. No partner needed, no waiting — press start and go. Every run pays XP and sparks that scale with your score, so you can level up entirely solo."
+        blurb="Eight real games. No partner needed, no waiting — press start and go. Every run pays XP and sparks that scale with your score, so you can level up entirely solo."
       />
 
       {/* Game picker */}
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {GAMES.map((g, i) => {
           const selected = g.id === gameId;
           const gBest = personalBest(myScores.data, g.id);
