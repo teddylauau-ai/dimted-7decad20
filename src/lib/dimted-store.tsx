@@ -30,6 +30,12 @@ export type Profile = {
   realm_name: string;
   last_active_at: string;
   created_at: string;
+  sparks: number;
+  equipped_nametag: string | null;
+  equipped_badge: string | null;
+  equipped_frame: string | null;
+  equipped_banner: string | null;
+  equipped_effect: string | null;
 };
 
 export type LevelUpPayload = {
@@ -52,6 +58,7 @@ type Ctx = {
   needed: number;
   progress: number;
   energy: number;
+  sparks: number;
   surgeActive: boolean;
   surgeSecondsLeft: number;
   levelUp: LevelUpPayload | null;
@@ -156,6 +163,8 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
         gained?: number;
         total_xp?: number;
         energy?: number;
+        sparks?: number;
+        sparks_gained?: number;
         surge_until?: string | null;
       };
 
@@ -166,6 +175,7 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
             ? {
                 ...p,
                 total_xp: nextXp,
+                sparks: result.sparks ?? p.sparks,
                 energy: result.energy ?? p.energy,
                 surge_until: result.surge_until ?? p.surge_until,
               }
@@ -215,6 +225,7 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
     needed: derived.needed,
     progress: Math.min(1, derived.intoLevel / derived.needed),
     energy: profile?.energy ?? 0,
+    sparks: profile?.sparks ?? 0,
     surgeActive,
     surgeSecondsLeft: surgeActive ? Math.max(0, Math.round((surgeUntil - now) / 1000)) : 0,
     levelUp,

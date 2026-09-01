@@ -172,6 +172,42 @@ export type Database = {
           },
         ]
       }
+      cosmetics: {
+        Row: {
+          created_at: string
+          description: string
+          featured: boolean
+          name: string
+          price_sparks: number
+          rarity: string
+          required_level: number
+          slot: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          featured?: boolean
+          name: string
+          price_sparks?: number
+          rarity: string
+          required_level?: number
+          slot: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          featured?: boolean
+          name?: string
+          price_sparks?: number
+          rarity?: string
+          required_level?: number
+          slot?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       friendships: {
         Row: {
           created_at: string
@@ -230,6 +266,42 @@ export type Database = {
           },
         ]
       }
+      inventory: {
+        Row: {
+          acquired_at: string
+          cosmetic_slug: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          cosmetic_slug: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          cosmetic_slug?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_cosmetic_slug_fkey"
+            columns: ["cosmetic_slug"]
+            isOneToOne: false
+            referencedRelation: "cosmetics"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "inventory_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           body: string
@@ -275,9 +347,15 @@ export type Database = {
           created_at: string
           display_name: string
           energy: number
+          equipped_badge: string | null
+          equipped_banner: string | null
+          equipped_effect: string | null
+          equipped_frame: string | null
+          equipped_nametag: string | null
           id: string
           last_active_at: string
           realm_name: string
+          sparks: number
           streak: number
           surge_until: string | null
           title: string
@@ -289,9 +367,15 @@ export type Database = {
           created_at?: string
           display_name: string
           energy?: number
+          equipped_badge?: string | null
+          equipped_banner?: string | null
+          equipped_effect?: string | null
+          equipped_frame?: string | null
+          equipped_nametag?: string | null
           id: string
           last_active_at?: string
           realm_name?: string
+          sparks?: number
           streak?: number
           surge_until?: string | null
           title?: string
@@ -303,9 +387,15 @@ export type Database = {
           created_at?: string
           display_name?: string
           energy?: number
+          equipped_badge?: string | null
+          equipped_banner?: string | null
+          equipped_effect?: string | null
+          equipped_frame?: string | null
+          equipped_nametag?: string | null
           id?: string
           last_active_at?: string
           realm_name?: string
+          sparks?: number
           streak?: number
           surge_until?: string | null
           title?: string
@@ -355,6 +445,7 @@ export type Database = {
     }
     Functions: {
       award_xp: { Args: { _label?: string; _source: string }; Returns: Json }
+      equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       ignite_surge: { Args: never; Returns: Json }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
@@ -364,6 +455,7 @@ export type Database = {
         Args: { _friendship_id: string; _user_id: string }
         Returns: boolean
       }
+      purchase_cosmetic: { Args: { _slug: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
