@@ -215,10 +215,10 @@ export const XP_SOURCES: XpSource[] = [
   },
   {
     id: "activity",
-    label: "Dimted activity",
+    label: "Arcade run",
     xp: 100,
     cooldownLabel: "4 / day",
-    note: "Finishing a social activity with someone.",
+    note: "Finishing a run in the Dimted Arcade.",
   },
   {
     id: "challenge",
@@ -326,7 +326,7 @@ export const CHALLENGES: ChallengeDef[] = [
   {
     id: "d-activity",
     cadence: "daily",
-    title: "Play a Dimted activity",
+    title: "Play an arcade game",
     source: "activity",
     goal: 1,
     rewardXp: 100,
