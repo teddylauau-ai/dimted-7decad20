@@ -532,9 +532,12 @@ function AdminPage() {
               Unlocked items land in their inventory — they still choose what to equip.
             </p>
           </Panel>
+          ) : null}
 
           {/* ---- Titles: owner only ---- */}
+          {me.isStaff ? (
           <Panel className="p-5">
+
             <PanelHead
               eyebrow="Titles"
               title="The line under their name"
