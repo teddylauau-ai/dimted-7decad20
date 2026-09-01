@@ -122,7 +122,7 @@ function Sidebar() {
     signOut,
   } = useDimted();
   const upcoming = nextUnlock(level);
-  const { isStaff } = useMyRole(profile?.id);
+  const { isModerator: isStaff } = useMyRole(profile?.id);
 
   return (
     <aside className="glass hidden w-[236px] shrink-0 flex-col rounded-2xl lg:flex">
