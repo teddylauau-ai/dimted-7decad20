@@ -2,10 +2,10 @@ import { Link } from "@tanstack/react-router";
 import {
   Compass,
   Gamepad2,
-  Globe2,
   Home,
   LogOut,
   MessageCircle,
+  ShieldCheck,
   ShoppingBag,
   Sparkle,
   UserRound,
@@ -16,6 +16,7 @@ import type { ReactNode } from "react";
 import { useDimted } from "@/lib/dimted-store";
 import { nextUnlock } from "@/lib/dimted";
 import { formatSparks } from "@/lib/cosmetics";
+import { useMyRole } from "@/lib/roles-queries";
 import { cn } from "@/lib/utils";
 import { Meter } from "./primitives";
 import { Avatar, Nametag } from "./Identity";
@@ -28,7 +29,7 @@ const RAIL = [
   { to: "/", label: "Home", icon: Home },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/communities", label: "Communities", icon: Users },
-  { to: "/activities", label: "Activities", icon: Gamepad2 },
+  { to: "/activities", label: "Arcade", icon: Gamepad2 },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
 ] as const;
 
@@ -39,7 +40,6 @@ const GROUPS = [
     items: [
       { to: "/", label: "Home", icon: Home },
       { to: "/profile", label: "Profile", icon: UserRound },
-      { to: "/realm", label: "Realm", icon: Globe2 },
       { to: "/shop", label: "Shop", icon: ShoppingBag },
     ],
   },
@@ -52,11 +52,12 @@ const GROUPS = [
     ],
   },
   {
+    label: "Play",
+    items: [{ to: "/activities", label: "Arcade", icon: Gamepad2 }],
+  },
+  {
     label: "Out there",
-    items: [
-      { to: "/discover", label: "Discover", icon: Compass },
-      { to: "/activities", label: "Activities", icon: Gamepad2 },
-    ],
+    items: [{ to: "/discover", label: "Discover", icon: Compass }],
   },
 ] as const;
 
@@ -116,6 +117,7 @@ function Sidebar() {
     signOut,
   } = useDimted();
   const upcoming = nextUnlock(level);
+  const { isStaff } = useMyRole(profile?.id);
 
   return (
     <aside className="glass hidden w-[236px] shrink-0 flex-col rounded-2xl lg:flex">
@@ -146,6 +148,22 @@ function Sidebar() {
             ))}
           </div>
         ))}
+
+        {isStaff ? (
+          <div className="mb-3">
+            <p className="text-muted-foreground/70 px-2 pb-1 font-mono text-[10px] tracking-[0.16em] uppercase">
+              Staff
+            </p>
+            <Link
+              to="/admin"
+              className="text-gold hover:bg-secondary/60 flex h-8 items-center gap-2.5 rounded-md px-2 text-sm transition-colors"
+              activeProps={{ className: "bg-secondary font-medium" }}
+            >
+              <ShieldCheck className="size-4 shrink-0" strokeWidth={1.85} />
+              <span className="truncate">Control panel</span>
+            </Link>
+          </div>
+        ) : null}
 
         <div className="border-border bg-background/40 mt-1 rounded-xl border p-2.5">
           <div className="flex items-baseline justify-between">
