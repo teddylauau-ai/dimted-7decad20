@@ -101,6 +101,13 @@ function ArcadePage() {
     [gameId, refresh, submit, surgeActive],
   );
 
+  // Games mount once per run: keep the callbacks referentially stable so a
+  // re-render (toast, reward state, mutation status) can never restart a run.
+  const endRef = useRef(end);
+  endRef.current = end;
+  const handleEnd = useCallback((s: number) => void endRef.current(s), []);
+  const handleScore = useCallback((s: number) => setScore(s), []);
+
   const playing = phase === "playing";
 
   return (
@@ -162,11 +169,11 @@ function ArcadePage() {
             {playing ? (
               <div key={runKey} className="flex justify-center">
                 {gameId === "nova-blocks" ? (
-                  <NovaBlocks running onScore={setScore} onEnd={(s) => void end(s)} />
+                  <NovaBlocks running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "aurora-drift" ? (
-                  <AuroraDrift running onScore={setScore} onEnd={(s) => void end(s)} />
+                  <AuroraDrift running onScore={handleScore} onEnd={handleEnd} />
                 ) : (
-                  <PulseGrid running onScore={setScore} onEnd={(s) => void end(s)} />
+                  <PulseGrid running onScore={handleScore} onEnd={handleEnd} />
                 )}
               </div>
             ) : (
