@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Check, Flame, Lock } from "lucide-react";
+import { useRef, useState } from "react";
+import { Camera, Check, Flame, Loader2, Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   ACHIEVEMENTS,
@@ -13,7 +13,7 @@ import {
 } from "@/lib/dimted";
 import { useDimted } from "@/lib/dimted-store";
 import { useFriendships, usePlayerStats } from "@/lib/dimted-queries";
-import { updateProfile } from "@/lib/dimted-actions";
+import { removeAvatar, updateProfile, uploadAvatar } from "@/lib/dimted-actions";
 import {
   LockedTile,
   Meter,
@@ -63,6 +63,8 @@ function ProfilePage() {
   const friends = useFriendships(profile?.id);
 
   const [editing, setEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
 
   const ownedItems = ITEMS.filter((i) => i.requiredLevel <= level);
@@ -82,6 +84,32 @@ function ProfilePage() {
       toast.success("Profile updated.");
     } catch {
       toast.error("Couldn't save that");
+    }
+  }
+
+  async function pickPhoto(file: File | undefined) {
+    if (!file || !profile) return;
+    setUploading(true);
+    try {
+      await uploadAvatar(profile.id, file);
+      await refreshProfile();
+      toast.success("Profile picture updated.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileInput.current) fileInput.current.value = "";
+    }
+  }
+
+  async function clearPhoto() {
+    if (!profile) return;
+    try {
+      await removeAvatar(profile.id);
+      await refreshProfile();
+      toast("Back to your initials.");
+    } catch {
+      toast.error("Couldn't remove that");
     }
   }
 
@@ -112,9 +140,49 @@ function ProfilePage() {
         <div className="relative px-6 pb-6">
           <div className="-mt-12 flex flex-wrap items-end justify-between gap-5">
             <div className="flex items-end gap-4">
-              <span className="glass-raised numeral text-glow grid size-24 place-items-center rounded-3xl text-3xl">
-                {level}
-              </span>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => fileInput.current?.click()}
+                  disabled={uploading}
+                  aria-label="Change profile picture"
+                  className="glass-raised group focus-visible:ring-ring relative grid size-24 place-items-center overflow-hidden rounded-3xl focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  {profile?.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt="Your profile picture"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="numeral text-glow text-3xl">{level}</span>
+                  )}
+                  <span className="bg-background/70 absolute inset-0 grid place-items-center opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                    {uploading ? (
+                      <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                      <Camera className="size-5" />
+                    )}
+                  </span>
+                </button>
+                <input
+                  ref={fileInput}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/*"
+                  className="hidden"
+                  onChange={(e) => void pickPhoto(e.target.files?.[0])}
+                />
+                {profile?.avatar_url ? (
+                  <button
+                    type="button"
+                    onClick={() => void clearPhoto()}
+                    aria-label="Remove profile picture"
+                    className="border-border bg-card text-muted-foreground hover:text-foreground absolute -right-1.5 -bottom-1.5 grid size-7 place-items-center rounded-full border"
+                  >
+                    <Trash2 className="size-3.5" />
+                  </button>
+                ) : null}
+              </div>
               <div className="pb-1">
                 <h1 className="font-display text-2xl font-semibold tracking-tight">
                   {profile?.display_name ?? "…"}

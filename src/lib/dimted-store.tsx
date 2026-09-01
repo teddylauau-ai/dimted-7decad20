@@ -36,6 +36,7 @@ export type Profile = {
   equipped_frame: string | null;
   equipped_banner: string | null;
   equipped_effect: string | null;
+  avatar_url: string | null;
 };
 
 export type LevelUpPayload = {

@@ -18,6 +18,7 @@ export type PublicProfile = {
   equipped_frame: string | null;
   equipped_banner: string | null;
   equipped_effect: string | null;
+  avatar_url: string | null;
 };
 
 export type FriendRow = {
@@ -31,10 +32,10 @@ export type FriendRow = {
 };
 
 const PROFILE_FIELDS =
-  "id, username, display_name, bio, title, total_xp, realm_name, last_active_at, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect";
+  "id, username, display_name, bio, title, total_xp, realm_name, last_active_at, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url";
 
 const AUTHOR_FIELDS =
-  "id, display_name, username, equipped_nametag, equipped_badge, equipped_frame, equipped_effect";
+  "id, display_name, username, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
 
 /** Someone counts as "around" if they've been active in the last 5 minutes. */
 export function isRecentlyActive(iso: string): boolean {
@@ -152,6 +153,7 @@ export type ChatAuthor = {
   equipped_badge: string | null;
   equipped_frame: string | null;
   equipped_effect: string | null;
+  avatar_url: string | null;
 };
 
 export type ChatMessage = {

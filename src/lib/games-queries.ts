@@ -15,10 +15,11 @@ export type ScoreRow = {
     equipped_badge: string | null;
     equipped_frame: string | null;
     equipped_effect: string | null;
+    avatar_url: string | null;
   } | null;
 };
 
-const AUTHOR = "id, username, display_name, equipped_nametag, equipped_badge, equipped_frame, equipped_effect";
+const AUTHOR = "id, username, display_name, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
 
 /** Top run per game, best first. */
 export function useLeaderboard(game: GameId) {
