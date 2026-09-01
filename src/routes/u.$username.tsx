@@ -90,7 +90,15 @@ function PublicProfilePage() {
     <div className="space-y-5">
       <Panel className="overflow-hidden p-0">
         <div className="relative h-40" style={{ background: bannerFor(person.equipped_banner) }}>
-          <div className="animate-breathe absolute inset-0 bg-[radial-gradient(40%_60%_at_50%_50%,oklch(0.7_0.12_300/0.16),transparent_70%)]" />
+          {person.banner_url ? (
+            <img
+              src={person.banner_url}
+              alt={`${person.display_name}'s banner`}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div className="animate-breathe absolute inset-0 bg-[radial-gradient(40%_60%_at_50%_50%,oklch(0.7_0.12_300/0.16),transparent_70%)]" />
+          )}
         </div>
         <div className="px-6 pb-6">
           <div className="-mt-10 flex flex-wrap items-end justify-between gap-5">

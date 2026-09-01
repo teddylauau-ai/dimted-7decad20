@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Camera, Check, Flame, Loader2, Lock, Trash2 } from "lucide-react";
+import { Camera, Check, Flame, Image as ImageIcon, Loader2, Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   ACHIEVEMENTS,
@@ -13,7 +13,14 @@ import {
 } from "@/lib/dimted";
 import { useDimted } from "@/lib/dimted-store";
 import { useFriendships, usePlayerStats } from "@/lib/dimted-queries";
-import { removeAvatar, updateProfile, uploadAvatar } from "@/lib/dimted-actions";
+import {
+  removeAvatar,
+  removeBanner,
+  updateProfile,
+  uploadAvatar,
+  uploadBanner,
+} from "@/lib/dimted-actions";
+import { bannerFor } from "@/lib/cosmetics";
 import {
   LockedTile,
   Meter,
@@ -65,6 +72,8 @@ function ProfilePage() {
   const [editing, setEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const bannerInput = useRef<HTMLInputElement>(null);
+  const [bannerUploading, setBannerUploading] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
 
   const ownedItems = ITEMS.filter((i) => i.requiredLevel <= level);
@@ -113,6 +122,32 @@ function ProfilePage() {
     }
   }
 
+  async function pickBanner(file: File | undefined) {
+    if (!file || !profile) return;
+    setBannerUploading(true);
+    try {
+      await uploadBanner(profile.id, file);
+      await refreshProfile();
+      toast.success("Banner updated.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Upload failed");
+    } finally {
+      setBannerUploading(false);
+      if (bannerInput.current) bannerInput.current.value = "";
+    }
+  }
+
+  async function clearBanner() {
+    if (!profile) return;
+    try {
+      await removeBanner(profile.id);
+      await refreshProfile();
+      toast("Banner image removed.");
+    } catch {
+      toast.error("Couldn't remove that");
+    }
+  }
+
   async function pickTitle(name: string) {
     if (!profile) return;
     await updateProfile(profile.id, { title: name });
@@ -124,17 +159,54 @@ function ProfilePage() {
       <Panel className="overflow-hidden p-0">
         <div
           className="relative h-44"
-          style={{
-            background:
-              "radial-gradient(60% 120% at 20% 120%, oklch(0.42 0.1 200 / 0.65), transparent 70%), radial-gradient(50% 100% at 82% -10%, oklch(0.5 0.12 82 / 0.4), transparent 70%), linear-gradient(120deg, oklch(0.22 0.045 262), oklch(0.15 0.032 258))",
-          }}
+          style={{ background: bannerFor(profile?.equipped_banner) }}
         >
-          <div
-            className="animate-breathe absolute inset-0"
-            style={{
-              backgroundImage:
-                "radial-gradient(40% 60% at 50% 50%, oklch(0.7 0.12 300 / 0.22), transparent 70%)",
-            }}
+          {profile?.banner_url ? (
+            <img
+              src={profile.banner_url}
+              alt="Your profile banner"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div
+              className="animate-breathe absolute inset-0"
+              style={{
+                backgroundImage:
+                  "radial-gradient(40% 60% at 50% 50%, oklch(0.7 0.12 300 / 0.22), transparent 70%)",
+              }}
+            />
+          )}
+          <div className="absolute top-3 right-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => bannerInput.current?.click()}
+              disabled={bannerUploading}
+              className="glass-raised text-foreground/90 hover:text-foreground flex items-center gap-1.5 rounded-full px-3 py-1.5 font-mono text-[11px]"
+            >
+              {bannerUploading ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <ImageIcon className="size-3.5" />
+              )}
+              {profile?.banner_url ? "Change banner" : "Upload banner"}
+            </button>
+            {profile?.banner_url ? (
+              <button
+                type="button"
+                onClick={() => void clearBanner()}
+                aria-label="Remove banner image"
+                className="glass-raised text-muted-foreground hover:text-foreground grid size-8 place-items-center rounded-full"
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            ) : null}
+          </div>
+          <input
+            ref={bannerInput}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif,image/*"
+            className="hidden"
+            onChange={(e) => void pickBanner(e.target.files?.[0])}
           />
         </div>
         <div className="relative px-6 pb-6">
