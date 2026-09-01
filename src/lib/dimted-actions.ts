@@ -119,7 +119,7 @@ export async function equipCosmetic(slug: string | null, slot: string) {
 
 export async function updateProfile(
   userId: string,
-  patch: { display_name?: string; bio?: string; title?: string; realm_name?: string; avatar_url?: string | null },
+  patch: { display_name?: string; bio?: string; title?: string; realm_name?: string; avatar_url?: string | null; banner_url?: string | null },
 ) {
   const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
   if (error) throw error;
@@ -151,4 +151,30 @@ export async function uploadAvatar(userId: string, file: File): Promise<string> 
 
 export async function removeAvatar(userId: string) {
   await updateProfile(userId, { avatar_url: null });
+}
+
+/** Custom banner image upload (same private bucket, banner-* filenames). */
+export async function uploadBanner(userId: string, file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("That file isn't an image");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Banners must be under 8MB");
+
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `${userId}/banner-${Date.now()}.${ext}`;
+
+  const { error: upErr } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { cacheControl: "31536000", upsert: true, contentType: file.type });
+  if (upErr) throw upErr;
+
+  const { data, error } = await supabase.storage
+    .from("avatars")
+    .createSignedUrl(path, 60 * 60 * 24 * 365);
+  if (error || !data?.signedUrl) throw error ?? new Error("Couldn't read that image back");
+
+  await updateProfile(userId, { banner_url: data.signedUrl });
+  return data.signedUrl;
+}
+
+export async function removeBanner(userId: string) {
+  await updateProfile(userId, { banner_url: null });
 }
