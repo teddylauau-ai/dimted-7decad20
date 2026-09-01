@@ -459,7 +459,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     id: "a6",
     category: "Gaming",
     name: "Steady Hand",
-    detail: "Finish three activities.",
+    detail: "Finish three arcade runs.",
     rarity: "uncommon",
     earned: (s) => s.activities >= 3,
   },

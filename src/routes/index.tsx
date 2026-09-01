@@ -133,7 +133,7 @@ function HomePage() {
             {[
               { label: "Friends", value: stats.friends },
               { label: "Communities", value: stats.communities },
-              { label: "Activities", value: stats.activities },
+              { label: "Arcade runs", value: stats.activities },
               { label: "Discoveries", value: stats.discoveries },
             ].map((s) => (
               <div key={s.label} className="border-border bg-background/40 rounded-xl border p-3">
