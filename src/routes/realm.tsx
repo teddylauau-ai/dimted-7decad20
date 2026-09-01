@@ -28,17 +28,17 @@ export const Route = createFileRoute("/realm")({
 });
 
 function RealmPage() {
-  const { level, award } = useDimted();
+  const { level, award, profile } = useDimted();
   const [selected, setSelected] = useState<RealmObject | null>(REALM_OBJECTS[2] ?? null);
 
-  const objects = REALM_OBJECTS.map((o) => ({ ...o, owned: o.owned || level >= o.level }));
+  const objects = REALM_OBJECTS.map((o) => ({ ...o, owned: level >= o.level }));
   const placed = objects.filter((o) => o.owned);
   const sealed = objects.filter((o) => !o.owned);
 
   return (
     <div className="space-y-5">
       <PageHeader
-        eyebrow="Realm · The Quiet Shore"
+        eyebrow={`Realm · ${profile?.realm_name ?? "The Quiet Shore"}`}
         title="A world that fills in as you use DIMTED"
         blurb="Nothing here was bought. Every object arrived from a conversation, a challenge, or something you found."
         aside={
@@ -46,8 +46,13 @@ function RealmPage() {
             variant="secondary"
             size="sm"
             onClick={() => {
-              award("discovery", 80, "invited a friend to your Realm");
-              toast("Alex can now walk your Realm. Hidden objects count for both of you.");
+              void award("discovery", "Opened your Realm to visitors").then((result) => {
+                toast(
+                  result === "granted"
+                    ? "Your Realm is open to friends. Hidden objects count for both of you."
+                    : "Your Realm is already open to friends.",
+                );
+              });
             }}
           >
             <UserPlus className="size-4" /> Invite a friend
@@ -109,7 +114,9 @@ function RealmPage() {
               <span className="text-muted-foreground flex items-center gap-1.5">
                 <MapPin className="size-3.5" /> {placed.length} placed · {sealed.length} sealed
               </span>
-              <span className="text-muted-foreground">Alex visited yesterday</span>
+              <span className="text-muted-foreground">
+                {level >= 20 ? "Open to visitors" : "Private until Level 20"}
+              </span>
             </div>
           </div>
         </Panel>
@@ -122,13 +129,13 @@ function RealmPage() {
                   <div>
                     <p className="eyebrow">{selected.kind}</p>
                     <h2 className="font-display mt-1 text-xl font-semibold tracking-tight">
-                      {selected.owned || level >= selected.level ? selected.name : "???"}
+                      {level >= selected.level ? selected.name : "???"}
                     </h2>
                   </div>
                   <RarityChip rarity={selected.rarity} />
                 </div>
                 <p className="text-muted-foreground mt-3 text-sm">
-                  {selected.owned || level >= selected.level
+                  {level >= selected.level
                     ? selected.note
                     : `Sealed until Level ${selected.level}. Nothing else is explained.`}
                 </p>
