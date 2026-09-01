@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Play, RotateCcw, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,10 +10,12 @@ import { AuroraDrift } from "@/components/games/AuroraDrift";
 import { PulseGrid } from "@/components/games/PulseGrid";
 import { GAMES, type GameId } from "@/lib/games";
 import {
+  awardArcadeXp,
   personalBest,
   useLeaderboard,
   useMyScores,
   useSubmitScore,
+  type ArcadeReward,
 } from "@/lib/games-queries";
 import { useDimted } from "@/lib/dimted-store";
 import { useRefreshDimted } from "@/lib/dimted-queries";
@@ -43,7 +45,7 @@ export const Route = createFileRoute("/activities")({
 type Phase = "idle" | "playing" | "over";
 
 function ArcadePage() {
-  const { profile, award, surgeActive } = useDimted();
+  const { profile, surgeActive } = useDimted();
   const [gameId, setGameId] = useState<GameId>("nova-blocks");
   const [phase, setPhase] = useState<Phase>("idle");
   const [score, setScore] = useState(0);
@@ -64,28 +66,47 @@ function ArcadePage() {
     setPhase("playing");
   };
 
+  const [reward, setReward] = useState<ArcadeReward | null>(null);
+
   const end = useCallback(
     async (finalScore: number) => {
       setScore(finalScore);
       setPhase("over");
+      setReward(null);
       if (finalScore <= 0) return;
       try {
         await submit.mutateAsync({ game: gameId, score: finalScore });
       } catch {
         toast.error("Couldn't save that score");
       }
-      const result = await award("activity", `${game.name} · ${Math.round(finalScore)}`);
-      if (result === "granted") {
-        toast.success(`Run saved${surgeActive ? " — double XP from your surge" : ""}.`);
-        refresh();
-      } else if (result === "capped") {
-        toast("Score saved. You've hit today's XP cap — keep playing for the leaderboard.");
-      } else if (result === "cooldown") {
-        toast("Score saved. XP again in a moment.");
+      try {
+        const result = await awardArcadeXp(gameId, finalScore);
+        setReward(result);
+        if (result.status === "granted") {
+          toast.success(
+            `+${result.gained} XP · +${result.sparks_gained} sparks` +
+              (result.personal_best ? " · new personal best bonus" : "") +
+              (surgeActive ? " · surge doubled" : ""),
+          );
+          refresh();
+        } else if (result.status === "capped") {
+          toast("Score saved. You've maxed today's arcade XP — the leaderboard still counts.");
+        } else if (result.status === "cooldown") {
+          toast("Score saved. XP again in under a minute.");
+        }
+      } catch {
+        toast.error("Score saved, but XP didn't land");
       }
     },
-    [award, game.name, gameId, refresh, submit, surgeActive],
+    [gameId, refresh, submit, surgeActive],
   );
+
+  // Games mount once per run: keep the callbacks referentially stable so a
+  // re-render (toast, reward state, mutation status) can never restart a run.
+  const endRef = useRef(end);
+  endRef.current = end;
+  const handleEnd = useCallback((s: number) => void endRef.current(s), []);
+  const handleScore = useCallback((s: number) => setScore(s), []);
 
   const playing = phase === "playing";
 
@@ -94,7 +115,7 @@ function ArcadePage() {
       <PageHeader
         eyebrow="Arcade"
         title="Play something"
-        blurb="Three real games. No partner needed, no waiting — press start and go. Every run earns XP and lands on the leaderboard."
+        blurb="Three real games. No partner needed, no waiting — press start and go. Every run pays XP and sparks that scale with your score, so you can level up entirely solo."
       />
 
       {/* Game picker */}
@@ -148,11 +169,11 @@ function ArcadePage() {
             {playing ? (
               <div key={runKey} className="flex justify-center">
                 {gameId === "nova-blocks" ? (
-                  <NovaBlocks running onScore={setScore} onEnd={(s) => void end(s)} />
+                  <NovaBlocks running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "aurora-drift" ? (
-                  <AuroraDrift running onScore={setScore} onEnd={(s) => void end(s)} />
+                  <AuroraDrift running onScore={handleScore} onEnd={handleEnd} />
                 ) : (
-                  <PulseGrid running onScore={setScore} onEnd={(s) => void end(s)} />
+                  <PulseGrid running onScore={handleScore} onEnd={handleEnd} />
                 )}
               </div>
             ) : (
@@ -164,6 +185,25 @@ function ArcadePage() {
                     <p className="text-muted-foreground text-sm">
                       Your best is {Math.max(best, Math.round(score)).toLocaleString()}.
                     </p>
+                    {reward?.status === "granted" ? (
+                      <div className="border-border/70 bg-secondary/40 rounded-xl border px-4 py-2.5">
+                        <p className="font-mono text-[11px] tracking-wide">
+                          <span className="text-primary">+{reward.gained} XP</span>
+                          <span className="text-muted-foreground"> · </span>
+                          <span className="text-gold">+{reward.sparks_gained} sparks</span>
+                        </p>
+                        <p className="text-muted-foreground mt-1 text-[11px]">
+                          {reward.personal_best ? "Personal-best bonus included. " : ""}
+                          {reward.runs_left != null && reward.runs_left <= 5
+                            ? `${reward.runs_left} paid runs left today.`
+                            : "Higher scores pay more XP."}
+                        </p>
+                      </div>
+                    ) : reward?.status === "capped" ? (
+                      <p className="text-muted-foreground text-[11px]">
+                        Daily arcade XP maxed — scores still count on the leaderboard.
+                      </p>
+                    ) : null}
                     <Button onClick={start}>
                       <RotateCcw className="size-4" /> Play again
                     </Button>

@@ -98,3 +98,24 @@ export function useDeleteScore() {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ["leaderboard"] }),
   });
 }
+
+export type ArcadeReward = {
+  status: "granted" | "cooldown" | "capped" | "no_profile" | "unknown_game";
+  gained?: number;
+  sparks_gained?: number;
+  personal_best?: boolean;
+  runs_left?: number;
+};
+
+/**
+ * Score-scaled XP for a finished arcade run. Solo progression path: you never
+ * need another player online to level up. Cooldown + daily cap live server-side.
+ */
+export async function awardArcadeXp(game: GameId, score: number): Promise<ArcadeReward> {
+  const { data, error } = await supabase.rpc("award_arcade_xp", {
+    _game: game,
+    _score: Math.max(0, Math.round(score)),
+  } as never);
+  if (error) throw error;
+  return data as unknown as ArcadeReward;
+}

@@ -173,6 +173,7 @@ export type XpSourceId =
   | "community"
   | "friend"
   | "activity"
+  | "arcade"
   | "challenge"
   | "discovery";
 
@@ -214,11 +215,18 @@ export const XP_SOURCES: XpSource[] = [
     note: "Awarded when a friend request is accepted.",
   },
   {
-    id: "activity",
+    id: "arcade",
     label: "Arcade run",
+    xp: 200,
+    cooldownLabel: "18 / day",
+    note: "Scales with your score. Beat your personal best for a bonus — no other players needed.",
+  },
+  {
+    id: "activity",
+    label: "Social activity",
     xp: 100,
     cooldownLabel: "4 / day",
-    note: "Finishing a run in the Dimted Arcade.",
+    note: "Doing something with another real account.",
   },
   {
     id: "challenge",
@@ -326,7 +334,7 @@ export const CHALLENGES: ChallengeDef[] = [
   {
     id: "d-activity",
     cadence: "daily",
-    title: "Play an arcade game",
+    title: "Play 3 arcade runs",
     source: "activity",
     goal: 1,
     rewardXp: 100,
@@ -345,7 +353,7 @@ export const CHALLENGES: ChallengeDef[] = [
     id: "w-activity",
     cadence: "weekly",
     title: "Play 5 arcade runs",
-    source: "activity",
+    source: "arcade",
     goal: 5,
     rewardXp: 500,
     rarity: "rare",
@@ -451,7 +459,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     id: "a6",
     category: "Gaming",
     name: "Steady Hand",
-    detail: "Finish three activities.",
+    detail: "Finish three arcade runs.",
     rarity: "uncommon",
     earned: (s) => s.activities >= 3,
   },

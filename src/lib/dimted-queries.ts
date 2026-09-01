@@ -276,7 +276,7 @@ export function usePlayerStats(userId: string | undefined, totalXp: number): Pla
     friends: accepted.length,
     messagesSent: all.filter((e) => e.source === "message").length,
     communities: (communities.data ?? []).filter((c) => c.isMember).length,
-    activities: all.filter((e) => e.source === "activity").length,
+    activities: all.filter((e) => e.source === "activity" || e.source === "arcade").length,
     discoveries: all.filter((e) => e.source === "discovery").length,
     bestFriendshipLevel: accepted.reduce(
       (best, f) => Math.max(best, friendshipLevel(f.friendshipXp).level),
