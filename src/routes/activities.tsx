@@ -64,27 +64,39 @@ function ArcadePage() {
     setPhase("playing");
   };
 
+  const [reward, setReward] = useState<ArcadeReward | null>(null);
+
   const end = useCallback(
     async (finalScore: number) => {
       setScore(finalScore);
       setPhase("over");
+      setReward(null);
       if (finalScore <= 0) return;
       try {
         await submit.mutateAsync({ game: gameId, score: finalScore });
       } catch {
         toast.error("Couldn't save that score");
       }
-      const result = await award("activity", `${game.name} · ${Math.round(finalScore)}`);
-      if (result === "granted") {
-        toast.success(`Run saved${surgeActive ? " — double XP from your surge" : ""}.`);
-        refresh();
-      } else if (result === "capped") {
-        toast("Score saved. You've hit today's XP cap — keep playing for the leaderboard.");
-      } else if (result === "cooldown") {
-        toast("Score saved. XP again in a moment.");
+      try {
+        const result = await awardArcadeXp(gameId, finalScore);
+        setReward(result);
+        if (result.status === "granted") {
+          toast.success(
+            `+${result.gained} XP · +${result.sparks_gained} sparks` +
+              (result.personal_best ? " · new personal best bonus" : "") +
+              (surgeActive ? " · surge doubled" : ""),
+          );
+          refresh();
+        } else if (result.status === "capped") {
+          toast("Score saved. You've maxed today's arcade XP — the leaderboard still counts.");
+        } else if (result.status === "cooldown") {
+          toast("Score saved. XP again in under a minute.");
+        }
+      } catch {
+        toast.error("Score saved, but XP didn't land");
       }
     },
-    [award, game.name, gameId, refresh, submit, surgeActive],
+    [gameId, refresh, submit, surgeActive],
   );
 
   const playing = phase === "playing";
