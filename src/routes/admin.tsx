@@ -320,6 +320,8 @@ function AdminPage() {
         <div className="mt-3 flex flex-wrap gap-2">
           {shown.map((p) => {
             const active = p.id === target?.id;
+            const banned = sanctionLabel(p.banned_until);
+            const muted = sanctionLabel(p.muted_until);
             return (
               <button
                 key={p.id}
@@ -332,6 +334,15 @@ function AdminPage() {
                 <Avatar profile={p} size={24} />
                 <span className="text-sm font-medium">{p.display_name}</span>
                 <span className="text-muted-foreground font-mono text-[10px]">@{p.username}</span>
+                {banned ? (
+                  <span className="text-destructive border-destructive/40 bg-destructive/10 rounded-full border px-1.5 font-mono text-[9px] uppercase">
+                    banned
+                  </span>
+                ) : muted ? (
+                  <span className="text-gold border-gold/40 bg-gold/10 rounded-full border px-1.5 font-mono text-[9px] uppercase">
+                    muted
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -340,8 +351,101 @@ function AdminPage() {
 
       {target ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          {/* ---- XP / sparks ---- */}
+          {/* ---- Sanctions ---- */}
           <Panel className="p-5">
+            <PanelHead
+              eyebrow="Moderation"
+              title={`Sanction ${target.display_name}`}
+              aside={me.isStaff ? "bans + mutes" : "mutes only"}
+            />
+            <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+              Ban: <span className="text-foreground">{sanctionLabel(target.banned_until) ?? "clean"}</span> ·
+              Mute: <span className="text-foreground">{sanctionLabel(target.muted_until) ?? "clean"}</span>
+              {target.ban_reason ? ` · “${target.ban_reason}”` : ""}
+            </p>
+            <Input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Reason (optional)…"
+              maxLength={120}
+              className="mt-3"
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => void applyMute(60)}>
+                <MicOff className="size-4" /> Mute 1h
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => void applyMute(1440)}>
+                Mute 24h
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => void applyMute(0)}>
+                Unmute
+              </Button>
+            </div>
+            {me.isStaff ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => void applyBan(1440)}>
+                  <Ban className="size-4" /> Ban 24h
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => void applyBan(10080)}>
+                  Ban 7d
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => void applyBan(-1)}>
+                  Ban permanently
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => void applyBan(0)}>
+                  Lift ban
+                </Button>
+              </div>
+            ) : (
+              <p className="text-muted-foreground mt-2 text-xs">Bans are admin and owner only.</p>
+            )}
+            <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+              A ban stops all messaging and XP. A mute only stops messaging. Neither can touch an account at
+              or above your own rank.
+            </p>
+          </Panel>
+
+          {/* ---- Owner: edit anything ---- */}
+          {me.isOwner ? (
+            <Panel className="p-5">
+              <PanelHead eyebrow="Owner" title={`Edit ${target.display_name}'s account`} aside="everything" />
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {EDIT_FIELDS.map((field) => {
+                  const key = field.key as string;
+                  const current = (target as unknown as Record<string, unknown>)[key];
+                  return (
+                    <label key={key} className="space-y-1">
+                      <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
+                        {field.label}
+                      </span>
+                      <Input
+                        value={edits[key] ?? (current === null || current === undefined ? "" : String(current))}
+                        inputMode={field.numeric ? "numeric" : undefined}
+                        onChange={(e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button onClick={() => void saveEdits()} disabled={editProfile.isPending}>
+                  <Pencil className="size-4" /> Save changes
+                </Button>
+                <Button variant="outline" onClick={() => setEdits({})}>
+                  Reset fields
+                </Button>
+              </div>
+              <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+                Every field here is yours to rewrite on any account — name, handle, title, XP, sparks, energy,
+                streak, avatar and equipped cosmetics.
+              </p>
+            </Panel>
+          ) : null}
+
+          {/* ---- XP / sparks ---- */}
+          {me.isStaff ? (
+          <Panel className="p-5">
+
             <PanelHead
               eyebrow="Economy"
               title={`Give ${target.display_name} anything`}
