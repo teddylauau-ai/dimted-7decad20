@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import {
+  BookOpen,
   Compass,
   Gamepad2,
   Home,
@@ -30,6 +31,7 @@ const RAIL = [
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/communities", label: "Communities", icon: Users },
   { to: "/activities", label: "Arcade", icon: Gamepad2 },
+  { to: "/study", label: "Study", icon: BookOpen },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
 ] as const;
 
@@ -53,7 +55,10 @@ const GROUPS = [
   },
   {
     label: "Play",
-    items: [{ to: "/activities", label: "Arcade", icon: Gamepad2 }],
+    items: [
+      { to: "/activities", label: "Arcade", icon: Gamepad2 },
+      { to: "/study", label: "Study", icon: BookOpen },
+    ],
   },
   {
     label: "Out there",
