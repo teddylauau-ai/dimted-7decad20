@@ -55,7 +55,7 @@ function RealmPage() {
         }
       />
 
-      <div className="grid gap-5 xl:grid-cols-[1.6fr_1fr]">
+      <div className="grid items-start gap-5 xl:grid-cols-[1.6fr_1fr]">
         <Panel className="overflow-hidden p-0">
           <div className="relative h-[440px]">
             <div
