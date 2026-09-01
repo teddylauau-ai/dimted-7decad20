@@ -19,6 +19,7 @@ import { formatSparks } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 import { Meter } from "./primitives";
 import { Avatar, Nametag } from "./Identity";
+import { BrandMark, Wordmark } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
 import { LevelUpOverlay } from "./LevelUpOverlay";
 
@@ -75,10 +76,8 @@ function XpTicker() {
 function Rail() {
   return (
     <aside className="glass hidden w-[68px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-3 lg:flex">
-      <Link to="/" className="mb-1.5">
-        <span className="from-primary to-xp text-primary-foreground numeral grid size-11 place-items-center rounded-2xl bg-gradient-to-br text-lg">
-          D
-        </span>
+      <Link to="/" aria-label="Dimted home" className="mb-1.5">
+        <BrandMark size={44} />
       </Link>
       <span className="bg-border my-1 h-px w-8" />
       {RAIL.map(({ to, label, icon: Icon }) => (
@@ -121,7 +120,7 @@ function Sidebar() {
   return (
     <aside className="glass hidden w-[236px] shrink-0 flex-col rounded-2xl lg:flex">
       <div className="border-border flex items-center justify-between border-b px-3.5 py-3">
-        <span className="font-display text-[15px] font-semibold tracking-tight">Dimted</span>
+        <Wordmark className="text-[15px]" />
         <span className="text-gold flex items-center gap-1 font-mono text-[10px]">
           ✦ {formatSparks(sparks)}
         </span>

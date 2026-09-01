@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BrandLockup } from "./Brand";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -62,9 +63,7 @@ export function AuthScreen() {
   return (
     <div className="grid min-h-screen items-center gap-8 p-4 lg:grid-cols-[1.05fr_minmax(0,420px)] lg:p-10">
       <div className="animate-rise max-w-xl">
-        <span className="from-primary to-xp text-primary-foreground numeral grid size-12 place-items-center rounded-2xl bg-gradient-to-br text-xl">
-          D
-        </span>
+        <BrandLockup size={44} className="[&_span:last-child]:text-xl" />
         <h1 className="font-display mt-6 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
           A social world that levels up with you.
         </h1>
