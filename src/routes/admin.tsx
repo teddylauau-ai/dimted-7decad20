@@ -1,19 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Crown, ShieldCheck, Trash2, UserMinus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Crown, Gem, ShieldCheck, Sparkles, Trash2, UserMinus, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
-import { IdentityRow } from "@/components/dimted/Identity";
+import { Avatar, IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
-import { useNewestProfiles } from "@/lib/dimted-queries";
+import { useCosmetics, useNewestProfiles } from "@/lib/dimted-queries";
 import {
   ROLE_LABEL,
+  ROLE_RANK,
+  useForceSurge,
+  useGrantCosmetic,
+  useGrantCurrency,
   useGrantRole,
   useMyRole,
   useRevokeRole,
   useRoles,
+  useSetTitle,
+  useStaffLog,
+  useTitles,
   type AppRole,
 } from "@/lib/roles-queries";
 import { GAMES } from "@/lib/games";
@@ -23,13 +30,14 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Staff panel — Dimted" },
+      { title: "Control panel — Dimted" },
       {
         name: "description",
-        content: "Owner and admin controls for Dimted: grant roles, review the arcade leaderboards.",
+        content:
+          "Owner and admin controls for Dimted: role hierarchy, titles, XP and sparks grants, cosmetics and leaderboard moderation.",
       },
-      { property: "og:title", content: "Dimted staff panel" },
-      { property: "og:description", content: "Roles and moderation for Dimted." },
+      { property: "og:title", content: "Dimted control panel" },
+      { property: "og:description", content: "Roles, titles and grants for Dimted." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -57,17 +65,49 @@ function RoleChip({ role }: { role: AppRole }) {
   );
 }
 
+type Person = {
+  id: string;
+  username: string;
+  display_name: string;
+  title?: string | null;
+  avatar_url?: string | null;
+  equipped_nametag?: string | null;
+  equipped_badge?: string | null;
+  equipped_frame?: string | null;
+};
+
 function AdminPage() {
   const { profile } = useDimted();
   const me = useMyRole(profile?.id);
   const roles = useRoles();
   const people = useNewestProfiles(profile?.id);
+  const titles = useTitles();
+  const cosmetics = useCosmetics();
+  const log = useStaffLog();
+
   const grant = useGrantRole();
   const revoke = useRevokeRole();
+  const grantCurrency = useGrantCurrency();
+  const grantCosmetic = useGrantCosmetic();
+  const setTitle = useSetTitle();
+  const forceSurge = useForceSurge();
+
   const [filter, setFilter] = useState("");
+  const [targetId, setTargetId] = useState<string | null>(null);
+  const [xp, setXp] = useState("1000");
+  const [sparks, setSparks] = useState("500");
+  const [titleSlug, setTitleSlug] = useState("");
+  const [cosmeticSlug, setCosmeticSlug] = useState("");
   const [game, setGame] = useState(GAMES[0]!.id);
   const board = useLeaderboard(game);
   const removeScore = useDeleteScore();
+
+  const everyone = useMemo(() => {
+    const list = [profile, ...(people.data ?? [])].filter(Boolean) as Person[];
+    return list.filter((p, i) => list.findIndex((q) => q.id === p.id) === i);
+  }, [profile, people.data]);
+
+  const target = everyone.find((p) => p.id === (targetId ?? profile?.id)) ?? null;
 
   if (me.loading) {
     return <p className="text-muted-foreground p-4 font-mono text-xs">Checking your access…</p>;
@@ -88,29 +128,30 @@ function AdminPage() {
     );
   }
 
-  const grantable: AppRole[] = me.isOwner ? ["admin", "moderator", "member"] : ["moderator", "member"];
-  const everyone = [profile, ...(people.data ?? [])].filter(Boolean) as {
-    id: string;
-    username: string;
-    display_name: string;
-    equipped_nametag?: string | null;
-    equipped_badge?: string | null;
-    equipped_frame?: string | null;
-  }[];
-  const unique = everyone.filter((p, i) => everyone.findIndex((q) => q.id === p.id) === i);
-  const shown = unique.filter(
+  const myRank = ROLE_RANK[me.role];
+  // Only the owner can create admins; admins stay below their own rank.
+  const grantable = (["admin", "moderator", "member"] as AppRole[]).filter((r) => ROLE_RANK[r] < myRank);
+
+  const shown = everyone.filter(
     (p) =>
       !filter ||
       p.display_name.toLowerCase().includes(filter.toLowerCase()) ||
       p.username.toLowerCase().includes(filter.toLowerCase()),
   );
 
+  function fail(e: unknown) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg === "forbidden") toast.error("Your rank doesn't allow that.");
+    else if (msg === "no_target") toast.error("That account no longer exists.");
+    else toast.error("That didn't go through.");
+  }
+
   async function doGrant(userId: string, role: AppRole) {
     try {
       await grant.mutateAsync({ userId, role });
       toast.success(`${ROLE_LABEL[role]} granted.`);
     } catch {
-      toast.error("Couldn't grant that role.");
+      toast.error("Couldn't grant that role — check the hierarchy.");
     }
   }
 
@@ -123,12 +164,48 @@ function AdminPage() {
     }
   }
 
+  async function payOut(xpAmount: number, sparkAmount: number) {
+    if (!target) return;
+    try {
+      await grantCurrency.mutateAsync({ userId: target.id, xp: xpAmount, sparks: sparkAmount });
+      toast.success(
+        `${target.display_name}: ${xpAmount >= 0 ? "+" : ""}${xpAmount.toLocaleString()} XP · ${sparkAmount >= 0 ? "+" : ""}${sparkAmount.toLocaleString()} sparks`,
+      );
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  async function unlock(slug: string) {
+    if (!target) return;
+    try {
+      await grantCosmetic.mutateAsync({ userId: target.id, slug });
+      toast.success(slug === "*" ? "Entire collection unlocked." : "Cosmetic unlocked.");
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  async function applyTitle(slug: string) {
+    if (!target) return;
+    try {
+      const res = (await setTitle.mutateAsync({ userId: target.id, title: slug })) as { title?: string };
+      toast.success(`Title set to “${res?.title ?? slug}”.`);
+    } catch (e) {
+      fail(e);
+    }
+  }
+
   return (
     <div className="space-y-5">
       <PageHeader
         eyebrow="Staff"
-        title="Dimted control"
-        blurb="Grant roles and keep the leaderboards honest."
+        title="Control panel"
+        blurb={
+          me.isOwner
+            ? "Owner access: full grants, the title ladder, and the role hierarchy. Admins get a capped version of this desk."
+            : "Admin access: capped grants and moderation. Titles and admin roles are owner-only."
+        }
         aside={
           <span className="flex items-center gap-2">
             {me.isOwner ? <Crown className="text-gold size-4" /> : <ShieldCheck className="text-primary size-4" />}
@@ -137,76 +214,228 @@ function AdminPage() {
         }
       />
 
+      {/* ---- Target picker ---- */}
       <Panel className="p-5">
-        <PanelHead
-          eyebrow="Team"
-          title="Who holds what"
-          aside={`${(roles.data ?? []).length} grant${(roles.data ?? []).length === 1 ? "" : "s"}`}
-        />
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-          {(roles.data ?? []).map((r) => (
-            <li
-              key={r.id}
-              className="border-border bg-background/40 flex items-center gap-2 rounded-xl border px-2.5 py-2"
-            >
-              <div className="min-w-0 flex-1">
-                {r.profile ? (
-                  <IdentityRow profile={r.profile} size={28} />
-                ) : (
-                  <span className="text-muted-foreground font-mono text-[11px]">unknown account</span>
-                )}
-              </div>
-              <RoleChip role={r.role} />
-              {r.role !== "owner" ? (
-                <button
-                  onClick={() => void doRevoke(r.id, ROLE_LABEL[r.role])}
-                  aria-label="Remove role"
-                  className="text-muted-foreground hover:text-destructive grid size-7 place-items-center rounded-lg"
-                >
-                  <UserMinus className="size-3.5" />
-                </button>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      <Panel className="p-5">
-        <PanelHead eyebrow="Accounts" title="Grant a role" />
+        <PanelHead eyebrow="Grant desk" title="Pick an account" aside={`${everyone.length} real accounts`} />
         <Input
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          placeholder="Search real accounts…"
+          placeholder="Search accounts…"
           className="mt-4"
         />
-        <ul className="mt-3 space-y-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {shown.map((p) => {
-            const held = (roles.data ?? []).filter((r) => r.user_id === p.id).map((r) => r.role);
+            const active = p.id === target?.id;
             return (
-              <li
+              <button
                 key={p.id}
-                className="border-border bg-background/40 flex flex-wrap items-center gap-2 rounded-xl border px-2.5 py-2"
+                onClick={() => setTargetId(p.id)}
+                className={cn(
+                  "border-border bg-background/40 hover:bg-secondary/50 flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition-colors",
+                  active && "border-primary/60 bg-primary/10",
+                )}
               >
-                <div className="min-w-0 flex-1">
-                  <IdentityRow profile={p} size={30} meta={held.map((r) => ROLE_LABEL[r]).join(" · ") || "no role"} />
-                </div>
-                {grantable.map((role) => (
-                  <Button
-                    key={role}
-                    size="sm"
-                    variant="outline"
-                    disabled={held.includes(role) || held.includes("owner")}
-                    onClick={() => void doGrant(p.id, role)}
-                  >
-                    + {ROLE_LABEL[role]}
-                  </Button>
-                ))}
-              </li>
+                <Avatar profile={p} size={24} />
+                <span className="text-sm font-medium">{p.display_name}</span>
+                <span className="text-muted-foreground font-mono text-[10px]">@{p.username}</span>
+              </button>
             );
           })}
-        </ul>
+        </div>
       </Panel>
 
+      {target ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* ---- XP / sparks ---- */}
+          <Panel className="p-5">
+            <PanelHead
+              eyebrow="Economy"
+              title={`Give ${target.display_name} anything`}
+              aside={me.isOwner ? "uncapped" : "±25,000 per grant"}
+            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="space-y-1.5">
+                <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
+                  XP
+                </span>
+                <Input value={xp} inputMode="numeric" onChange={(e) => setXp(e.target.value)} />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
+                  Sparks
+                </span>
+                <Input value={sparks} inputMode="numeric" onChange={(e) => setSparks(e.target.value)} />
+              </label>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                onClick={() => void payOut(Number(xp) || 0, Number(sparks) || 0)}
+                disabled={grantCurrency.isPending}
+              >
+                <Sparkles className="size-4" /> Grant
+              </Button>
+              <Button variant="outline" onClick={() => void payOut(-(Number(xp) || 0), -(Number(sparks) || 0))}>
+                Take back
+              </Button>
+              <Button variant="outline" onClick={() => void payOut(10000, 2000)}>
+                +10k XP
+              </Button>
+              {me.isOwner ? (
+                <Button variant="outline" onClick={() => void payOut(250000, 50000)}>
+                  Max out
+                </Button>
+              ) : null}
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  if (!target) return;
+                  try {
+                    await forceSurge.mutateAsync({ userId: target.id, minutes: 60 });
+                    toast.success("Surge running for 60 minutes.");
+                  } catch (e) {
+                    fail(e);
+                  }
+                }}
+              >
+                <Zap className="size-4" /> Force surge
+              </Button>
+            </div>
+          </Panel>
+
+          {/* ---- Cosmetics ---- */}
+          <Panel className="p-5">
+            <PanelHead eyebrow="Wardrobe" title="Unlock cosmetics" aside={`${(cosmetics.data ?? []).length} items`} />
+            <select
+              value={cosmeticSlug}
+              onChange={(e) => setCosmeticSlug(e.target.value)}
+              className="border-border bg-secondary/40 focus-visible:ring-ring mt-4 w-full rounded-xl border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+            >
+              <option value="">Choose an item…</option>
+              {(cosmetics.data ?? []).map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name} · {c.slot} · {c.rarity}
+                </option>
+              ))}
+            </select>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button disabled={!cosmeticSlug || grantCosmetic.isPending} onClick={() => void unlock(cosmeticSlug)}>
+                <Gem className="size-4" /> Unlock item
+              </Button>
+              {me.isOwner ? (
+                <Button variant="outline" onClick={() => void unlock("*")}>
+                  Unlock everything
+                </Button>
+              ) : null}
+            </div>
+            <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+              Unlocked items land in their inventory — they still choose what to equip.
+            </p>
+          </Panel>
+
+          {/* ---- Titles: owner only ---- */}
+          <Panel className="p-5">
+            <PanelHead
+              eyebrow="Titles"
+              title="The line under their name"
+              aside={me.isOwner ? "owner only" : "locked"}
+            />
+            {me.isOwner ? (
+              <>
+                <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+                  Currently: <span className="text-foreground font-medium">{target.title ?? "Newcomer"}</span>.
+                  Higher tiers are the rarer names.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {(titles.data ?? []).map((t) => (
+                    <Button
+                      key={t.slug}
+                      size="sm"
+                      variant={target.title === t.label ? "default" : "outline"}
+                      onClick={() => void applyTitle(t.slug)}
+                    >
+                      <span className="text-gold font-mono text-[10px]">T{t.tier}</span> {t.label}
+                    </Button>
+                  ))}
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Input
+                    value={titleSlug}
+                    onChange={(e) => setTitleSlug(e.target.value)}
+                    placeholder="Custom title…"
+                    maxLength={40}
+                  />
+                  <Button variant="outline" disabled={!titleSlug.trim()} onClick={() => void applyTitle(titleSlug)}>
+                    Set
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <p className="text-muted-foreground mt-3 text-sm">
+                Only the owner hands out titles. You can still grant XP, sparks and cosmetics.
+              </p>
+            )}
+          </Panel>
+
+          {/* ---- Roles ---- */}
+          <Panel className="p-5">
+            <PanelHead eyebrow="Hierarchy" title="Roles" aside="owner › admin › moderator › member" />
+            <ul className="mt-4 grid gap-2">
+              {(roles.data ?? []).map((r) => (
+                <li
+                  key={r.id}
+                  className="border-border bg-background/40 flex items-center gap-2 rounded-xl border px-2.5 py-2"
+                >
+                  <div className="min-w-0 flex-1">
+                    {r.profile ? (
+                      <IdentityRow profile={r.profile} size={28} />
+                    ) : (
+                      <span className="text-muted-foreground font-mono text-[11px]">unknown account</span>
+                    )}
+                  </div>
+                  <RoleChip role={r.role} />
+                  {ROLE_RANK[r.role] < myRank ? (
+                    <button
+                      onClick={() => void doRevoke(r.id, ROLE_LABEL[r.role])}
+                      aria-label="Remove role"
+                      className="text-muted-foreground hover:text-destructive grid size-7 place-items-center rounded-lg"
+                    >
+                      <UserMinus className="size-3.5" />
+                    </button>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 space-y-2">
+              <p className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
+                Grant to {target.display_name}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {grantable.map((role) => {
+                  const held = (roles.data ?? [])
+                    .filter((r) => r.user_id === target.id)
+                    .map((r) => r.role);
+                  return (
+                    <Button
+                      key={role}
+                      size="sm"
+                      variant="outline"
+                      disabled={held.includes(role) || held.includes("owner")}
+                      onClick={() => void doGrant(target.id, role)}
+                    >
+                      + {ROLE_LABEL[role]}
+                    </Button>
+                  );
+                })}
+              </div>
+              {!me.isOwner ? (
+                <p className="text-muted-foreground text-xs">Admin role grants are owner-only.</p>
+              ) : null}
+            </div>
+          </Panel>
+        </div>
+      ) : null}
+
+      {/* ---- Moderation ---- */}
       <Panel className="p-5">
         <PanelHead eyebrow="Moderation" title="Arcade scores" />
         <div className="mt-4 flex flex-wrap gap-2">
@@ -243,6 +472,26 @@ function AdminPage() {
               </button>
             </li>
           ))}
+        </ul>
+      </Panel>
+
+      {/* ---- Audit ---- */}
+      <Panel className="p-5">
+        <PanelHead eyebrow="Audit" title="Recent staff actions" />
+        <ul className="mt-4 space-y-1.5">
+          {(log.data ?? []).length === 0 ? (
+            <li className="text-muted-foreground text-sm">Nothing granted yet.</li>
+          ) : null}
+          {(log.data ?? []).map((a) => {
+            const actor = everyone.find((p) => p.id === a.actor_id)?.display_name ?? "staff";
+            const to = everyone.find((p) => p.id === a.target_id)?.display_name ?? "someone";
+            return (
+              <li key={a.id} className="text-muted-foreground font-mono text-[11px]">
+                <span className="text-foreground">{actor}</span> → {to} · {a.action} ·{" "}
+                {JSON.stringify(a.detail)}
+              </li>
+            );
+          })}
         </ul>
       </Panel>
     </div>

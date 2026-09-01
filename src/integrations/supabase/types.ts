@@ -442,6 +442,69 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_actions: {
+        Row: {
+          action: string
+          actor_id: string
+          created_at: string
+          detail: Json
+          id: string
+          target_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          target_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          created_at?: string
+          detail?: Json
+          id?: string
+          target_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_actions_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_actions_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      titles: {
+        Row: {
+          created_at: string
+          label: string
+          slug: string
+          tier: number
+        }
+        Insert: {
+          created_at?: string
+          label: string
+          slug: string
+          tier?: number
+        }
+        Update: {
+          created_at?: string
+          label?: string
+          slug?: string
+          tier?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -529,7 +592,32 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      my_rank: { Args: never; Returns: number }
+      owner_set_title: {
+        Args: { _title: string; _user_id: string }
+        Returns: Json
+      }
       purchase_cosmetic: { Args: { _slug: string }; Returns: Json }
+      role_rank: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: number
+      }
+      staff_grant_cosmetic: {
+        Args: { _slug: string; _user_id: string }
+        Returns: Json
+      }
+      staff_grant_currency: {
+        Args: { _sparks?: number; _user_id: string; _xp?: number }
+        Returns: Json
+      }
+      staff_ignite_surge_for: {
+        Args: { _minutes?: number; _user_id: string }
+        Returns: Json
+      }
+      top_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
     }
     Enums: {
       app_role: "owner" | "admin" | "moderator" | "member"
