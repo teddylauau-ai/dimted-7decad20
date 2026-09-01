@@ -272,3 +272,95 @@
     transform: translate3d(2%, -3%, 0);
   }
 }
+
+/* ── Cosmetics: nametags, frames, message effects ───────────────────────── */
+@layer components {
+  .cos-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 220% auto;
+  }
+
+  .cos-gradient-aurora {
+    background-image: linear-gradient(92deg, var(--primary), var(--xp), var(--primary));
+  }
+
+  .cos-gradient-ember {
+    background-image: linear-gradient(92deg, var(--gold), var(--energy), var(--gold));
+  }
+
+  .cos-gradient-prism {
+    background-image: linear-gradient(
+      92deg,
+      var(--rare),
+      var(--epic),
+      var(--gold),
+      var(--uncommon),
+      var(--rare)
+    );
+  }
+
+  .cos-gradient-eclipse {
+    background-image: linear-gradient(92deg, var(--foreground), var(--legendary), var(--foreground));
+  }
+
+  .cos-gradient-mythos {
+    background-image: linear-gradient(92deg, var(--mythic), var(--secret), var(--gold), var(--mythic));
+  }
+
+  .cos-shimmer {
+    animation: shimmer 3.4s linear infinite;
+  }
+
+  .cos-glow-violet {
+    text-shadow: 0 0 18px oklch(0.74 0.15 305 / 0.55);
+  }
+
+  .cos-glow-mythos {
+    text-shadow: 0 0 22px oklch(0.76 0.17 8 / 0.5);
+  }
+
+  .cos-glow-rare {
+    box-shadow: 0 0 18px -6px var(--rare);
+  }
+
+  .cos-glow-epic {
+    box-shadow: 0 0 22px -6px var(--epic);
+  }
+
+  .cos-glow-mythic {
+    box-shadow: 0 0 26px -6px var(--mythic);
+  }
+
+  .cos-spark-row {
+    position: relative;
+  }
+
+  .cos-spark-row::after {
+    content: "✦";
+    position: absolute;
+    top: 0.35rem;
+    right: 0.6rem;
+    color: var(--gold);
+    animation: spark 1.6s var(--ease-soft) forwards;
+  }
+
+  .cos-ripple-row {
+    background-image: radial-gradient(
+      120% 100% at 0% 50%,
+      oklch(0.79 0.135 189 / 0.1),
+      transparent 60%
+    );
+  }
+
+  /* Discord-style chat row */
+  .chat-row {
+    padding: 0.15rem 0.75rem 0.15rem 0.75rem;
+    border-radius: 0.5rem;
+  }
+
+  .chat-row:hover {
+    background-color: oklch(0.28 0.034 258 / 0.45);
+  }
+}

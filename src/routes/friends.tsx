@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, PageHeader, RarityChip } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
+import { IdentityRow } from "@/components/dimted/Identity";
 import { FRIENDSHIP_TIERS, friendshipLevel } from "@/lib/dimted";
 import { isRecentlyActive, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
 import { respondToFriendRequest } from "@/lib/dimted-actions";
@@ -73,12 +74,7 @@ export function FriendsPage() {
                 key={f.friendshipId}
                 className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
               >
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">{f.profile.display_name}</span>
-                  <span className="text-muted-foreground block truncate text-xs">
-                    @{f.profile.username}
-                  </span>
-                </span>
+                <IdentityRow profile={f.profile} meta={`@${f.profile.username}`} className="flex-1" />
                 <Button size="sm" onClick={() => void respond(f.friendshipId, true)}>
                   <Check className="size-3.5" /> Accept
                 </Button>
@@ -114,10 +110,7 @@ export function FriendsPage() {
             return (
               <Panel key={f.friendshipId} className="p-4" delay={i * 40}>
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{f.profile.display_name}</p>
-                    <p className="text-muted-foreground truncate text-xs">@{f.profile.username}</p>
-                  </div>
+                  <IdentityRow profile={f.profile} meta={`@${f.profile.username}`} />
                   <span className="text-primary shrink-0 font-mono text-[11px]">FL {lvl.level}</span>
                 </div>
 

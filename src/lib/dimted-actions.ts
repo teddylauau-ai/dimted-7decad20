@@ -87,6 +87,36 @@ export async function postChannelMessage(
   if (error) throw error;
 }
 
+export type PurchaseStatus =
+  | "purchased"
+  | "owned"
+  | "locked"
+  | "insufficient"
+  | "unknown_item"
+  | "no_profile"
+  | "error";
+
+/** Buying happens entirely on the server: level, balance and ownership checked there. */
+export async function purchaseCosmetic(slug: string): Promise<{
+  status: PurchaseStatus;
+  sparks?: number;
+  price?: number;
+  required_level?: number;
+}> {
+  const { data, error } = await supabase.rpc("purchase_cosmetic", { _slug: slug });
+  if (error) return { status: "error" };
+  return (data ?? { status: "error" }) as { status: PurchaseStatus; sparks?: number };
+}
+
+/** One item per slot; pass null to take the slot off (the RPC accepts NULL). */
+export async function equipCosmetic(slug: string | null, slot: string) {
+  const { error } = await supabase.rpc("equip_cosmetic", {
+    _slug: slug as unknown as string,
+    _slot: slot,
+  });
+  if (error) throw error;
+}
+
 export async function updateProfile(
   userId: string,
   patch: { display_name?: string; bio?: string; title?: string; realm_name?: string },

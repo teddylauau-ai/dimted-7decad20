@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { friendshipLevel, levelFromTotalXp, type PlayerStats } from "./dimted";
+import type { Cosmetic } from "./cosmetics";
 
 export type PublicProfile = {
   id: string;
@@ -12,6 +13,11 @@ export type PublicProfile = {
   realm_name: string;
   last_active_at: string;
   created_at: string;
+  equipped_nametag: string | null;
+  equipped_badge: string | null;
+  equipped_frame: string | null;
+  equipped_banner: string | null;
+  equipped_effect: string | null;
 };
 
 export type FriendRow = {
@@ -25,7 +31,10 @@ export type FriendRow = {
 };
 
 const PROFILE_FIELDS =
-  "id, username, display_name, bio, title, total_xp, realm_name, last_active_at, created_at";
+  "id, username, display_name, bio, title, total_xp, realm_name, last_active_at, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect";
+
+const AUTHOR_FIELDS =
+  "id, display_name, username, equipped_nametag, equipped_badge, equipped_frame, equipped_effect";
 
 /** Someone counts as "around" if they've been active in the last 5 minutes. */
 export function isRecentlyActive(iso: string): boolean {
@@ -135,11 +144,21 @@ export function useChannels(communityId: string | undefined) {
   });
 }
 
+export type ChatAuthor = {
+  id: string;
+  display_name: string;
+  username: string;
+  equipped_nametag: string | null;
+  equipped_badge: string | null;
+  equipped_frame: string | null;
+  equipped_effect: string | null;
+};
+
 export type ChatMessage = {
   id: string;
   body: string;
   created_at: string;
-  author: { id: string; display_name: string; username: string } | null;
+  author: ChatAuthor | null;
 };
 
 export function useDirectMessages(friendshipId: string | undefined) {
@@ -150,7 +169,7 @@ export function useDirectMessages(friendshipId: string | undefined) {
     queryFn: async (): Promise<ChatMessage[]> => {
       const { data, error } = await supabase
         .from("messages")
-        .select("id, body, created_at, author:profiles!messages_sender_id_fkey (id, display_name, username)")
+        .select(`id, body, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
         .eq("friendship_id", friendshipId!)
         .order("created_at");
       if (error) throw error;
@@ -168,7 +187,7 @@ export function useChannelMessages(channelId: string | undefined) {
       const { data, error } = await supabase
         .from("community_messages")
         .select(
-          "id, body, created_at, author:profiles!community_messages_user_id_fkey (id, display_name, username)",
+          `id, body, created_at, author:profiles!community_messages_user_id_fkey (${AUTHOR_FIELDS})`,
         )
         .eq("channel_id", channelId!)
         .order("created_at")
@@ -186,7 +205,12 @@ export type XpEvent = {
   amount: number;
   label: string | null;
   created_at: string;
-  author: { display_name: string; username: string } | null;
+  author: {
+    username: string;
+    display_name: string;
+    equipped_nametag: string | null;
+    equipped_badge: string | null;
+  } | null;
 };
 
 /** Your XP log plus your friends' — the only "live feed" that exists. */
@@ -199,7 +223,7 @@ export function useXpFeed(userId: string | undefined) {
       const { data, error } = await supabase
         .from("xp_events")
         .select(
-          "id, user_id, source, amount, label, created_at, author:profiles!xp_events_user_id_fkey (display_name, username)",
+          "id, user_id, source, amount, label, created_at, author:profiles!xp_events_user_id_fkey (username, display_name, equipped_nametag, equipped_badge)",
         )
         .order("created_at", { ascending: false })
         .limit(25);
@@ -298,6 +322,69 @@ export function useNewestProfiles(userId: string | undefined) {
         .limit(12);
       if (error) throw error;
       return (data ?? []) as PublicProfile[];
+    },
+  });
+}
+
+/** The whole cosmetic catalogue — the shop and every preview read this. */
+export function useCosmetics() {
+  return useQuery({
+    queryKey: ["cosmetics"],
+    staleTime: 10 * 60 * 1000,
+    queryFn: async (): Promise<Cosmetic[]> => {
+      const { data, error } = await supabase
+        .from("cosmetics")
+        .select("slug, name, slot, rarity, description, price_sparks, required_level, featured")
+        .order("price_sparks");
+      if (error) throw error;
+      return (data ?? []) as Cosmetic[];
+    },
+  });
+}
+
+/** What a given player owns. Used for your own inventory and other profiles. */
+export function useInventory(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["inventory", userId],
+    enabled: !!userId,
+    queryFn: async (): Promise<string[]> => {
+      const { data, error } = await supabase
+        .from("inventory")
+        .select("cosmetic_slug")
+        .eq("user_id", userId!);
+      if (error) throw error;
+      return (data ?? []).map((r) => (r as { cosmetic_slug: string }).cosmetic_slug);
+    },
+  });
+}
+
+/** Public profile lookup by handle — only real signed-up accounts resolve. */
+export function useProfileByUsername(username: string | undefined) {
+  return useQuery({
+    queryKey: ["profile-by-username", username],
+    enabled: !!username,
+    queryFn: async (): Promise<PublicProfile | null> => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(PROFILE_FIELDS)
+        .eq("username", username!)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as PublicProfile | null) ?? null;
+    },
+  });
+}
+
+/** How many accounts exist in total — DIMTED never pads this number. */
+export function usePlayerCount() {
+  return useQuery({
+    queryKey: ["player-count"],
+    queryFn: async (): Promise<number> => {
+      const { count, error } = await supabase
+        .from("profiles")
+        .select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
     },
   });
 }
