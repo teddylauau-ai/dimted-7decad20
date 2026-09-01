@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as CommunitiesRouteImport } from './routes/communities'
 import { Route as DiscoverRouteImport } from './routes/discover'
+import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as RealmRouteImport } from './routes/realm'
 
@@ -36,6 +37,11 @@ const DiscoverRoute = DiscoverRouteImport.update({
   path: '/discover',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FriendsRoute = FriendsRouteImport.update({
+  id: '/friends',
+  path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MessagesRoute = MessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/activities': typeof ActivitiesRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
+  '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/realm': typeof RealmRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/activities': typeof ActivitiesRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
+  '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/realm': typeof RealmRoute
 }
@@ -69,22 +77,36 @@ export interface FileRoutesById {
   '/activities': typeof ActivitiesRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
+  '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/realm': typeof RealmRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/activities' | '/communities' | '/discover' | '/messages' | '/realm'
+    | '/'
+    | '/activities'
+    | '/communities'
+    | '/discover'
+    | '/friends'
+    | '/messages'
+    | '/realm'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/activities' | '/communities' | '/discover' | '/messages' | '/realm'
+    | '/'
+    | '/activities'
+    | '/communities'
+    | '/discover'
+    | '/friends'
+    | '/messages'
+    | '/realm'
   id:
     | '__root__'
     | '/'
     | '/activities'
     | '/communities'
     | '/discover'
+    | '/friends'
     | '/messages'
     | '/realm'
   fileRoutesById: FileRoutesById
@@ -94,6 +116,7 @@ export interface RootRouteChildren {
   ActivitiesRoute: typeof ActivitiesRoute
   CommunitiesRoute: typeof CommunitiesRoute
   DiscoverRoute: typeof DiscoverRoute
+  FriendsRoute: typeof FriendsRoute
   MessagesRoute: typeof MessagesRoute
   RealmRoute: typeof RealmRoute
 }
@@ -128,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiscoverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/friends': {
+      id: '/friends'
+      path: '/friends'
+      fullPath: '/friends'
+      preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/messages': {
       id: '/messages'
       path: '/messages'
@@ -150,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   ActivitiesRoute: ActivitiesRoute,
   CommunitiesRoute: CommunitiesRoute,
   DiscoverRoute: DiscoverRoute,
+  FriendsRoute: FriendsRoute,
   MessagesRoute: MessagesRoute,
   RealmRoute: RealmRoute,
 }
