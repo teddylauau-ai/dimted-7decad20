@@ -503,6 +503,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_arcade_xp: {
+        Args: { _game: string; _score: number }
+        Returns: Json
+      }
       award_xp: { Args: { _label?: string; _source: string }; Returns: Json }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       has_role: {
