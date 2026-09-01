@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.claim_founder_owner() FROM anon, authenticated, public;
