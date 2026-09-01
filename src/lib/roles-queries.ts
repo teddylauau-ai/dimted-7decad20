@@ -196,3 +196,129 @@ export function useStaffLog() {
     },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Sanctions + owner edits.
+// ---------------------------------------------------------------------------
+
+export type StaffAccount = {
+  id: string;
+  username: string;
+  display_name: string;
+  bio: string | null;
+  title: string;
+  total_xp: number;
+  sparks: number;
+  energy: number;
+  streak: number;
+  realm_name: string;
+  avatar_url: string | null;
+  equipped_nametag: string | null;
+  equipped_badge: string | null;
+  equipped_frame: string | null;
+  equipped_banner: string | null;
+  equipped_effect: string | null;
+  banned_until: string | null;
+  ban_reason: string | null;
+  muted_until: string | null;
+  mute_reason: string | null;
+  created_at: string;
+};
+
+/** Every real signed-up account, with moderation state. Staff view only. */
+export function useAllAccounts(enabled: boolean) {
+  return useQuery({
+    queryKey: ["staff-accounts"],
+    enabled,
+    queryFn: async (): Promise<StaffAccount[]> => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(
+          "id, username, display_name, bio, title, total_xp, sparks, energy, streak, realm_name, avatar_url, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, banned_until, ban_reason, muted_until, mute_reason, created_at",
+        )
+        .order("created_at", { ascending: true });
+      if (error) throw error;
+      return (data ?? []) as StaffAccount[];
+    },
+  });
+}
+
+/** Admin+ : ban (minutes), unban (0) or permanent ban (-1). */
+export function useSetBan() {
+  return useStaffMutation(
+    async ({ userId, minutes, reason }: { userId: string; minutes: number; reason?: string }) => {
+      const { data, error } = await supabase.rpc("admin_set_ban", {
+        _user_id: userId,
+        _minutes: minutes,
+        _reason: reason ?? null,
+      });
+      if (error) throw error;
+      return unwrap(data);
+    },
+  );
+}
+
+/** Moderator+ : mute (minutes, capped at 24h for moderators) or unmute (0). */
+export function useSetMute() {
+  return useStaffMutation(
+    async ({ userId, minutes, reason }: { userId: string; minutes: number; reason?: string }) => {
+      const { data, error } = await supabase.rpc("mod_set_mute", {
+        _user_id: userId,
+        _minutes: minutes,
+        _reason: reason ?? null,
+      });
+      if (error) throw error;
+      return unwrap(data);
+    },
+  );
+}
+
+export type ProfilePatch = Partial<{
+  display_name: string;
+  username: string;
+  bio: string;
+  title: string;
+  realm_name: string;
+  avatar_url: string;
+  total_xp: number;
+  sparks: number;
+  energy: number;
+  streak: number;
+  equipped_nametag: string;
+  equipped_badge: string;
+  equipped_frame: string;
+  equipped_banner: string;
+  equipped_effect: string;
+}>;
+
+/** Owner-only: rewrite any field on any account. */
+export function useEditProfile() {
+  return useStaffMutation(async ({ userId, patch }: { userId: string; patch: ProfilePatch }) => {
+    const { data, error } = await supabase.rpc("owner_edit_profile", {
+      _user_id: userId,
+      _patch: patch as never,
+    });
+    if (error) throw error;
+    return unwrap(data);
+  });
+}
+
+/** What each rank is allowed to do — shown in the panel and mirrored in the database. */
+export const ROLE_POWERS: Record<AppRole, string[]> = {
+  owner: [
+    "Edit any account's every field at will",
+    "Grant and revoke admin, moderator and member",
+    "Hand out titles, uncapped XP and sparks",
+    "Unlock the entire cosmetic collection",
+    "Permanent bans and unlimited mutes",
+  ],
+  admin: [
+    "Ban and unban members and moderators",
+    "Mute anyone below them, any duration",
+    "Grant XP and sparks (±25,000 per grant)",
+    "Unlock individual cosmetics, force surges",
+    "Grant moderator, delete arcade scores",
+  ],
+  moderator: ["Mute members for up to 24 hours", "Remove community messages", "Read the staff audit log"],
+  member: ["Play, chat and progress — no staff powers"],
+};
