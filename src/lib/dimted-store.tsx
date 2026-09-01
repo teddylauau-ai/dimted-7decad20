@@ -77,7 +77,14 @@ type Ctx = {
   signOut: () => Promise<void>;
 };
 
-const DimtedContext = createContext<Ctx | null>(null);
+/**
+ * Kept on globalThis so hot-module reloads reuse the same context object.
+ * Without this, editing this file mid-session leaves the provider and the
+ * consumers holding two different contexts ("must be used inside
+ * <DimtedProvider>") until a hard refresh.
+ */
+const g = globalThis as unknown as { __dimtedContext?: React.Context<Ctx | null> };
+const DimtedContext = (g.__dimtedContext ??= createContext<Ctx | null>(null));
 
 export function DimtedProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
