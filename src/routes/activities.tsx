@@ -15,13 +15,13 @@ import {
 export const Route = createFileRoute("/activities")({
   head: () => ({
     meta: [
-      { title: "Activities — DIMTED" },
+      { title: "Activities — Dimted" },
       {
         name: "description",
         content:
-          "DIMTED-exclusive social activities built around chatting with real friends — Quickdraw, Chaos Questions, Duo Quest and more.",
+          "Dimted-exclusive social activities built around chatting with real friends — Quickdraw, Chaos Questions, Duo Quest and more.",
       },
-      { property: "og:title", content: "Activities — DIMTED" },
+      { property: "og:title", content: "Activities — Dimted" },
       { property: "og:description", content: "Social activities, not arcade games." },
     ],
   }),
@@ -53,7 +53,7 @@ function ActivitiesPage() {
       <PageHeader
         eyebrow="Play"
         title="Activities"
-        blurb="Every activity here needs another person. None of them exist outside DIMTED."
+        blurb="Every activity here needs another person. None of them exist outside Dimted."
       />
 
       {!hasFriends ? (

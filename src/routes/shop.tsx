@@ -26,13 +26,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
-      { title: "Shop — DIMTED Sparks & cosmetics" },
+      { title: "Shop — Dimted Sparks & cosmetics" },
       {
         name: "description",
         content:
           "Spend Sparks you earned by chatting on nametags, badges, avatar frames, banners and message effects. Nothing here costs real money.",
       },
-      { property: "og:title", content: "Shop — DIMTED Sparks & cosmetics" },
+      { property: "og:title", content: "Shop — Dimted Sparks & cosmetics" },
       {
         property: "og:description",
         content: "Earned currency, worn cosmetics, zero pay-to-win.",
@@ -190,7 +190,7 @@ function ShopPage() {
       <PageHeader
         eyebrow="Earned, never bought with money"
         title="Shop"
-        blurb="Sparks come from playing DIMTED — chatting, streaks, activities, levelling. Cosmetics change how you look, never how you rank."
+        blurb="Sparks come from playing Dimted — chatting, streaks, activities, levelling. Cosmetics change how you look, never how you rank."
         aside={
           <div className="glass-raised rounded-2xl px-4 py-3 text-right">
             <p className="eyebrow">Your Sparks</p>

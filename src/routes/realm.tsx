@@ -12,13 +12,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/realm")({
   head: () => ({
     meta: [
-      { title: "Your Realm — DIMTED" },
+      { title: "Your Realm — Dimted" },
       {
         name: "description",
         content:
-          "The DIMTED Realm is your own small futuristic world. It starts almost empty and fills with buildings, portals, companions and secrets as you progress.",
+          "The Dimted Realm is your own small futuristic world. It starts almost empty and fills with buildings, portals, companions and secrets as you progress.",
       },
-      { property: "og:title", content: "Your Realm — DIMTED" },
+      { property: "og:title", content: "Your Realm — Dimted" },
       { property: "og:description", content: "A digital space that grows as you talk, explore and level up." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -39,7 +39,7 @@ function RealmPage() {
     <div className="space-y-5">
       <PageHeader
         eyebrow={`Realm · ${profile?.realm_name ?? "The Quiet Shore"}`}
-        title="A world that fills in as you use DIMTED"
+        title="A world that fills in as you use Dimted"
         blurb="Nothing here was bought. Every object arrived from a conversation, a challenge, or something you found."
         aside={
           <Button

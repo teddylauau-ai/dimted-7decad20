@@ -1,5 +1,5 @@
 /**
- * DIMTED progression model.
+ * Dimted progression model.
  * Pure data + math — no React, no mock people, safe to import anywhere.
  *
  * Everything here is a *definition* (a ladder, a catalogue, a rule).
@@ -215,7 +215,7 @@ export const XP_SOURCES: XpSource[] = [
   },
   {
     id: "activity",
-    label: "DIMTED activity",
+    label: "Dimted activity",
     xp: 100,
     cooldownLabel: "4 / day",
     note: "Finishing a social activity with someone.",
@@ -326,7 +326,7 @@ export const CHALLENGES: ChallengeDef[] = [
   {
     id: "d-activity",
     cadence: "daily",
-    title: "Play a DIMTED activity",
+    title: "Play a Dimted activity",
     source: "activity",
     goal: 1,
     rewardXp: 100,
@@ -590,7 +590,7 @@ export type Item = {
 
 /** You own an item once you've reached the level that unlocks it. */
 export const ITEMS: Item[] = [
-  { id: "i1", name: "First Light", type: "Badge", rarity: "common", requiredLevel: 1, source: "Joining DIMTED" },
+  { id: "i1", name: "First Light", type: "Badge", rarity: "common", requiredLevel: 1, source: "Joining Dimted" },
   { id: "i2", name: "Quiet Bell", type: "Realm object", rarity: "common", requiredLevel: 2, source: "Level 2" },
   { id: "i3", name: "Tideline", type: "Frame", rarity: "uncommon", requiredLevel: 5, source: "Level 5" },
   { id: "i4", name: "Low Hum", type: "Effect", rarity: "uncommon", requiredLevel: 7, source: "Level 7" },
