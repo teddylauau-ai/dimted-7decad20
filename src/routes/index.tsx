@@ -6,7 +6,6 @@ import { useDimted } from "@/lib/dimted-store";
 import { ProfileLink } from "@/components/dimted/Identity";
 import {
   CHALLENGES,
-  REALM_OBJECTS,
   SECRETS,
   UNLOCKS,
   XP_SOURCES,
@@ -44,7 +43,6 @@ function HomePage() {
   const upcoming = nextUnlock(level);
   const dailies = CHALLENGES.filter((c) => c.cadence === "daily");
   const weeklies = CHALLENGES.filter((c) => c.cadence === "weekly");
-  const nextRealmObject = REALM_OBJECTS.find((o) => o.level > level);
   const nextSecret = SECRETS.find((s) => s.requiredLevel > level);
 
   return (
@@ -246,12 +244,6 @@ function HomePage() {
         <Panel className="p-5" delay={140}>
           <PanelHead eyebrow="Ahead of you" title="Still hidden" />
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {nextRealmObject ? (
-              <LockedTile
-                hint={`Something appears in ${profile?.realm_name ?? "your Realm"}.`}
-                requirement={`Level ${nextRealmObject.level}`}
-              />
-            ) : null}
             {nextSecret ? (
               <LockedTile hint={nextSecret.hint} requirement={`Level ${nextSecret.requiredLevel}`} />
             ) : null}

@@ -11,12 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivitiesRouteImport } from './routes/activities'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CommunitiesRouteImport } from './routes/communities'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as RealmRouteImport } from './routes/realm'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 
@@ -28,6 +28,11 @@ const IndexRoute = IndexRouteImport.update({
 const ActivitiesRoute = ActivitiesRouteImport.update({
   id: '/activities',
   path: '/activities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunitiesRoute = CommunitiesRouteImport.update({
@@ -55,11 +60,6 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RealmRoute = RealmRouteImport.update({
-  id: '/realm',
-  path: '/realm',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -74,24 +74,24 @@ const UUsernameRoute = UUsernameRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
+  '/admin': typeof AdminRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/realm': typeof RealmRoute
   '/shop': typeof ShopRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
+  '/admin': typeof AdminRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/realm': typeof RealmRoute
   '/shop': typeof ShopRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -99,12 +99,12 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
+  '/admin': typeof AdminRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/realm': typeof RealmRoute
   '/shop': typeof ShopRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -113,36 +113,36 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/activities'
+    | '/admin'
     | '/communities'
     | '/discover'
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/realm'
     | '/shop'
     | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/activities'
+    | '/admin'
     | '/communities'
     | '/discover'
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/realm'
     | '/shop'
     | '/u/$username'
   id:
     | '__root__'
     | '/'
     | '/activities'
+    | '/admin'
     | '/communities'
     | '/discover'
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/realm'
     | '/shop'
     | '/u/$username'
   fileRoutesById: FileRoutesById
@@ -150,12 +150,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivitiesRoute: typeof ActivitiesRoute
+  AdminRoute: typeof AdminRoute
   CommunitiesRoute: typeof CommunitiesRoute
   DiscoverRoute: typeof DiscoverRoute
   FriendsRoute: typeof FriendsRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
-  RealmRoute: typeof RealmRoute
   ShopRoute: typeof ShopRoute
   UUsernameRoute: typeof UUsernameRoute
 }
@@ -174,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/activities'
       fullPath: '/activities'
       preLoaderRoute: typeof ActivitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/communities': {
@@ -211,13 +218,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/realm': {
-      id: '/realm'
-      path: '/realm'
-      fullPath: '/realm'
-      preLoaderRoute: typeof RealmRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -238,12 +238,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivitiesRoute: ActivitiesRoute,
+  AdminRoute: AdminRoute,
   CommunitiesRoute: CommunitiesRoute,
   DiscoverRoute: DiscoverRoute,
   FriendsRoute: FriendsRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
-  RealmRoute: RealmRoute,
   ShopRoute: ShopRoute,
   UUsernameRoute: UUsernameRoute,
 }

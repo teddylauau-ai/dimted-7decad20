@@ -26,7 +26,7 @@ export const Route = createFileRoute("/discover")({
       {
         name: "description",
         content:
-          "Find real Dimted accounts, open communities, visitable Realms and the secrets still hidden at your level.",
+          "Find real Dimted accounts, open communities and the secrets still hidden at your level.",
       },
       { property: "og:title", content: "Discover — Dimted" },
       { property: "og:description", content: "Everything you find here is real." },
@@ -88,16 +88,13 @@ function DiscoverPage() {
   }
 
   const openCommunities = (communities.data ?? []).filter((c) => !c.isMember);
-  const visitableRealms = (newest.data ?? []).filter(
-    (p) => levelFromTotalXp(p.total_xp).level >= 20,
-  );
 
   return (
     <div className="space-y-5">
       <PageHeader
         eyebrow="Explore"
         title="Discover"
-        blurb="Real accounts, real communities, real Realms. Nothing on this page is generated."
+        blurb="Real accounts and real communities. Nothing on this page is generated."
       />
 
       <Panel className="p-5">
@@ -177,28 +174,6 @@ function DiscoverPage() {
           )}
         </Panel>
 
-        <Panel className="p-5" delay={100}>
-          <PanelHead eyebrow="Realms" title="Visitable spaces" aside="unlocks at Lv 20" />
-          {visitableRealms.length === 0 ? (
-            <p className="text-muted-foreground mt-4 text-sm">
-              Nobody has reached Level 20 yet, so no Realm is open to visitors. Yours could be first.
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-2">
-              {visitableRealms.map((p) => (
-                <li
-                  key={p.id}
-                  className="border-border bg-background/40 rounded-xl border p-3 text-sm"
-                >
-                  <span className="block font-medium">{p.realm_name}</span>
-                  <span className="text-muted-foreground block text-xs">
-                    {p.display_name} · Lv {levelFromTotalXp(p.total_xp).level}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
       </div>
 
       <Panel className="p-5" delay={140}>
