@@ -85,25 +85,44 @@ function RoleChip({ role }: { role: AppRole }) {
   );
 }
 
-type Person = {
-  id: string;
-  username: string;
-  display_name: string;
-  title?: string | null;
-  avatar_url?: string | null;
-  equipped_nametag?: string | null;
-  equipped_badge?: string | null;
-  equipped_frame?: string | null;
-};
+type Person = StaffAccount;
+
+const EDIT_FIELDS: { key: keyof ProfilePatch; label: string; numeric?: boolean }[] = [
+  { key: "display_name", label: "Display name" },
+  { key: "username", label: "Username" },
+  { key: "title", label: "Title" },
+  { key: "bio", label: "Bio" },
+  { key: "avatar_url", label: "Avatar URL" },
+  { key: "total_xp", label: "Total XP", numeric: true },
+  { key: "sparks", label: "Sparks", numeric: true },
+  { key: "energy", label: "Energy (0-100)", numeric: true },
+  { key: "streak", label: "Streak", numeric: true },
+  { key: "equipped_nametag", label: "Equipped nametag" },
+  { key: "equipped_badge", label: "Equipped badge" },
+  { key: "equipped_frame", label: "Equipped frame" },
+  { key: "equipped_banner", label: "Equipped banner" },
+  { key: "equipped_effect", label: "Equipped effect" },
+];
+
+function sanctionLabel(until: string | null | undefined) {
+  if (!until) return null;
+  const ms = new Date(until).getTime() - Date.now();
+  if (ms <= 0) return null;
+  const days = Math.round(ms / 86_400_000);
+  if (days > 365) return "permanent";
+  if (days >= 1) return `${days}d left`;
+  const mins = Math.max(1, Math.round(ms / 60_000));
+  return mins >= 60 ? `${Math.round(mins / 60)}h left` : `${mins}m left`;
+}
 
 function AdminPage() {
   const { profile } = useDimted();
   const me = useMyRole(profile?.id);
   const roles = useRoles();
-  const people = useNewestProfiles(profile?.id);
   const titles = useTitles();
   const cosmetics = useCosmetics();
   const log = useStaffLog();
+  const accounts = useAllAccounts(me.isModerator);
 
   const grant = useGrantRole();
   const revoke = useRevokeRole();
@@ -111,6 +130,9 @@ function AdminPage() {
   const grantCosmetic = useGrantCosmetic();
   const setTitle = useSetTitle();
   const forceSurge = useForceSurge();
+  const setBan = useSetBan();
+  const setMute = useSetMute();
+  const editProfile = useEditProfile();
 
   const [filter, setFilter] = useState("");
   const [targetId, setTargetId] = useState<string | null>(null);
@@ -118,14 +140,13 @@ function AdminPage() {
   const [sparks, setSparks] = useState("500");
   const [titleSlug, setTitleSlug] = useState("");
   const [cosmeticSlug, setCosmeticSlug] = useState("");
+  const [reason, setReason] = useState("");
+  const [edits, setEdits] = useState<Record<string, string>>({});
   const [game, setGame] = useState(GAMES[0]!.id);
   const board = useLeaderboard(game);
   const removeScore = useDeleteScore();
 
-  const everyone = useMemo(() => {
-    const list = [profile, ...(people.data ?? [])].filter(Boolean) as Person[];
-    return list.filter((p, i) => list.findIndex((q) => q.id === p.id) === i);
-  }, [profile, people.data]);
+  const everyone = useMemo(() => accounts.data ?? [], [accounts.data]);
 
   const target = everyone.find((p) => p.id === (targetId ?? profile?.id)) ?? null;
 
@@ -133,10 +154,14 @@ function AdminPage() {
     return <p className="text-muted-foreground p-4 font-mono text-xs">Checking your access…</p>;
   }
 
-  if (!me.isStaff) {
+  if (!me.isModerator) {
     return (
       <div className="space-y-5">
-        <PageHeader eyebrow="Staff" title="Not your door" blurb="This panel is for the owner and admins." />
+        <PageHeader
+          eyebrow="Staff"
+          title="Not your door"
+          blurb="This panel is for the owner, admins and moderators."
+        />
         <Panel className="p-5">
           <p className="text-sm">
             You're signed in as <span className="font-medium">{profile?.display_name}</span> with the{" "}
@@ -147,6 +172,7 @@ function AdminPage() {
       </div>
     );
   }
+
 
   const myRank = ROLE_RANK[me.role];
   // Only the owner can create admins; admins stay below their own rank.
