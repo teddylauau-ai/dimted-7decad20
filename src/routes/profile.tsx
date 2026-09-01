@@ -64,7 +64,6 @@ function ProfilePage() {
 
   const [editing, setEditing] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
-  const [realmName, setRealmName] = useState(profile?.realm_name ?? "");
 
   const ownedItems = ITEMS.filter((i) => i.requiredLevel <= level);
   const earned = ACHIEVEMENTS.filter((a) => a.earned(stats));
@@ -77,7 +76,6 @@ function ProfilePage() {
     try {
       await updateProfile(profile.id, {
         display_name: displayName.trim() || profile.display_name,
-        realm_name: realmName.trim() || profile.realm_name,
       });
       await refreshProfile();
       setEditing(false);
@@ -147,12 +145,6 @@ function ProfilePage() {
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Display name"
                 />
-                <Input
-                  className="min-w-40 flex-1"
-                  value={realmName}
-                  onChange={(e) => setRealmName(e.target.value)}
-                  placeholder="Realm name"
-                />
                 <Button size="sm" onClick={() => void save()}>
                   Save
                 </Button>
@@ -167,7 +159,6 @@ function ProfilePage() {
                 disabled={level < 2}
                 onClick={() => {
                   setDisplayName(profile?.display_name ?? "");
-                  setRealmName(profile?.realm_name ?? "");
                   setEditing(true);
                 }}
               >

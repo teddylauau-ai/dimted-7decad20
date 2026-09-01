@@ -17,7 +17,6 @@ import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as RealmRouteImport } from './routes/realm'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 
@@ -61,11 +60,6 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RealmRoute = RealmRouteImport.update({
-  id: '/realm',
-  path: '/realm',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -86,7 +80,6 @@ export interface FileRoutesByFullPath {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/realm': typeof RealmRoute
   '/shop': typeof ShopRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -99,7 +92,6 @@ export interface FileRoutesByTo {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/realm': typeof RealmRoute
   '/shop': typeof ShopRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -113,7 +105,6 @@ export interface FileRoutesById {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/realm': typeof RealmRoute
   '/shop': typeof ShopRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -128,7 +119,6 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/realm'
     | '/shop'
     | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
@@ -141,7 +131,6 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/realm'
     | '/shop'
     | '/u/$username'
   id:
@@ -154,7 +143,6 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/realm'
     | '/shop'
     | '/u/$username'
   fileRoutesById: FileRoutesById
@@ -168,7 +156,6 @@ export interface RootRouteChildren {
   FriendsRoute: typeof FriendsRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
-  RealmRoute: typeof RealmRoute
   ShopRoute: typeof ShopRoute
   UUsernameRoute: typeof UUsernameRoute
 }
@@ -231,13 +218,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/realm': {
-      id: '/realm'
-      path: '/realm'
-      fullPath: '/realm'
-      preLoaderRoute: typeof RealmRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -264,7 +244,6 @@ const rootRouteChildren: RootRouteChildren = {
   FriendsRoute: FriendsRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
-  RealmRoute: RealmRoute,
   ShopRoute: ShopRoute,
   UUsernameRoute: UUsernameRoute,
 }
