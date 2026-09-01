@@ -55,7 +55,7 @@ export const RANKS: { from: number; name: string }[] = [
 ];
 
 export function rankForLevel(level: number): string {
-  let name = RANKS[0].name;
+  let name = RANKS[0]!.name;
   for (const r of RANKS) if (level >= r.from) name = r.name;
   return name;
 }
@@ -255,7 +255,7 @@ export function friendshipLevel(xp: number): { level: number; into: number; need
     level += 1;
     needed = Math.round((200 + 120 * Math.pow(level - 1, 1.25)) / 10) * 10;
   }
-  let name = FRIENDSHIP_TIERS[0].name;
+  let name = FRIENDSHIP_TIERS[0]!.name;
   for (const t of FRIENDSHIP_TIERS) if (level >= t.level) name = t.name;
   return { level, into: remaining, needed, name };
 }
