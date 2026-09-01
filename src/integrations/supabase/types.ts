@@ -379,6 +379,8 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          ban_reason: string | null
+          banned_until: string | null
           bio: string | null
           created_at: string
           display_name: string
@@ -390,7 +392,10 @@ export type Database = {
           equipped_nametag: string | null
           id: string
           last_active_at: string
+          mute_reason: string | null
+          muted_until: string | null
           realm_name: string
+          sanctioned_by: string | null
           sparks: number
           streak: number
           surge_until: string | null
@@ -400,6 +405,8 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_until?: string | null
           bio?: string | null
           created_at?: string
           display_name: string
@@ -411,7 +418,10 @@ export type Database = {
           equipped_nametag?: string | null
           id: string
           last_active_at?: string
+          mute_reason?: string | null
+          muted_until?: string | null
           realm_name?: string
+          sanctioned_by?: string | null
           sparks?: number
           streak?: number
           surge_until?: string | null
@@ -421,6 +431,8 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          ban_reason?: string | null
+          banned_until?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string
@@ -432,7 +444,10 @@ export type Database = {
           equipped_nametag?: string | null
           id?: string
           last_active_at?: string
+          mute_reason?: string | null
+          muted_until?: string | null
           realm_name?: string
+          sanctioned_by?: string | null
           sparks?: number
           streak?: number
           surge_until?: string | null
@@ -569,6 +584,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_set_ban: {
+        Args: { _minutes: number; _reason?: string; _user_id: string }
+        Returns: Json
+      }
       award_arcade_xp: {
         Args: { _game: string; _score: number }
         Returns: Json
@@ -583,6 +602,7 @@ export type Database = {
         Returns: boolean
       }
       ignite_surge: { Args: never; Returns: Json }
+      is_banned: { Args: { _user_id: string }; Returns: boolean }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
@@ -591,8 +611,18 @@ export type Database = {
         Args: { _friendship_id: string; _user_id: string }
         Returns: boolean
       }
+      is_muted: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      mod_delete_message: { Args: { _message_id: string }; Returns: Json }
+      mod_set_mute: {
+        Args: { _minutes: number; _reason?: string; _user_id: string }
+        Returns: Json
+      }
       my_rank: { Args: never; Returns: number }
+      owner_edit_profile: {
+        Args: { _patch: Json; _user_id: string }
+        Returns: Json
+      }
       owner_set_title: {
         Args: { _title: string; _user_id: string }
         Returns: Json

@@ -1,16 +1,31 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Crown, Gem, ShieldCheck, Sparkles, Trash2, UserMinus, Zap } from "lucide-react";
+import {
+  Ban,
+  Crown,
+  Gem,
+  MicOff,
+  Pencil,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  UserMinus,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { Avatar, IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
-import { useCosmetics, useNewestProfiles } from "@/lib/dimted-queries";
+import { useCosmetics } from "@/lib/dimted-queries";
 import {
   ROLE_LABEL,
+  ROLE_ORDER,
+  ROLE_POWERS,
   ROLE_RANK,
+  useAllAccounts,
+  useEditProfile,
   useForceSurge,
   useGrantCosmetic,
   useGrantCurrency,
@@ -18,14 +33,19 @@ import {
   useMyRole,
   useRevokeRole,
   useRoles,
+  useSetBan,
+  useSetMute,
   useSetTitle,
   useStaffLog,
   useTitles,
   type AppRole,
+  type ProfilePatch,
+  type StaffAccount,
 } from "@/lib/roles-queries";
 import { GAMES } from "@/lib/games";
 import { useDeleteScore, useLeaderboard } from "@/lib/games-queries";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -65,25 +85,44 @@ function RoleChip({ role }: { role: AppRole }) {
   );
 }
 
-type Person = {
-  id: string;
-  username: string;
-  display_name: string;
-  title?: string | null;
-  avatar_url?: string | null;
-  equipped_nametag?: string | null;
-  equipped_badge?: string | null;
-  equipped_frame?: string | null;
-};
+type Person = StaffAccount;
+
+const EDIT_FIELDS: { key: keyof ProfilePatch; label: string; numeric?: boolean }[] = [
+  { key: "display_name", label: "Display name" },
+  { key: "username", label: "Username" },
+  { key: "title", label: "Title" },
+  { key: "bio", label: "Bio" },
+  { key: "avatar_url", label: "Avatar URL" },
+  { key: "total_xp", label: "Total XP", numeric: true },
+  { key: "sparks", label: "Sparks", numeric: true },
+  { key: "energy", label: "Energy (0-100)", numeric: true },
+  { key: "streak", label: "Streak", numeric: true },
+  { key: "equipped_nametag", label: "Equipped nametag" },
+  { key: "equipped_badge", label: "Equipped badge" },
+  { key: "equipped_frame", label: "Equipped frame" },
+  { key: "equipped_banner", label: "Equipped banner" },
+  { key: "equipped_effect", label: "Equipped effect" },
+];
+
+function sanctionLabel(until: string | null | undefined) {
+  if (!until) return null;
+  const ms = new Date(until).getTime() - Date.now();
+  if (ms <= 0) return null;
+  const days = Math.round(ms / 86_400_000);
+  if (days > 365) return "permanent";
+  if (days >= 1) return `${days}d left`;
+  const mins = Math.max(1, Math.round(ms / 60_000));
+  return mins >= 60 ? `${Math.round(mins / 60)}h left` : `${mins}m left`;
+}
 
 function AdminPage() {
   const { profile } = useDimted();
   const me = useMyRole(profile?.id);
   const roles = useRoles();
-  const people = useNewestProfiles(profile?.id);
   const titles = useTitles();
   const cosmetics = useCosmetics();
   const log = useStaffLog();
+  const accounts = useAllAccounts(me.isModerator);
 
   const grant = useGrantRole();
   const revoke = useRevokeRole();
@@ -91,6 +130,9 @@ function AdminPage() {
   const grantCosmetic = useGrantCosmetic();
   const setTitle = useSetTitle();
   const forceSurge = useForceSurge();
+  const setBan = useSetBan();
+  const setMute = useSetMute();
+  const editProfile = useEditProfile();
 
   const [filter, setFilter] = useState("");
   const [targetId, setTargetId] = useState<string | null>(null);
@@ -98,14 +140,13 @@ function AdminPage() {
   const [sparks, setSparks] = useState("500");
   const [titleSlug, setTitleSlug] = useState("");
   const [cosmeticSlug, setCosmeticSlug] = useState("");
+  const [reason, setReason] = useState("");
+  const [edits, setEdits] = useState<Record<string, string>>({});
   const [game, setGame] = useState(GAMES[0]!.id);
   const board = useLeaderboard(game);
   const removeScore = useDeleteScore();
 
-  const everyone = useMemo(() => {
-    const list = [profile, ...(people.data ?? [])].filter(Boolean) as Person[];
-    return list.filter((p, i) => list.findIndex((q) => q.id === p.id) === i);
-  }, [profile, people.data]);
+  const everyone = useMemo(() => accounts.data ?? [], [accounts.data]);
 
   const target = everyone.find((p) => p.id === (targetId ?? profile?.id)) ?? null;
 
@@ -113,10 +154,14 @@ function AdminPage() {
     return <p className="text-muted-foreground p-4 font-mono text-xs">Checking your access…</p>;
   }
 
-  if (!me.isStaff) {
+  if (!me.isModerator) {
     return (
       <div className="space-y-5">
-        <PageHeader eyebrow="Staff" title="Not your door" blurb="This panel is for the owner and admins." />
+        <PageHeader
+          eyebrow="Staff"
+          title="Not your door"
+          blurb="This panel is for the owner, admins and moderators."
+        />
         <Panel className="p-5">
           <p className="text-sm">
             You're signed in as <span className="font-medium">{profile?.display_name}</span> with the{" "}
@@ -127,6 +172,7 @@ function AdminPage() {
       </div>
     );
   }
+
 
   const myRank = ROLE_RANK[me.role];
   // Only the owner can create admins; admins stay below their own rank.
@@ -196,6 +242,51 @@ function AdminPage() {
     }
   }
 
+  async function applyBan(minutes: number) {
+    if (!target) return;
+    try {
+      await setBan.mutateAsync({ userId: target.id, minutes, reason: reason.trim() });
+      toast.success(
+        minutes === 0
+          ? `${target.display_name} unbanned.`
+          : `${target.display_name} banned${minutes < 0 ? " permanently" : ""}.`,
+      );
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  async function applyMute(minutes: number) {
+    if (!target) return;
+    try {
+      await setMute.mutateAsync({ userId: target.id, minutes, reason: reason.trim() });
+      toast.success(minutes === 0 ? `${target.display_name} unmuted.` : `${target.display_name} muted.`);
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  async function saveEdits() {
+    if (!target) return;
+    const patch: Record<string, string | number> = {};
+    for (const field of EDIT_FIELDS) {
+      const raw = edits[field.key as string];
+      if (raw === undefined) continue;
+      patch[field.key as string] = field.numeric ? Number(raw) || 0 : raw;
+    }
+    if (Object.keys(patch).length === 0) {
+      toast.error("Change a field first.");
+      return;
+    }
+    try {
+      await editProfile.mutateAsync({ userId: target.id, patch: patch as ProfilePatch });
+      setEdits({});
+      toast.success(`${target.display_name}'s account updated.`);
+    } catch (e) {
+      fail(e);
+    }
+  }
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -203,9 +294,12 @@ function AdminPage() {
         title="Control panel"
         blurb={
           me.isOwner
-            ? "Owner access: full grants, the title ladder, and the role hierarchy. Admins get a capped version of this desk."
-            : "Admin access: capped grants and moderation. Titles and admin roles are owner-only."
+            ? "Owner access: edit any account field, full grants, the title ladder, bans and the role hierarchy."
+            : me.isStaff
+              ? "Admin access: capped grants, bans, mutes and moderation. Titles, profile edits and admin roles are owner-only."
+              : "Moderator access: mutes up to 24 hours and message clean-up. Grants and bans are for admins and the owner."
         }
+
         aside={
           <span className="flex items-center gap-2">
             {me.isOwner ? <Crown className="text-gold size-4" /> : <ShieldCheck className="text-primary size-4" />}
@@ -226,6 +320,8 @@ function AdminPage() {
         <div className="mt-3 flex flex-wrap gap-2">
           {shown.map((p) => {
             const active = p.id === target?.id;
+            const banned = sanctionLabel(p.banned_until);
+            const muted = sanctionLabel(p.muted_until);
             return (
               <button
                 key={p.id}
@@ -238,6 +334,15 @@ function AdminPage() {
                 <Avatar profile={p} size={24} />
                 <span className="text-sm font-medium">{p.display_name}</span>
                 <span className="text-muted-foreground font-mono text-[10px]">@{p.username}</span>
+                {banned ? (
+                  <span className="text-destructive border-destructive/40 bg-destructive/10 rounded-full border px-1.5 font-mono text-[9px] uppercase">
+                    banned
+                  </span>
+                ) : muted ? (
+                  <span className="text-gold border-gold/40 bg-gold/10 rounded-full border px-1.5 font-mono text-[9px] uppercase">
+                    muted
+                  </span>
+                ) : null}
               </button>
             );
           })}
@@ -246,8 +351,101 @@ function AdminPage() {
 
       {target ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          {/* ---- XP / sparks ---- */}
+          {/* ---- Sanctions ---- */}
           <Panel className="p-5">
+            <PanelHead
+              eyebrow="Moderation"
+              title={`Sanction ${target.display_name}`}
+              aside={me.isStaff ? "bans + mutes" : "mutes only"}
+            />
+            <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+              Ban: <span className="text-foreground">{sanctionLabel(target.banned_until) ?? "clean"}</span> ·
+              Mute: <span className="text-foreground">{sanctionLabel(target.muted_until) ?? "clean"}</span>
+              {target.ban_reason ? ` · “${target.ban_reason}”` : ""}
+            </p>
+            <Input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Reason (optional)…"
+              maxLength={120}
+              className="mt-3"
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => void applyMute(60)}>
+                <MicOff className="size-4" /> Mute 1h
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => void applyMute(1440)}>
+                Mute 24h
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => void applyMute(0)}>
+                Unmute
+              </Button>
+            </div>
+            {me.isStaff ? (
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => void applyBan(1440)}>
+                  <Ban className="size-4" /> Ban 24h
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => void applyBan(10080)}>
+                  Ban 7d
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => void applyBan(-1)}>
+                  Ban permanently
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => void applyBan(0)}>
+                  Lift ban
+                </Button>
+              </div>
+            ) : (
+              <p className="text-muted-foreground mt-2 text-xs">Bans are admin and owner only.</p>
+            )}
+            <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+              A ban stops all messaging and XP. A mute only stops messaging. Neither can touch an account at
+              or above your own rank.
+            </p>
+          </Panel>
+
+          {/* ---- Owner: edit anything ---- */}
+          {me.isOwner ? (
+            <Panel className="p-5">
+              <PanelHead eyebrow="Owner" title={`Edit ${target.display_name}'s account`} aside="everything" />
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                {EDIT_FIELDS.map((field) => {
+                  const key = field.key as string;
+                  const current = (target as unknown as Record<string, unknown>)[key];
+                  return (
+                    <label key={key} className="space-y-1">
+                      <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
+                        {field.label}
+                      </span>
+                      <Input
+                        value={edits[key] ?? (current === null || current === undefined ? "" : String(current))}
+                        inputMode={field.numeric ? "numeric" : undefined}
+                        onChange={(e) => setEdits((prev) => ({ ...prev, [key]: e.target.value }))}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button onClick={() => void saveEdits()} disabled={editProfile.isPending}>
+                  <Pencil className="size-4" /> Save changes
+                </Button>
+                <Button variant="outline" onClick={() => setEdits({})}>
+                  Reset fields
+                </Button>
+              </div>
+              <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+                Every field here is yours to rewrite on any account — name, handle, title, XP, sparks, energy,
+                streak, avatar and equipped cosmetics.
+              </p>
+            </Panel>
+          ) : null}
+
+          {/* ---- XP / sparks ---- */}
+          {me.isStaff ? (
+          <Panel className="p-5">
+
             <PanelHead
               eyebrow="Economy"
               title={`Give ${target.display_name} anything`}
@@ -301,9 +499,12 @@ function AdminPage() {
               </Button>
             </div>
           </Panel>
+          ) : null}
 
           {/* ---- Cosmetics ---- */}
+          {me.isStaff ? (
           <Panel className="p-5">
+
             <PanelHead eyebrow="Wardrobe" title="Unlock cosmetics" aside={`${(cosmetics.data ?? []).length} items`} />
             <select
               value={cosmeticSlug}
@@ -331,9 +532,12 @@ function AdminPage() {
               Unlocked items land in their inventory — they still choose what to equip.
             </p>
           </Panel>
+          ) : null}
 
           {/* ---- Titles: owner only ---- */}
+          {me.isStaff ? (
           <Panel className="p-5">
+
             <PanelHead
               eyebrow="Titles"
               title="The line under their name"
@@ -375,9 +579,12 @@ function AdminPage() {
               </p>
             )}
           </Panel>
+          ) : null}
 
           {/* ---- Roles ---- */}
+          {me.isStaff ? (
           <Panel className="p-5">
+
             <PanelHead eyebrow="Hierarchy" title="Roles" aside="owner › admin › moderator › member" />
             <ul className="mt-4 grid gap-2">
               {(roles.data ?? []).map((r) => (
@@ -432,11 +639,36 @@ function AdminPage() {
               ) : null}
             </div>
           </Panel>
+          ) : null}
         </div>
       ) : null}
 
-      {/* ---- Moderation ---- */}
+      {/* ---- Who can do what ---- */}
       <Panel className="p-5">
+        <PanelHead eyebrow="Hierarchy" title="Who can do what" aside="enforced in the database" />
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {ROLE_ORDER.map((role) => (
+            <div
+              key={role}
+              className={cn(
+                "border-border bg-background/40 rounded-xl border p-3",
+                role === me.role && "border-primary/50 bg-primary/5",
+              )}
+            >
+              <RoleChip role={role} />
+              <ul className="text-muted-foreground mt-2 space-y-1 text-xs leading-relaxed">
+                {ROLE_POWERS[role].map((power) => (
+                  <li key={power}>· {power}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      {/* ---- Arcade scores ---- */}
+      <Panel className="p-5">
+
         <PanelHead eyebrow="Moderation" title="Arcade scores" />
         <div className="mt-4 flex flex-wrap gap-2">
           {GAMES.map((g) => (

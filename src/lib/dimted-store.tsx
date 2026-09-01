@@ -37,7 +37,12 @@ export type Profile = {
   equipped_banner: string | null;
   equipped_effect: string | null;
   avatar_url: string | null;
+  banned_until?: string | null;
+  ban_reason?: string | null;
+  muted_until?: string | null;
+  mute_reason?: string | null;
 };
+
 
 export type LevelUpPayload = {
   level: number;
