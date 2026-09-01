@@ -236,7 +236,7 @@ function Sidebar() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { loading, session } = useDimted();
+  const { loading, session, profile } = useDimted();
 
   if (loading) {
     return (
@@ -249,12 +249,32 @@ export function AppShell({ children }: { children: ReactNode }) {
   // No account, no world: Dimted has no guest mode and no demo data.
   if (!session) return <AuthScreen />;
 
+  const banned = profile?.banned_until && new Date(profile.banned_until) > new Date();
+  const muted = !banned && profile?.muted_until && new Date(profile.muted_until) > new Date();
+
   return (
     <div className="h-screen overflow-hidden p-3">
       <div className="mx-auto flex h-full w-full max-w-[1680px] gap-3">
         <Rail />
         <Sidebar />
-        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-2">{children}</main>
+        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-2">
+          {banned || muted ? (
+            <div
+              className={
+                banned
+                  ? "border-destructive/40 bg-destructive/10 text-destructive mb-3 rounded-2xl border px-4 py-3 text-sm"
+                  : "border-gold/40 bg-gold/10 text-gold mb-3 rounded-2xl border px-4 py-3 text-sm"
+              }
+            >
+              {banned
+                ? "Your account is banned — you can't send messages or earn XP."
+                : "You're muted — you can't send messages right now."}
+              {banned ? (profile?.ban_reason ? ` Reason: ${profile.ban_reason}` : "") : profile?.mute_reason ? ` Reason: ${profile.mute_reason}` : ""}
+            </div>
+          ) : null}
+          {children}
+        </main>
+
       </div>
 
       {/* Mobile bar */}
