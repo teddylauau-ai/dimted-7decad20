@@ -67,7 +67,7 @@ export type Unlock = {
   level: number;
   name: string;
   detail: string;
-  kind: "cosmetic" | "realm" | "social" | "chat" | "secret";
+  kind: "cosmetic" | "arcade" | "social" | "chat" | "secret";
   rarity: Rarity;
 };
 
@@ -123,9 +123,9 @@ export const UNLOCKS: Unlock[] = [
   },
   {
     level: 20,
-    name: 'Personal "Space"',
-    detail: "A visitable public wing of your Realm.",
-    kind: "realm",
+    name: "Arcade high-score frame",
+    detail: "Your leaderboard rows get a signature glow.",
+    kind: "cosmetic",
     rarity: "epic",
   },
   {
@@ -232,7 +232,7 @@ export const XP_SOURCES: XpSource[] = [
     label: "Discovery",
     xp: 80,
     cooldownLabel: "6 / day",
-    note: "Finding a new community, realm or secret.",
+    note: "Finding a new community or secret.",
   },
 ];
 
@@ -372,86 +372,6 @@ export const CHALLENGES: ChallengeDef[] = [
 
 /* ---------------------------------------------------------------- activities */
 
-export type Activity = {
-  id: string;
-  name: string;
-  players: string;
-  minutes: number;
-  blurb: string;
-  rewardXp: number;
-  rarity: Rarity;
-  requiredLevel?: number;
-};
-
-export const ACTIVITIES: Activity[] = [
-  {
-    id: "quickdraw",
-    name: "Quickdraw",
-    players: "2 friends",
-    minutes: 2,
-    blurb:
-      "You both get the same strange prompt and 30 seconds to draw it. Then you compare the damage.",
-    rewardXp: 100,
-    rarity: "common",
-  },
-  {
-    id: "guess",
-    name: "Guess the Message",
-    players: "3–12 in a community",
-    minutes: 5,
-    blurb: "An anonymous line from the channel appears. Everyone guesses who wrote it.",
-    rewardXp: 120,
-    rarity: "uncommon",
-  },
-  {
-    id: "chaos",
-    name: "Chaos Questions",
-    players: "2–8 friends",
-    minutes: 4,
-    blurb: "Answer questions nobody should have to answer, then reveal all at once.",
-    rewardXp: 110,
-    rarity: "uncommon",
-  },
-  {
-    id: "hidden",
-    name: "Hidden Object",
-    players: "2–4 in a Realm",
-    minutes: 6,
-    blurb: "Explore a friend's Realm looking for things they didn't know were there.",
-    rewardXp: 140,
-    rarity: "rare",
-  },
-  {
-    id: "duo",
-    name: "Duo Quest",
-    players: "exactly 2",
-    minutes: 8,
-    blurb: "A short cooperative run. Raises your Friendship Level directly.",
-    rewardXp: 180,
-    rarity: "rare",
-    requiredLevel: 8,
-  },
-  {
-    id: "community-challenge",
-    name: "Community Challenge",
-    players: "whole community",
-    minutes: 0,
-    blurb: "Everyone contributes toward one shared goal. Progress carries over between days.",
-    rewardXp: 220,
-    rarity: "epic",
-    requiredLevel: 5,
-  },
-  {
-    id: "predict",
-    name: "Predict",
-    players: "3–10 friends",
-    minutes: 5,
-    blurb: "Guess what your friends will choose before anything is revealed.",
-    rewardXp: 130,
-    rarity: "uncommon",
-  },
-];
-
 /* -------------------------------------------------------------- achievements */
 
 /** Live counters read from the database, used to decide what you've earned. */
@@ -577,7 +497,7 @@ export type Item = {
   type:
     | "Badge"
     | "Decoration"
-    | "Realm object"
+    | "Trophy"
     | "Frame"
     | "Effect"
     | "Title"
@@ -591,12 +511,12 @@ export type Item = {
 /** You own an item once you've reached the level that unlocks it. */
 export const ITEMS: Item[] = [
   { id: "i1", name: "First Light", type: "Badge", rarity: "common", requiredLevel: 1, source: "Joining Dimted" },
-  { id: "i2", name: "Quiet Bell", type: "Realm object", rarity: "common", requiredLevel: 2, source: "Level 2" },
+  { id: "i2", name: "Quiet Bell", type: "Trophy", rarity: "common", requiredLevel: 2, source: "Level 2" },
   { id: "i3", name: "Tideline", type: "Frame", rarity: "uncommon", requiredLevel: 5, source: "Level 5" },
   { id: "i4", name: "Low Hum", type: "Effect", rarity: "uncommon", requiredLevel: 7, source: "Level 7" },
   { id: "i5", name: "Lantern Moth", type: "Companion", rarity: "rare", requiredLevel: 9, source: "Level 9" },
   { id: "i6", name: "Night Owl", type: "Title", rarity: "uncommon", requiredLevel: 11, source: "Level 11" },
-  { id: "i7", name: "Sealed Door", type: "Realm object", rarity: "rare", requiredLevel: 16, source: "Level 16" },
+  { id: "i7", name: "Sealed Door", type: "Trophy", rarity: "rare", requiredLevel: 16, source: "Level 16" },
   { id: "i8", name: "Duo Sigil", type: "Decoration", rarity: "epic", requiredLevel: 20, source: "Level 20" },
   { id: "i9", name: "Drift Pennant", type: "Decoration", rarity: "rare", requiredLevel: 24, source: "Level 24" },
   { id: "i10", name: "Conversation Master", type: "Title", rarity: "epic", requiredLevel: 30, source: "Level 30" },
@@ -609,41 +529,12 @@ export const TITLES: { name: string; requiredLevel: number }[] = [
   { name: "Explorer", requiredLevel: 2 },
   { name: "Regular", requiredLevel: 3 },
   { name: "Night Owl", requiredLevel: 11 },
-  { name: "Realm Builder", requiredLevel: 16 },
+  { name: "Arcade Regular", requiredLevel: 16 },
   { name: "World Explorer", requiredLevel: 20 },
   { name: "Social Architect", requiredLevel: 25 },
   { name: "Conversation Master", requiredLevel: 30 },
   { name: "Legend", requiredLevel: 40 },
 ];
-
-/* ----------------------------------------------------------------- the realm */
-
-export type RealmObject = {
-  id: string;
-  name: string;
-  kind: "Building" | "Decoration" | "Portal" | "Companion" | "Area" | "Secret";
-  level: number;
-  rarity: Rarity;
-  note: string;
-  x: number;
-  y: number;
-  size: number;
-};
-
-/** Realm objects appear as you level. Nothing is bought. */
-export const REALM_OBJECTS: RealmObject[] = [
-  { id: "r1", name: "The Quiet Shore", kind: "Area", level: 1, rarity: "common", note: "Where you started.", x: 50, y: 74, size: 74 },
-  { id: "r2", name: "Lamp Post", kind: "Decoration", level: 2, rarity: "common", note: "The first thing that appears.", x: 26, y: 66, size: 30 },
-  { id: "r3", name: "Listening Room", kind: "Building", level: 6, rarity: "uncommon", note: "Friends leave messages inside.", x: 68, y: 58, size: 58 },
-  { id: "r4", name: "Lantern Moth", kind: "Companion", level: 9, rarity: "rare", note: "Follows visitors around.", x: 41, y: 47, size: 26 },
-  { id: "r5", name: "Tide Portal", kind: "Portal", level: 13, rarity: "rare", note: "Leads to a friend's Realm.", x: 82, y: 40, size: 42 },
-  { id: "r6", name: "Sealed Door", kind: "Secret", level: 16, rarity: "epic", note: "Nobody has opened one yet.", x: 15, y: 38, size: 34 },
-  { id: "r7", name: "Personal Space", kind: "Area", level: 20, rarity: "epic", note: "A public wing others can visit.", x: 58, y: 26, size: 62 },
-  { id: "r8", name: "Observatory", kind: "Building", level: 24, rarity: "epic", note: "See other Realms from above.", x: 30, y: 22, size: 50 },
-  { id: "r9", name: "The First Dimension", kind: "Secret", level: 30, rarity: "mythic", note: "It appears at the edge. Not the same for everyone.", x: 88, y: 14, size: 30 },
-];
-
-/* ------------------------------------------------------------------- secrets */
 
 export type Secret = {
   id: string;
@@ -655,5 +546,5 @@ export const SECRETS: Secret[] = [
   { id: "s1", hint: "Something is waiting here…", requiredLevel: 5 },
   { id: "s2", hint: "A door that only opens after dark…", requiredLevel: 12 },
   { id: "s3", hint: "Nobody has reported this one yet…", requiredLevel: 19 },
-  { id: "s4", hint: "It appears at the edge of your Realm…", requiredLevel: 30 },
+  { id: "s4", hint: "It appears once your arcade streak is long enough…", requiredLevel: 30 },
 ];
