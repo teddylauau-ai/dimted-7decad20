@@ -627,7 +627,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     name: "???",
     detail: "Something is waiting here.",
     earned: false,
-    rarity: "secret" as Rarity,
+    rarity: "mythic",
   },
 ];
 
