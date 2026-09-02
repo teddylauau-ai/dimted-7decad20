@@ -1,0 +1,21 @@
+# TanStack Start + nitro v3.
+#
+# On Netlify, nitro auto-detects the `netlify` preset and writes:
+#   - static client assets -> dist/
+#   - the SSR handler      -> .netlify/functions-internal/server/server.mjs
+#
+# So `publish` must be "dist" — NOT ".output/public" (that is the old vinxi
+# layout) and not "dist/client" (that is only used inside the Lovable sandbox,
+# where the config forces the cloudflare-module preset instead).
+#
+# Do not add a catch-all redirect to the server function: nitro emits the
+# function's own `path = "/*"` / `preferStatic: true` config plus a
+# dist/_redirects fallback, which already routes every unmatched request to
+# SSR while letting real static files win.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
