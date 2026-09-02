@@ -266,6 +266,39 @@ export type Database = {
           },
         ]
       }
+      game_progress: {
+        Row: {
+          best_ms: number | null
+          created_at: string
+          game: string
+          id: string
+          level: number
+          stars: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          best_ms?: number | null
+          created_at?: string
+          game: string
+          id?: string
+          level?: number
+          stars?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          best_ms?: number | null
+          created_at?: string
+          game?: string
+          id?: string
+          level?: number
+          stars?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       game_scores: {
         Row: {
           created_at: string
@@ -501,6 +534,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      study_progress: {
+        Row: {
+          attempts: number
+          best_percent: number
+          created_at: string
+          deck: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          best_percent?: number
+          created_at?: string
+          deck: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          best_percent?: number
+          created_at?: string
+          deck?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       titles: {
         Row: {
