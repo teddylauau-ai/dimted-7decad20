@@ -62,7 +62,7 @@ export const Route = createFileRoute("/activities")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: ArcadePage;
+  component: ArcadePage,
 });
 
 type Phase = "idle" | "playing" | "over";
