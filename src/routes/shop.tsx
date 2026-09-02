@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Check, Coins, Lock } from "lucide-react";
+import { Check, Clock, Coins, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
@@ -15,7 +15,14 @@ import {
   NAMETAG_CLASS,
   SLOTS,
   bannerFor,
+  dayKey,
+  formatCountdown,
   formatSparks,
+  isExpired,
+  rotate,
+  secondsUntilDailyReset,
+  secondsUntilWeeklyReset,
+  weekKey,
   type Cosmetic,
   type CosmeticSlot,
 } from "@/lib/cosmetics";
@@ -108,6 +115,16 @@ function ItemCard({
         <RarityChip rarity={item.rarity} />
       </div>
 
+      {item.available_until ? (
+        <p className="text-gold flex items-center gap-1 font-mono text-[10px]">
+          <Clock className="size-3" />
+          leaves in{" "}
+          {formatCountdown(
+            Math.max(0, Math.round((Date.parse(item.available_until) - Date.now()) / 1000)),
+          )}
+        </p>
+      ) : null}
+
       <PreviewName slug={item.slug} slot={item.slot} />
 
       <div className="mt-auto flex items-center justify-between gap-2">
@@ -149,8 +166,23 @@ function ShopPage() {
   const [slot, setSlot] = useState<CosmeticSlot | "all">("all");
 
   const owned = useMemo(() => new Set(inventory.data ?? []), [inventory.data]);
-  const items = (cosmetics.data ?? []).filter((i) => slot === "all" || i.slot === slot);
-  const featured = (cosmetics.data ?? []).filter((i) => i.featured);
+  const all = cosmetics.data ?? [];
+
+  // Rotations are derived from the date, not stored — everyone sees the same
+  // daily/weekly shelf and it turns over on its own.
+  const daily = useMemo(() => rotate(all.filter((i) => i.pool === "daily"), dayKey(), 4), [all]);
+  const weekly = useMemo(() => rotate(all.filter((i) => i.pool === "weekly"), weekKey(), 6), [all]);
+  const limited = useMemo(
+    () => all.filter((i) => i.pool === "limited" && !isExpired(i)),
+    [all],
+  );
+
+  // The permanent shelf: core stock plus anything you already own.
+  const stock = useMemo(
+    () => all.filter((i) => i.pool === "core" || owned.has(i.slug)),
+    [all, owned],
+  );
+  const items = stock.filter((i) => slot === "all" || i.slot === slot);
 
   const equippedSlug: Record<CosmeticSlot, string | null> = {
     nametag: profile?.equipped_nametag ?? null,
@@ -201,11 +233,63 @@ function ShopPage() {
         }
       />
 
-      {featured.length ? (
-        <Panel className="p-5">
-          <PanelHead eyebrow="Featured this rotation" title="Worth the Sparks" />
+      {limited.length ? (
+        <Panel className="border-gold/30 p-5">
+          <PanelHead
+            eyebrow="Limited time"
+            title="Gone when the clock runs out"
+            aside="never restocked"
+          />
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {featured.map((item) => (
+            {limited.map((item) => (
+              <ItemCard
+                key={item.slug}
+                item={item}
+                owned={owned.has(item.slug)}
+                equipped={equippedSlug[item.slot] === item.slug}
+                level={level}
+                sparks={sparks}
+                onBuy={() => void buy(item)}
+                onEquip={() => void equip(item)}
+              />
+            ))}
+          </div>
+        </Panel>
+      ) : null}
+
+      {daily.length ? (
+        <Panel className="p-5" delay={40}>
+          <PanelHead
+            eyebrow="Daily rotation"
+            title="Four picks, today only"
+            aside={`rotates in ${formatCountdown(secondsUntilDailyReset())}`}
+          />
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {daily.map((item) => (
+              <ItemCard
+                key={item.slug}
+                item={item}
+                owned={owned.has(item.slug)}
+                equipped={equippedSlug[item.slot] === item.slug}
+                level={level}
+                sparks={sparks}
+                onBuy={() => void buy(item)}
+                onEquip={() => void equip(item)}
+              />
+            ))}
+          </div>
+        </Panel>
+      ) : null}
+
+      {weekly.length ? (
+        <Panel className="p-5" delay={60}>
+          <PanelHead
+            eyebrow="Weekly feature"
+            title="This week's shelf"
+            aside={`rotates in ${formatCountdown(secondsUntilWeeklyReset())}`}
+          />
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {weekly.map((item) => (
               <ItemCard
                 key={item.slug}
                 item={item}
@@ -224,7 +308,7 @@ function ShopPage() {
       <Panel className="p-5" delay={80}>
         <PanelHead
           eyebrow={`${owned.size} owned`}
-          title="Everything in the shop"
+          title="Always in stock"
           aside={
             <div className="flex flex-wrap gap-1.5">
               {(["all", ...SLOTS.map((s) => s.slot)] as const).map((s) => (
@@ -270,7 +354,7 @@ function ShopPage() {
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           {SLOTS.map((s) => {
             const on = equippedSlug[s.slot];
-            const item = (cosmetics.data ?? []).find((c) => c.slug === on);
+            const item = all.find((c) => c.slug === on);
             return (
               <div key={s.slot} className="border-border bg-background/40 rounded-xl border p-3.5">
                 <p className="eyebrow">{s.label}</p>
