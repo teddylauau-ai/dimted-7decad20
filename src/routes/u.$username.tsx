@@ -2,21 +2,23 @@ import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { Coins, MessageCircle, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import { Avatar, Nametag } from "@/components/dimted/Identity";
+import { Avatar, Nametag, PresenceLabel } from "@/components/dimted/Identity";
 import { LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { rarityBorder, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { bannerFor, SLOTS, type Cosmetic } from "@/lib/cosmetics";
 import {
   useCosmetics,
+  usePublicPlayerDetail,
   useFriendships,
   useInventory,
   useProfileByUsername,
-  isRecentlyActive,
 } from "@/lib/dimted-queries";
+import { GAMES } from "@/lib/games";
+import { ROLE_LABEL, useMyRole } from "@/lib/roles-queries";
 import { sendFriendRequest } from "@/lib/dimted-actions";
 import { useDimted } from "@/lib/dimted-store";
-import { levelFromTotalXp, rankForLevel, UNLOCKS } from "@/lib/dimted";
+import { levelFromTotalXp, nextRank, rankForLevel, UNLOCKS } from "@/lib/dimted";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/u/$username")({
@@ -48,6 +50,8 @@ function PublicProfilePage() {
   const inventory = useInventory(person?.id);
   const cosmetics = useCosmetics();
   const friends = useFriendships(me?.id);
+  const detail = usePublicPlayerDetail(person?.id);
+  const theirRole = useMyRole(person?.id);
 
   const owned = useMemo(() => new Set(inventory.data ?? []), [inventory.data]);
   const ownedItems = (cosmetics.data ?? []).filter((c) => owned.has(c.slug));
@@ -115,8 +119,15 @@ function PublicProfilePage() {
                   {rankForLevel(derived.level)}
                 </p>
                 <p className="text-muted-foreground/70 mt-1 font-mono text-[10px]">
-                  {isRecentlyActive(person.last_active_at) ? "Around right now" : "Away"} · joined{" "}
-                  {new Date(person.created_at).toLocaleDateString()}
+                  joined {new Date(person.created_at).toLocaleDateString()}
+                </p>
+                <p className="mt-1 flex flex-wrap items-center gap-2">
+                  <PresenceLabel profile={person} />
+                  {theirRole.role !== "member" ? (
+                    <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] uppercase">
+                      {ROLE_LABEL[theirRole.role]}
+                    </span>
+                  ) : null}
                 </p>
               </div>
             </div>
@@ -135,6 +146,27 @@ function PublicProfilePage() {
           </div>
 
           {person.bio ? <p className="text-foreground/90 mt-5 max-w-2xl text-sm">{person.bio}</p> : null}
+
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { label: "Rank", value: rankForLevel(derived.level) },
+              {
+                label: "Next rank",
+                value: nextRank(derived.level)
+                  ? `${nextRank(derived.level)!.name} · Lv ${nextRank(derived.level)!.from}`
+                  : "Maxed",
+              },
+              { label: "Arcade runs", value: (detail.data?.scores.length ?? 0).toLocaleString() },
+              { label: "Collection", value: `${ownedItems.length} items` },
+            ].map((stat) => (
+              <div key={stat.label} className="border-border bg-background/40 rounded-xl border p-3">
+                <p className="truncate text-sm font-medium">{stat.value}</p>
+                <p className="text-muted-foreground mt-0.5 font-mono text-[10px] tracking-[0.18em] uppercase">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
 
           {!isMe ? (
             <div className="mt-5 flex flex-wrap gap-2">
@@ -225,6 +257,60 @@ function PublicProfilePage() {
           )}
         </Panel>
       </div>
+
+      <Panel className="p-6" delay={120}>
+        <PanelHead
+          eyebrow="Arcade record"
+          title="Personal bests"
+          aside={
+            detail.data?.campaign.length
+              ? `${detail.data.campaign.reduce((n, c) => n + c.stars, 0)} stars`
+              : undefined
+          }
+        />
+        {(() => {
+          const bests = new Map<string, number>();
+          (detail.data?.scores ?? []).forEach((row) => {
+            bests.set(row.game, Math.max(bests.get(row.game) ?? 0, row.score));
+          });
+          const rows = GAMES.filter((g) => bests.has(g.id) || false);
+          if (rows.length === 0) {
+            return (
+              <p className="text-muted-foreground mt-4 text-sm">
+                They haven't posted an arcade score yet.
+              </p>
+            );
+          }
+          const top = Math.max(...rows.map((g) => bests.get(g.id) ?? 0), 1);
+          return (
+            <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+              {rows.map((g) => {
+                const campaign = detail.data?.campaign.find((c) => c.game === g.id);
+                return (
+                  <div key={g.id} className="border-border bg-background/40 rounded-xl border p-3.5">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="truncate text-sm">{g.name}</p>
+                      <span className="numeral text-primary text-sm">
+                        {(bests.get(g.id) ?? 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <Meter
+                      value={(bests.get(g.id) ?? 0) / top}
+                      tone="primary"
+                      className="mt-2 h-1.5"
+                    />
+                    {campaign ? (
+                      <p className="text-muted-foreground mt-1.5 font-mono text-[10px]">
+                        Campaign Lv {campaign.level} · {campaign.stars}★
+                      </p>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+      </Panel>
 
       <Panel className="p-6" delay={140}>
         <PanelHead
