@@ -4,15 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, PageHeader, RarityChip, LockedTile } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
 import { ProfileLink } from "@/components/dimted/Identity";
+import { QuestBoard } from "@/components/dimted/QuestBoard";
 import {
-  CHALLENGES,
   SECRETS,
   UNLOCKS,
   XP_SOURCES,
   nextUnlock,
   rankForLevel,
 } from "@/lib/dimted";
-import { countEvents, useMyXpEvents, usePlayerStats, useXpFeed } from "@/lib/dimted-queries";
+import { usePlayerStats, useXpFeed } from "@/lib/dimted-queries";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,12 +37,9 @@ function HomePage() {
   const { profile, level, rank, intoLevel, needed, progress, totalXp, energy, surgeActive, surgeSecondsLeft, igniteSurge } =
     useDimted();
   const stats = usePlayerStats(profile?.id, totalXp);
-  const events = useMyXpEvents(profile?.id);
   const feed = useXpFeed(profile?.id);
 
   const upcoming = nextUnlock(level);
-  const dailies = CHALLENGES.filter((c) => c.cadence === "daily");
-  const weeklies = CHALLENGES.filter((c) => c.cadence === "weekly");
   const nextSecret = SECRETS.find((s) => s.requiredLevel > level);
 
   return (
@@ -146,51 +143,7 @@ function HomePage() {
           </div>
         </Panel>
 
-        <Panel className="p-5" delay={60}>
-          <PanelHead eyebrow="Challenges" title="Today & this week" />
-          <div className="mt-4 space-y-4">
-            <div>
-              <p className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
-                Daily
-              </p>
-              <ul className="mt-2 space-y-2.5">
-                {dailies.map((c) => {
-                  const done = countEvents(events.data, c.source, "daily");
-                  return (
-                    <li key={c.id}>
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className="text-sm">{c.title}</span>
-                        <span className="text-muted-foreground shrink-0 font-mono text-[11px]">
-                          {Math.min(done, c.goal)}/{c.goal}
-                        </span>
-                      </div>
-                      <Meter value={Math.min(1, done / c.goal)} tone="gold" className="mt-1.5 h-1.5" />
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            <div>
-              <p className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
-                Weekly
-              </p>
-              <ul className="mt-2 space-y-2.5">
-                {weeklies.map((c) => {
-                  const done = countEvents(events.data, c.source, "weekly");
-                  return (
-                    <li key={c.id}>
-                      <div className="flex items-baseline justify-between gap-3">
-                        <span className="text-sm">{c.title}</span>
-                        <RarityChip rarity={c.rarity} />
-                      </div>
-                      <Meter value={Math.min(1, done / c.goal)} tone="primary" className="mt-1.5 h-1.5" />
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </div>
-        </Panel>
+        <QuestBoard />
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
