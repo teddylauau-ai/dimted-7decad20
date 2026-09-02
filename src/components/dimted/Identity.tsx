@@ -6,6 +6,7 @@ import {
   NAMETAG_CLASS,
   type WornCosmetics,
 } from "@/lib/cosmetics";
+import { presenceFor } from "@/lib/presence";
 import { cn } from "@/lib/utils";
 
 export type IdentityProfile = {
@@ -15,7 +16,44 @@ export type IdentityProfile = {
   equipped_badge?: string | null;
   equipped_frame?: string | null;
   avatar_url?: string | null;
+  last_active_at?: string | null;
+  activity_context?: string | null;
 };
+
+/** Live status dot. Derived from real activity — nobody can set it by hand. */
+export function PresenceDot({
+  profile,
+  className,
+}: {
+  profile: IdentityProfile | null | undefined;
+  className?: string;
+}) {
+  const p = presenceFor(profile?.last_active_at, profile?.activity_context);
+  return (
+    <span
+      title={p.label}
+      aria-label={p.label}
+      className={cn("presence-dot", p.dotClass, className)}
+    />
+  );
+}
+
+/** Status text ("In the Arcade", "Idle", "Last seen 2h ago"). */
+export function PresenceLabel({
+  profile,
+  className,
+}: {
+  profile: IdentityProfile | null | undefined;
+  className?: string;
+}) {
+  const p = presenceFor(profile?.last_active_at, profile?.activity_context);
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 font-mono text-[10px]", p.textClass, className)}>
+      <span className={cn("size-1.5 rounded-full", p.dotClass)} />
+      {p.label}
+    </span>
+  );
+}
 
 export function worn(p: IdentityProfile | null | undefined): WornCosmetics {
   return {
@@ -39,13 +77,15 @@ export function Avatar({
   profile,
   size = 40,
   className,
+  presence = false,
 }: {
   profile: IdentityProfile | null | undefined;
   size?: number;
   className?: string;
+  presence?: boolean;
 }) {
   const frame = profile?.equipped_frame ? FRAME_CLASS[profile.equipped_frame] : undefined;
-  return (
+  const inner = (
     <span
       style={{ width: size, height: size, fontSize: Math.round(size / 2.6) }}
       className={cn(
@@ -64,6 +104,14 @@ export function Avatar({
       ) : (
         initials(profile?.display_name ?? "?")
       )}
+    </span>
+  );
+
+  if (!presence) return inner;
+  return (
+    <span className="relative inline-flex shrink-0">
+      {inner}
+      <PresenceDot profile={profile} />
     </span>
   );
 }
@@ -122,16 +170,18 @@ export function IdentityRow({
   size = 36,
   className,
   linked = true,
+  presence = true,
 }: {
   profile: IdentityProfile | null | undefined;
   meta?: React.ReactNode;
   size?: number;
   className?: string;
   linked?: boolean;
+  presence?: boolean;
 }) {
   const body = (
     <>
-      <Avatar profile={profile} size={size} />
+      <Avatar profile={profile} size={size} presence={presence} />
       <span className="min-w-0 flex-1">
         <Nametag profile={profile} className="block truncate text-sm" />
         {meta ? (

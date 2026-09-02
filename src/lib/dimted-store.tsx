@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { contextFromPath } from "./presence";
 import {
   levelFromTotalXp,
   rankForLevel,
@@ -38,6 +39,7 @@ export type Profile = {
   equipped_effect: string | null;
   avatar_url: string | null;
   banner_url: string | null;
+  activity_context?: string | null;
   banned_until?: string | null;
   ban_reason?: string | null;
   muted_until?: string | null;
@@ -149,6 +151,27 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
     })();
     return () => {
       cancelled = true;
+    };
+  }, [session]);
+
+  // Presence heartbeat. Status is never chosen by hand — it's whatever the
+  // server last heard from you, plus which screen you were on.
+  useEffect(() => {
+    if (!session) return;
+    let stopped = false;
+    const ping = () => {
+      if (stopped || document.visibilityState === "hidden") return;
+      void supabase.rpc("touch_presence", {
+        _context: contextFromPath(window.location.pathname),
+      });
+    };
+    ping();
+    const t = window.setInterval(ping, 60_000);
+    document.addEventListener("visibilitychange", ping);
+    return () => {
+      stopped = true;
+      window.clearInterval(t);
+      document.removeEventListener("visibilitychange", ping);
     };
   }, [session]);
 

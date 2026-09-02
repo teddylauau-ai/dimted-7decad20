@@ -48,14 +48,30 @@ export function levelFromTotalXp(totalXp: number): {
 
 export const RANKS: { from: number; name: string }[] = [
   { from: 1, name: "Newcomer" },
-  { from: 2, name: "Explorer" },
-  { from: 3, name: "Regular" },
-  { from: 5, name: "Connected" },
+  { from: 2, name: "Drifter" },
+  { from: 3, name: "Signal" },
+  { from: 5, name: "Regular" },
+  { from: 7, name: "Connected" },
   { from: 10, name: "Veteran" },
-  { from: 15, name: "Elite" },
-  { from: 25, name: "Legend" },
+  { from: 13, name: "Nightwatch" },
+  { from: 16, name: "Vanguard" },
+  { from: 20, name: "Elite" },
+  { from: 25, name: "Luminary" },
+  { from: 30, name: "Ascendant" },
+  { from: 35, name: "Paragon" },
+  { from: 40, name: "Legend" },
+  { from: 45, name: "Eclipse" },
   { from: 50, name: "Mythic" },
+  { from: 60, name: "Astral" },
+  { from: 75, name: "Voidwalker" },
+  { from: 90, name: "Sovereign" },
+  { from: 100, name: "Dimted Prime" },
 ];
+
+/** The next rank you haven't reached yet — used to dangle the carrot. */
+export function nextRank(level: number): { from: number; name: string } | undefined {
+  return RANKS.find((r) => r.from > level);
+}
 
 export function rankForLevel(level: number): string {
   let name = RANKS[0]!.name;

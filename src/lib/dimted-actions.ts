@@ -178,3 +178,50 @@ export async function uploadBanner(userId: string, file: File): Promise<string> 
 export async function removeBanner(userId: string) {
   await updateProfile(userId, { banner_url: null });
 }
+
+/* ------------------------------------------------------------------ presence */
+
+/** Tell the server we're alive and what screen we're on. Status is derived. */
+export async function touchPresence(context: string) {
+  await supabase.rpc("touch_presence", { _context: context });
+}
+
+/* ------------------------------------------------------------- notifications */
+
+export async function markNotificationsRead(ids: string[]) {
+  if (ids.length === 0) return;
+  const { error } = await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .in("id", ids);
+  if (error) throw error;
+}
+
+export async function clearNotifications(userId: string) {
+  const { error } = await supabase.from("notifications").delete().eq("user_id", userId);
+  if (error) throw error;
+}
+
+/* ------------------------------------------------------------------- quests */
+
+export type ClaimQuestResult = {
+  status:
+    | "claimed_now"
+    | "claimed"
+    | "incomplete"
+    | "unknown_quest"
+    | "no_profile"
+    | "forbidden"
+    | "error";
+  reward_xp?: number;
+  reward_sparks?: number;
+  progress?: number;
+  goal?: number;
+};
+
+/** Rewards are validated on the server against your real activity log. */
+export async function claimQuest(slug: string): Promise<ClaimQuestResult> {
+  const { data, error } = await supabase.rpc("claim_quest", { _slug: slug });
+  if (error) return { status: "error" };
+  return (data ?? { status: "error" }) as ClaimQuestResult;
+}
