@@ -174,10 +174,12 @@ export type Database = {
       }
       cosmetics: {
         Row: {
+          available_until: string | null
           created_at: string
           description: string
           featured: boolean
           name: string
+          pool: string
           price_sparks: number
           rarity: string
           required_level: number
@@ -185,10 +187,12 @@ export type Database = {
           slug: string
         }
         Insert: {
+          available_until?: string | null
           created_at?: string
           description?: string
           featured?: boolean
           name: string
+          pool?: string
           price_sparks?: number
           rarity: string
           required_level?: number
@@ -196,10 +200,12 @@ export type Database = {
           slug: string
         }
         Update: {
+          available_until?: string | null
           created_at?: string
           description?: string
           featured?: boolean
           name?: string
+          pool?: string
           price_sparks?: number
           rarity?: string
           required_level?: number
@@ -409,8 +415,60 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          actor_id: string | null
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          link: string | null
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          actor_id?: string | null
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          activity_context: string | null
           avatar_url: string | null
           ban_reason: string | null
           banned_until: string | null
@@ -438,6 +496,7 @@ export type Database = {
           username: string
         }
         Insert: {
+          activity_context?: string | null
           avatar_url?: string | null
           ban_reason?: string | null
           banned_until?: string | null
@@ -465,6 +524,7 @@ export type Database = {
           username: string
         }
         Update: {
+          activity_context?: string | null
           avatar_url?: string | null
           ban_reason?: string | null
           banned_until?: string | null
@@ -490,6 +550,87 @@ export type Database = {
           title?: string
           total_xp?: number
           username?: string
+        }
+        Relationships: []
+      }
+      quest_claims: {
+        Row: {
+          created_at: string
+          id: string
+          period_key: string
+          quest_slug: string
+          reward_sparks: number
+          reward_xp: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_key: string
+          quest_slug: string
+          reward_sparks?: number
+          reward_xp?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_key?: string
+          quest_slug?: string
+          reward_sparks?: number
+          reward_xp?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quest_claims_quest_slug_fkey"
+            columns: ["quest_slug"]
+            isOneToOne: false
+            referencedRelation: "quests"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "quest_claims_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quests: {
+        Row: {
+          cadence: string
+          created_at: string
+          goal: number
+          rarity: string
+          reward_sparks: number
+          reward_xp: number
+          slug: string
+          source: string
+          title: string
+        }
+        Insert: {
+          cadence: string
+          created_at?: string
+          goal?: number
+          rarity?: string
+          reward_sparks?: number
+          reward_xp?: number
+          slug: string
+          source: string
+          title: string
+        }
+        Update: {
+          cadence?: string
+          created_at?: string
+          goal?: number
+          rarity?: string
+          reward_sparks?: number
+          reward_xp?: number
+          slug?: string
+          source?: string
+          title?: string
         }
         Relationships: []
       }
@@ -659,6 +800,7 @@ export type Database = {
         Returns: Json
       }
       award_xp: { Args: { _label?: string; _source: string }; Returns: Json }
+      claim_quest: { Args: { _slug: string }; Returns: Json }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       has_role: {
         Args: {
@@ -714,6 +856,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      touch_presence: { Args: { _context?: string }; Returns: undefined }
     }
     Enums: {
       app_role: "owner" | "admin" | "moderator" | "member"

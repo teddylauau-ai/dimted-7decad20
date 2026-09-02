@@ -20,7 +20,8 @@ import { formatSparks } from "@/lib/cosmetics";
 import { useMyRole } from "@/lib/roles-queries";
 import { cn } from "@/lib/utils";
 import { Meter } from "./primitives";
-import { Avatar, Nametag } from "./Identity";
+import { Avatar, Nametag, PresenceLabel } from "./Identity";
+import { NotificationBell } from "./NotificationBell";
 import { BrandMark, Wordmark } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
 import { LevelUpOverlay } from "./LevelUpOverlay";
@@ -195,14 +196,18 @@ function Sidebar() {
           to="/profile"
           className="hover:bg-secondary/50 flex min-w-0 flex-1 items-center gap-2 rounded-lg p-1 transition-colors"
         >
-          <Avatar profile={profile} size={32} />
+          <Avatar profile={profile} size={32} presence />
           <span className="min-w-0 flex-1">
             <Nametag profile={profile} className="block truncate text-[13px]" />
-            <span className="text-muted-foreground block truncate font-mono text-[10px]">
-              Lv {level} · {energy}% energy
+            <span className="block truncate">
+              <PresenceLabel profile={profile} />
+              <span className="text-muted-foreground/70 ml-1 font-mono text-[10px]">
+                · Lv {level} · {energy}%
+              </span>
             </span>
           </span>
         </Link>
+        <NotificationBell />
         <button
           onClick={() => void igniteSurge()}
           disabled={surgeActive || energy < 100}

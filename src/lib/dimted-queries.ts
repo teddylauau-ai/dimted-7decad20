@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { friendshipLevel, levelFromTotalXp, type PlayerStats } from "./dimted";
+import { friendshipLevel, levelFromTotalXp, type PlayerStats, type Rarity } from "./dimted";
 import type { Cosmetic } from "./cosmetics";
 
 export type PublicProfile = {
@@ -12,6 +12,7 @@ export type PublicProfile = {
   total_xp: number;
   realm_name: string;
   last_active_at: string;
+  activity_context: string | null;
   created_at: string;
   equipped_nametag: string | null;
   equipped_badge: string | null;
@@ -33,7 +34,7 @@ export type FriendRow = {
 };
 
 const PROFILE_FIELDS =
-  "id, username, display_name, bio, title, total_xp, realm_name, last_active_at, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url";
+  "id, username, display_name, bio, title, total_xp, realm_name, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url";
 
 const AUTHOR_FIELDS =
   "id, display_name, username, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
@@ -337,7 +338,7 @@ export function useCosmetics() {
     queryFn: async (): Promise<Cosmetic[]> => {
       const { data, error } = await supabase
         .from("cosmetics")
-        .select("slug, name, slot, rarity, description, price_sparks, required_level, featured")
+        .select("slug, name, slot, rarity, description, price_sparks, required_level, featured, pool, available_until")
         .order("price_sparks");
       if (error) throw error;
       return (data ?? []) as Cosmetic[];
@@ -388,6 +389,127 @@ export function usePlayerCount() {
         .select("id", { count: "exact", head: true });
       if (error) throw error;
       return count ?? 0;
+    },
+  });
+}
+
+/* ------------------------------------------------------------- notifications */
+
+export type Notification = {
+  id: string;
+  kind: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+  actor: {
+    username: string;
+    display_name: string;
+    equipped_nametag: string | null;
+    equipped_badge: string | null;
+    avatar_url: string | null;
+  } | null;
+};
+
+/** Your inbox. Polled often so a new DM shows up without a refresh. */
+export function useNotifications(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["notifications", userId],
+    enabled: !!userId,
+    refetchInterval: 8000,
+    queryFn: async (): Promise<Notification[]> => {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select(
+          "id, kind, title, body, link, read_at, created_at, actor:profiles!notifications_actor_id_fkey (username, display_name, equipped_nametag, equipped_badge, avatar_url)",
+        )
+        .order("created_at", { ascending: false })
+        .limit(40);
+      if (error) throw error;
+      return (data ?? []) as unknown as Notification[];
+    },
+  });
+}
+
+/* -------------------------------------------------------------------- quests */
+
+export type Quest = {
+  slug: string;
+  title: string;
+  cadence: "daily" | "weekly";
+  source: string;
+  goal: number;
+  reward_xp: number;
+  reward_sparks: number;
+  rarity: Rarity;
+};
+
+export function useQuests() {
+  return useQuery({
+    queryKey: ["quests"],
+    staleTime: 10 * 60 * 1000,
+    queryFn: async (): Promise<Quest[]> => {
+      const { data, error } = await supabase
+        .from("quests")
+        .select("slug, title, cadence, source, goal, reward_xp, reward_sparks, rarity")
+        .order("cadence")
+        .order("reward_xp");
+      if (error) throw error;
+      return (data ?? []) as unknown as Quest[];
+    },
+  });
+}
+
+export type QuestClaim = { quest_slug: string; period_key: string; created_at: string };
+
+export function useQuestClaims(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["quest-claims", userId],
+    enabled: !!userId,
+    queryFn: async (): Promise<QuestClaim[]> => {
+      const since = new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString();
+      const { data, error } = await supabase
+        .from("quest_claims")
+        .select("quest_slug, period_key, created_at")
+        .gte("created_at", since);
+      if (error) throw error;
+      return (data ?? []) as QuestClaim[];
+    },
+  });
+}
+
+/** Same period keys the server uses when it records a claim. */
+export function periodKeyFor(cadence: "daily" | "weekly", now = new Date()): string {
+  if (cadence === "daily") return now.toISOString().slice(0, 10);
+  const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const day = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - day);
+  const yearStart = Date.UTC(d.getUTCFullYear(), 0, 1);
+  const week = Math.ceil(((d.getTime() - yearStart) / 86400000 + 1) / 7);
+  return `${d.getUTCFullYear()}-W${String(week).padStart(2, "0")}`;
+}
+
+/** Everything a public profile shows: best scores and campaign progress. */
+export function usePublicPlayerDetail(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["public-player-detail", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const [scores, campaign] = await Promise.all([
+        supabase.from("game_scores").select("game, score, created_at").eq("user_id", userId!),
+        supabase.from("game_progress").select("game, level, stars, best_ms").eq("user_id", userId!),
+      ]);
+      if (scores.error) throw scores.error;
+      return {
+        scores: (scores.data ?? []) as { game: string; score: number; created_at: string }[],
+        campaign: (campaign.data ?? []) as {
+          game: string;
+          level: number;
+          stars: number;
+          best_ms: number | null;
+        }[],
+      };
     },
   });
 }
