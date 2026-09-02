@@ -7,9 +7,14 @@
    - `git init && git add -A && git commit -m "dimted"`
    - Create a private repo on github.com and push it.
 3. In Netlify: **Add new site → Import an existing project → GitHub** and pick the repo.
-4. Build settings:
-   - Build command: `npm run build` (or `bun run build`)
-   - Publish directory: `.output/public`
+4. Build settings: leave these alone — `netlify.toml` in this repo already sets
+   the build command (`npm run build`) and the publish directory (`dist`), and it
+   overrides anything set in the Netlify UI.
+
+   If you ever set them by hand, the publish directory is `dist`. It is **not**
+   `.output/public`: this app builds with nitro, which detects Netlify and writes
+   the static files to `dist/` and the server handler to
+   `.netlify/functions-internal/server/`.
 5. In **Site settings → Environment variables**, copy every variable from the `.env` file in this folder (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, VITE_SUPABASE_PROJECT_ID).
 6. Deploy.
 
