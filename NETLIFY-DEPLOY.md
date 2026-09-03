@@ -7,11 +7,30 @@
    - `git init && git add -A && git commit -m "dimted"`
    - Create a private repo on github.com and push it.
 3. In Netlify: **Add new site → Import an existing project → GitHub** and pick the repo.
-4. Build settings:
-   - Build command: `npm run build` (or `bun run build`)
-   - Publish directory: `.output/public`
+4. Build settings: nothing to fill in — `netlify.toml` in this folder already
+   pins the build command (`npm run build`) and the publish directory (`dist`).
+   Leave the dashboard fields blank so `netlify.toml` wins; if you do type
+   something in, it must match, and the publish directory must be `dist`.
 5. In **Site settings → Environment variables**, copy every variable from the `.env` file in this folder (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, VITE_SUPABASE_PROJECT_ID).
 6. Deploy.
+
+## How the build is wired
+
+The app is TanStack Start rendered through Nitro. On Netlify, Nitro builds with
+its `netlify` preset and writes two things:
+
+- `dist/` — the static client assets. This is the publish directory.
+- `.netlify/functions-internal/server/` — the server-side rendering handler,
+  which Netlify picks up on its own. No function config needed.
+
+Nitro's other targets use different folder layouts (`dist/client` for
+Cloudflare, `.output/public` for plain Node). Those folders are never created
+here, so pointing Netlify at one of them fails the deploy with a missing
+publish directory. `netlify.toml` pins both the preset and the publish
+directory so the two can't drift apart.
+
+Lovable's own builds are unaffected: they target Cloudflare and ignore
+`netlify.toml` entirely.
 
 ## Important — what will and won't work off Lovable
 
