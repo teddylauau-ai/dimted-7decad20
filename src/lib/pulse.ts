@@ -115,6 +115,11 @@ export function buildLevel(def: LevelDef): Built {
    * Geometry Dash keeps its spacing musical when a speed portal hits.
    */
   let spd = 1;
+  /** Extra breathing room in units (see LevelDef.ease). */
+  const ease = def.ease ?? 0;
+  /** Ceilings are dropped on the most forgiving levels. */
+  const noCeiling = ease >= 1.5;
+  const pad = () => ease * spd;
   /** One jump covers ~4.3 units of ground at 1x. Peak height is ~2.6 units. */
   const JUMP_RUN = 4.3;
   const reach = () => JUMP_RUN * spd;
@@ -134,7 +139,7 @@ export function buildLevel(def: LevelDef): Built {
       case "spikes": {
         const n = step[1];
         // Each spike is its own tap: never closer than a full jump run.
-        const gap = Math.max(step[2], JUMP_RUN + 1.2) * spd;
+        const gap = Math.max(step[2], JUMP_RUN + 1.2) * spd + pad();
         for (let i = 0; i < n; i++) push({ t: "spike", x: x + i * gap, y: 0, up: true });
         x += n * gap + 2 * spd;
         break;
@@ -157,7 +162,7 @@ export function buildLevel(def: LevelDef): Built {
       case "pillars": {
         const n = step[1];
         const h = Math.min(2, step[2]);
-        const gap = reach() + 2.6 * spd;
+        const gap = reach() + 2.6 * spd + pad();
         for (let i = 0; i < n; i++) {
           // Solid pillar from the ground, then a spike a clean jump later.
           push({ t: "block", x: x + i * gap, y: 0, w: 1.4 * spd, h });
@@ -181,7 +186,7 @@ export function buildLevel(def: LevelDef): Built {
 
       case "saws": {
         const n = step[1];
-        const gap = reach() + 2.4 * spd;
+        const gap = reach() + 2.4 * spd + pad();
         for (let i = 0; i < n; i++) push({ t: "saw", x: x + i * gap, y: 0.5, r: 0.65 });
         x += n * gap + reach();
         break;
@@ -195,7 +200,7 @@ export function buildLevel(def: LevelDef): Built {
 
       case "orbs": {
         const n = step[1];
-        const gap = reach() + 3 * spd;
+        const gap = reach() + 3 * spd + pad();
         for (let i = 0; i < n; i++) {
           push({ t: "orb", x: x + i * gap, y: 2.2 });
           push({ t: "spike", x: x + i * gap + 2.2 * spd, y: 0, up: true });
@@ -208,10 +213,11 @@ export function buildLevel(def: LevelDef): Built {
         // Straight-fly style corridor: ground spikes on the beat with a low
         // ceiling overhead, so you tap rather than hold.
         const n = step[1];
-        const gap = reach() + 1.4 * spd;
+        const gap = reach() + 1.4 * spd + pad();
         for (let i = 0; i < n; i++) {
           push({ t: "spike", x: x + i * gap, y: 0, up: true });
-          if (i % 2 === 1) push({ t: "block", x: x + i * gap + 1.6, y: 4.4, w: 2 * spd, h: 1 });
+          if (i % 2 === 1 && !noCeiling)
+            push({ t: "block", x: x + i * gap + 1.6, y: 4.4, w: 2 * spd, h: 1 });
         }
         x += n * gap + reach();
         break;
@@ -222,10 +228,10 @@ export function buildLevel(def: LevelDef): Built {
         const tight = step[2];
         push({ t: "portal", x, mode: "ship" });
         mode = "ship";
-        const gap = 7 * spd;
+        const gap = 7 * spd + pad();
         for (let i = gap; i < len - gap; i += gap) {
           const high = Math.round(i / gap) % 2 === 0;
-          const h = tight ? 3 : 2.4;
+          const h = (tight ? 3 : 2.4) - Math.min(0.8, ease * 0.4);
           push({ t: "block", x: x + i, y: high ? 8.5 - h : 0, w: 1.4 * spd, h });
         }
         x += len;
@@ -240,10 +246,10 @@ export function buildLevel(def: LevelDef): Built {
         const tight = step[2];
         push({ t: "portal", x, mode: "wave" });
         mode = "wave";
-        const gap = 6.5 * spd;
+        const gap = 6.5 * spd + pad();
         for (let i = gap; i < len - gap; i += gap) {
           const high = Math.round(i / gap) % 2 === 0;
-          const h = tight ? 3.2 : 2.6;
+          const h = (tight ? 3.2 : 2.6) - Math.min(0.8, ease * 0.4);
           push({ t: "block", x: x + i, y: high ? 8.5 - h : 0, w: 1.1 * spd, h });
         }
         x += len;
@@ -257,7 +263,7 @@ export function buildLevel(def: LevelDef): Built {
         const len = step[1] * spd;
         push({ t: "portal", x, mode: "ball" });
         mode = "ball";
-        const gap = 8 * spd;
+        const gap = 8 * spd + pad();
         for (let i = gap; i < len - gap; i += gap) {
           const top = Math.round(i / gap) % 2 === 0;
           push({ t: "spike", x: x + i, y: 0, up: !top });
