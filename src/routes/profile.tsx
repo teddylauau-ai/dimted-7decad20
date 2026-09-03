@@ -71,6 +71,20 @@ function ProfilePage() {
   const { level, rank, intoLevel, needed, progress, totalXp, profile, refreshProfile } = useDimted();
   const stats = usePlayerStats(profile?.id, totalXp);
   const friends = useFriendships(profile?.id);
+  const myRole = useMyRole(profile?.id);
+  const cosmetics = useCosmetics();
+  const cosmeticBySlug = useMemo(
+    () => new Map((cosmetics.data ?? []).map((c) => [c.slug, c])),
+    [cosmetics.data],
+  );
+  const equipped: Record<CosmeticSlot, string | null> = {
+    nametag: profile?.equipped_nametag ?? null,
+    badge: profile?.equipped_badge ?? null,
+    frame: profile?.equipped_frame ?? null,
+    banner: profile?.equipped_banner ?? null,
+    effect: profile?.equipped_effect ?? null,
+  };
+
 
   const [editing, setEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
