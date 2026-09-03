@@ -7,9 +7,10 @@
    - `git init && git add -A && git commit -m "dimted"`
    - Create a private repo on github.com and push it.
 3. In Netlify: **Add new site → Import an existing project → GitHub** and pick the repo.
-4. Build settings:
-   - Build command: `npm run build` (or `bun run build`)
-   - Publish directory: `.output/public`
+4. Build settings: leave them alone — `netlify.toml` in this repo already sets the
+   build command (`bun run build`) and the publish directory (`dist`). Anything
+   configured in the Netlify UI is overridden by that file, so there is nothing to fill in.
+   The SSR handler is picked up automatically from `.netlify/functions-internal`.
 5. In **Site settings → Environment variables**, copy every variable from the `.env` file in this folder (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, VITE_SUPABASE_PROJECT_ID).
 6. Deploy.
 

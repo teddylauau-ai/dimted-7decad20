@@ -20,7 +20,7 @@ Rules:
 - If asked for something off-topic (or to cheat outright), steer back to studying kindly.`;
 
 export const askTutor = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => inputSchema.parse(data))
+  .validator(inputSchema)
   .handler(async ({ data }) => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) return { reply: "", error: "Tutor is not configured yet." };
