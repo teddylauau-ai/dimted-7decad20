@@ -15,8 +15,22 @@ import {
 import { useFriendships, usePlayerStats, useXpFeed } from "@/lib/dimted-queries";
 import { friendshipLevel } from "@/lib/dimted";
 
+function XpTicker() {
+  const { lastGain } = useDimted();
+  if (!lastGain) return null;
+  return (
+    <div
+      key={lastGain.at}
+      className="glass-raised border-primary/30 animate-pop-in text-primary mt-3 inline-flex items-center rounded-full border px-3 py-1 font-mono text-xs shadow-sm"
+    >
+      +{lastGain.amount} XP · {lastGain.label}
+    </div>
+  );
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
+
     meta: [
       { title: "Dimted — chat, level up, unlock a world" },
       {
