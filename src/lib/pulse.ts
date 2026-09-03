@@ -371,7 +371,7 @@ export const LEVELS: LevelDef[] = [
   {
     n: 4,
     name: "Pressure Drop",
-    brief: "Speed portals. Same shapes, less time.",
+    brief: "Longer shapes, same speed. Keep your rhythm.",
     difficulty: "easy",
     bpm: 136,
     palette: PAL.ember,
@@ -395,7 +395,7 @@ export const LEVELS: LevelDef[] = [
       ["flat", 6], ["orbs", 2], ["flat", 4], ["pad"], ["coin", 6],
       ["flat", 4], ["orbs", 3], ["flat", 4], ["saws", 2],
       ["coin", 4], ["flat", 4], ["pad"], ["flat", 4], ["orbs", 2],
-      ["flat", 4], ["tight", 5], ["coin", 3], ["flat", 8],
+      ["flat", 4], ["tight", 3], ["coin", 3], ["flat", 8],
     ],
   },
   {
