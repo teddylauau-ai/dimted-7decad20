@@ -1077,6 +1077,7 @@ export type Database = {
       }
       is_muted: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      level_from_xp: { Args: { _xp: number }; Returns: number }
       mod_delete_dm: { Args: { _message_id: string }; Returns: Json }
       mod_delete_message: { Args: { _message_id: string }; Returns: Json }
       mod_set_mute: {
@@ -1134,12 +1135,20 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: number
       }
+      staff_complete_pulse: {
+        Args: { _levels?: number; _user_id: string }
+        Returns: Json
+      }
       staff_grant_cosmetic: {
         Args: { _slug: string; _user_id: string }
         Returns: Json
       }
       staff_grant_currency: {
         Args: { _sparks?: number; _user_id: string; _xp?: number }
+        Returns: Json
+      }
+      staff_grant_pulse: {
+        Args: { _coins?: number; _slug?: string; _user_id: string }
         Returns: Json
       }
       staff_ignite_surge_for: {

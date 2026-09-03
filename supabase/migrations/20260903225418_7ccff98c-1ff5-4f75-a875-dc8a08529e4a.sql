@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.level_from_xp(integer) FROM anon;

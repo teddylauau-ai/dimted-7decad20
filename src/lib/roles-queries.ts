@@ -151,6 +151,34 @@ export function useGrantCosmetic() {
   });
 }
 
+/** Pulse Rush grants: coins, one locker item, or "*" for the whole locker (owner only). */
+export function useGrantPulse() {
+  return useStaffMutation(
+    async ({ userId, slug, coins }: { userId: string; slug?: string; coins?: number }) => {
+      const args: { _user_id: string; _coins: number; _slug?: string } = {
+        _user_id: userId,
+        _coins: coins ?? 0,
+      };
+      if (slug) args._slug = slug;
+      const { data, error } = await supabase.rpc("staff_grant_pulse", args);
+      if (error) throw error;
+      return unwrap(data);
+    },
+  );
+}
+
+/** Owner-only: mark every Pulse Rush level cleared with all secret coins. */
+export function useCompletePulse() {
+  return useStaffMutation(async ({ userId, levels }: { userId: string; levels?: number }) => {
+    const { data, error } = await supabase.rpc("staff_complete_pulse", {
+      _user_id: userId,
+      _levels: levels ?? 15,
+    });
+    if (error) throw error;
+    return unwrap(data);
+  });
+}
+
 /** Owner-only: set the title that sits under someone's name. */
 export function useSetTitle() {
   return useStaffMutation(async ({ userId, title }: { userId: string; title: string }) => {
