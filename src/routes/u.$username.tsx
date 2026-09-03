@@ -94,7 +94,7 @@ function PublicProfilePage() {
     <div className="space-y-5">
       <Panel className="overflow-hidden p-0">
         <div
-          className="relative h-32 w-full overflow-hidden sm:h-40"
+          className="relative h-36 w-full overflow-hidden sm:h-44"
           style={{ background: bannerFor(person.equipped_banner) }}
         >
           {person.banner_url ? (
@@ -110,9 +110,9 @@ function PublicProfilePage() {
         </div>
 
         <div className="px-6 pb-6">
-          <div className="-mt-10 flex flex-wrap items-end justify-between gap-5">
+          <div className="flex flex-wrap items-end justify-between gap-5 pt-5">
             <div className="flex items-end gap-4">
-              <Avatar profile={person} size={84} className="glass-raised text-2xl" />
+              <Avatar profile={person} size={96} className="glass-raised rounded-2xl text-2xl" />
               <div className="pb-1">
                 <Nametag
                   profile={person}
