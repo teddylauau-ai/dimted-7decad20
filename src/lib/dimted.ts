@@ -27,9 +27,25 @@ export const RARITY_LABEL: Record<Rarity, string> = {
   mythic: "Mythic",
 };
 
-/** XP required to move from `level` to `level + 1`. Grows steeply. */
+/**
+ * The ladder tops out here, and the whole curve is tuned so a real person can
+ * actually walk it: an active day is worth roughly 2–4k XP (arcade runs, chat,
+ * quests, Pulse clears), so the last rank lands around two months of play
+ * instead of the mathematically impossible grind the old curve implied.
+ */
+export const MAX_LEVEL = 100;
+
+/** XP required to move from `level` to `level + 1`. Sub-linear growth. */
 export function xpForLevel(level: number): number {
-  return Math.round((260 + 180 * Math.pow(level - 1, 1.32)) / 10) * 10;
+  if (level >= MAX_LEVEL) return Math.round((160 + 45 * Math.pow(MAX_LEVEL - 1, 0.9)) / 10) * 10;
+  return Math.round((160 + 45 * Math.pow(level - 1, 0.9)) / 10) * 10;
+}
+
+/** Total XP needed to reach a level from scratch — used for planning/UI. */
+export function totalXpForLevel(level: number): number {
+  let sum = 0;
+  for (let l = 1; l < Math.min(level, MAX_LEVEL); l++) sum += xpForLevel(l);
+  return sum;
 }
 
 export function levelFromTotalXp(totalXp: number): {
@@ -39,7 +55,7 @@ export function levelFromTotalXp(totalXp: number): {
 } {
   let level = 1;
   let remaining = Math.max(0, totalXp);
-  while (level < 200 && remaining >= xpForLevel(level)) {
+  while (level < MAX_LEVEL && remaining >= xpForLevel(level)) {
     remaining -= xpForLevel(level);
     level += 1;
   }
