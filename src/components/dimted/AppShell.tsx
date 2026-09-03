@@ -70,18 +70,6 @@ const GROUPS = [
   },
 ] as const;
 
-function XpTicker() {
-  const { lastGain } = useDimted();
-  if (!lastGain) return null;
-  return (
-    <div
-      key={lastGain.at}
-      className="glass-raised border-primary/30 animate-pop-in text-primary pointer-events-none fixed top-3 right-4 z-40 rounded-full border px-4 py-1.5 font-mono text-xs shadow-lg"
-    >
-      +{lastGain.amount} XP · {lastGain.label}
-    </div>
-  );
-}
 
 function Rail() {
   return (
@@ -303,8 +291,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       </nav>
 
-      <XpTicker />
       <LevelUpOverlay />
     </div>
   );
 }
+

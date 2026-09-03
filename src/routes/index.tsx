@@ -73,8 +73,10 @@ function HomePage() {
             aside={`${intoLevel.toLocaleString()} / ${needed.toLocaleString()}`}
           />
           <Meter value={progress} tone="xp" className="mt-4 h-3" animate />
+          <XpTicker />
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
+
             <div className="border-border bg-background/40 rounded-xl border p-4">
               <p className="eyebrow">Next unlock</p>
               {upcoming ? (
