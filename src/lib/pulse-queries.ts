@@ -127,6 +127,7 @@ export function usePulseFinish(userId: string | undefined) {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["pulse-state", userId] });
       void qc.invalidateQueries({ queryKey: ["pulse-progress", userId] });
+      void qc.invalidateQueries({ queryKey: ["pulse-leaderboard"] });
     },
   });
 }
