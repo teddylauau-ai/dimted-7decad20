@@ -368,6 +368,17 @@ function ShopPage() {
     }
   }
 
+  async function clearSlot(s: CosmeticSlot) {
+    try {
+      await equipCosmetic(null, s);
+      await refreshProfile();
+      toast.success("Slot cleared.");
+    } catch {
+      toast.error("Couldn't clear that slot.");
+    }
+  }
+
+
   return (
     <div className="space-y-5">
       <PageHeader
