@@ -166,6 +166,10 @@ export type ChatMessage = {
   author: ChatAuthor | null;
 };
 
+/**
+ * Newest first, capped at the 100 most recent — the database trims anything
+ * older, so a long-running chat never turns into an endless scroll.
+ */
 export function useDirectMessages(friendshipId: string | undefined) {
   return useQuery({
     queryKey: ["messages", friendshipId],
@@ -176,7 +180,9 @@ export function useDirectMessages(friendshipId: string | undefined) {
         .from("messages")
         .select(`id, body, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
         .eq("friendship_id", friendshipId!)
-        .order("created_at");
+        .order("created_at", { ascending: false })
+        .limit(100);
+
       if (error) throw error;
       return (data ?? []) as unknown as ChatMessage[];
     },
