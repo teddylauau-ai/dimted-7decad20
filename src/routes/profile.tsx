@@ -157,15 +157,16 @@ function ProfilePage() {
   return (
     <div className="space-y-5">
       <Panel className="overflow-hidden p-0">
-        <div
-          className="relative h-44"
-          style={{ background: bannerFor(profile?.equipped_banner) }}
-        >
+        <div className="relative h-36 w-full overflow-hidden sm:h-44">
+          <div
+            className="absolute inset-0"
+            style={{ background: bannerFor(profile?.equipped_banner) }}
+          />
           {profile?.banner_url ? (
             <img
               src={profile.banner_url}
               alt="Your profile banner"
-              className="absolute inset-0 h-full w-full object-cover"
+              className="absolute inset-0 block h-full w-full object-cover object-center"
             />
           ) : (
             <div
@@ -176,7 +177,9 @@ function ProfilePage() {
               }}
             />
           )}
-          <div className="absolute top-3 right-3 flex gap-2">
+          {/* scrim so the name and avatar below always stay readable */}
+          <div className="from-card absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t to-transparent" />
+          <div className="absolute top-3 right-3 z-10 flex gap-2">
             <button
               type="button"
               onClick={() => bannerInput.current?.click()}
@@ -211,25 +214,17 @@ function ProfilePage() {
         </div>
         <div className="relative px-6 pb-6">
           <div className="-mt-12 flex flex-wrap items-end justify-between gap-5">
-            <div className="flex items-end gap-4">
-              <div className="relative">
+            <div className="flex min-w-0 items-end gap-4">
+              <div className="relative shrink-0">
                 <button
                   type="button"
                   onClick={() => fileInput.current?.click()}
                   disabled={uploading}
                   aria-label="Change profile picture"
-                  className="glass-raised group focus-visible:ring-ring relative grid size-24 place-items-center overflow-hidden rounded-3xl focus-visible:ring-2 focus-visible:outline-none"
+                  className="group focus-visible:ring-ring relative block rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
                 >
-                  {profile?.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt="Your profile picture"
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="numeral text-glow text-3xl">{level}</span>
-                  )}
-                  <span className="bg-background/70 absolute inset-0 grid place-items-center opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                  <Avatar profile={profile} size={96} className="glass-raised rounded-2xl" />
+                  <span className="bg-background/70 absolute inset-0 grid place-items-center rounded-2xl opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
                     {uploading ? (
                       <Loader2 className="size-5 animate-spin" />
                     ) : (
@@ -255,13 +250,23 @@ function ProfilePage() {
                   </button>
                 ) : null}
               </div>
-              <div className="pb-1">
-                <h1 className="font-display text-2xl font-semibold tracking-tight">
-                  {profile?.display_name ?? "…"}
-                </h1>
+              <div className="min-w-0 pb-1">
+                <Nametag
+                  profile={profile}
+                  as="h1"
+                  className="font-display text-2xl font-semibold tracking-tight"
+                />
                 <p className="text-muted-foreground font-mono text-[11px]">
                   @{profile?.username ?? "…"} ·{" "}
                   <span className="text-primary">{profile?.title ?? "Newcomer"}</span> · {rank}
+                </p>
+                <p className="mt-1.5 flex flex-wrap items-center gap-2">
+                  <PresenceLabel profile={profile} />
+                  {myRole.role !== "member" ? (
+                    <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] uppercase">
+                      {ROLE_LABEL[myRole.role]}
+                    </span>
+                  ) : null}
                 </p>
               </div>
             </div>
@@ -273,6 +278,47 @@ function ProfilePage() {
               <p className="text-muted-foreground/70 mt-1.5 font-mono text-[10px]">
                 {totalXp.toLocaleString()} XP lifetime
               </p>
+            </div>
+          </div>
+
+          <div className="border-border mt-5 border-t pt-4">
+            <div className="flex items-end justify-between gap-4">
+              <p className="eyebrow">Worn right now</p>
+              <Link to="/shop" className="text-primary font-mono text-[11px] hover:underline">
+                Change in the shop →
+              </Link>
+            </div>
+            <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+              {SLOTS.map(({ slot, label }) => {
+                const slug = equipped[slot];
+                const item = slug ? cosmeticBySlug.get(slug) : undefined;
+                return (
+                  <div
+                    key={slot}
+                    className={cn(
+                      "flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5",
+                      item
+                        ? cn("bg-background/40", rarityBorder[item.rarity])
+                        : "border-border/60 border-dashed",
+                    )}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
+                        {label}
+                      </p>
+                      <p
+                        className={cn(
+                          "truncate text-sm",
+                          item ? rarityText[item.rarity] : "text-muted-foreground/60",
+                        )}
+                      >
+                        {item?.name ?? (slug ?? "Nothing equipped")}
+                      </p>
+                    </div>
+                    {item ? <RarityChip rarity={item.rarity} /> : null}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -308,6 +354,7 @@ function ProfilePage() {
           </div>
         </div>
       </Panel>
+
 
       <div className="grid gap-5 xl:grid-cols-3">
         <Panel className="p-6" delay={60}>
