@@ -17,6 +17,7 @@ import type { ReactNode } from "react";
 import { useDimted } from "@/lib/dimted-store";
 import { nextUnlock } from "@/lib/dimted";
 import { formatSparks } from "@/lib/cosmetics";
+import { Backpack } from "lucide-react";
 import { useMyRole } from "@/lib/roles-queries";
 import { cn } from "@/lib/utils";
 import { Meter } from "./primitives";
@@ -45,6 +46,7 @@ const GROUPS = [
       { to: "/", label: "Home", icon: Home },
       { to: "/profile", label: "Profile", icon: UserRound },
       { to: "/shop", label: "Shop", icon: ShoppingBag },
+      { to: "/armory", label: "Armory", icon: Backpack },
     ],
   },
   {
