@@ -19,6 +19,7 @@ import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { Avatar, IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics } from "@/lib/dimted-queries";
+import { usePulseItems } from "@/lib/pulse-queries";
 import {
   ROLE_LABEL,
   ROLE_ORDER,
@@ -27,7 +28,9 @@ import {
   useAllAccounts,
   useEditProfile,
   useForceSurge,
+  useCompletePulse,
   useGrantCosmetic,
+  useGrantPulse,
   useGrantCurrency,
   useGrantRole,
   useMyRole,
@@ -122,6 +125,7 @@ function AdminPage() {
   const roles = useRoles();
   const titles = useTitles();
   const cosmetics = useCosmetics();
+  const pulseItems = usePulseItems();
   const log = useStaffLog();
   const accounts = useAllAccounts(me.isModerator);
 
@@ -129,6 +133,8 @@ function AdminPage() {
   const revoke = useRevokeRole();
   const grantCurrency = useGrantCurrency();
   const grantCosmetic = useGrantCosmetic();
+  const grantPulse = useGrantPulse();
+  const completePulse = useCompletePulse();
   const setTitle = useSetTitle();
   const forceSurge = useForceSurge();
   const setBan = useSetBan();
@@ -138,6 +144,8 @@ function AdminPage() {
   const [filter, setFilter] = useState("");
   const [targetId, setTargetId] = useState<string | null>(null);
   const [xp, setXp] = useState("1000");
+  const [pulseSlug, setPulseSlug] = useState("");
+  const [pulseCoins, setPulseCoins] = useState("5000");
   const [sparks, setSparks] = useState("500");
   const [titleSlug, setTitleSlug] = useState("");
   const [cosmeticSlug, setCosmeticSlug] = useState("");
@@ -218,6 +226,19 @@ function AdminPage() {
       toast.success(
         `${target.display_name}: ${xpAmount >= 0 ? "+" : ""}${xpAmount.toLocaleString()} XP · ${sparkAmount >= 0 ? "+" : ""}${sparkAmount.toLocaleString()} sparks`,
       );
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+  async function givePulse(opts: { slug?: string; coins?: number }) {
+    if (!target) return;
+    try {
+      const args: { userId: string; slug?: string; coins?: number } = { userId: target.id };
+      if (opts.slug) args.slug = opts.slug;
+      if (opts.coins) args.coins = opts.coins;
+      const res = await grantPulse.mutateAsync(args);
+      toast.success(`Pulse Rush updated · ${String(res.coins ?? 0)} coins`);
     } catch (e) {
       fail(e);
     }
@@ -575,6 +596,83 @@ function AdminPage() {
             </div>
             <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
               Unlocked items land in their inventory — they still choose what to equip.
+            </p>
+          </Panel>
+          ) : null}
+
+
+          {/* ---- Pulse Rush ---- */}
+          {me.isStaff ? (
+          <Panel className="p-5">
+            <PanelHead
+              eyebrow="Pulse Rush"
+              title="Coins, locker and levels"
+              aside={`${(pulseItems.data ?? []).length} locker items`}
+            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="space-y-1.5">
+                <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
+                  Pulse coins
+                </span>
+                <Input value={pulseCoins} inputMode="numeric" onChange={(e) => setPulseCoins(e.target.value)} />
+              </label>
+              <label className="space-y-1.5">
+                <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
+                  Locker item
+                </span>
+                <select
+                  value={pulseSlug}
+                  onChange={(e) => setPulseSlug(e.target.value)}
+                  className="border-border bg-secondary/40 focus-visible:ring-ring w-full rounded-xl border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  <option value="">Choose an item…</option>
+                  {(pulseItems.data ?? []).map((i) => (
+                    <option key={i.slug} value={i.slug}>
+                      {i.name} · {i.kind} · {i.rarity}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                disabled={grantPulse.isPending}
+                onClick={() => void givePulse({ coins: Number(pulseCoins) || 0 })}
+              >
+                <Sparkles className="size-4" /> Give coins
+              </Button>
+              <Button
+                variant="outline"
+                disabled={!pulseSlug || grantPulse.isPending}
+                onClick={() => void givePulse({ slug: pulseSlug })}
+              >
+                <Gem className="size-4" /> Unlock item
+              </Button>
+              {me.isOwner ? (
+                <>
+                  <Button variant="outline" onClick={() => void givePulse({ slug: "*", coins: 100000 })}>
+                    Unlock whole locker
+                  </Button>
+                  <Button
+                    variant="outline"
+                    disabled={completePulse.isPending}
+                    onClick={async () => {
+                      if (!target) return;
+                      try {
+                        await completePulse.mutateAsync({ userId: target.id, levels: 15 });
+                        toast.success("Every Pulse Rush level marked cleared with all secret coins.");
+                      } catch (e) {
+                        fail(e);
+                      }
+                    }}
+                  >
+                    <Zap className="size-4" /> Complete all levels
+                  </Button>
+                </>
+              ) : null}
+            </div>
+            <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+              Coins are the Pulse Rush currency. Unlocked skins show up in their locker immediately.
             </p>
           </Panel>
           ) : null}
