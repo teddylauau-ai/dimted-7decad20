@@ -237,7 +237,7 @@ function AdminPage() {
       const args: { userId: string; slug?: string; coins?: number } = { userId: target.id };
       if (opts.slug) args.slug = opts.slug;
       if (opts.coins) args.coins = opts.coins;
-      const res = await grantPulse.mutateAsync(args);
+      const res = (await grantPulse.mutateAsync(args)) as { coins?: number };
       toast.success(`Pulse Rush updated · ${String(res.coins ?? 0)} coins`);
     } catch (e) {
       fail(e);
