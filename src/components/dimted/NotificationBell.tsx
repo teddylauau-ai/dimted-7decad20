@@ -25,7 +25,7 @@ export function NotificationBell() {
   const { profile } = useDimted();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
-  const { data: items = [] } = useNotifications(profile?.id);
+  const { data: items = [], isFetched } = useNotifications(profile?.id);
   const unread = items.filter((n) => !n.read_at);
   const wrap = useRef<HTMLDivElement>(null);
   const announced = useRef<Set<string>>(new Set());
@@ -33,11 +33,13 @@ export function NotificationBell() {
 
   // Toast genuinely new arrivals, but never replay the backlog on first load.
   useEffect(() => {
+    if (!isFetched) return;
     if (!primed.current) {
       items.forEach((n) => announced.current.add(n.id));
-      primed.current = items.length >= 0;
+      primed.current = true;
       return;
     }
+
     const fresh = items.filter((n) => !n.read_at && !announced.current.has(n.id));
     fresh.slice(0, 3).forEach((n) => {
       announced.current.add(n.id);
