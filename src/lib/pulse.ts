@@ -23,7 +23,12 @@ export const BASE_SPEED = 0.3; // px per ms at 1x
 export const SPEED_STEPS = [0.72, 1, 1.25, 1.5, 1.85] as const;
 
 export const GRAVITY = 0.0032;
-export const JUMP_V = 0.655;
+/**
+ * Tuned so a jump peaks a shade over 2.5 units and covers ~4.3 units of ground
+ * at 1x — the same "two blocks up, four blocks across" arc Geometry Dash uses,
+ * which is what makes single-block hops forgiving instead of frame-perfect.
+ */
+export const JUMP_V = 0.73;
 
 export type Mode = "cube" | "ship" | "ball" | "wave";
 
@@ -104,8 +109,8 @@ export function buildLevel(def: LevelDef): Built {
    * Geometry Dash keeps its spacing musical when a speed portal hits.
    */
   let spd = 1;
-  /** One jump covers ~3.8 units of ground at 1x. Peak height is ~2.1 units. */
-  const JUMP_RUN = 3.8;
+  /** One jump covers ~4.3 units of ground at 1x. Peak height is ~2.6 units. */
+  const JUMP_RUN = 4.3;
   const reach = () => JUMP_RUN * spd;
   const push = (o: Obj) => out.push(o);
 
@@ -132,10 +137,13 @@ export function buildLevel(def: LevelDef): Built {
       case "stair": {
         // Solid steps rising from the ground, one unit at a time, then back down.
         const n = Math.min(3, step[1]);
-        const w = 2.2 * spd;
-        for (let i = 0; i < n; i++) push({ t: "block", x: x + i * w, y: 0, w, h: i + 1 });
+        const w = 2.8 * spd;
+        // Rises of one unit only, and never higher than two: each hop has a wide
+        // landing window instead of a single perfect frame.
+        const hAt = (i: number) => Math.min(2, i + 1);
+        for (let i = 0; i < n; i++) push({ t: "block", x: x + i * w, y: 0, w, h: hAt(i) });
         for (let i = 0; i < n - 1; i++)
-          push({ t: "block", x: x + n * w + i * w, y: 0, w, h: n - 1 - i });
+          push({ t: "block", x: x + n * w + i * w, y: 0, w, h: hAt(n - 2 - i) });
         x += (2 * n - 1) * w + reach();
         break;
       }
