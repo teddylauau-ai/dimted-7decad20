@@ -1,19 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Flame, Sparkles } from "lucide-react";
+import { Crown, Flame, Sparkles, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Meter, Panel, PanelHead, PageHeader, RarityChip, LockedTile } from "@/components/dimted/primitives";
+import { Meter, Panel, PanelHead, RarityChip, LockedTile } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
 import { QuestBoard } from "@/components/dimted/QuestBoard";
 import {
+  RANKS,
   SECRETS,
   UNLOCKS,
   XP_SOURCES,
+  levelFromTotalXp,
   nextUnlock,
   rankForLevel,
 } from "@/lib/dimted";
-import { useFriendships, usePlayerStats, useXpFeed } from "@/lib/dimted-queries";
+import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
+import { cn } from "@/lib/utils";
 import { friendshipLevel } from "@/lib/dimted";
+
 
 function XpTicker() {
   const { lastGain } = useDimted();
@@ -58,26 +62,69 @@ function HomePage() {
 
   const upcoming = nextUnlock(level);
   const nextSecret = SECRETS.find((s) => s.requiredLevel > level);
+  const board = useXpLeaderboard(50);
+  const rows = board.data ?? [];
+  const myIndex = rows.findIndex((r) => r.id === profile?.id);
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        eyebrow="Progression"
-        title={`Level ${level} · ${rank}`}
-        blurb={
-          profile
-            ? `Welcome back, ${profile.display_name}. Everything below moved because you talked to someone.`
-            : undefined
-        }
-        aside={
-          <div className="text-right">
-            <p className="numeral text-3xl">{totalXp.toLocaleString()}</p>
-            <p className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
-              total xp
+      <header className="animate-rise grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-4 py-3">
+          <div className="min-w-0">
+            <p className="eyebrow">Progression</p>
+            <h1 className="font-display mt-0.5 truncate text-xl font-semibold tracking-tight">
+              Level {level} · {rank}
+            </h1>
+            <p className="text-muted-foreground mt-0.5 truncate font-mono text-[11px]">
+              {profile?.display_name ?? "—"} · {intoLevel.toLocaleString()}/{needed.toLocaleString()} XP
             </p>
           </div>
-        }
-      />
+          <div className="shrink-0 text-right">
+            <p className="numeral text-2xl">{totalXp.toLocaleString()}</p>
+            <p className="text-muted-foreground font-mono text-[9px] tracking-[0.2em] uppercase">total xp</p>
+          </div>
+        </div>
+
+        <div className="glass rounded-2xl px-4 py-3">
+          <div className="flex items-center justify-between">
+            <p className="eyebrow flex items-center gap-1.5">
+              <Trophy className="text-gold size-3" /> Top of the ladder
+            </p>
+            <span className="text-muted-foreground font-mono text-[10px]">
+              {myIndex >= 0 ? `you · #${myIndex + 1}` : "unranked"}
+            </span>
+          </div>
+          <ol className="mt-2 space-y-1">
+            {rows.slice(0, 3).map((p, i) => (
+              <li key={p.id} className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "numeral w-5 shrink-0 text-sm",
+                    i === 0 ? "text-gold" : "text-muted-foreground",
+                  )}
+                >
+                  {i + 1}
+                </span>
+                <Avatar profile={p} size={22} />
+                <Link
+                  to="/u/$username"
+                  params={{ username: p.username }}
+                  className="min-w-0 flex-1 truncate text-[13px] hover:underline"
+                >
+                  <Nametag profile={p} className="text-[13px]" />
+                </Link>
+                <span className="text-primary shrink-0 font-mono text-[10px]">
+                  Lv {levelFromTotalXp(p.total_xp).level}
+                </span>
+              </li>
+            ))}
+            {rows.length === 0 ? (
+              <li className="text-muted-foreground text-xs">No ranked players yet.</li>
+            ) : null}
+          </ol>
+        </div>
+      </header>
+
 
       <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
         <div className="space-y-5">
@@ -211,6 +258,104 @@ function HomePage() {
         </div>
 
         <QuestBoard />
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+        <Panel className="p-5" delay={60}>
+          <PanelHead
+            eyebrow="Global"
+            title="The ladder"
+            aside={rows.length ? `${rows.length} players` : undefined}
+          />
+          <ol className="mt-4 space-y-1.5">
+            {rows.map((p, i) => {
+              const lv = levelFromTotalXp(p.total_xp);
+              const me = p.id === profile?.id;
+              return (
+                <li key={p.id}>
+                  <Link
+                    to="/u/$username"
+                    params={{ username: p.username }}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border px-3 py-2 transition-colors",
+                      me
+                        ? "border-primary/40 bg-primary/10"
+                        : "border-border bg-background/40 hover:border-primary/30",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "numeral w-7 shrink-0 text-base",
+                        i === 0
+                          ? "text-gold"
+                          : i < 3
+                            ? "text-primary"
+                            : "text-muted-foreground",
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                    {i === 0 ? <Crown className="text-gold size-3.5 shrink-0" /> : null}
+                    <Avatar profile={p} size={34} />
+                    <span className="min-w-0 flex-1">
+                      <Nametag profile={p} className="block truncate text-sm" />
+                      <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                        @{p.username} · {rankForLevel(lv.level)}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="numeral block text-sm">Lv {lv.level}</span>
+                      <span className="text-muted-foreground block font-mono text-[10px]">
+                        {p.total_xp.toLocaleString()} XP
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+            {rows.length === 0 ? (
+              <li className="text-muted-foreground text-sm">
+                Nobody has earned XP yet — start chatting and claim the top spot.
+              </li>
+            ) : null}
+          </ol>
+        </Panel>
+
+        <Panel className="p-5" delay={100}>
+          <PanelHead eyebrow="Prestige" title="Rank ladder" aside={`Lv ${level} · ${rank}`} />
+          <ul className="mt-4 space-y-1.5">
+            {RANKS.map((r) => {
+              const reached = level >= r.from;
+              const current = rankForLevel(level) === r.name;
+              return (
+                <li
+                  key={r.name}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl border px-3 py-2",
+                    current
+                      ? "border-gold/50 bg-gold/10"
+                      : reached
+                        ? "border-border bg-background/40"
+                        : "border-border/50 bg-background/20 opacity-60",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "numeral w-9 shrink-0 text-sm",
+                      current ? "text-gold" : reached ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {r.from}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm">{r.name}</span>
+                  <span className="text-muted-foreground shrink-0 font-mono text-[10px] tracking-[0.16em] uppercase">
+                    {current ? "you" : reached ? "held" : "locked"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
       </div>
 
 

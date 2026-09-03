@@ -580,3 +580,20 @@ export function useCommunityInvites(communityId: string | undefined) {
     },
   });
 }
+
+/** Global XP ladder — every real account, ranked by total XP. */
+export function useXpLeaderboard(limit = 50) {
+  return useQuery({
+    queryKey: ["xp-leaderboard", limit],
+    staleTime: 30 * 1000,
+    queryFn: async (): Promise<PublicProfile[]> => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select(PROFILE_FIELDS)
+        .order("total_xp", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data ?? []) as PublicProfile[];
+    },
+  });
+}
