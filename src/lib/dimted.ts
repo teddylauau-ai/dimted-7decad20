@@ -35,10 +35,14 @@ export const RARITY_LABEL: Record<Rarity, string> = {
  */
 export const MAX_LEVEL = 100;
 
-/** XP required to move from `level` to `level + 1`. Sub-linear growth. */
+/**
+ * XP required to move from `level` to `level + 1`. Deliberately tiny at the
+ * start — level 2 lands after a single arcade run and the first handful of
+ * levels fall within the first session — then it eases upward.
+ */
 export function xpForLevel(level: number): number {
-  if (level >= MAX_LEVEL) return Math.round((160 + 45 * Math.pow(MAX_LEVEL - 1, 0.9)) / 10) * 10;
-  return Math.round((160 + 45 * Math.pow(level - 1, 0.9)) / 10) * 10;
+  const l = Math.min(Math.max(level, 1), MAX_LEVEL);
+  return Math.round((90 + 52 * Math.pow(l - 1, 0.92)) / 10) * 10;
 }
 
 /** Total XP needed to reach a level from scratch — used for planning/UI. */
