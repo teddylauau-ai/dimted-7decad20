@@ -164,51 +164,55 @@ function HomePage() {
           </Panel>
 
           <Panel className="p-5" delay={80}>
+            <PanelHead
+              eyebrow="Your circle"
+              title="Friends"
+              aside={
+                myFriends.length
+                  ? `${myFriends.length} connected`
+                  : undefined
+              }
+            />
+            {myFriends.length === 0 ? (
+              <p className="text-muted-foreground mt-4 text-sm">
+                No friends yet. Find real accounts in{" "}
+                <Link to="/discover" className="text-primary hover:underline">
+                  Discover
+                </Link>{" "}
+                and send a request — every accepted request is worth XP.
+              </p>
+            ) : (
+              <ul className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {myFriends.map((f) => {
+                  const fl = friendshipLevel(f.friendshipXp);
+                  return (
+                    <li key={f.friendshipId}>
+                      <Link
+                        to="/u/$username"
+                        params={{ username: f.profile.username }}
+                        className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-3 transition-colors"
+                      >
+                        <Avatar profile={f.profile} size={44} />
+                        <span className="min-w-0 flex-1">
+                          <Nametag profile={f.profile} className="block truncate text-sm" />
+                          <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                            @{f.profile.username}
+                          </span>
+                          <PresenceLabel profile={f.profile} className="mt-0.5" />
+                        </span>
+                        <span className="text-primary shrink-0 font-mono text-[10px]">FL {fl.level}</span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Panel>
+        </div>
 
-        <PanelHead
-          eyebrow="Your circle"
-          title="Friends"
-          aside={
-            myFriends.length
-              ? `${myFriends.length} connected`
-              : undefined
-          }
-        />
-        {myFriends.length === 0 ? (
-          <p className="text-muted-foreground mt-4 text-sm">
-            No friends yet. Find real accounts in{" "}
-            <Link to="/discover" className="text-primary hover:underline">
-              Discover
-            </Link>{" "}
-            and send a request — every accepted request is worth XP.
-          </p>
-        ) : (
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {myFriends.map((f) => {
-              const fl = friendshipLevel(f.friendshipXp);
-              return (
-                <li key={f.friendshipId}>
-                  <Link
-                    to="/u/$username"
-                    params={{ username: f.profile.username }}
-                    className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-3 transition-colors"
-                  >
-                    <Avatar profile={f.profile} size={44} />
-                    <span className="min-w-0 flex-1">
-                      <Nametag profile={f.profile} className="block truncate text-sm" />
-                      <span className="text-muted-foreground block truncate font-mono text-[10px]">
-                        @{f.profile.username}
-                      </span>
-                      <PresenceLabel profile={f.profile} className="mt-0.5" />
-                    </span>
-                    <span className="text-primary shrink-0 font-mono text-[10px]">FL {fl.level}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Panel>
+        <QuestBoard />
+      </div>
+
 
       <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
         <Panel className="p-5" delay={100}>
