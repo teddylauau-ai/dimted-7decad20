@@ -157,7 +157,7 @@ export function useGrantPulse() {
     async ({ userId, slug, coins }: { userId: string; slug?: string; coins?: number }) => {
       const { data, error } = await supabase.rpc("staff_grant_pulse", {
         _user_id: userId,
-        _slug: slug ?? null,
+        _slug: slug ?? undefined,
         _coins: coins ?? 0,
       });
       if (error) throw error;
