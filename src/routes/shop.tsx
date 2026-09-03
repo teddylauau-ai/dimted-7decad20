@@ -239,6 +239,16 @@ function ShopPage() {
         }
       />
 
+      <Armory
+        all={all}
+        owned={owned}
+        equipped={equippedSlug}
+        onEquip={(item) => void equip(item)}
+        onClear={(s) => void clearSlot(s)}
+      />
+
+
+
       {limited.length ? (
         <Panel className="border-gold/30 p-5">
           <PanelHead
