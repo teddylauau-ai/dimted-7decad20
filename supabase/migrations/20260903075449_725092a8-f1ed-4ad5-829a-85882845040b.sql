@@ -1,0 +1,21 @@
+REVOKE EXECUTE ON FUNCTION public.owner_delete_community(uuid) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.owner_delete_account(uuid) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.mod_delete_dm(uuid) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.is_community_manager(uuid, uuid) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.can_see_community(uuid, uuid) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.can_join_community(uuid, uuid) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.vanguard_state_for_me() FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.vanguard_finish(integer, integer, integer, integer) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.vanguard_unlock(text) FROM anon, PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.vanguard_equip(text, text) FROM anon, PUBLIC;
+
+GRANT EXECUTE ON FUNCTION public.owner_delete_community(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.owner_delete_account(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.mod_delete_dm(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_community_manager(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.can_see_community(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.can_join_community(uuid, uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.vanguard_state_for_me() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.vanguard_finish(integer, integer, integer, integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.vanguard_unlock(text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.vanguard_equip(text, text) TO authenticated;

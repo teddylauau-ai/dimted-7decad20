@@ -225,3 +225,82 @@ export async function claimQuest(slug: string): Promise<ClaimQuestResult> {
   if (error) return { status: "error" };
   return (data ?? { status: "error" }) as ClaimQuestResult;
 }
+
+/* ------------------------------------------------------- moderation & chat */
+
+/** Own messages, or any message when you're staff (RLS decides). */
+export async function deleteDirectMessage(id: string) {
+  const { error } = await supabase.from("messages").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteCommunityMessage(id: string) {
+  const { error } = await supabase.from("community_messages").delete().eq("id", id);
+  if (error) throw error;
+}
+
+/* ------------------------------------------------------ private communities */
+
+export async function createCommunityAdvanced(
+  ownerId: string,
+  name: string,
+  tagline: string,
+  visibility: "public" | "private",
+) {
+  const id = await createCommunity(ownerId, name, tagline);
+  if (visibility === "private") {
+    const { error } = await supabase.from("communities").update({ visibility }).eq("id", id);
+    if (error) throw error;
+  }
+  return id;
+}
+
+export async function setCommunityVisibility(
+  communityId: string,
+  visibility: "public" | "private",
+) {
+  const { error } = await supabase.from("communities").update({ visibility }).eq("id", communityId);
+  if (error) throw error;
+}
+
+export async function inviteToCommunity(communityId: string, userId: string, invitedBy: string) {
+  const { error } = await supabase
+    .from("community_invites")
+    .insert({ community_id: communityId, user_id: userId, invited_by: invitedBy });
+  if (error) throw error;
+}
+
+export async function revokeCommunityInvite(communityId: string, userId: string) {
+  const { error } = await supabase
+    .from("community_invites")
+    .delete()
+    .eq("community_id", communityId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function removeCommunityMember(communityId: string, userId: string) {
+  const { error } = await supabase
+    .from("community_members")
+    .delete()
+    .eq("community_id", communityId)
+    .eq("user_id", userId);
+  if (error) throw error;
+}
+
+export async function deleteCommunityAsStaff(communityId: string) {
+  const { data, error } = await supabase.rpc("owner_delete_community", {
+    _community_id: communityId,
+  });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}
+
+/* -------------------------------------------------------- account deletion */
+
+/** Owner-only, and never the owner's own account. */
+export async function ownerDeleteAccount(userId: string) {
+  const { data, error } = await supabase.rpc("owner_delete_account", { _user_id: userId });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}

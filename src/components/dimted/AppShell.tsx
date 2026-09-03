@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkle,
+  Swords,
   UserRound,
   Users,
   Zap,
@@ -31,6 +32,7 @@ const RAIL = [
   { to: "/", label: "Home", icon: Home },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/communities", label: "Communities", icon: Users },
+  { to: "/vanguard", label: "Nova Vanguard", icon: Swords },
   { to: "/activities", label: "Arcade", icon: Gamepad2 },
   { to: "/study", label: "Study", icon: BookOpen },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
@@ -57,6 +59,7 @@ const GROUPS = [
   {
     label: "Play",
     items: [
+      { to: "/vanguard", label: "Nova Vanguard", icon: Swords },
       { to: "/activities", label: "Arcade", icon: Gamepad2 },
       { to: "/study", label: "Study", icon: BookOpen },
     ],
@@ -73,7 +76,7 @@ function XpTicker() {
   return (
     <div
       key={lastGain.at}
-      className="glass-raised border-primary/30 animate-pop-in text-primary pointer-events-none fixed bottom-6 left-1/2 z-40 -translate-x-1/2 rounded-full border px-4 py-2 font-mono text-xs"
+      className="glass-raised border-primary/30 animate-pop-in text-primary pointer-events-none fixed top-3 right-4 z-40 rounded-full border px-4 py-1.5 font-mono text-xs shadow-lg"
     >
       +{lastGain.amount} XP · {lastGain.label}
     </div>

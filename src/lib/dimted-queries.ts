@@ -95,6 +95,7 @@ export type CommunityRow = {
   owner_id: string;
   total_xp: number;
   created_at: string;
+  visibility: string;
   memberCount: number;
   isMember: boolean;
 };
@@ -107,7 +108,7 @@ export function useCommunities(userId: string | undefined) {
       const [{ data: communities, error }, { data: members }] = await Promise.all([
         supabase
           .from("communities")
-          .select("id, slug, name, tagline, owner_id, total_xp, created_at")
+          .select("id, slug, name, tagline, owner_id, total_xp, created_at, visibility")
           .order("total_xp", { ascending: false }),
         supabase.from("community_members").select("community_id, user_id"),
       ]);
@@ -510,6 +511,66 @@ export function usePublicPlayerDetail(userId: string | undefined) {
           best_ms: number | null;
         }[],
       };
+    },
+  });
+}
+
+
+/* ------------------------------------------------- community administration */
+
+export type MemberRow = {
+  user_id: string;
+  role: string;
+  profile: {
+    id: string;
+    username: string;
+    display_name: string;
+    equipped_nametag: string | null;
+    equipped_badge: string | null;
+    equipped_frame: string | null;
+    equipped_effect: string | null;
+    avatar_url: string | null;
+  } | null;
+};
+
+/** Members of one community, for the manage panel. */
+export function useCommunityMembers(communityId: string | undefined) {
+  return useQuery({
+    queryKey: ["community-members", communityId],
+    enabled: !!communityId,
+    queryFn: async (): Promise<MemberRow[]> => {
+      const { data, error } = await supabase
+        .from("community_members")
+        .select(
+          "user_id, role, profile:profiles!community_members_user_id_fkey (id, username, display_name, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url)",
+        )
+        .eq("community_id", communityId!);
+      if (error) throw error;
+      return (data ?? []) as unknown as MemberRow[];
+    },
+  });
+}
+
+export type InviteRow = {
+  user_id: string;
+  created_at: string;
+  profile: { id: string; username: string; display_name: string; avatar_url: string | null } | null;
+};
+
+/** Outstanding invites for a private community. */
+export function useCommunityInvites(communityId: string | undefined) {
+  return useQuery({
+    queryKey: ["community-invites", communityId],
+    enabled: !!communityId,
+    queryFn: async (): Promise<InviteRow[]> => {
+      const { data, error } = await supabase
+        .from("community_invites")
+        .select(
+          "user_id, created_at, profile:profiles!community_invites_user_id_fkey (id, username, display_name, avatar_url)",
+        )
+        .eq("community_id", communityId!);
+      if (error) throw error;
+      return (data ?? []) as unknown as InviteRow[];
     },
   });
 }
