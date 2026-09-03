@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkle,
-  Swords,
   UserRound,
   Users,
   Zap,
@@ -32,7 +31,7 @@ const RAIL = [
   { to: "/", label: "Home", icon: Home },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/communities", label: "Communities", icon: Users },
-  { to: "/vanguard", label: "Nova Vanguard", icon: Swords },
+  { to: "/pulse", label: "Pulse Rush", icon: Zap },
   { to: "/activities", label: "Arcade", icon: Gamepad2 },
   { to: "/study", label: "Study", icon: BookOpen },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
@@ -59,7 +58,7 @@ const GROUPS = [
   {
     label: "Play",
     items: [
-      { to: "/vanguard", label: "Nova Vanguard", icon: Swords },
+      { to: "/pulse", label: "Pulse Rush", icon: Zap },
       { to: "/activities", label: "Arcade", icon: Gamepad2 },
       { to: "/study", label: "Study", icon: BookOpen },
     ],

@@ -17,9 +17,9 @@ import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StudyRouteImport } from './routes/study'
-import { Route as VanguardRouteImport } from './routes/vanguard'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 
 const IndexRoute = IndexRouteImport.update({
@@ -62,6 +62,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PulseRoute = PulseRouteImport.update({
+  id: '/pulse',
+  path: '/pulse',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShopRoute = ShopRouteImport.update({
   id: '/shop',
   path: '/shop',
@@ -70,11 +75,6 @@ const ShopRoute = ShopRouteImport.update({
 const StudyRoute = StudyRouteImport.update({
   id: '/study',
   path: '/study',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VanguardRoute = VanguardRouteImport.update({
-  id: '/vanguard',
-  path: '/vanguard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UUsernameRoute = UUsernameRouteImport.update({
@@ -92,9 +92,9 @@ export interface FileRoutesByFullPath {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/pulse': typeof PulseRoute
   '/shop': typeof ShopRoute
   '/study': typeof StudyRoute
-  '/vanguard': typeof VanguardRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesByTo {
@@ -106,9 +106,9 @@ export interface FileRoutesByTo {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/pulse': typeof PulseRoute
   '/shop': typeof ShopRoute
   '/study': typeof StudyRoute
-  '/vanguard': typeof VanguardRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesById {
@@ -121,9 +121,9 @@ export interface FileRoutesById {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
+  '/pulse': typeof PulseRoute
   '/shop': typeof ShopRoute
   '/study': typeof StudyRoute
-  '/vanguard': typeof VanguardRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRouteTypes {
@@ -137,9 +137,9 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
+    | '/pulse'
     | '/shop'
     | '/study'
-    | '/vanguard'
     | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -151,9 +151,9 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
+    | '/pulse'
     | '/shop'
     | '/study'
-    | '/vanguard'
     | '/u/$username'
   id:
     | '__root__'
@@ -165,9 +165,9 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
+    | '/pulse'
     | '/shop'
     | '/study'
-    | '/vanguard'
     | '/u/$username'
   fileRoutesById: FileRoutesById
 }
@@ -180,9 +180,9 @@ export interface RootRouteChildren {
   FriendsRoute: typeof FriendsRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
+  PulseRoute: typeof PulseRoute
   ShopRoute: typeof ShopRoute
   StudyRoute: typeof StudyRoute
-  VanguardRoute: typeof VanguardRoute
   UUsernameRoute: typeof UUsernameRoute
 }
 
@@ -244,6 +244,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pulse': {
+      id: '/pulse'
+      path: '/pulse'
+      fullPath: '/pulse'
+      preLoaderRoute: typeof PulseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/shop': {
       id: '/shop'
       path: '/shop'
@@ -256,13 +263,6 @@ declare module '@tanstack/react-router' {
       path: '/study'
       fullPath: '/study'
       preLoaderRoute: typeof StudyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/vanguard': {
-      id: '/vanguard'
-      path: '/vanguard'
-      fullPath: '/vanguard'
-      preLoaderRoute: typeof VanguardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/u/$username': {
@@ -284,9 +284,9 @@ const rootRouteChildren: RootRouteChildren = {
   FriendsRoute: FriendsRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
+  PulseRoute: PulseRoute,
   ShopRoute: ShopRoute,
   StudyRoute: StudyRoute,
-  VanguardRoute: VanguardRoute,
   UUsernameRoute: UUsernameRoute,
 }
 export const routeTree = rootRouteImport
