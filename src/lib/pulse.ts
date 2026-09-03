@@ -330,6 +330,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "easy",
     bpm: 128,
     palette: PAL.dawn,
+    ease: 2.4,
     seq: [
       ["flat", 8], ["spike", 0], ["flat", 4], ["spike", 0], ["flat", 3],
       ["coin", 3], ["flat", 4], ["stair", 3], ["flat", 4],
@@ -344,6 +345,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "easy",
     bpm: 130,
     palette: PAL.dawn,
+    ease: 2.2,
     seq: [
       ["flat", 6], ["spikes", 3, 4], ["flat", 4], ["coin", 3], ["stair", 4],
       ["flat", 3], ["spikes", 4, 4], ["flat", 4], ["pillars", 2, 2],
@@ -358,6 +360,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "easy",
     bpm: 132,
     palette: PAL.dawn,
+    ease: 2.0,
     seq: [
       ["flat", 6], ["spike", 0], ["flat", 4], ["ship", 34, 0],
       ["coin", 4], ["flat", 4], ["spikes", 3, 4], ["flat", 4],
@@ -369,15 +372,15 @@ export const LEVELS: LevelDef[] = [
     n: 4,
     name: "Pressure Drop",
     brief: "Speed portals. Same shapes, less time.",
-    difficulty: "normal",
-    bpm: 140,
+    difficulty: "easy",
+    bpm: 136,
     palette: PAL.ember,
+    ease: 1.8,
     seq: [
-      ["flat", 6], ["spikes", 3, 4], ["speed", 2], ["flat", 4],
-      ["spikes", 4, 4], ["flat", 3], ["coin", 3], ["pillars", 3, 2],
-      ["speed", 1], ["flat", 4], ["tight", 4], ["coin", 5], ["flat", 4],
-      ["gap", 5, 2], ["speed", 2], ["flat", 5], ["spikes", 4, 4],
-      ["flat", 4], ["coin", 3], ["flat", 8],
+      ["flat", 8], ["spikes", 2, 4], ["flat", 5], ["coin", 3],
+      ["flat", 4], ["pillars", 2, 1], ["flat", 5], ["coin", 5],
+      ["flat", 4], ["gap", 3, 1], ["flat", 5], ["spikes", 2, 4],
+      ["flat", 5], ["stair", 2], ["flat", 4], ["coin", 3], ["flat", 10],
     ],
   },
   {
@@ -387,6 +390,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "normal",
     bpm: 142,
     palette: PAL.ember,
+    ease: 1.6,
     seq: [
       ["flat", 6], ["orbs", 2], ["flat", 4], ["pad"], ["coin", 6],
       ["flat", 4], ["orbs", 3], ["flat", 4], ["saws", 2],
@@ -401,6 +405,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "normal",
     bpm: 144,
     palette: PAL.toxic,
+    ease: 1.4,
     seq: [
       ["flat", 6], ["spikes", 2, 4], ["ball", 34], ["coin", 4],
       ["flat", 4], ["spikes", 3, 4], ["ball", 30], ["flat", 4],
@@ -415,6 +420,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "hard",
     bpm: 148,
     palette: PAL.toxic,
+    ease: 1.0,
     seq: [
       ["flat", 6], ["saws", 3], ["coin", 4], ["flat", 4], ["saws", 2],
       ["speed", 2], ["flat", 4], ["tight", 5], ["coin", 5],
@@ -429,6 +435,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "hard",
     bpm: 150,
     palette: PAL.void,
+    ease: 0.8,
     seq: [
       ["flat", 6], ["spikes", 2, 4], ["wave", 32, 0], ["coin", 4],
       ["flat", 4], ["tight", 4], ["wave", 30, 0], ["flat", 4],
@@ -443,6 +450,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "hard",
     bpm: 152,
     palette: PAL.void,
+    ease: 0.6,
     seq: [
       ["flat", 6], ["tight", 4], ["ship", 26, 1], ["coin", 5],
       ["ball", 24], ["flat", 4], ["spikes", 4, 4], ["wave", 24, 0],
@@ -457,6 +465,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "harder",
     bpm: 156,
     palette: PAL.royal,
+    ease: 0.4,
     seq: [
       ["flat", 6], ["spikes", 4, 4], ["pillars", 3, 3], ["coin", 5],
       ["speed", 2], ["tight", 6], ["flat", 4], ["saws", 3],
@@ -472,6 +481,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "harder",
     bpm: 160,
     palette: PAL.royal,
+    ease: 0.2,
     seq: [
       ["flat", 6], ["speed", 3], ["spikes", 4, 4], ["tight", 5],
       ["coin", 5], ["saws", 3], ["ship", 30, 1], ["flat", 4],
