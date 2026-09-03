@@ -4,6 +4,7 @@ import { Check, Coins, Crown, Lock, Play, Repeat, Shapes, Trophy } from "lucide-
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { PulseSkinPreview } from "@/components/games/PulseSkinPreview";
 import { PulseRush, type PulseRunEnd, type PulseSkins } from "@/components/games/PulseRush";
 import {
   DIFFICULTY_LABEL,
