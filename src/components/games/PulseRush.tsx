@@ -229,20 +229,24 @@ export function PulseRush({
     function die() {
       if (dead || cleared) return;
       dead = true;
-      flash = 1;
-      shake = 14;
-      const n = skins.death === "death-silence" ? 0 : skins.death === "death-pixel" ? 34 : 22;
+      flash = death.flash;
+      shake = death.shake;
+      shockwave = death.shockwave ? 1 : 0;
+      shockAt = { x, y };
+      const n = death.count;
       for (let i = 0; i < n; i++) {
         const a = (Math.PI * 2 * i) / Math.max(1, n) + Math.random() * 0.4;
-        const s = skins.death === "death-implode" ? -0.22 : 0.1 + Math.random() * 0.3;
+        const sp = (death.inward ? -1 : 1) * death.speed * (0.5 + Math.random() * 0.8);
+        const dist = death.inward ? CUBE * 1.9 : 0;
         deathParts.push({
-          x,
-          y,
-          vx: Math.cos(a) * s,
-          vy: Math.sin(a) * s,
-          life: 520,
-          max: 520,
-          size: skins.death === "death-pixel" ? 4 : 6 + Math.random() * 5,
+          x: x + Math.cos(a) * dist,
+          y: y + Math.sin(a) * dist,
+          vx: Math.cos(a) * sp,
+          vy: Math.sin(a) * sp,
+          life: death.life,
+          max: death.life,
+          size: death.size * (0.7 + Math.random() * 0.7),
+          rot: a,
         });
       }
       best = Math.max(best, pct());
