@@ -70,6 +70,12 @@ export type LevelDef = {
   bpm: number;
   palette: Palette;
   seq: Step[];
+  /**
+   * Forgiveness dial for the early campaign. Extra units of breathing room added
+   * to every hazard gap, and (at >= 1.5) low ceilings are dropped entirely so a
+   * new player only ever has to solve one obstacle at a time.
+   */
+  ease?: number;
 };
 
 /* ------------------------------------------------------------------ patterns */
@@ -109,6 +115,11 @@ export function buildLevel(def: LevelDef): Built {
    * Geometry Dash keeps its spacing musical when a speed portal hits.
    */
   let spd = 1;
+  /** Extra breathing room in units (see LevelDef.ease). */
+  const ease = def.ease ?? 0;
+  /** Ceilings are dropped on the most forgiving levels. */
+  const noCeiling = ease >= 1.5;
+  const pad = () => ease * spd;
   /** One jump covers ~4.3 units of ground at 1x. Peak height is ~2.6 units. */
   const JUMP_RUN = 4.3;
   const reach = () => JUMP_RUN * spd;
@@ -128,7 +139,7 @@ export function buildLevel(def: LevelDef): Built {
       case "spikes": {
         const n = step[1];
         // Each spike is its own tap: never closer than a full jump run.
-        const gap = Math.max(step[2], JUMP_RUN + 1.2) * spd;
+        const gap = Math.max(step[2], JUMP_RUN + 1.2) * spd + pad();
         for (let i = 0; i < n; i++) push({ t: "spike", x: x + i * gap, y: 0, up: true });
         x += n * gap + 2 * spd;
         break;
@@ -151,7 +162,7 @@ export function buildLevel(def: LevelDef): Built {
       case "pillars": {
         const n = step[1];
         const h = Math.min(2, step[2]);
-        const gap = reach() + 2.6 * spd;
+        const gap = reach() + 2.6 * spd + pad();
         for (let i = 0; i < n; i++) {
           // Solid pillar from the ground, then a spike a clean jump later.
           push({ t: "block", x: x + i * gap, y: 0, w: 1.4 * spd, h });
@@ -175,7 +186,7 @@ export function buildLevel(def: LevelDef): Built {
 
       case "saws": {
         const n = step[1];
-        const gap = reach() + 2.4 * spd;
+        const gap = reach() + 2.4 * spd + pad();
         for (let i = 0; i < n; i++) push({ t: "saw", x: x + i * gap, y: 0.5, r: 0.65 });
         x += n * gap + reach();
         break;
@@ -189,7 +200,7 @@ export function buildLevel(def: LevelDef): Built {
 
       case "orbs": {
         const n = step[1];
-        const gap = reach() + 3 * spd;
+        const gap = reach() + 3 * spd + pad();
         for (let i = 0; i < n; i++) {
           push({ t: "orb", x: x + i * gap, y: 2.2 });
           push({ t: "spike", x: x + i * gap + 2.2 * spd, y: 0, up: true });
@@ -202,10 +213,11 @@ export function buildLevel(def: LevelDef): Built {
         // Straight-fly style corridor: ground spikes on the beat with a low
         // ceiling overhead, so you tap rather than hold.
         const n = step[1];
-        const gap = reach() + 1.4 * spd;
+        const gap = reach() + 1.4 * spd + pad();
         for (let i = 0; i < n; i++) {
           push({ t: "spike", x: x + i * gap, y: 0, up: true });
-          if (i % 2 === 1) push({ t: "block", x: x + i * gap + 1.6, y: 4.4, w: 2 * spd, h: 1 });
+          if (i % 2 === 1 && !noCeiling)
+            push({ t: "block", x: x + i * gap + 1.6, y: 4.4, w: 2 * spd, h: 1 });
         }
         x += n * gap + reach();
         break;
@@ -216,10 +228,10 @@ export function buildLevel(def: LevelDef): Built {
         const tight = step[2];
         push({ t: "portal", x, mode: "ship" });
         mode = "ship";
-        const gap = 7 * spd;
+        const gap = 7 * spd + pad();
         for (let i = gap; i < len - gap; i += gap) {
           const high = Math.round(i / gap) % 2 === 0;
-          const h = tight ? 3 : 2.4;
+          const h = (tight ? 3 : 2.4) - Math.min(0.8, ease * 0.4);
           push({ t: "block", x: x + i, y: high ? 8.5 - h : 0, w: 1.4 * spd, h });
         }
         x += len;
@@ -234,10 +246,10 @@ export function buildLevel(def: LevelDef): Built {
         const tight = step[2];
         push({ t: "portal", x, mode: "wave" });
         mode = "wave";
-        const gap = 6.5 * spd;
+        const gap = 6.5 * spd + pad();
         for (let i = gap; i < len - gap; i += gap) {
           const high = Math.round(i / gap) % 2 === 0;
-          const h = tight ? 3.2 : 2.6;
+          const h = (tight ? 3.2 : 2.6) - Math.min(0.8, ease * 0.4);
           push({ t: "block", x: x + i, y: high ? 8.5 - h : 0, w: 1.1 * spd, h });
         }
         x += len;
@@ -251,7 +263,7 @@ export function buildLevel(def: LevelDef): Built {
         const len = step[1] * spd;
         push({ t: "portal", x, mode: "ball" });
         mode = "ball";
-        const gap = 8 * spd;
+        const gap = 8 * spd + pad();
         for (let i = gap; i < len - gap; i += gap) {
           const top = Math.round(i / gap) % 2 === 0;
           push({ t: "spike", x: x + i, y: 0, up: !top });
@@ -318,6 +330,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "easy",
     bpm: 128,
     palette: PAL.dawn,
+    ease: 2.4,
     seq: [
       ["flat", 8], ["spike", 0], ["flat", 4], ["spike", 0], ["flat", 3],
       ["coin", 3], ["flat", 4], ["stair", 3], ["flat", 4],
@@ -332,6 +345,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "easy",
     bpm: 130,
     palette: PAL.dawn,
+    ease: 2.2,
     seq: [
       ["flat", 6], ["spikes", 3, 4], ["flat", 4], ["coin", 3], ["stair", 4],
       ["flat", 3], ["spikes", 4, 4], ["flat", 4], ["pillars", 2, 2],
@@ -346,6 +360,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "easy",
     bpm: 132,
     palette: PAL.dawn,
+    ease: 2.0,
     seq: [
       ["flat", 6], ["spike", 0], ["flat", 4], ["ship", 34, 0],
       ["coin", 4], ["flat", 4], ["spikes", 3, 4], ["flat", 4],
@@ -356,16 +371,16 @@ export const LEVELS: LevelDef[] = [
   {
     n: 4,
     name: "Pressure Drop",
-    brief: "Speed portals. Same shapes, less time.",
-    difficulty: "normal",
-    bpm: 140,
+    brief: "Longer shapes, same speed. Keep your rhythm.",
+    difficulty: "easy",
+    bpm: 136,
     palette: PAL.ember,
+    ease: 1.8,
     seq: [
-      ["flat", 6], ["spikes", 3, 4], ["speed", 2], ["flat", 4],
-      ["spikes", 4, 4], ["flat", 3], ["coin", 3], ["pillars", 3, 2],
-      ["speed", 1], ["flat", 4], ["tight", 4], ["coin", 5], ["flat", 4],
-      ["gap", 5, 2], ["speed", 2], ["flat", 5], ["spikes", 4, 4],
-      ["flat", 4], ["coin", 3], ["flat", 8],
+      ["flat", 8], ["spikes", 2, 4], ["flat", 5], ["coin", 3],
+      ["flat", 4], ["pillars", 2, 1], ["flat", 5], ["coin", 5],
+      ["flat", 4], ["gap", 3, 1], ["flat", 5], ["spikes", 2, 4],
+      ["flat", 5], ["stair", 2], ["flat", 4], ["coin", 3], ["flat", 10],
     ],
   },
   {
@@ -375,11 +390,12 @@ export const LEVELS: LevelDef[] = [
     difficulty: "normal",
     bpm: 142,
     palette: PAL.ember,
+    ease: 1.6,
     seq: [
       ["flat", 6], ["orbs", 2], ["flat", 4], ["pad"], ["coin", 6],
       ["flat", 4], ["orbs", 3], ["flat", 4], ["saws", 2],
       ["coin", 4], ["flat", 4], ["pad"], ["flat", 4], ["orbs", 2],
-      ["flat", 4], ["tight", 5], ["coin", 3], ["flat", 8],
+      ["flat", 4], ["tight", 3], ["coin", 3], ["flat", 8],
     ],
   },
   {
@@ -389,6 +405,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "normal",
     bpm: 144,
     palette: PAL.toxic,
+    ease: 1.4,
     seq: [
       ["flat", 6], ["spikes", 2, 4], ["ball", 34], ["coin", 4],
       ["flat", 4], ["spikes", 3, 4], ["ball", 30], ["flat", 4],
@@ -403,6 +420,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "hard",
     bpm: 148,
     palette: PAL.toxic,
+    ease: 1.0,
     seq: [
       ["flat", 6], ["saws", 3], ["coin", 4], ["flat", 4], ["saws", 2],
       ["speed", 2], ["flat", 4], ["tight", 5], ["coin", 5],
@@ -417,6 +435,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "hard",
     bpm: 150,
     palette: PAL.void,
+    ease: 0.8,
     seq: [
       ["flat", 6], ["spikes", 2, 4], ["wave", 32, 0], ["coin", 4],
       ["flat", 4], ["tight", 4], ["wave", 30, 0], ["flat", 4],
@@ -431,6 +450,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "hard",
     bpm: 152,
     palette: PAL.void,
+    ease: 0.6,
     seq: [
       ["flat", 6], ["tight", 4], ["ship", 26, 1], ["coin", 5],
       ["ball", 24], ["flat", 4], ["spikes", 4, 4], ["wave", 24, 0],
@@ -445,6 +465,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "harder",
     bpm: 156,
     palette: PAL.royal,
+    ease: 1.0,
     seq: [
       ["flat", 6], ["spikes", 4, 4], ["pillars", 3, 3], ["coin", 5],
       ["speed", 2], ["tight", 6], ["flat", 4], ["saws", 3],
@@ -460,6 +481,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "harder",
     bpm: 160,
     palette: PAL.royal,
+    ease: 0.2,
     seq: [
       ["flat", 6], ["speed", 3], ["spikes", 4, 4], ["tight", 5],
       ["coin", 5], ["saws", 3], ["ship", 30, 1], ["flat", 4],
