@@ -230,7 +230,7 @@ function ProfilePage() {
           />
         </div>
         <div className="relative px-6 pb-6">
-          <div className="-mt-12 flex flex-wrap items-end justify-between gap-5">
+          <div className="flex flex-wrap items-end justify-between gap-5 pt-5">
             <div className="flex min-w-0 items-end gap-4">
               <div className="relative shrink-0">
                 <button
