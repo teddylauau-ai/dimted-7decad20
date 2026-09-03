@@ -155,11 +155,12 @@ export function useGrantCosmetic() {
 export function useGrantPulse() {
   return useStaffMutation(
     async ({ userId, slug, coins }: { userId: string; slug?: string; coins?: number }) => {
-      const { data, error } = await supabase.rpc("staff_grant_pulse", {
+      const args: { _user_id: string; _coins: number; _slug?: string } = {
         _user_id: userId,
-        _slug: slug ?? undefined,
         _coins: coins ?? 0,
-      });
+      };
+      if (slug) args._slug = slug;
+      const { data, error } = await supabase.rpc("staff_grant_pulse", args);
       if (error) throw error;
       return unwrap(data);
     },
