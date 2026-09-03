@@ -62,26 +62,69 @@ function HomePage() {
 
   const upcoming = nextUnlock(level);
   const nextSecret = SECRETS.find((s) => s.requiredLevel > level);
+  const board = useXpLeaderboard(50);
+  const rows = board.data ?? [];
+  const myIndex = rows.findIndex((r) => r.id === profile?.id);
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        eyebrow="Progression"
-        title={`Level ${level} · ${rank}`}
-        blurb={
-          profile
-            ? `Welcome back, ${profile.display_name}. Everything below moved because you talked to someone.`
-            : undefined
-        }
-        aside={
-          <div className="text-right">
-            <p className="numeral text-3xl">{totalXp.toLocaleString()}</p>
-            <p className="text-muted-foreground font-mono text-[10px] tracking-[0.2em] uppercase">
-              total xp
+      <header className="animate-rise grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-4 py-3">
+          <div className="min-w-0">
+            <p className="eyebrow">Progression</p>
+            <h1 className="font-display mt-0.5 truncate text-xl font-semibold tracking-tight">
+              Level {level} · {rank}
+            </h1>
+            <p className="text-muted-foreground mt-0.5 truncate font-mono text-[11px]">
+              {profile?.display_name ?? "—"} · {intoLevel.toLocaleString()}/{needed.toLocaleString()} XP
             </p>
           </div>
-        }
-      />
+          <div className="shrink-0 text-right">
+            <p className="numeral text-2xl">{totalXp.toLocaleString()}</p>
+            <p className="text-muted-foreground font-mono text-[9px] tracking-[0.2em] uppercase">total xp</p>
+          </div>
+        </div>
+
+        <div className="glass rounded-2xl px-4 py-3">
+          <div className="flex items-center justify-between">
+            <p className="eyebrow flex items-center gap-1.5">
+              <Trophy className="text-gold size-3" /> Top of the ladder
+            </p>
+            <span className="text-muted-foreground font-mono text-[10px]">
+              {myIndex >= 0 ? `you · #${myIndex + 1}` : "unranked"}
+            </span>
+          </div>
+          <ol className="mt-2 space-y-1">
+            {rows.slice(0, 3).map((p, i) => (
+              <li key={p.id} className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "numeral w-5 shrink-0 text-sm",
+                    i === 0 ? "text-gold" : "text-muted-foreground",
+                  )}
+                >
+                  {i + 1}
+                </span>
+                <Avatar profile={p} size={22} />
+                <Link
+                  to="/u/$username"
+                  params={{ username: p.username }}
+                  className="min-w-0 flex-1 truncate text-[13px] hover:underline"
+                >
+                  <Nametag profile={p} className="text-[13px]" />
+                </Link>
+                <span className="text-primary shrink-0 font-mono text-[10px]">
+                  Lv {levelFromTotalXp(p.total_xp).level}
+                </span>
+              </li>
+            ))}
+            {rows.length === 0 ? (
+              <li className="text-muted-foreground text-xs">No ranked players yet.</li>
+            ) : null}
+          </ol>
+        </div>
+      </header>
+
 
       <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
         <div className="space-y-5">
