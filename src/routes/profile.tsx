@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useRef, useState } from "react";
 import { Camera, Check, Flame, Image as ImageIcon, Loader2, Lock, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -12,7 +12,8 @@ import {
   type Achievement,
 } from "@/lib/dimted";
 import { useDimted } from "@/lib/dimted-store";
-import { useFriendships, usePlayerStats } from "@/lib/dimted-queries";
+import { useCosmetics, useFriendships, usePlayerStats } from "@/lib/dimted-queries";
+import { ROLE_LABEL, useMyRole } from "@/lib/roles-queries";
 import {
   removeAvatar,
   removeBanner,
@@ -20,7 +21,8 @@ import {
   uploadAvatar,
   uploadBanner,
 } from "@/lib/dimted-actions";
-import { bannerFor } from "@/lib/cosmetics";
+import { bannerFor, SLOTS, type CosmeticSlot } from "@/lib/cosmetics";
+import { Avatar, Nametag, PresenceLabel } from "@/components/dimted/Identity";
 import {
   LockedTile,
   Meter,
@@ -32,6 +34,7 @@ import { rarityBorder, rarityDot, rarityText } from "@/components/dimted/rarity"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
