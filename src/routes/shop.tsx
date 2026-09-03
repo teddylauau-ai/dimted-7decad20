@@ -267,7 +267,7 @@ function ShopPage() {
         <Panel className="p-5" delay={40}>
           <PanelHead
             eyebrow="Daily rotation"
-            title="Four picks, today only"
+            title="Five picks, today only"
             aside={`rotates in ${formatCountdown(secondsUntilDailyReset())}`}
           />
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
