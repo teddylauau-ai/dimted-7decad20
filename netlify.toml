@@ -1,0 +1,22 @@
+# Netlify build configuration.
+#
+# This app is TanStack Start built through Nitro (see vite.config.ts). On
+# Netlify, Nitro auto-detects the `netlify` preset and emits:
+#   - dist/                              static client assets  -> publish dir
+#   - .netlify/functions-internal/server SSR handler (path "/*") -> picked up
+#                                        automatically by Netlify
+#
+# The publish directory MUST stay `dist`. Nitro's Cloudflare/Node layouts
+# (`dist/client`, `.output/public`) are never produced by the netlify preset,
+# and pointing Netlify at one of those fails the deploy with a missing
+# publish directory.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Pin the deploy target instead of relying on env auto-detection, so the
+  # output layout above is guaranteed to match `publish` above.
+  NITRO_PRESET = "netlify"
+  # Vite 8 requires Node ^20.19 || >=22.12.
+  NODE_VERSION = "22"
