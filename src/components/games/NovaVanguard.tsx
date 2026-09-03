@@ -96,6 +96,7 @@ export function NovaVanguard({
     if (!ctx0) return;
     const ctx: CanvasRenderingContext2D = ctx0;
 
+    console.log("VG mount", Date.now());
     const keys = keysRef.current;
     keys.clear();
 
