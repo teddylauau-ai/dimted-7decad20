@@ -193,3 +193,73 @@ export function totalCoins(rows: PulseProgressRow[] | undefined): number {
     return s + (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1);
   }, 0);
 }
+
+export type PulseRankRow = {
+  user_id: string;
+  clears: number;
+  coins: number;
+  attempts: number;
+  best_ms: number | null;
+  profile: {
+    id: string;
+    username: string;
+    display_name: string;
+    avatar_url: string | null;
+    equipped_nametag: string | null;
+    equipped_badge: string | null;
+    equipped_frame: string | null;
+    equipped_effect: string | null;
+  } | null;
+};
+
+/** Global Pulse Rush ranking: levels cleared, then secret coins, then total time. */
+export function usePulseLeaderboard() {
+  return useQuery({
+    queryKey: ["pulse-leaderboard"],
+    staleTime: 60 * 1000,
+    queryFn: async (): Promise<PulseRankRow[]> => {
+      const { data, error } = await supabase
+        .from("game_progress")
+        .select("user_id, level, best_pct, coins, attempts, best_ms")
+        .eq("game", GAME)
+        .limit(5000);
+      if (error) throw error;
+
+      const agg = new Map<string, PulseRankRow>();
+      for (const r of data ?? []) {
+        const row =
+          agg.get(r.user_id) ??
+          ({ user_id: r.user_id, clears: 0, coins: 0, attempts: 0, best_ms: 0, profile: null } as PulseRankRow);
+        if ((r.best_pct ?? 0) >= 100) {
+          row.clears += 1;
+          row.best_ms = (row.best_ms ?? 0) + (r.best_ms ?? 0);
+        }
+        const m = r.coins ?? 0;
+        row.coins += (m & 1) + ((m >> 1) & 1) + ((m >> 2) & 1);
+        row.attempts += r.attempts ?? 0;
+        agg.set(r.user_id, row);
+      }
+
+      const rows = [...agg.values()]
+        .sort(
+          (a, b) =>
+            b.clears - a.clears ||
+            b.coins - a.coins ||
+            (a.best_ms ?? Infinity) - (b.best_ms ?? Infinity),
+        )
+        .slice(0, 25);
+
+      if (rows.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select(
+            "id, username, display_name, avatar_url, equipped_nametag, equipped_badge, equipped_frame, equipped_effect",
+          )
+          .in("id", rows.map((r) => r.user_id));
+        const byId = new Map((profs ?? []).map((p) => [p.id, p]));
+        for (const r of rows) r.profile = (byId.get(r.user_id) as PulseRankRow["profile"]) ?? null;
+      }
+      return rows.filter((r) => r.profile);
+    },
+  });
+}
