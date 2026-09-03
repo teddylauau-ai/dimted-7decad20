@@ -169,11 +169,17 @@ function ShopPage() {
   const all = cosmetics.data ?? [];
 
   // Rotations are derived from the date, not stored — everyone sees the same
-  // daily/weekly shelf and it turns over on its own.
-  const daily = useMemo(() => rotate(all.filter((i) => i.pool === "daily"), dayKey(), 4), [all]);
-  const weekly = useMemo(() => rotate(all.filter((i) => i.pool === "weekly"), weekKey(), 6), [all]);
+  // daily/weekly shelf and it turns over on its own. Each shelf shows far fewer
+  // items than its pool holds, so the stock genuinely changes every flip.
+  const daily = useMemo(() => rotate(all.filter((i) => i.pool === "daily"), dayKey(), 5), [all]);
+  const weekly = useMemo(() => rotate(all.filter((i) => i.pool === "weekly"), weekKey(), 5), [all]);
   const limited = useMemo(
-    () => all.filter((i) => i.pool === "limited" && !isExpired(i)),
+    () =>
+      rotate(
+        all.filter((i) => i.pool === "limited" && !isExpired(i)),
+        `limited-${weekKey()}`,
+        2,
+      ),
     [all],
   );
 
@@ -261,7 +267,7 @@ function ShopPage() {
         <Panel className="p-5" delay={40}>
           <PanelHead
             eyebrow="Daily rotation"
-            title="Four picks, today only"
+            title="Five picks, today only"
             aside={`rotates in ${formatCountdown(secondsUntilDailyReset())}`}
           />
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
