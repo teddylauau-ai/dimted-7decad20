@@ -38,12 +38,14 @@ export const MAX_LEVEL = 100;
 /**
  * XP required to move from `level` to `level + 1`. Deliberately tiny at the
  * start — level 2 lands after a single arcade run and the first handful of
- * levels fall within the first session — then it eases upward.
+ * levels fall within the first session — then it ramps steadily so the top of
+ * the ladder is roughly a month of committed daily play (~355k XP total).
  */
 export function xpForLevel(level: number): number {
   const l = Math.min(Math.max(level, 1), MAX_LEVEL);
-  return Math.round((90 + 52 * Math.pow(l - 1, 0.92)) / 10) * 10;
+  return Math.round((90 + 9 * Math.pow(l - 1, 1.5)) / 10) * 10;
 }
+
 
 /** Total XP needed to reach a level from scratch — used for planning/UI. */
 export function totalXpForLevel(level: number): number {
