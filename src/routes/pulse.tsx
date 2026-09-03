@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Check, Coins, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
+import { Check, Coins, Crown, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
@@ -29,8 +29,10 @@ import {
   usePulseState,
   usePulseUnlock,
   usePulseUnlocks,
+  usePulseLeaderboard,
 } from "@/lib/pulse-queries";
 import { awardArcadeXp, type ArcadeReward } from "@/lib/games-queries";
+import { IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useRefreshDimted } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
@@ -71,10 +73,11 @@ function PulsePage() {
   const finish = usePulseFinish(profile?.id);
   const unlock = usePulseUnlock(profile?.id);
   const equip = usePulseEquip(profile?.id);
+  const board = usePulseLeaderboard();
   const refresh = useRefreshDimted();
 
   const [phase, setPhase] = useState<Phase>("select");
-  const [tab, setTab] = useState<"levels" | "locker">("levels");
+  const [tab, setTab] = useState<"levels" | "locker" | "ranks">("levels");
   const [lockerKind, setLockerKind] = useState<ItemKind>("icon");
   const [level, setLevel] = useState<LevelDef>(LEVELS[0]!);
   const [practice, setPractice] = useState(false);
@@ -225,7 +228,7 @@ function PulsePage() {
       />
 
       <div className="flex gap-2">
-        {(["levels", "locker"] as const).map((t) => (
+        {(["levels", "locker", "ranks"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -236,12 +239,63 @@ function PulsePage() {
                 : "border-border text-muted-foreground hover:text-foreground",
             )}
           >
-            {t === "levels" ? "Levels" : "Locker"}
+            {t === "levels" ? "Levels" : t === "locker" ? "Locker" : "Leaderboard"}
           </button>
         ))}
       </div>
 
-      {tab === "levels" ? (
+      {tab === "ranks" ? (
+        <Panel className="p-4">
+          <PanelHead
+            eyebrow="Global"
+            title="Pulse Rush leaderboard"
+            aside={
+              <span className="text-muted-foreground font-mono text-xs">
+                ranked by clears, then secret coins
+              </span>
+            }
+          />
+          {board.isLoading ? (
+            <p className="text-muted-foreground mt-4 text-sm">Loading runs…</p>
+          ) : (board.data ?? []).length === 0 ? (
+            <p className="text-muted-foreground mt-4 text-sm">
+              Nobody has cleared a level yet. Be the first name up here.
+            </p>
+          ) : (
+            <ol className="mt-3 divide-y divide-white/5">
+              {(board.data ?? []).map((r, i) => (
+                <li
+                  key={r.user_id}
+                  className={cn(
+                    "flex items-center gap-3 py-2.5",
+                    r.user_id === profile.id && "bg-primary/5 -mx-2 rounded-lg px-2",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "w-7 shrink-0 text-center font-mono text-sm",
+                      i === 0 ? "text-gold" : "text-muted-foreground",
+                    )}
+                  >
+                    {i === 0 ? <Crown className="mx-auto size-4" /> : i + 1}
+                  </span>
+                  <IdentityRow
+                    profile={r.profile}
+                    className="flex-1"
+                    meta={`${r.attempts} attempts`}
+                  />
+                  <span className="text-muted-foreground flex shrink-0 items-center gap-4 font-mono text-xs">
+                    <span className="text-foreground">{r.clears}/{LEVELS.length}</span>
+                    <span className="text-gold flex items-center gap-1">
+                      <Coins className="size-3.5" /> {r.coins}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Panel>
+      ) : tab === "levels" ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {LEVELS.map((l) => {
             const row = rowFor(progress.data, l.n);
