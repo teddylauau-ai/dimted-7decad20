@@ -42,6 +42,7 @@ import {
   type ProfilePatch,
   type StaffAccount,
 } from "@/lib/roles-queries";
+import { ownerDeleteAccount } from "@/lib/dimted-actions";
 import { GAMES } from "@/lib/games";
 import { useDeleteScore, useLeaderboard } from "@/lib/games-queries";
 import { cn } from "@/lib/utils";
@@ -256,6 +257,31 @@ function AdminPage() {
     }
   }
 
+  async function wipeAccount() {
+    if (!target) return;
+    if (
+      !confirm(
+        `Permanently delete ${target.display_name} (@${target.username})? This erases their messages, scores and sign-in and cannot be undone.`,
+      )
+    )
+      return;
+    try {
+      const res = await ownerDeleteAccount(target.id);
+      if (res.status !== "ok") {
+        toast.error(
+          res.status === "forbidden"
+            ? "You can't delete that account"
+            : "That account no longer exists",
+        );
+        return;
+      }
+      toast.success(`${target.display_name} deleted`);
+      setTargetId(null);
+    } catch (e) {
+      fail(e);
+    }
+  }
+
   async function applyMute(minutes: number) {
     if (!target) return;
     try {
@@ -403,6 +429,25 @@ function AdminPage() {
               A ban stops all messaging and XP. A mute only stops messaging. Neither can touch an account at
               or above your own rank.
             </p>
+            {me.isOwner ? (
+              <div className="border-destructive/30 mt-4 rounded-xl border p-3">
+                <p className="text-destructive font-mono text-[10px] tracking-[0.16em] uppercase">
+                  Danger zone · owner only
+                </p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Permanently erase this account and everything attached to it: profile, messages,
+                  scores, progress, inventory and sign-in.
+                </p>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  className="mt-2"
+                  onClick={() => void wipeAccount()}
+                >
+                  <Trash2 className="size-4" /> Delete account
+                </Button>
+              </div>
+            ) : null}
           </Panel>
 
           {/* ---- Owner: edit anything ---- */}

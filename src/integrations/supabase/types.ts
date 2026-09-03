@@ -58,6 +58,7 @@ export type Database = {
           slug: string
           tagline: string | null
           total_xp: number
+          visibility: string
         }
         Insert: {
           created_at?: string
@@ -67,6 +68,7 @@ export type Database = {
           slug: string
           tagline?: string | null
           total_xp?: number
+          visibility?: string
         }
         Update: {
           created_at?: string
@@ -76,11 +78,58 @@ export type Database = {
           slug?: string
           tagline?: string | null
           total_xp?: number
+          visibility?: string
         }
         Relationships: [
           {
             foreignKeyName: "communities_owner_id_fkey"
             columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_invites: {
+        Row: {
+          community_id: string
+          created_at: string
+          id: string
+          invited_by: string | null
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          created_at?: string
+          id?: string
+          invited_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_invites_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_invites_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_invites_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -333,6 +382,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "game_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_unlocks: {
+        Row: {
+          created_at: string
+          game: string
+          id: string
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game: string
+          id?: string
+          slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game?: string
+          id?: string
+          slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_unlocks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -751,6 +832,74 @@ export type Database = {
         }
         Relationships: []
       }
+      vanguard_items: {
+        Row: {
+          created_at: string
+          description: string
+          kind: string
+          name: string
+          price_cores: number
+          rarity: string
+          required_level: number
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          kind: string
+          name: string
+          price_cores?: number
+          rarity?: string
+          required_level?: number
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          kind?: string
+          name?: string
+          price_cores?: number
+          rarity?: string
+          required_level?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      vanguard_state: {
+        Row: {
+          cores: number
+          created_at: string
+          equipped_gear: string | null
+          equipped_weapon: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cores?: number
+          created_at?: string
+          equipped_gear?: string | null
+          equipped_weapon?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cores?: number
+          created_at?: string
+          equipped_gear?: string | null
+          equipped_weapon?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vanguard_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xp_events: {
         Row: {
           amount: number
@@ -800,6 +949,14 @@ export type Database = {
         Returns: Json
       }
       award_xp: { Args: { _label?: string; _source: string }; Returns: Json }
+      can_join_community: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_see_community: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
       claim_quest: { Args: { _slug: string }; Returns: Json }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       has_role: {
@@ -811,6 +968,10 @@ export type Database = {
       }
       ignite_surge: { Args: never; Returns: Json }
       is_banned: { Args: { _user_id: string }; Returns: boolean }
+      is_community_manager: {
+        Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
@@ -821,12 +982,15 @@ export type Database = {
       }
       is_muted: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      mod_delete_dm: { Args: { _message_id: string }; Returns: Json }
       mod_delete_message: { Args: { _message_id: string }; Returns: Json }
       mod_set_mute: {
         Args: { _minutes: number; _reason?: string; _user_id: string }
         Returns: Json
       }
       my_rank: { Args: never; Returns: number }
+      owner_delete_account: { Args: { _user_id: string }; Returns: Json }
+      owner_delete_community: { Args: { _community_id: string }; Returns: Json }
       owner_edit_profile: {
         Args: { _patch: Json; _user_id: string }
         Returns: Json
@@ -857,6 +1021,37 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       touch_presence: { Args: { _context?: string }; Returns: undefined }
+      vanguard_equip: {
+        Args: { _gear: string; _weapon: string }
+        Returns: Json
+      }
+      vanguard_finish: {
+        Args: {
+          _cores: number
+          _level: number
+          _stars: number
+          _time_ms: number
+        }
+        Returns: Json
+      }
+      vanguard_state_for_me: {
+        Args: never
+        Returns: {
+          cores: number
+          created_at: string
+          equipped_gear: string | null
+          equipped_weapon: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "vanguard_state"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      vanguard_unlock: { Args: { _slug: string }; Returns: Json }
     }
     Enums: {
       app_role: "owner" | "admin" | "moderator" | "member"

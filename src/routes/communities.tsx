@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Plus, Send } from "lucide-react";
+import { Globe, Lock, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,9 +13,23 @@ import {
   useChannelMessages,
   useChannels,
   useCommunities,
+  useCommunityInvites,
+  useCommunityMembers,
   useRefreshDimted,
 } from "@/lib/dimted-queries";
-import { createCommunity, joinCommunity, postChannelMessage } from "@/lib/dimted-actions";
+import { useMyRole } from "@/lib/roles-queries";
+import {
+  createCommunityAdvanced,
+  deleteCommunityAsStaff,
+  deleteCommunityMessage,
+  inviteToCommunity,
+  joinCommunity,
+  postChannelMessage,
+  removeCommunityMember,
+  revokeCommunityInvite,
+  setCommunityVisibility,
+} from "@/lib/dimted-actions";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/communities")({
@@ -43,7 +57,11 @@ function CommunitiesPage() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
+  const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [draft, setDraft] = useState("");
+  const [managing, setManaging] = useState(false);
+  const [inviteName, setInviteName] = useState("");
+  const { isStaff: isAdmin } = useMyRole(profile?.id);
 
   const rows = communities.data ?? [];
   const mine = rows.filter((c) => c.isMember);
@@ -52,6 +70,9 @@ function CommunitiesPage() {
   const [channelId, setChannelId] = useState<string | null>(null);
   const activeChannel = (channels.data ?? []).find((c) => c.id === channelId) ?? channels.data?.[0] ?? null;
   const messages = useChannelMessages(activeChannel?.id);
+  const members = useCommunityMembers(active?.id);
+  const invites = useCommunityInvites(active?.id);
+  const canManage = !!active && !!profile && (active.owner_id === profile.id || isAdmin);
 
   useEffect(() => {
     setChannelId(null);
@@ -61,7 +82,7 @@ function CommunitiesPage() {
     e.preventDefault();
     if (!profile || !name.trim()) return;
     try {
-      const id = await createCommunity(profile.id, name.trim(), tagline.trim());
+      const id = await createCommunityAdvanced(profile.id, name.trim(), tagline.trim(), visibility);
       setName("");
       setTagline("");
       setCreating(false);
@@ -103,6 +124,90 @@ function CommunitiesPage() {
     }
   }
 
+  async function toggleVisibility() {
+    if (!active) return;
+    try {
+      await setCommunityVisibility(active.id, active.visibility === "private" ? "public" : "private");
+      await communities.refetch();
+      toast.success("Visibility updated");
+    } catch {
+      toast.error("Couldn't change visibility");
+    }
+  }
+
+  async function removeCommunity() {
+    if (!active) return;
+    if (!confirm(`Delete ${active.name}? Every channel and message goes with it.`)) return;
+    try {
+      const res = await deleteCommunityAsStaff(active.id);
+      if (res.status !== "ok") {
+        toast.error("You can't delete that community");
+        return;
+      }
+      setActiveId(null);
+      setManaging(false);
+      await communities.refetch();
+      toast.success("Community deleted");
+    } catch {
+      toast.error("Couldn't delete that community");
+    }
+  }
+
+  async function invite(e: React.FormEvent) {
+    e.preventDefault();
+    if (!active || !profile) return;
+    const handle = inviteName.trim().replace(/^@/, "").toLowerCase();
+    if (!handle) return;
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("username", handle)
+        .maybeSingle();
+      if (!data) {
+        toast.error("No account with that username");
+        return;
+      }
+      await inviteToCommunity(active.id, data.id, profile.id);
+      setInviteName("");
+      await invites.refetch();
+      toast.success(`Invited @${handle}`);
+    } catch {
+      toast.error("Couldn't send that invite");
+    }
+  }
+
+  async function revoke(userId: string) {
+    if (!active) return;
+    try {
+      await revokeCommunityInvite(active.id, userId);
+      await invites.refetch();
+    } catch {
+      toast.error("Couldn't revoke that invite");
+    }
+  }
+
+  async function kick(userId: string) {
+    if (!active) return;
+    try {
+      await removeCommunityMember(active.id, userId);
+      await members.refetch();
+      await communities.refetch();
+      toast.success("Member removed");
+    } catch {
+      toast.error("Couldn't remove that member");
+    }
+  }
+
+  async function removeMessage(id: string) {
+    try {
+      await deleteCommunityMessage(id);
+      await messages.refetch();
+    } catch {
+      toast.error("Couldn't delete that message");
+    }
+  }
+
   return (
     <div className="space-y-5">
       <PageHeader
@@ -133,6 +238,28 @@ function CommunitiesPage() {
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
             />
+            <div className="glass-raised inline-flex rounded-full p-1">
+              {(
+                [
+                  { id: "public", label: "Public", icon: Globe },
+                  { id: "private", label: "Invite only", icon: Lock },
+                ] as const
+              ).map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  onClick={() => setVisibility(v.id)}
+                  className={cn(
+                    "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-colors",
+                    visibility === v.id
+                      ? "bg-primary/15 text-primary"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <v.icon className="size-3.5" /> {v.label}
+                </button>
+              ))}
+            </div>
             <Button type="submit">Create</Button>
           </form>
         </Panel>
@@ -195,7 +322,103 @@ function CommunitiesPage() {
                   #{ch.name}
                 </button>
               ))}
+              <span className="ml-auto flex items-center gap-2">
+                {active?.visibility === "private" ? (
+                  <span className="text-muted-foreground flex items-center gap-1 font-mono text-[10px]">
+                    <Lock className="size-3" /> invite only
+                  </span>
+                ) : null}
+                {canManage ? (
+                  <Button size="sm" variant="ghost" onClick={() => setManaging((v) => !v)}>
+                    <Settings2 className="size-3.5" /> Manage
+                  </Button>
+                ) : null}
+              </span>
             </header>
+
+            {managing && canManage && active ? (
+              <div className="border-border bg-background/40 space-y-4 border-b px-5 py-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void toggleVisibility()}
+                  >
+                    {active.visibility === "private" ? (
+                      <>
+                        <Globe className="size-3.5" /> Make public
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="size-3.5" /> Make invite only
+                      </>
+                    )}
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={() => void removeCommunity()}>
+                    <Trash2 className="size-3.5" /> Delete community
+                  </Button>
+                </div>
+
+                <form onSubmit={invite} className="flex flex-wrap gap-2">
+                  <Input
+                    className="min-w-48 flex-1"
+                    placeholder="Invite by @username"
+                    value={inviteName}
+                    onChange={(e) => setInviteName(e.target.value)}
+                  />
+                  <Button size="sm" type="submit" disabled={!inviteName.trim()}>
+                    Invite
+                  </Button>
+                </form>
+
+                {(invites.data ?? []).length > 0 ? (
+                  <div>
+                    <p className="eyebrow mb-2">Pending invites</p>
+                    <ul className="flex flex-wrap gap-2">
+                      {(invites.data ?? []).map((iv) => (
+                        <li
+                          key={iv.user_id}
+                          className="border-border flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-[11px]"
+                        >
+                          @{iv.profile?.username ?? "unknown"}
+                          <button
+                            type="button"
+                            aria-label="Revoke invite"
+                            onClick={() => void revoke(iv.user_id)}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <X className="size-3" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                <div>
+                  <p className="eyebrow mb-2">Members · {(members.data ?? []).length}</p>
+                  <ul className="space-y-1">
+                    {(members.data ?? []).map((m) => (
+                      <li key={m.user_id} className="flex items-center gap-2 text-sm">
+                        <Avatar profile={m.profile} size={24} />
+                        <ProfileLink profile={m.profile} className="text-sm" />
+                        <span className="text-muted-foreground font-mono text-[10px]">{m.role}</span>
+                        {m.user_id !== active.owner_id ? (
+                          <button
+                            type="button"
+                            aria-label="Remove member"
+                            onClick={() => void kick(m.user_id)}
+                            className="text-muted-foreground hover:text-destructive ml-auto"
+                          >
+                            <UserMinus className="size-3.5" />
+                          </button>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            ) : null}
 
             <div className="flex-1 overflow-y-auto px-3 py-4">
               {(messages.data ?? []).length === 0 ? (
@@ -239,6 +462,16 @@ function CommunitiesPage() {
                           {m.body}
                         </p>
                       </div>
+                      {m.author?.id === profile?.id || canManage ? (
+                        <button
+                          type="button"
+                          aria-label="Delete message"
+                          onClick={() => void removeMessage(m.id)}
+                          className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive shrink-0 self-start pt-1"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      ) : null}
                     </div>
                   );
                 })

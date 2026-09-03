@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Send } from "lucide-react";
+import { Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,8 @@ import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { useDimted } from "@/lib/dimted-store";
 import { friendshipLevel } from "@/lib/dimted";
 import { useDirectMessages, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
-import { sendDirectMessage } from "@/lib/dimted-actions";
+import { deleteDirectMessage, sendDirectMessage } from "@/lib/dimted-actions";
+import { useMyRole } from "@/lib/roles-queries";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/messages")({
@@ -36,6 +37,7 @@ function MessagesPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const { isModerator } = useMyRole(profile?.id);
 
   const accepted = useMemo(
     () => (friends.data ?? []).filter((f) => f.status === "accepted"),
@@ -65,6 +67,15 @@ function MessagesPage() {
   }
 
   const fl = active ? friendshipLevel(active.friendshipXp) : null;
+
+  async function removeMessage(id: string) {
+    try {
+      await deleteDirectMessage(id);
+      await messages.refetch();
+    } catch {
+      toast.error("Couldn't delete that message");
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -165,8 +176,26 @@ function MessagesPage() {
                   const fx = m.author?.equipped_effect
                     ? EFFECT_CLASS[m.author.equipped_effect]
                     : undefined;
+                  const dayChanged =
+                    !prev ||
+                    new Date(prev.created_at).toDateString() !==
+                      new Date(m.created_at).toDateString();
                   return (
-                    <div key={m.id} className={cn("chat-row group flex gap-3", grouped ? "mt-0" : "mt-3", fx)}>
+                    <div key={m.id}>
+                    {dayChanged ? (
+                      <div className="my-4 flex items-center gap-3">
+                        <span className="bg-border h-px flex-1" />
+                        <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
+                          {new Date(m.created_at).toLocaleDateString([], {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </span>
+                        <span className="bg-border h-px flex-1" />
+                      </div>
+                    ) : null}
+                    <div className={cn("chat-row group flex gap-3", grouped && !dayChanged ? "mt-0" : "mt-3", fx)}>
                       {grouped ? (
                         <span className="text-muted-foreground/0 group-hover:text-muted-foreground/70 w-9 shrink-0 pt-0.5 text-right font-mono text-[9px]">
                           {new Date(m.created_at).toLocaleTimeString([], {
@@ -193,6 +222,17 @@ function MessagesPage() {
                           {m.body}
                         </p>
                       </div>
+                      {m.author?.id === profile?.id || isModerator ? (
+                        <button
+                          type="button"
+                          aria-label="Delete message"
+                          onClick={() => void removeMessage(m.id)}
+                          className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive shrink-0 self-start pt-1"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      ) : null}
+                    </div>
                     </div>
                   );
                 })

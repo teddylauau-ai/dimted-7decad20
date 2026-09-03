@@ -19,6 +19,7 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as StudyRouteImport } from './routes/study'
+import { Route as VanguardRouteImport } from './routes/vanguard'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,6 +72,11 @@ const StudyRoute = StudyRouteImport.update({
   path: '/study',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VanguardRoute = VanguardRouteImport.update({
+  id: '/vanguard',
+  path: '/vanguard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UUsernameRoute = UUsernameRouteImport.update({
   id: '/u/$username',
   path: '/u/$username',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
   '/study': typeof StudyRoute
+  '/vanguard': typeof VanguardRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesByTo {
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
   '/study': typeof StudyRoute
+  '/vanguard': typeof VanguardRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRoutesById {
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/shop': typeof ShopRoute
   '/study': typeof StudyRoute
+  '/vanguard': typeof VanguardRoute
   '/u/$username': typeof UUsernameRoute
 }
 export interface FileRouteTypes {
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shop'
     | '/study'
+    | '/vanguard'
     | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shop'
     | '/study'
+    | '/vanguard'
     | '/u/$username'
   id:
     | '__root__'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/shop'
     | '/study'
+    | '/vanguard'
     | '/u/$username'
   fileRoutesById: FileRoutesById
 }
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ShopRoute: typeof ShopRoute
   StudyRoute: typeof StudyRoute
+  VanguardRoute: typeof VanguardRoute
   UUsernameRoute: typeof UUsernameRoute
 }
 
@@ -245,6 +258,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vanguard': {
+      id: '/vanguard'
+      path: '/vanguard'
+      fullPath: '/vanguard'
+      preLoaderRoute: typeof VanguardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$username': {
       id: '/u/$username'
       path: '/u/$username'
@@ -266,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ShopRoute: ShopRoute,
   StudyRoute: StudyRoute,
+  VanguardRoute: VanguardRoute,
   UUsernameRoute: UUsernameRoute,
 }
 export const routeTree = rootRouteImport
