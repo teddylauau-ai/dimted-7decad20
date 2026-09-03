@@ -70,6 +70,12 @@ export type LevelDef = {
   bpm: number;
   palette: Palette;
   seq: Step[];
+  /**
+   * Forgiveness dial for the early campaign. Extra units of breathing room added
+   * to every hazard gap, and (at >= 1.5) low ceilings are dropped entirely so a
+   * new player only ever has to solve one obstacle at a time.
+   */
+  ease?: number;
 };
 
 /* ------------------------------------------------------------------ patterns */
