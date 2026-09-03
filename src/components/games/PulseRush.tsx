@@ -147,6 +147,8 @@ export function PulseRush({
       }
       onSurface = true;
       rot = 0;
+      shake = 0;
+      camY = 0;
       elapsed = 0;
       parts.length = 0;
       deathParts.length = 0;
