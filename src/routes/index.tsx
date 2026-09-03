@@ -260,6 +260,104 @@ function HomePage() {
         <QuestBoard />
       </div>
 
+      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+        <Panel className="p-5" delay={60}>
+          <PanelHead
+            eyebrow="Global"
+            title="The ladder"
+            aside={rows.length ? `${rows.length} players` : undefined}
+          />
+          <ol className="mt-4 space-y-1.5">
+            {rows.map((p, i) => {
+              const lv = levelFromTotalXp(p.total_xp);
+              const me = p.id === profile?.id;
+              return (
+                <li key={p.id}>
+                  <Link
+                    to="/u/$username"
+                    params={{ username: p.username }}
+                    className={cn(
+                      "flex items-center gap-3 rounded-xl border px-3 py-2 transition-colors",
+                      me
+                        ? "border-primary/40 bg-primary/10"
+                        : "border-border bg-background/40 hover:border-primary/30",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "numeral w-7 shrink-0 text-base",
+                        i === 0
+                          ? "text-gold"
+                          : i < 3
+                            ? "text-primary"
+                            : "text-muted-foreground",
+                      )}
+                    >
+                      {i + 1}
+                    </span>
+                    {i === 0 ? <Crown className="text-gold size-3.5 shrink-0" /> : null}
+                    <Avatar profile={p} size={34} />
+                    <span className="min-w-0 flex-1">
+                      <Nametag profile={p} className="block truncate text-sm" />
+                      <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                        @{p.username} · {rankForLevel(lv.level)}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      <span className="numeral block text-sm">Lv {lv.level}</span>
+                      <span className="text-muted-foreground block font-mono text-[10px]">
+                        {p.total_xp.toLocaleString()} XP
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+            {rows.length === 0 ? (
+              <li className="text-muted-foreground text-sm">
+                Nobody has earned XP yet — start chatting and claim the top spot.
+              </li>
+            ) : null}
+          </ol>
+        </Panel>
+
+        <Panel className="p-5" delay={100}>
+          <PanelHead eyebrow="Prestige" title="Rank ladder" aside={`Lv ${level} · ${rank}`} />
+          <ul className="mt-4 space-y-1.5">
+            {RANKS.map((r) => {
+              const reached = level >= r.from;
+              const current = rankForLevel(level) === r.name;
+              return (
+                <li
+                  key={r.name}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl border px-3 py-2",
+                    current
+                      ? "border-gold/50 bg-gold/10"
+                      : reached
+                        ? "border-border bg-background/40"
+                        : "border-border/50 bg-background/20 opacity-60",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "numeral w-9 shrink-0 text-sm",
+                      current ? "text-gold" : reached ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    {r.from}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm">{r.name}</span>
+                  <span className="text-muted-foreground shrink-0 font-mono text-[10px] tracking-[0.16em] uppercase">
+                    {current ? "you" : reached ? "held" : "locked"}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
+      </div>
+
 
       <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
         <Panel className="p-5" delay={100}>
