@@ -110,6 +110,10 @@ export function PulseRush({
     let cleared = false;
     let flipCd = 0;
     let flash = 0;
+    /** Death shake, in pixels, decaying every frame. */
+    let shake = 0;
+    /** Smoothed vertical camera offset — the view follows you up, like GD. */
+    let camY = 0;
 
     let held = false;
     let tapped = false;
@@ -224,6 +228,7 @@ export function PulseRush({
       if (dead || cleared) return;
       dead = true;
       flash = 1;
+      shake = 14;
       const n = skins.death === "death-silence" ? 0 : skins.death === "death-pixel" ? 34 : 22;
       for (let i = 0; i < n; i++) {
         const a = (Math.PI * 2 * i) / Math.max(1, n) + Math.random() * 0.4;
@@ -304,7 +309,13 @@ export function PulseRush({
         }
         vy += grav * GRAVITY * dt;
         vy = Math.max(-1.2, Math.min(1.2, vy));
-        rot += (grav * dt * (onSurface ? 0 : 0.012)) % (Math.PI * 2);
+        if (onSurface) {
+          // Snap flat on landing, the way a Geometry Dash cube does.
+          const target = Math.round(rot / (Math.PI / 2)) * (Math.PI / 2);
+          rot += (target - rot) * Math.min(1, dt * 0.03);
+        } else {
+          rot = (rot + grav * dt * 0.0125) % (Math.PI * 2);
+        }
       } else if (mode === "ship") {
         const up = held ? -1 : 1;
         vy += grav * up * (held ? 0.0019 : 0.0016) * dt;
@@ -493,17 +504,33 @@ export function PulseRush({
     }
 
     function render(now: number) {
+      // Beat clock from the level BPM — everything breathes on the downbeat.
+      const beat = (now / (60000 / level.bpm)) % 1;
+      const pulse = Math.pow(1 - beat, 3);
+
+      ctx.save();
+      if (shake > 0.4) {
+        ctx.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+        shake *= 0.86;
+      } else shake = 0;
+
       // background
       const grad = ctx.createLinearGradient(0, 0, 0, VIEW_H);
       grad.addColorStop(0, pal.bgA);
       grad.addColorStop(1, pal.bgB);
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+      ctx.fillRect(-40, -40, VIEW_W + 80, VIEW_H + 80);
+      ctx.fillStyle = `rgba(255,255,255,${0.035 * pulse})`;
+      ctx.fillRect(-40, -40, VIEW_W + 80, VIEW_H + 80);
 
       const camX = Math.max(0, x - VIEW_W * 0.32);
+      // Follow the player upward once they climb past the lower third.
+      const wantY = Math.max(0, FLOOR - 140 - y);
+      camY += (wantY - camY) * 0.08;
+      ctx.translate(0, camY);
 
       // parallax grid
-      ctx.strokeStyle = "rgba(255,255,255,0.045)";
+      ctx.strokeStyle = `rgba(255,255,255,${0.045 + 0.05 * pulse})`;
       ctx.lineWidth = 1;
       const gs = U * 2;
       const off = (camX * 0.4) % gs;
@@ -522,8 +549,18 @@ export function PulseRush({
 
       // roof + floor
       ctx.fillStyle = pal.ground;
-      ctx.fillRect(0, FLOOR, VIEW_W, VIEW_H - FLOOR);
-      ctx.fillRect(0, 0, VIEW_W, ROOF);
+      ctx.fillRect(0, FLOOR, VIEW_W, VIEW_H - FLOOR + 80);
+      ctx.fillRect(0, -80, VIEW_W, ROOF + 80);
+      // Ground stripes scroll past so speed is readable at a glance.
+      ctx.strokeStyle = pal.edge + "22";
+      ctx.lineWidth = 2;
+      const stripe = U * 2;
+      for (let sx = -(camX % stripe); sx < VIEW_W; sx += stripe) {
+        ctx.beginPath();
+        ctx.moveTo(sx, FLOOR + 4);
+        ctx.lineTo(sx - 26, VIEW_H + 40);
+        ctx.stroke();
+      }
       ctx.strokeStyle = pal.edge;
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -698,6 +735,8 @@ export function PulseRush({
         ctx.lineWidth = 3;
         ctx.strokeRect(gx, ROOF, 20, FLOOR - ROOF);
       }
+
+      ctx.restore();
     }
 
     function portalColor(m: Mode) {
