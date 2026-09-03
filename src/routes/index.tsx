@@ -1,19 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Flame, Sparkles } from "lucide-react";
+import { Crown, Flame, Sparkles, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Meter, Panel, PanelHead, PageHeader, RarityChip, LockedTile } from "@/components/dimted/primitives";
+import { Meter, Panel, PanelHead, RarityChip, LockedTile } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
 import { QuestBoard } from "@/components/dimted/QuestBoard";
 import {
+  RANKS,
   SECRETS,
   UNLOCKS,
   XP_SOURCES,
+  levelFromTotalXp,
   nextUnlock,
   rankForLevel,
 } from "@/lib/dimted";
-import { useFriendships, usePlayerStats, useXpFeed } from "@/lib/dimted-queries";
+import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
+import { cn } from "@/lib/utils";
 import { friendshipLevel } from "@/lib/dimted";
+
 
 function XpTicker() {
   const { lastGain } = useDimted();
