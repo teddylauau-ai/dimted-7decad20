@@ -465,7 +465,7 @@ export const LEVELS: LevelDef[] = [
     difficulty: "harder",
     bpm: 156,
     palette: PAL.royal,
-    ease: 0.4,
+    ease: 1.0,
     seq: [
       ["flat", 6], ["spikes", 4, 4], ["pillars", 3, 3], ["coin", 5],
       ["speed", 2], ["tight", 6], ["flat", 4], ["saws", 3],
