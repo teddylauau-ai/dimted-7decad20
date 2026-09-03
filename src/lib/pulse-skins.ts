@@ -34,7 +34,12 @@ function poly(ctx: CanvasRenderingContext2D, pts: [number, number][]) {
   ctx.closePath();
 }
 
-function fillStroke(ctx: CanvasRenderingContext2D, fill: string, stroke: string, w = 3) {
+function fillStroke(
+  ctx: CanvasRenderingContext2D,
+  fill: string | CanvasGradient,
+  stroke: string | CanvasGradient,
+  w = 3,
+) {
   ctx.fillStyle = fill;
   ctx.fill();
   ctx.strokeStyle = stroke;
