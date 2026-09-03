@@ -16,6 +16,16 @@ import {
   type Mode,
   type Obj,
 } from "@/lib/pulse";
+import {
+  deathStyle,
+  drawBall,
+  drawCube,
+  drawDeathParticle,
+  drawShip,
+  drawTrailParticle,
+  drawWave,
+  trailStyle,
+} from "@/lib/pulse-skins";
 
 /**
  * Pulse Rush engine — a one-button rhythm runner. You always move forward; the
@@ -41,7 +51,16 @@ export type PulseRunEnd = {
   attempts: number;
 };
 
-type Particle = { x: number; y: number; vx: number; vy: number; life: number; max: number; size: number };
+type Particle = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  max: number;
+  size: number;
+  rot?: number;
+};
 
 type Snapshot = {
   x: number;
@@ -91,6 +110,8 @@ export function PulseRush({
     const goal = built.length * U;
     const pal = level.palette;
     const pair = colorPair(skins.colors);
+    const trail = trailStyle(skins.trail);
+    const death = deathStyle(skins.death);
 
     /* -------------------------------------------------------------- run state */
 
@@ -112,6 +133,9 @@ export function PulseRush({
     let flash = 0;
     /** Death shake, in pixels, decaying every frame. */
     let shake = 0;
+    /** Death shockwave ring, 0..1, only for the loud death effects. */
+    let shockwave = 0;
+    let shockAt = { x: 0, y: 0 };
     /** Smoothed vertical camera offset — the view follows you up, like GD. */
     let camY = 0;
 
@@ -148,6 +172,7 @@ export function PulseRush({
       onSurface = true;
       rot = 0;
       shake = 0;
+      shockwave = 0;
       camY = 0;
       elapsed = 0;
       parts.length = 0;
@@ -229,20 +254,24 @@ export function PulseRush({
     function die() {
       if (dead || cleared) return;
       dead = true;
-      flash = 1;
-      shake = 14;
-      const n = skins.death === "death-silence" ? 0 : skins.death === "death-pixel" ? 34 : 22;
+      flash = death.flash;
+      shake = death.shake;
+      shockwave = death.shockwave ? 1 : 0;
+      shockAt = { x, y };
+      const n = death.count;
       for (let i = 0; i < n; i++) {
         const a = (Math.PI * 2 * i) / Math.max(1, n) + Math.random() * 0.4;
-        const s = skins.death === "death-implode" ? -0.22 : 0.1 + Math.random() * 0.3;
+        const sp = (death.inward ? -1 : 1) * death.speed * (0.5 + Math.random() * 0.8);
+        const dist = death.inward ? CUBE * 1.9 : 0;
         deathParts.push({
-          x,
-          y,
-          vx: Math.cos(a) * s,
-          vy: Math.sin(a) * s,
-          life: 520,
-          max: 520,
-          size: skins.death === "death-pixel" ? 4 : 6 + Math.random() * 5,
+          x: x + Math.cos(a) * dist,
+          y: y + Math.sin(a) * dist,
+          vx: Math.cos(a) * sp,
+          vy: Math.sin(a) * sp,
+          life: death.life,
+          max: death.life,
+          size: death.size * (0.7 + Math.random() * 0.7),
+          rot: a,
         });
       }
       best = Math.max(best, pct());
@@ -265,18 +294,18 @@ export function PulseRush({
     function jump() {
       vy = -grav * JUMP_V;
       onSurface = false;
-      if (skins.trail === "trail-fracture") {
-        for (let i = 0; i < 6; i++)
-          parts.push({
-            x,
-            y,
-            vx: -0.1 - Math.random() * 0.1,
-            vy: (Math.random() - 0.5) * 0.3,
-            life: 300,
-            max: 300,
-            size: 4,
-          });
-      }
+      // Every trail gets a little kick on takeoff; fracture gets a big one.
+      const burst = skins.trail === "trail-fracture" ? 8 : 3;
+      for (let i = 0; i < burst; i++)
+        parts.push({
+          x,
+          y,
+          vx: -0.1 - Math.random() * 0.1,
+          vy: (Math.random() - 0.5) * 0.3,
+          life: trail.life * 0.7,
+          max: trail.life * 0.7,
+          size: trail.size,
+        });
     }
 
     /* -------------------------------------------------------------- physics */
@@ -462,19 +491,16 @@ export function PulseRush({
       }
 
       // trail
-      if (skins.trail !== "trail-eternal" || true) {
-        const density = skins.trail === "trail-stardust" ? 3 : 1;
-        for (let i = 0; i < density; i++)
-          parts.push({
-            x: x - half,
-            y: y + (Math.random() - 0.5) * CUBE * 0.6,
-            vx: -0.02,
-            vy: (Math.random() - 0.5) * 0.05,
-            life: skins.trail === "trail-eternal" ? 1400 : 420,
-            max: skins.trail === "trail-eternal" ? 1400 : 420,
-            size: skins.trail === "trail-ribbon" ? 8 : 4,
-          });
-      }
+      for (let i = 0; i < trail.density; i++)
+        parts.push({
+          x: x - half,
+          y: y + (Math.random() - 0.5) * CUBE * 0.6,
+          vx: -0.02,
+          vy: (Math.random() - 0.5) * 0.05,
+          life: trail.life,
+          max: trail.life,
+          size: trail.size * (0.75 + Math.random() * 0.5),
+        });
       for (const p of parts) {
         p.x += p.vx * dt;
         p.y += p.vy * dt;
@@ -647,12 +673,16 @@ export function PulseRush({
       }
 
       // trail
+      if (trail.glow) {
+        ctx.shadowColor = pair.primary;
+        ctx.shadowBlur = trail.glow;
+      }
       for (const p of parts) {
         const a = Math.max(0, p.life / p.max);
-        ctx.globalAlpha = a * 0.8;
-        ctx.fillStyle = skins.trail === "trail-aurora" ? (a > 0.5 ? pair.primary : pair.secondary) : pair.primary;
-        ctx.fillRect(p.x - camX - p.size / 2, p.y - p.size / 2, p.size, p.size);
+        ctx.fillStyle = trail.dual ? (a > 0.5 ? pair.primary : pair.secondary) : pair.primary;
+        drawTrailParticle(ctx, trail, p.x - camX, p.y, p.size, a * 0.85);
       }
+      ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
 
       // player
@@ -667,48 +697,28 @@ export function PulseRush({
         ctx.fillStyle = pair.primary;
         ctx.strokeStyle = pair.secondary;
         ctx.lineWidth = 3;
-        if (mode === "ball") {
-          ctx.beginPath();
-          ctx.arc(0, 0, half, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-          ctx.beginPath();
-          ctx.arc(0, 0, half * 0.4, 0, Math.PI * 2);
-          ctx.fillStyle = pair.secondary;
-          ctx.fill();
-        } else if (mode === "ship") {
-          ctx.beginPath();
-          ctx.moveTo(-half, -half * 0.7);
-          ctx.lineTo(half * 1.2, 0);
-          ctx.lineTo(-half, half * 0.7);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-        } else if (mode === "wave") {
-          ctx.beginPath();
-          ctx.moveTo(-half, 0);
-          ctx.lineTo(0, -half * 0.75);
-          ctx.lineTo(half, 0);
-          ctx.lineTo(0, half * 0.75);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-        } else {
-          ctx.fillRect(-half, -half, CUBE, CUBE);
-          ctx.strokeRect(-half, -half, CUBE, CUBE);
-          ctx.fillStyle = pair.secondary;
-          ctx.fillRect(-half * 0.4, -half * 0.4, CUBE * 0.4, CUBE * 0.4);
-        }
+        const sk = { ctx, half, pair, now };
+        if (mode === "ball") drawBall(skins.ball, sk);
+        else if (mode === "ship") drawShip(skins.ship, sk);
+        else if (mode === "wave") drawWave(skins.wave, sk);
+        else drawCube(skins.icon, sk);
         ctx.restore();
         ctx.shadowBlur = 0;
       }
 
       // death particles
+      if (shockwave > 0) {
+        ctx.strokeStyle = pair.primary + "aa";
+        ctx.lineWidth = 4 * shockwave;
+        ctx.beginPath();
+        ctx.arc(shockAt.x - camX, shockAt.y, (1 - shockwave) * 190, 0, Math.PI * 2);
+        ctx.stroke();
+        shockwave = Math.max(0, shockwave - 0.045);
+      }
       for (const p of deathParts) {
         const a = Math.max(0, p.life / p.max);
-        ctx.globalAlpha = a;
         ctx.fillStyle = a > 0.6 ? pair.primary : pair.secondary;
-        ctx.fillRect(p.x - camX - p.size / 2, p.y - p.size / 2, p.size, p.size);
+        drawDeathParticle(ctx, death, p.x - camX, p.y, p.size, a, (p.rot ?? 0) + (1 - a) * 4);
       }
       ctx.globalAlpha = 1;
 
@@ -806,7 +816,18 @@ export function PulseRush({
       canvas.removeEventListener("pointerdown", onDown);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [level, practice, skins.colors, skins.trail, skins.death, quitRef]);
+  }, [
+    level,
+    practice,
+    skins.colors,
+    skins.trail,
+    skins.death,
+    skins.icon,
+    skins.ship,
+    skins.ball,
+    skins.wave,
+    quitRef,
+  ]);
 
   const restart = useCallback(() => restartRef.current(), []);
 

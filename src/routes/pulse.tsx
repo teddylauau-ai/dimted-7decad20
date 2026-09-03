@@ -4,6 +4,7 @@ import { Check, Coins, Crown, Lock, Play, Repeat, Shapes, Trophy } from "lucide-
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { PulseSkinPreview } from "@/components/games/PulseSkinPreview";
 import { PulseRush, type PulseRunEnd, type PulseSkins } from "@/components/games/PulseRush";
 import {
   DIFFICULTY_LABEL,
@@ -411,23 +412,24 @@ function PulsePage() {
                 const pair = colorPair(it.slug);
                 return (
                   <Panel key={it.slug} className={cn("p-4", equipped && "ring-primary/40 ring-1")}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
+                    <div className="flex items-start gap-3">
+                      <PulseSkinPreview kind={it.kind} slug={it.slug} colors={skins.colors} />
+                      <div className="min-w-0">
                         <h3 className="font-display font-semibold tracking-tight">{it.name}</h3>
                         <p className="text-muted-foreground mt-0.5 text-sm">{it.description}</p>
+                        {it.kind === "colors" ? (
+                          <span className="mt-1.5 flex gap-1">
+                            <span
+                              className="size-4 rounded-full border border-white/20"
+                              style={{ background: pair.primary }}
+                            />
+                            <span
+                              className="size-4 rounded-full border border-white/20"
+                              style={{ background: pair.secondary }}
+                            />
+                          </span>
+                        ) : null}
                       </div>
-                      {it.kind === "colors" ? (
-                        <span className="flex shrink-0 gap-1">
-                          <span
-                            className="size-5 rounded-full border border-white/20"
-                            style={{ background: pair.primary }}
-                          />
-                          <span
-                            className="size-5 rounded-full border border-white/20"
-                            style={{ background: pair.secondary }}
-                          />
-                        </span>
-                      ) : null}
                     </div>
 
                     <p className="text-muted-foreground mt-2 font-mono text-[11px] uppercase">
