@@ -323,7 +323,10 @@ export type Database = {
       }
       game_progress: {
         Row: {
+          attempts: number
           best_ms: number | null
+          best_pct: number
+          coins: number
           created_at: string
           game: string
           id: string
@@ -333,7 +336,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          attempts?: number
           best_ms?: number | null
+          best_pct?: number
+          coins?: number
           created_at?: string
           game: string
           id?: string
@@ -343,7 +349,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          attempts?: number
           best_ms?: number | null
+          best_pct?: number
+          coins?: number
           created_at?: string
           game?: string
           id?: string
@@ -633,6 +642,92 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      pulse_items: {
+        Row: {
+          created_at: string
+          description: string
+          feat: string | null
+          kind: string
+          name: string
+          price_coins: number
+          rarity: string
+          required_level: number
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          feat?: string | null
+          kind: string
+          name: string
+          price_coins?: number
+          rarity?: string
+          required_level?: number
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          feat?: string | null
+          kind?: string
+          name?: string
+          price_coins?: number
+          rarity?: string
+          required_level?: number
+          slug?: string
+        }
+        Relationships: []
+      }
+      pulse_state: {
+        Row: {
+          coins: number
+          created_at: string
+          equipped_ball: string
+          equipped_colors: string
+          equipped_death: string
+          equipped_icon: string
+          equipped_ship: string
+          equipped_trail: string
+          equipped_wave: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coins?: number
+          created_at?: string
+          equipped_ball?: string
+          equipped_colors?: string
+          equipped_death?: string
+          equipped_icon?: string
+          equipped_ship?: string
+          equipped_trail?: string
+          equipped_wave?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coins?: number
+          created_at?: string
+          equipped_ball?: string
+          equipped_colors?: string
+          equipped_death?: string
+          equipped_icon?: string
+          equipped_ship?: string
+          equipped_trail?: string
+          equipped_wave?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pulse_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quest_claims: {
         Row: {
@@ -999,6 +1094,41 @@ export type Database = {
         Args: { _title: string; _user_id: string }
         Returns: Json
       }
+      pulse_account_level: { Args: { _user_id: string }; Returns: number }
+      pulse_equip: { Args: { _slot: string; _slug: string }; Returns: Json }
+      pulse_finish: {
+        Args: {
+          _coins: number
+          _level: number
+          _pct: number
+          _practice?: boolean
+          _time_ms: number
+        }
+        Returns: Json
+      }
+      pulse_state_for_me: {
+        Args: never
+        Returns: {
+          coins: number
+          created_at: string
+          equipped_ball: string
+          equipped_colors: string
+          equipped_death: string
+          equipped_icon: string
+          equipped_ship: string
+          equipped_trail: string
+          equipped_wave: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pulse_state"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pulse_unlock: { Args: { _slug: string }; Returns: Json }
       purchase_cosmetic: { Args: { _slug: string }; Returns: Json }
       role_rank: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
