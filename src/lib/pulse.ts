@@ -98,144 +98,172 @@ export function buildLevel(def: LevelDef): Built {
   let x = 6;
   let coin = 0;
   let mode: Mode = "cube";
+  /**
+   * Current speed multiplier. Every hazard gap is measured in "jumps", not raw
+   * units, so a pattern that reads at 1x still reads at 1.85x — exactly how
+   * Geometry Dash keeps its spacing musical when a speed portal hits.
+   */
+  let spd = 1;
+  /** One jump covers ~3.8 units of ground at 1x. Peak height is ~2.1 units. */
+  const JUMP_RUN = 3.8;
+  const reach = () => JUMP_RUN * spd;
   const push = (o: Obj) => out.push(o);
 
   for (const step of def.seq) {
     switch (step[0]) {
       case "flat":
-        x += step[1];
+        x += step[1] * spd;
         break;
 
       case "spike":
         push({ t: "spike", x, y: 0, up: true });
-        x += 4;
+        x += reach() + 1;
         break;
 
       case "spikes": {
         const n = step[1];
-        // A single jump covers ~3.8 units at base speed, so keep spikes spaced
-        // wider than that: each one is its own tap instead of a coin flip.
-        const gap = Math.max(5, step[2]);
+        // Each spike is its own tap: never closer than a full jump run.
+        const gap = Math.max(step[2], JUMP_RUN + 1.2) * spd;
         for (let i = 0; i < n; i++) push({ t: "spike", x: x + i * gap, y: 0, up: true });
-        x += n * gap + 3;
+        x += n * gap + 2 * spd;
         break;
       }
 
       case "stair": {
-        const n = step[1];
-        for (let i = 0; i < n; i++) {
-          push({ t: "block", x: x + i * 2, y: i + 1, w: 2, h: 1 });
-        }
-        x += n * 2 + 4;
+        // Solid steps rising from the ground, one unit at a time, then back down.
+        const n = Math.min(3, step[1]);
+        const w = 2.2 * spd;
+        for (let i = 0; i < n; i++) push({ t: "block", x: x + i * w, y: 0, w, h: i + 1 });
+        for (let i = 0; i < n - 1; i++)
+          push({ t: "block", x: x + n * w + i * w, y: 0, w, h: n - 1 - i });
+        x += (2 * n - 1) * w + reach();
         break;
       }
 
       case "pillars": {
         const n = step[1];
         const h = Math.min(2, step[2]);
+        const gap = reach() + 2.6 * spd;
         for (let i = 0; i < n; i++) {
-          push({ t: "block", x: x + i * 5, y: 0, w: 1, h });
-          push({ t: "spike", x: x + i * 5 + 2.4, y: 0, up: true });
+          // Solid pillar from the ground, then a spike a clean jump later.
+          push({ t: "block", x: x + i * gap, y: 0, w: 1.4 * spd, h });
+          push({ t: "spike", x: x + i * gap + reach() * 0.75 + 1.4, y: 0, up: true });
         }
-        x += n * 5 + 4;
+        x += n * gap + reach();
         break;
       }
 
       case "gap": {
-        const w = step[1];
+        // Two solid platforms with a spiked trench between them.
+        const w = Math.max(2.5, Math.min(step[1], JUMP_RUN - 0.8)) * spd;
         const h = Math.min(2, step[2]);
-        push({ t: "block", x, y: 0, w: 2, h });
-        push({ t: "block", x: x + 2 + w, y: 0, w: 2, h });
-        x += w + 6;
+        const pw = 2.4 * spd;
+        push({ t: "block", x, y: 0, w: pw, h });
+        push({ t: "spike", x: x + pw + w / 2 - 0.5, y: 0, up: true });
+        push({ t: "block", x: x + pw + w, y: 0, w: pw, h });
+        x += pw * 2 + w + reach();
         break;
       }
 
       case "saws": {
         const n = step[1];
-        for (let i = 0; i < n; i++) push({ t: "saw", x: x + i * 6, y: 0.55, r: 0.7 });
-        x += n * 6 + 3;
+        const gap = reach() + 2.4 * spd;
+        for (let i = 0; i < n; i++) push({ t: "saw", x: x + i * gap, y: 0.5, r: 0.65 });
+        x += n * gap + reach();
         break;
       }
 
       case "pad":
         push({ t: "pad", x, y: 0 });
-        push({ t: "saw", x: x + 3.4, y: 0.55, r: 0.7 });
-        x += 8;
+        push({ t: "saw", x: x + reach() * 0.9, y: 0.5, r: 0.65 });
+        x += reach() * 2 + 2;
         break;
 
       case "orbs": {
         const n = step[1];
+        const gap = reach() + 3 * spd;
         for (let i = 0; i < n; i++) {
-          push({ t: "orb", x: x + i * 6, y: 2.2 });
-          push({ t: "spike", x: x + i * 6 + 1.6, y: 0, up: true });
+          push({ t: "orb", x: x + i * gap, y: 2.2 });
+          push({ t: "spike", x: x + i * gap + 2.2 * spd, y: 0, up: true });
         }
-        x += n * 6 + 4;
+        x += n * gap + reach();
         break;
       }
 
       case "tight": {
+        // Straight-fly style corridor: ground spikes on the beat with a low
+        // ceiling overhead, so you tap rather than hold.
         const n = step[1];
+        const gap = reach() + 1.4 * spd;
         for (let i = 0; i < n; i++) {
-          push({ t: "spike", x: x + i * 3.2, y: 0, up: true });
-          if (i % 2 === 1) push({ t: "block", x: x + i * 3.2 + 1.2, y: 3.4, w: 2, h: 1 });
+          push({ t: "spike", x: x + i * gap, y: 0, up: true });
+          if (i % 2 === 1) push({ t: "block", x: x + i * gap + 1.6, y: 4.4, w: 2 * spd, h: 1 });
         }
-        x += n * 3.2 + 4;
+        x += n * gap + reach();
         break;
       }
 
       case "ship": {
-        const len = step[1];
+        const len = step[1] * spd;
         const tight = step[2];
         push({ t: "portal", x, mode: "ship" });
         mode = "ship";
-        for (let i = 3; i < len - 3; i += 5) {
-          const high = (i / 5) % 2 === 0;
-          push({ t: "block", x: x + i, y: high ? 5.2 : 0, w: 1.6, h: tight ? 4 : 3 });
-          if (tight) push({ t: "spike", x: x + i + 2.6, y: high ? 0 : 0, up: true });
+        const gap = 7 * spd;
+        for (let i = gap; i < len - gap; i += gap) {
+          const high = Math.round(i / gap) % 2 === 0;
+          const h = tight ? 3 : 2.4;
+          push({ t: "block", x: x + i, y: high ? 8.5 - h : 0, w: 1.4 * spd, h });
         }
         x += len;
         push({ t: "portal", x, mode: "cube" });
         mode = "cube";
-        x += 5;
+        x += reach() + 2;
         break;
       }
 
       case "wave": {
-        const len = step[1];
+        const len = step[1] * spd;
         const tight = step[2];
         push({ t: "portal", x, mode: "wave" });
         mode = "wave";
-        for (let i = 4; i < len - 4; i += 4) {
-          const high = (i / 4) % 2 === 0;
-          push({ t: "block", x: x + i, y: high ? 4.6 : 0, w: 1.2, h: tight ? 4.4 : 3.4 });
+        const gap = 6.5 * spd;
+        for (let i = gap; i < len - gap; i += gap) {
+          const high = Math.round(i / gap) % 2 === 0;
+          const h = tight ? 3.2 : 2.6;
+          push({ t: "block", x: x + i, y: high ? 8.5 - h : 0, w: 1.1 * spd, h });
         }
         x += len;
         push({ t: "portal", x, mode: "cube" });
         mode = "cube";
-        x += 5;
+        x += reach() + 2;
         break;
       }
 
       case "ball": {
-        const len = step[1];
+        const len = step[1] * spd;
         push({ t: "portal", x, mode: "ball" });
         mode = "ball";
-        for (let i = 4; i < len - 4; i += 6) {
-          const top = (i / 6) % 2 === 0;
+        const gap = 8 * spd;
+        for (let i = gap; i < len - gap; i += gap) {
+          const top = Math.round(i / gap) % 2 === 0;
           push({ t: "spike", x: x + i, y: 0, up: !top });
-          push({ t: "block", x: x + i + 3, y: top ? 6 : 0, w: 2, h: 1 });
+          push({ t: "block", x: x + i + gap * 0.45, y: top ? 6.4 : 0, w: 2 * spd, h: 1 });
         }
         x += len;
         push({ t: "portal", x, mode: "cube" });
         mode = "cube";
-        x += 5;
+        x += reach() + 2;
         break;
       }
 
-      case "speed":
+      case "speed": {
+        const next = SPEED_STEPS[Math.max(0, Math.min(4, step[1]))]!;
         push({ t: "speed", x, step: step[1] });
-        x += 3;
+        // Breathing room so the new spacing registers before the next hazard.
+        x += 3 * Math.max(spd, next);
+        spd = next;
         break;
+      }
 
       case "coin": {
         const height = step[1];
@@ -243,23 +271,24 @@ export function buildLevel(def: LevelDef): Built {
           push({ t: "coin", x, y: height, i: coin as 0 | 1 | 2 });
           coin += 1;
         }
-        x += 4;
+        x += reach();
         break;
       }
 
       case "mode":
         push({ t: "portal", x, mode: step[1] });
         mode = step[1];
-        x += 4;
+        x += reach();
         break;
     }
   }
 
   // Always end on solid ground with a little runway.
-  const length = x + 8;
-  if (mode !== "cube") out.push({ t: "portal", x: length - 6, mode: "cube" });
+  const length = x + 8 * spd;
+  if (mode !== "cube") out.push({ t: "portal", x: length - 6 * spd, mode: "cube" });
   return { objects: out, length, coinCount: coin };
 }
+
 
 /* -------------------------------------------------------------------- levels */
 
