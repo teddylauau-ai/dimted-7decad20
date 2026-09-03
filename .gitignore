@@ -20,6 +20,11 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Netlify build output (Nitro `netlify` preset)
+.netlify/functions-internal/
+.netlify/edge-functions/
+.netlify/deploy/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

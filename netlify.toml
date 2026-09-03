@@ -1,0 +1,11 @@
+# The TanStack Start build runs Nitro with the `netlify` preset (auto-detected
+# during Netlify builds). That preset emits the static client assets to `dist/`
+# and the SSR handler to `.netlify/functions-internal/`, which the Netlify build
+# system picks up automatically. It does NOT produce `.output/public` — that is
+# the generic Nitro/node preset layout.
+#
+# This file is the source of truth for the build settings and overrides anything
+# configured in the Netlify UI.
+[build]
+  command = "npm run build"
+  publish = "dist"
