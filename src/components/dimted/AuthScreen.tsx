@@ -85,7 +85,7 @@ export function AuthScreen() {
               ))}
             </ul>
             <p className="text-muted-foreground mt-3 text-[11px] leading-snug">
-              Every source is capped. Spamming earns nothing.
+              Everything you do earns XP — no caps, no cooldowns.
             </p>
           </div>
           <div className="glass rounded-2xl p-4">
