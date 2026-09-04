@@ -87,7 +87,7 @@ export const RANKS: { from: number; name: string }[] = [
   { from: 60, name: "Astral" },
   { from: 75, name: "Voidwalker" },
   { from: 90, name: "Sovereign" },
-  { from: 100, name: "Dimted Prime" },
+  { from: 100, name: "Apex Prime" },
 ];
 
 /** The next rank you haven't reached yet — used to dangle the carrot. */
