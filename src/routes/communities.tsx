@@ -25,10 +25,12 @@ import {
   inviteToCommunity,
   joinCommunity,
   postChannelMessage,
+  postChannelVoiceMessage,
   removeCommunityMember,
   revokeCommunityInvite,
   setCommunityVisibility,
 } from "@/lib/dimted-actions";
+import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -122,6 +124,15 @@ function CommunitiesPage() {
     } catch {
       toast.error("Message didn't post");
     }
+  }
+
+  async function postVoice(blob: Blob, ms: number) {
+    if (!profile || !active || !activeChannel) return;
+    await postChannelVoiceMessage(active.id, activeChannel.id, profile.id, blob, ms);
+    await messages.refetch();
+    const result = await award("community", `Voice note in #${activeChannel.name}`);
+    if (result === "capped") toast("Community XP is capped for today.");
+    refresh();
   }
 
   async function toggleVisibility() {
@@ -458,9 +469,13 @@ function CommunitiesPage() {
                             <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
                           </p>
                         )}
-                        <p className="text-foreground/95 text-sm leading-relaxed break-words">
-                          {m.body}
-                        </p>
+                        {m.audio_url ? (
+                          <VoicePlayer url={m.audio_url} ms={m.audio_ms} />
+                        ) : (
+                          <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                            {m.body}
+                          </p>
+                        )}
                       </div>
                       {m.author?.id === profile?.id || canManage ? (
                         <button
@@ -479,6 +494,7 @@ function CommunitiesPage() {
             </div>
 
             <form onSubmit={post} className="border-border flex gap-2 border-t px-5 py-4">
+              <VoiceRecorder onSend={postVoice} disabled={!activeChannel} />
               <Input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}

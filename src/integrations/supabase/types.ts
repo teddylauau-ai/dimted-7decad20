@@ -174,6 +174,8 @@ export type Database = {
       }
       community_messages: {
         Row: {
+          audio_ms: number | null
+          audio_url: string | null
           body: string
           channel_id: string
           community_id: string
@@ -182,6 +184,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          audio_ms?: number | null
+          audio_url?: string | null
           body: string
           channel_id: string
           community_id: string
@@ -190,6 +194,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          audio_ms?: number | null
+          audio_url?: string | null
           body?: string
           channel_id?: string
           community_id?: string
@@ -468,6 +474,8 @@ export type Database = {
       }
       messages: {
         Row: {
+          audio_ms: number | null
+          audio_url: string | null
           body: string
           created_at: string
           friendship_id: string
@@ -475,6 +483,8 @@ export type Database = {
           sender_id: string
         }
         Insert: {
+          audio_ms?: number | null
+          audio_url?: string | null
           body: string
           created_at?: string
           friendship_id: string
@@ -482,6 +492,8 @@ export type Database = {
           sender_id: string
         }
         Update: {
+          audio_ms?: number | null
+          audio_url?: string | null
           body?: string
           created_at?: string
           friendship_id?: string
