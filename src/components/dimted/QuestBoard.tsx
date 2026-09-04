@@ -126,9 +126,9 @@ export function QuestBoard() {
   };
 
   return (
-    <Panel className="p-5" delay={60}>
+    <Panel className="p-4" delay={60}>
       <PanelHead eyebrow="Quests" title="Today & this week" />
-      <div className="mt-4 space-y-5">
+      <div className="mt-3 space-y-4">
         {render("daily")}
         {render("weekly")}
       </div>
