@@ -576,22 +576,23 @@ html.light .glass-raised {
   /* presence */
   .presence-dot {
     position: absolute;
-    right: -1px;
-    bottom: -1px;
-    height: 0.7rem;
-    width: 0.7rem;
+    right: calc(var(--pd-offset, -1) * 1px);
+    bottom: calc(var(--pd-offset, -1) * 1px);
+    width: calc(var(--pd-size, 11) * 1px);
+    height: calc(var(--pd-size, 11) * 1px);
     border-radius: 999px;
     border: 2px solid var(--background);
+    box-shadow: 0 0 0 1px var(--hairline);
   }
 }
 
 /* ----------------------------------------------------- presence indicator */
 .presence-dot {
   position: absolute;
-  right: -1px;
-  bottom: -1px;
-  width: 0.72rem;
-  height: 0.72rem;
+  right: calc(var(--pd-offset, -1) * 1px);
+  bottom: calc(var(--pd-offset, -1) * 1px);
+  width: calc(var(--pd-size, 11) * 1px);
+  height: calc(var(--pd-size, 11) * 1px);
   border-radius: 9999px;
   border: 2px solid var(--color-card);
   box-shadow: 0 0 0 1px oklch(0 0 0 / 0.35);
