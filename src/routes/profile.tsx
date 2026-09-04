@@ -236,22 +236,24 @@ function ProfilePage() {
           <div className="flex flex-wrap items-end justify-between gap-5 pt-5">
             <div className="flex min-w-0 items-end gap-4">
               <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => fileInput.current?.click()}
-                  disabled={uploading}
-                  aria-label="Change profile picture"
-                  className="group focus-visible:ring-ring relative block rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
-                >
-                  <Avatar profile={profile} size={96} className="glass-raised rounded-2xl" />
-                  <span className="bg-background/70 absolute inset-0 grid place-items-center rounded-2xl opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                    {uploading ? (
-                      <Loader2 className="size-5 animate-spin" />
-                    ) : (
-                      <Camera className="size-5" />
-                    )}
-                  </span>
-                </button>
+                <HoloCardTrigger profile={profile}>
+                  <button
+                    type="button"
+                    onClick={() => fileInput.current?.click()}
+                    disabled={uploading}
+                    aria-label="Change profile picture"
+                    className="group focus-visible:ring-ring relative block rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    <Avatar profile={profile} size={96} className="glass-raised rounded-2xl" />
+                    <span className="bg-background/70 absolute inset-0 grid place-items-center rounded-2xl opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                      {uploading ? (
+                        <Loader2 className="size-5 animate-spin" />
+                      ) : (
+                        <Camera className="size-5" />
+                      )}
+                    </span>
+                  </button>
+                </HoloCardTrigger>
                 <input
                   ref={fileInput}
                   type="file"
@@ -269,6 +271,9 @@ function ProfilePage() {
                     <Trash2 className="size-3.5" />
                   </button>
                 ) : null}
+                <div className="absolute -right-1 -top-1">
+                  <RankBadge level={level} size="sm" />
+                </div>
               </div>
               <div className="min-w-0 pb-1">
                 <Nametag
@@ -282,6 +287,7 @@ function ProfilePage() {
                 </p>
                 <p className="mt-1.5 flex flex-wrap items-center gap-2">
                   <PresenceLabel profile={profile} />
+                  <RankPill level={level} />
                   {myRole.role !== "member" ? (
                     <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] uppercase">
                       {ROLE_LABEL[myRole.role]}
