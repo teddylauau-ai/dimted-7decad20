@@ -1,8 +1,9 @@
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
 /**
- * Phone-status-bar style clock: live time with a softly pulsing colon,
- * plus the date — sits in the top strip like a handset status bar.
+ * Phone-status-bar style clock: live 12-hour time with a pulsing colon,
+ * a sun/moon AM/PM marker, and the date — sits in the top strip.
  */
 export function StatusClock() {
   const [now, setNow] = useState(() => new Date());
@@ -12,8 +13,10 @@ export function StatusClock() {
     return () => clearInterval(t);
   }, []);
 
-  const hh = now.toLocaleTimeString([], { hour: "2-digit" }).slice(0, 2);
-  const mm = now.toLocaleTimeString([], { minute: "2-digit" }).slice(-2);
+  const hour = now.getHours();
+  const isPm = hour >= 12;
+  const displayHour = hour % 12 || 12;
+  const mm = now.getMinutes().toString().padStart(2, "0");
   const date = now.toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" });
 
   return (
@@ -26,9 +29,12 @@ export function StatusClock() {
         <span className="bg-primary relative inline-flex size-1.5 rounded-full" />
       </span>
       <span className="font-mono text-xs font-medium tabular-nums tracking-wider">
-        {hh}
+        {displayHour}
         <span className="animate-pulse">:</span>
         {mm}
+      </span>
+      <span className="text-muted-foreground/80" aria-hidden="true">
+        {isPm ? <Moon className="size-3.5" /> : <Sun className="size-3.5 text-amber-400" />}
       </span>
       <span className="bg-border h-3 w-px" />
       <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
