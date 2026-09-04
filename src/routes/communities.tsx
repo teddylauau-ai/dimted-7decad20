@@ -509,7 +509,7 @@ function CommunitiesPage() {
                     setDraft(e.target.value);
                     if (e.target.value.trim()) typing.signal();
                   }}
-                  placeholder={activeChannel ? `Message #activeChannel.name}` : "Pick a channel"}
+                  placeholder={activeChannel ? `Message #${activeChannel.name}` : "Pick a channel"}
                   disabled={!activeChannel}
                 />
                 <Button type="submit" disabled={!draft.trim() || !activeChannel}>
