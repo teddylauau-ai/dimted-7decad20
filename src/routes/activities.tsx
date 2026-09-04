@@ -111,7 +111,7 @@ function ArcadePage() {
 // ------------------------------------------------------------------ Campaign
 
 function Campaign() {
-  const { profile, surgeActive } = useDimted();
+  const { profile, surgeActive, syncXp } = useDimted();
   const progress = useCampaignProgress(profile?.id);
   const saveClear = useSaveClear(profile?.id);
   const submit = useSubmitScore(profile?.id);
@@ -155,6 +155,7 @@ function Campaign() {
       try {
         const res = await awardArcadeXp("nova-rift" as GameId, score);
         if (res.status === "awarded" || res.status === "granted") {
+          syncXp(res, `Nova Rift level ${level.n}`);
           toast.success(
             `Level ${level.n} cleared · +${res.gained} XP · +${res.sparks_gained} sparks` +
               (surgeActive ? " · surge doubled" : ""),
@@ -171,7 +172,7 @@ function Campaign() {
       const note = abilityNote(level.n + 1);
       if (note && level.n === cleared) toast(note);
     },
-    [cleared, level, refresh, saveClear, submit, surgeActive],
+    [cleared, level, refresh, saveClear, submit, surgeActive, syncXp],
   );
 
   const winRef = useRef(win);
@@ -336,7 +337,7 @@ function Campaign() {
 // -------------------------------------------------------------------- Arcade
 
 function Arcade() {
-  const { profile, surgeActive } = useDimted();
+  const { profile, surgeActive, syncXp } = useDimted();
   const [gameId, setGameId] = useState<GameId>("nova-blocks");
   const [phase, setPhase] = useState<Phase>("idle");
   const [score, setScore] = useState(0);
@@ -389,6 +390,7 @@ function Arcade() {
         const result = await awardArcadeXp(gameId, finalScore);
         setReward(result);
         if (result.status === "awarded" || result.status === "granted") {
+          syncXp(result, "arcade run");
           toast.success(
             `+${result.gained} XP · +${result.sparks_gained} sparks` +
               (result.personal_best ? " · new personal best bonus" : "") +
@@ -404,7 +406,7 @@ function Arcade() {
         toast.error("Score saved, but XP didn't land");
       }
     },
-    [gameId, refresh, submit, surgeActive],
+    [gameId, refresh, submit, surgeActive, syncXp],
   );
 
   const endRef = useRef(end);

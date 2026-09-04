@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -54,6 +55,15 @@ export type LevelUpPayload = {
   unlock?: Unlock | undefined;
 };
 
+export type XpReward = {
+  gained?: number | undefined;
+  total_xp?: number | undefined;
+  sparks?: number | undefined;
+  sparks_gained?: number | undefined;
+  energy?: number | undefined;
+  surge_until?: string | null | undefined;
+};
+
 export type AwardResult = "granted" | "cooldown" | "capped" | "error";
 
 type Ctx = {
@@ -73,6 +83,7 @@ type Ctx = {
   levelUp: LevelUpPayload | null;
   lastGain: { amount: number; label: string; at: number } | null;
   award: (source: XpSourceId, label?: string) => Promise<AwardResult>;
+  syncXp: (reward: XpReward, label?: string) => void;
   igniteSurge: () => Promise<void>;
   dismissLevelUp: () => void;
   refreshProfile: () => Promise<void>;
@@ -185,10 +196,52 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
   const surgeUntil = profile?.surge_until ? Date.parse(profile.surge_until) : 0;
   const surgeActive = surgeUntil > now && now > 0;
 
+  // Any XP path (chat, arcade, quiz, quests, staff grants) funnels through the
+  // profile's total_xp, so level-ups are detected here once instead of at each
+  // call site — that's why a game reward lands instantly, no reload needed.
+  const prevLevelRef = useRef<number | null>(null);
+  const pendingGainRef = useRef(0);
+  useEffect(() => {
+    if (!profile) {
+      prevLevelRef.current = null;
+      return;
+    }
+    const level = levelFromTotalXp(profile.total_xp).level;
+    const before = prevLevelRef.current;
+    prevLevelRef.current = level;
+    if (before !== null && level > before) {
+      setLevelUp({
+        level,
+        rank: rankForLevel(level),
+        gained: pendingGainRef.current,
+        unlock: unlockAt(level),
+      });
+    }
+    pendingGainRef.current = 0;
+  }, [profile]);
+
+  /** Merge a server reward into local state immediately (no page reload). */
+  const syncXp = useCallback<Ctx["syncXp"]>((reward, label) => {
+    pendingGainRef.current = reward.gained ?? 0;
+    setProfile((p) =>
+      p
+        ? {
+            ...p,
+            total_xp: reward.total_xp ?? p.total_xp + (reward.gained ?? 0),
+            sparks: reward.sparks ?? p.sparks + (reward.sparks_gained ?? 0),
+            energy: reward.energy ?? p.energy,
+            surge_until: reward.surge_until ?? p.surge_until,
+          }
+        : p,
+    );
+    if (reward.gained) {
+      setLastGain({ amount: reward.gained, label: label ?? "activity", at: Date.now() });
+    }
+  }, []);
+
   const award = useCallback<Ctx["award"]>(
     async (source, label) => {
       if (!profile) return "error";
-      const before = levelFromTotalXp(profile.total_xp).level;
       const { data, error } = await supabase.rpc(
         "award_xp",
         label ? { _source: source, _label: label } : { _source: source },
@@ -205,37 +258,17 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
         surge_until?: string | null;
       };
 
-      if (result.status === "granted") {
-        const nextXp = result.total_xp ?? profile.total_xp;
-        setProfile((p) =>
-          p
-            ? {
-                ...p,
-                total_xp: nextXp,
-                sparks: result.sparks ?? p.sparks,
-                energy: result.energy ?? p.energy,
-                surge_until: result.surge_until ?? p.surge_until,
-              }
-            : p,
-        );
-        setLastGain({ amount: result.gained ?? 0, label: label ?? source, at: Date.now() });
-        const after = levelFromTotalXp(nextXp).level;
-        if (after > before) {
-          setLevelUp({
-            level: after,
-            rank: rankForLevel(after),
-            gained: result.gained ?? 0,
-            unlock: unlockAt(after),
-          });
-        }
+      if (result.status === "granted" || result.status === "awarded") {
+        syncXp(result, label ?? source);
         return "granted";
       }
       if (result.status === "capped") return "capped";
       if (result.status === "cooldown") return "cooldown";
       return "error";
     },
-    [profile],
+    [profile, syncXp],
   );
+
 
   const igniteSurge = useCallback(async () => {
     const { data } = await supabase.rpc("ignite_surge");
@@ -268,6 +301,7 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
     levelUp,
     lastGain,
     award,
+    syncXp,
     igniteSurge,
     dismissLevelUp: () => setLevelUp(null),
     refreshProfile,
