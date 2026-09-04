@@ -29,12 +29,28 @@ export function PresenceDot({
   className?: string;
 }) {
   const p = presenceFor(profile?.last_active_at, profile?.activity_context);
+  const offline = p.state === "offline";
   return (
     <span
       title={p.label}
       aria-label={p.label}
-      className={cn("presence-dot", p.dotClass, className)}
-    />
+      className={cn(
+        "presence-dot grid place-items-center",
+        offline ? "bg-muted text-muted-foreground" : p.dotClass,
+        className,
+      )}
+    >
+      {offline ? (
+        <svg viewBox="0 0 10 10" aria-hidden className="size-[7px]">
+          <path
+            d="M2 2 L8 8 M8 2 L2 8"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </svg>
+      ) : null}
+    </span>
   );
 }
 
@@ -77,7 +93,7 @@ export function Avatar({
   profile,
   size = 40,
   className,
-  presence = false,
+  presence = true,
 }: {
   profile: IdentityProfile | null | undefined;
   size?: number;
