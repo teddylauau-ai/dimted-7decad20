@@ -471,13 +471,9 @@ function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="text-muted-foreground mt-3 text-sm">
-              Nothing has happened yet. Start a conversation in{" "}
-              <Link to="/messages" className="text-primary hover:underline">
-                Messages
-              </Link>{" "}
-              and this fills up.
-            </p>
+            <EmptyState icon={MessageSquareText} title="No XP yet" action={<Link to="/messages"><Button variant="outline" size="sm">Start chatting</Button></Link>}>
+              Send messages, play games, and complete quests to fill your feed.
+            </EmptyState>
           )}
 
           <div className="border-border mt-4 border-t pt-3">
