@@ -29,7 +29,6 @@ export type Profile = {
   energy: number;
   surge_until: string | null;
   streak: number;
-  realm_name: string;
   last_active_at: string;
   created_at: string;
   sparks: number;

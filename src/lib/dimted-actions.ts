@@ -175,7 +175,7 @@ export async function equipCosmetic(slug: string | null, slot: string) {
 
 export async function updateProfile(
   userId: string,
-  patch: { display_name?: string; bio?: string; title?: string; realm_name?: string; avatar_url?: string | null; banner_url?: string | null },
+  patch: { display_name?: string; bio?: string; title?: string; avatar_url?: string | null; banner_url?: string | null },
 ) {
   const { error } = await supabase.from("profiles").update(patch).eq("id", userId);
   if (error) throw error;
