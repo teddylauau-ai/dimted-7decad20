@@ -219,7 +219,7 @@ html.light .glass-raised {
     border: 1px solid var(--hairline);
     backdrop-filter: blur(18px);
     box-shadow:
-      0 1px 0 0 oklch(1 0 0 / 0.05) inset,
+      0 1px 0 0 oklch(1 0 0 / 0.06) inset,
       0 24px 60px -40px oklch(0.05 0.02 258 / 0.9);
   }
 
@@ -227,6 +227,9 @@ html.light .glass-raised {
     background-color: var(--surface-raised);
     border: 1px solid var(--hairline);
     backdrop-filter: blur(22px);
+    box-shadow:
+      0 1px 0 0 oklch(1 0 0 / 0.08) inset,
+      0 18px 44px -34px oklch(0.05 0.02 258 / 0.85);
   }
 
   .eyebrow {
@@ -242,6 +245,31 @@ html.light .glass-raised {
     font-weight: 700;
     letter-spacing: -0.03em;
   }
+}
+
+@utility skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--surface-raised) 0%,
+    color-mix(in oklch, var(--foreground) 8%, var(--surface-raised)) 50%,
+    var(--surface-raised) 100%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.8s linear infinite;
+  border-radius: var(--radius-md);
+}
+
+@utility page-transition {
+  animation: page-in 0.35s var(--ease-soft) both;
+}
+
+@utility rank-emblem {
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 @utility glow-primary {
@@ -282,6 +310,17 @@ html.light .glass-raised {
   }
 }
 
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes xp-fill {
   from {
     transform: scaleX(0);
@@ -315,6 +354,16 @@ html.light .glass-raised {
   }
   50% {
     opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .animate-rise,
+  .animate-pop-in,
+  .animate-xp-fill,
+  .skeleton {
+    animation: none;
   }
 }
 
@@ -527,22 +576,23 @@ html.light .glass-raised {
   /* presence */
   .presence-dot {
     position: absolute;
-    right: -1px;
-    bottom: -1px;
-    height: 0.7rem;
-    width: 0.7rem;
+    right: calc(var(--pd-offset, -1) * 1px);
+    bottom: calc(var(--pd-offset, -1) * 1px);
+    width: calc(var(--pd-size, 11) * 1px);
+    height: calc(var(--pd-size, 11) * 1px);
     border-radius: 999px;
     border: 2px solid var(--background);
+    box-shadow: 0 0 0 1px var(--hairline);
   }
 }
 
 /* ----------------------------------------------------- presence indicator */
 .presence-dot {
   position: absolute;
-  right: -1px;
-  bottom: -1px;
-  width: 0.72rem;
-  height: 0.72rem;
+  right: calc(var(--pd-offset, -1) * 1px);
+  bottom: calc(var(--pd-offset, -1) * 1px);
+  width: calc(var(--pd-size, 11) * 1px);
+  height: calc(var(--pd-size, 11) * 1px);
   border-radius: 9999px;
   border: 2px solid var(--color-card);
   box-shadow: 0 0 0 1px oklch(0 0 0 / 0.35);

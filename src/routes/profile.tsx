@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { Camera, Check, Flame, Image as ImageIcon, Loader2, Lock, Trash2 } from "lucide-react";
+import { Camera, Check, Flame, Image as ImageIcon, Loader2, Lock, Trash2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   ACHIEVEMENTS,
@@ -24,12 +24,15 @@ import {
 import { bannerFor, SLOTS, type CosmeticSlot } from "@/lib/cosmetics";
 import { Avatar, Nametag, PresenceLabel } from "@/components/dimted/Identity";
 import {
+  EmptyState,
   LockedTile,
   Meter,
   Panel,
   PanelHead,
   RarityChip,
 } from "@/components/dimted/primitives";
+import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
+import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { rarityBorder, rarityDot, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -233,22 +236,24 @@ function ProfilePage() {
           <div className="flex flex-wrap items-end justify-between gap-5 pt-5">
             <div className="flex min-w-0 items-end gap-4">
               <div className="relative shrink-0">
-                <button
-                  type="button"
-                  onClick={() => fileInput.current?.click()}
-                  disabled={uploading}
-                  aria-label="Change profile picture"
-                  className="group focus-visible:ring-ring relative block rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
-                >
-                  <Avatar profile={profile} size={96} className="glass-raised rounded-2xl" />
-                  <span className="bg-background/70 absolute inset-0 grid place-items-center rounded-2xl opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
-                    {uploading ? (
-                      <Loader2 className="size-5 animate-spin" />
-                    ) : (
-                      <Camera className="size-5" />
-                    )}
-                  </span>
-                </button>
+                <HoloCardTrigger profile={profile}>
+                  <button
+                    type="button"
+                    onClick={() => fileInput.current?.click()}
+                    disabled={uploading}
+                    aria-label="Change profile picture"
+                    className="group focus-visible:ring-ring relative block rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
+                  >
+                    <Avatar profile={profile} size={96} className="glass-raised rounded-2xl" />
+                    <span className="bg-background/70 absolute inset-0 grid place-items-center rounded-2xl opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                      {uploading ? (
+                        <Loader2 className="size-5 animate-spin" />
+                      ) : (
+                        <Camera className="size-5" />
+                      )}
+                    </span>
+                  </button>
+                </HoloCardTrigger>
                 <input
                   ref={fileInput}
                   type="file"
@@ -266,6 +271,9 @@ function ProfilePage() {
                     <Trash2 className="size-3.5" />
                   </button>
                 ) : null}
+                <div className="absolute -right-1 -top-1">
+                  <RankBadge level={level} size="sm" />
+                </div>
               </div>
               <div className="min-w-0 pb-1">
                 <Nametag
@@ -279,6 +287,7 @@ function ProfilePage() {
                 </p>
                 <p className="mt-1.5 flex flex-wrap items-center gap-2">
                   <PresenceLabel profile={profile} />
+                  <RankPill level={level} />
                   {myRole.role !== "member" ? (
                     <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] uppercase">
                       {ROLE_LABEL[myRole.role]}
@@ -412,9 +421,9 @@ function ProfilePage() {
                 ...(profile?.streak ? [{ label: "Daily activity", days: profile.streak }] : []),
                 ...streaks,
               ].length === 0 ? (
-                <p className="text-muted-foreground text-sm">
-                  No streaks yet. Talk to someone two days in a row to start one.
-                </p>
+                <EmptyState icon={Flame} title="No streaks yet">
+                  Talk to someone two days in a row to start one. Streaks pause for 48 hours before resetting.
+                </EmptyState>
               ) : (
                 [
                   ...(profile?.streak ? [{ label: "Daily activity", days: profile.streak }] : []),

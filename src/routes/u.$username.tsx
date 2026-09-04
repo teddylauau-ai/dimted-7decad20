@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { Coins, MessageCircle, UserPlus } from "lucide-react";
+import { Coins, MessageCircle, UserPlus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, Nametag, PresenceLabel } from "@/components/dimted/Identity";
-import { LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
+import { EmptyState, LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
+import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
+import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { rarityBorder, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { bannerFor, SLOTS, type Cosmetic } from "@/lib/cosmetics";
@@ -112,7 +114,14 @@ function PublicProfilePage() {
         <div className="px-6 pb-6">
           <div className="flex flex-wrap items-end justify-between gap-5 pt-5">
             <div className="flex items-end gap-4">
-              <Avatar profile={person} size={96} className="glass-raised rounded-2xl text-2xl" />
+              <div className="relative shrink-0">
+                <HoloCardTrigger profile={person}>
+                  <Avatar profile={person} size={96} className="glass-raised rounded-2xl text-2xl" />
+                </HoloCardTrigger>
+                <div className="absolute -right-1 -top-1">
+                  <RankBadge level={derived.level} size="sm" />
+                </div>
+              </div>
               <div className="pb-1">
                 <Nametag
                   profile={person}
@@ -120,7 +129,7 @@ function PublicProfilePage() {
                   className="font-display text-2xl font-semibold tracking-tight"
                 />
                 <p className="text-muted-foreground font-mono text-[11px]">
-                  @{person.username} · <span className="text-primary">{person.title}</span> ·{" "}
+                  @{person.username} · <span className="text-primary">{person.title || "Newcomer"}</span> ·{" "}
                   {rankForLevel(derived.level)}
                 </p>
                 <p className="text-muted-foreground/70 mt-1 font-mono text-[10px]">
@@ -128,6 +137,7 @@ function PublicProfilePage() {
                 </p>
                 <p className="mt-1 flex flex-wrap items-center gap-2">
                   <PresenceLabel profile={person} />
+                  <RankPill level={derived.level} />
                   {theirRole.role !== "member" ? (
                     <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] uppercase">
                       {ROLE_LABEL[theirRole.role]}
@@ -239,9 +249,9 @@ function PublicProfilePage() {
             aside={`${ownedItems.length} item${ownedItems.length === 1 ? "" : "s"}`}
           />
           {ownedItems.length === 0 ? (
-            <p className="text-muted-foreground mt-4 text-sm">
+            <EmptyState icon={Sparkles} title="No cosmetics yet">
               Nothing collected yet — they're still early.
-            </p>
+            </EmptyState>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {ownedItems.map((item) => (
@@ -281,9 +291,7 @@ function PublicProfilePage() {
           const rows = GAMES.filter((g) => bests.has(g.id) || false);
           if (rows.length === 0) {
             return (
-              <p className="text-muted-foreground mt-4 text-sm">
-                They haven't posted an arcade score yet.
-              </p>
+              <EmptyState title="No arcade scores yet">They haven't posted an arcade score yet.</EmptyState>
             );
           }
           const top = Math.max(...rows.map((g) => bests.get(g.id) ?? 0), 1);

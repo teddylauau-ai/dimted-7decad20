@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Flame, Sparkles, Trophy } from "lucide-react";
+import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Meter, Panel, PanelHead, RarityChip, LockedTile } from "@/components/dimted/primitives";
+import { Meter, Panel, PanelHead, RarityChip, LockedTile, EmptyState } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
 import { QuestBoard } from "@/components/dimted/QuestBoard";
+import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
+import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import {
   RANKS,
   SECRETS,
@@ -69,14 +71,15 @@ function HomePage() {
   return (
     <div className="space-y-4">
       <header className="animate-rise grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-3 py-2.5">
-          <div className="min-w-0">
+        <div className="glass flex items-center gap-3 rounded-2xl px-3 py-2.5">
+          <RankBadge level={level} size="lg" />
+          <div className="min-w-0 flex-1">
             <p className="eyebrow">Progression</p>
             <h1 className="font-display mt-0.5 truncate text-lg font-semibold tracking-tight">
               Level {level} · {rank}
             </h1>
             <p className="text-muted-foreground mt-0.5 truncate font-mono text-[11px]">
-              {profile?.display_name ?? "—"} · {intoLevel.toLocaleString()}/{needed.toLocaleString()} XP
+              {intoLevel.toLocaleString()}/{needed.toLocaleString()} XP · {profile?.display_name ?? "—"}
             </p>
           </div>
           <div className="shrink-0 text-right">
@@ -105,7 +108,9 @@ function HomePage() {
                 >
                   {i + 1}
                 </span>
-                <Avatar profile={p} size={22} />
+                <HoloCardTrigger profile={p}>
+                  <Avatar profile={p} size={22} />
+                </HoloCardTrigger>
                 <Link
                   to="/u/$username"
                   params={{ username: p.username }}
@@ -113,9 +118,7 @@ function HomePage() {
                 >
                   <Nametag profile={p} className="text-[13px]" />
                 </Link>
-                <span className="text-primary shrink-0 font-mono text-[10px]">
-                  Lv {levelFromTotalXp(p.total_xp).level}
-                </span>
+                <RankPill level={levelFromTotalXp(p.total_xp).level} />
               </li>
             ))}
             {rows.length === 0 ? (
@@ -148,9 +151,7 @@ function HomePage() {
                   <p className="eyebrow">Your ladder</p>
                   <div className="mt-0.5 flex flex-wrap items-center gap-2">
                     <span className="numeral text-lg leading-tight">{rank}</span>
-                    <span className="bg-primary/10 text-primary border-primary/30 shadow-[0_0_20px_-8px_var(--color-primary)] rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase">
-                      Lv {level}
-                    </span>
+                    <RankPill level={level} />
                   </div>
                   <p className="text-muted-foreground mt-0.5 font-mono text-[11px]">
                     {(needed - intoLevel).toLocaleString()} XP to Level {level + 1}
@@ -295,13 +296,17 @@ function HomePage() {
             }
           />
           {myFriends.length === 0 ? (
-            <p className="text-muted-foreground mt-3 text-sm">
-              No friends yet. Find real accounts in{" "}
-              <Link to="/discover" className="text-primary hover:underline">
-                Discover
-              </Link>{" "}
-              and send a request — every accepted request is worth XP.
-            </p>
+            <EmptyState
+              icon={Users}
+              title="Your circle is empty"
+              action={
+                <Link to="/discover">
+                  <Button variant="outline" size="sm">Find people</Button>
+                </Link>
+              }
+            >
+              Send friend requests to real signed-up accounts. Every accepted request earns XP.
+            </EmptyState>
           ) : (
             <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
               {myFriends.map((f) => {
@@ -313,7 +318,9 @@ function HomePage() {
                       params={{ username: f.profile.username }}
                       className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-2.5 transition-colors"
                     >
-                      <Avatar profile={f.profile} size={40} />
+                      <HoloCardTrigger profile={f.profile}>
+                        <Avatar profile={f.profile} size={40} />
+                      </HoloCardTrigger>
                       <span className="min-w-0 flex-1">
                         <Nametag profile={f.profile} className="block truncate text-sm" />
                         <span className="text-muted-foreground block truncate font-mono text-[10px]">
@@ -375,11 +382,13 @@ function HomePage() {
                       {i + 1}
                     </span>
                     {i === 0 ? <Crown className="text-gold size-3.5 shrink-0" /> : null}
-                    <Avatar profile={p} size={32} />
+                    <HoloCardTrigger profile={p}>
+                      <Avatar profile={p} size={32} />
+                    </HoloCardTrigger>
                     <span className="min-w-0 flex-1">
                       <Nametag profile={p} className="block truncate text-sm" />
-                      <span className="text-muted-foreground block truncate font-mono text-[10px]">
-                        @{p.username} · {rankForLevel(lv.level)}
+                      <span className="text-muted-foreground flex items-center gap-1.5 truncate font-mono text-[10px]">
+                        @{p.username} · <RankPill level={lv.level} />
                       </span>
                     </span>
                     <span className="shrink-0 text-right">
@@ -393,9 +402,9 @@ function HomePage() {
               );
             })}
             {rows.length === 0 ? (
-              <li className="text-muted-foreground text-sm">
-                Nobody has earned XP yet — start chatting and claim the top spot.
-              </li>
+              <EmptyState icon={Trophy} title="The ladder is empty">
+                Nobody has earned XP yet. Start chatting or play Pulse Rush to claim the top spot.
+              </EmptyState>
             ) : null}
           </ol>
         </Panel>
@@ -462,13 +471,9 @@ function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="text-muted-foreground mt-3 text-sm">
-              Nothing has happened yet. Start a conversation in{" "}
-              <Link to="/messages" className="text-primary hover:underline">
-                Messages
-              </Link>{" "}
-              and this fills up.
-            </p>
+            <EmptyState icon={MessageSquareText} title="No XP yet" action={<Link to="/messages"><Button variant="outline" size="sm">Start chatting</Button></Link>}>
+              Send messages, play games, and complete quests to fill your feed.
+            </EmptyState>
           )}
 
           <div className="border-border mt-4 border-t pt-3">
