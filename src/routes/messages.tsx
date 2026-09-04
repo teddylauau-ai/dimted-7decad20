@@ -342,24 +342,25 @@ function MessagesPage() {
               ) : null}
             </div>
 
-            <TypingIndicator names={typingNames} />
-
             <form
               onSubmit={send}
-              className="border-border bg-secondary/15 flex gap-2 border-t px-5 py-3"
+              className="border-border bg-secondary/15 overflow-hidden border-t"
             >
-              <VoiceRecorder onSend={sendVoice} disabled={!active} />
-              <Input
-                value={draft}
-                onChange={(e) => {
-                  setDraft(e.target.value);
-                  if (e.target.value.trim()) typing.signal();
-                }}
-                placeholder="Write something worth replying to…"
-              />
-              <Button type="submit" disabled={!draft.trim()}>
-                <Send className="size-4" />
-              </Button>
+              <TypingIndicator names={typingNames} />
+              <div className="flex gap-2 px-5 py-3">
+                <VoiceRecorder onSend={sendVoice} disabled={!active} />
+                <Input
+                  value={draft}
+                  onChange={(e) => {
+                    setDraft(e.target.value);
+                    if (e.target.value.trim()) typing.signal();
+                  }}
+                  placeholder="Write something worth replying to…"
+                />
+                <Button type="submit" disabled={!draft.trim()}>
+                  <Send className="size-4" />
+                </Button>
+              </div>
             </form>
           </Panel>
         </div>
