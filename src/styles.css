@@ -650,24 +650,24 @@ html.light .glass-raised {
   }
 }
 
-/* Cursor spotlight — a cool, visible glow that follows the pointer. */
+/* Cursor spotlight — a soft, background-integrated glow that follows the pointer. */
 @utility cursor-glow {
   background:
     radial-gradient(
-      520px circle at var(--cx, 50%) var(--cy, 50%),
-      color-mix(in oklch, var(--primary) 22%, transparent) 0%,
-      color-mix(in oklch, var(--foreground) 10%, transparent) 45%,
+      280px circle at var(--cx, 50%) var(--cy, 50%),
+      color-mix(in oklch, var(--primary) 8%, transparent) 0%,
+      color-mix(in oklch, var(--foreground) 4%, transparent) 45%,
       transparent 70%
     );
-  filter: blur(0px);
-  mix-blend-mode: screen;
+  filter: blur(40px);
+  mix-blend-mode: normal;
 }
 
 @utility cursor-glow-aura {
   background:
     radial-gradient(
-      720px circle at var(--cx, 50%) var(--cy, 50%),
-      color-mix(in oklch, var(--primary) 8%, transparent) 0%,
+      420px circle at var(--cx, 50%) var(--cy, 50%),
+      color-mix(in oklch, var(--primary) 3%, transparent) 0%,
       transparent 60%
     );
 }
