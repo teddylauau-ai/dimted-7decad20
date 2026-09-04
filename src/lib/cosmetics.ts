@@ -59,11 +59,11 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-founder-halo": "cos-gradient cos-gradient-founder-halo cos-shimmer cos-glow-founder",
   "tag-founder-genesis": "cos-gradient cos-gradient-founder-genesis cos-shimmer cos-glow-founder",
   "tag-founder-obsidian": "cos-gradient cos-gradient-founder-obsidian cos-shimmer",
-  "tag-crown-ascendant": "cos-gradient cos-tag-ascendant cos-crown-shimmer cos-glow-crown",
-  "tag-crown-molten": "cos-gradient cos-tag-molten cos-crown-shimmer cos-glow-crown",
-  "tag-crown-oracle": "cos-gradient cos-tag-oracle cos-crown-shimmer cos-glow-crown",
-  "tag-crown-infinite": "cos-gradient cos-tag-infinite cos-crown-shimmer-fast cos-glow-crown",
-  "tag-crown-blackgold": "cos-gradient cos-tag-blackgold cos-crown-shimmer cos-glow-crown-hard",
+  "tag-sov-liquid": "cos-gradient cos-sov cos-sov-liquid",
+  "tag-sov-sunforge": "cos-gradient cos-sov cos-sov-sunforge",
+  "tag-sov-starlit": "cos-gradient cos-sov cos-sov-starlit",
+  "tag-sov-obsidian": "cos-gradient cos-sov cos-sov-obsidian",
+  "tag-sov-halo": "cos-gradient cos-sov cos-sov-halo",
   "tag-admin-cipher": "cos-gradient cos-gradient-admin-cipher cos-shimmer cos-glow-founder",
   "tag-admin-tidecall": "cos-gradient cos-gradient-admin-tidecall cos-shimmer",
 };
@@ -88,10 +88,10 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-sigil": "✜",
   "badge-founder-crest": "⟡",
   "badge-founder-key": "⚿",
-  "badge-crown-diadem": "♚",
-  "badge-crown-solaris": "☀",
-  "badge-crown-seal": "❈",
-  "badge-crown-monolith": "⟁",
+  "badge-sov-crown": "♛",
+  "badge-sov-sun": "☀",
+  "badge-sov-star": "✦",
+  "badge-sov-seal": "❂",
   "badge-admin-shield": "⛨",
 };
 
@@ -114,35 +114,41 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-sigil": "text-mythic cos-glow-mythos",
   "badge-founder-crest": "cos-gradient cos-gradient-founder-halo cos-shimmer cos-glow-founder",
   "badge-founder-key": "text-primary cos-glow-founder",
-  "badge-crown-diadem": "cos-gradient cos-tag-ascendant cos-crown-shimmer cos-glow-crown cos-crown-badge",
-  "badge-crown-solaris": "cos-gradient cos-tag-molten cos-crown-shimmer cos-glow-crown cos-crown-badge",
-  "badge-crown-seal": "cos-gradient cos-tag-oracle cos-crown-shimmer cos-glow-crown cos-crown-badge",
-  "badge-crown-monolith": "cos-gradient cos-tag-blackgold cos-crown-shimmer cos-glow-crown-hard cos-crown-badge",
+  "badge-sov-crown": "cos-sov-badge cos-sov-badge-crown",
+  "badge-sov-sun": "cos-sov-badge cos-sov-badge-sun",
+  "badge-sov-star": "cos-sov-badge cos-sov-badge-star",
+  "badge-sov-seal": "cos-sov-badge cos-sov-badge-seal",
   "badge-admin-shield": "cos-gradient cos-gradient-admin-cipher cos-shimmer",
 };
 
-/** Frame → ring classes on the avatar wrapper. */
+/**
+ * Frame → classes on the avatar wrapper.
+ * Every frame draws INSIDE the wrapper's own box (a border, or a ::before ring
+ * layer) so it is always a complete circle around the picture and can never be
+ * clipped by a parent or knocked off-centre. Nothing here rotates the picture —
+ * spinning frames animate their ring layer only.
+ */
 export const FRAME_CLASS: Record<string, string> = {
-  "frame-hairline": "ring-2 ring-common/50",
-  "frame-pulse": "ring-2 ring-uncommon/60 animate-breathe",
-  "frame-tide": "ring-2 ring-primary/60 cos-glow-primary",
-  "frame-orbit": "ring-2 ring-rare/70 cos-glow-rare",
-  "frame-ember": "ring-2 ring-energy/70 cos-glow-ember",
-  "frame-halo": "ring-2 ring-epic/70 cos-glow-epic",
-  "frame-neon": "ring-2 ring-epic/80 cos-glow-epic animate-breathe",
-  "frame-glitch": "cos-frame-glitch",
-  "frame-gilded": "ring-2 ring-gold/80 cos-glow-gold",
-  "frame-eclipse": "ring-2 ring-foreground/70 cos-glow-gold",
-  "frame-cometcrown": "ring-2 ring-gold/70 cos-glow-gold animate-breathe",
-  "frame-relic": "ring-2 ring-mythic/80 cos-glow-mythic",
-  "frame-prismatic": "cos-frame-prismatic",
-  "frame-founder-aureate": "cos-frame-aureate",
-  "frame-founder-orbital": "cos-frame-orbital",
-  "frame-crown-ascension": "cos-frame-ascension",
-  "frame-crown-solarcrown": "cos-frame-solarcrown",
-  "frame-crown-mirrorgold": "cos-frame-mirrorgold",
-  "frame-crown-eclipsecrown": "cos-frame-eclipsecrown",
-  "frame-admin-scanline": "cos-frame-scanline",
+  "frame-hairline": "cos-ring border-common/50",
+  "frame-pulse": "cos-ring border-uncommon/60 animate-breathe",
+  "frame-tide": "cos-ring border-primary/60 cos-glow-primary",
+  "frame-orbit": "cos-ring border-rare/70 cos-glow-rare",
+  "frame-ember": "cos-ring border-energy/70 cos-glow-ember",
+  "frame-halo": "cos-ring border-epic/70 cos-glow-epic",
+  "frame-neon": "cos-ring border-epic/80 cos-glow-epic animate-breathe",
+  "frame-glitch": "cos-frame cos-frame-glitch",
+  "frame-gilded": "cos-ring border-gold/80 cos-glow-gold",
+  "frame-eclipse": "cos-ring border-foreground/70 cos-glow-gold",
+  "frame-cometcrown": "cos-ring border-gold/70 cos-glow-gold animate-breathe",
+  "frame-relic": "cos-ring border-mythic/80 cos-glow-mythic",
+  "frame-prismatic": "cos-frame cos-frame-prismatic",
+  "frame-founder-aureate": "cos-frame cos-frame-aureate",
+  "frame-founder-orbital": "cos-frame cos-frame-orbital",
+  "frame-sov-ascension": "cos-frame cos-frame-sov-ascension",
+  "frame-sov-corona": "cos-frame cos-frame-sov-corona",
+  "frame-sov-mirror": "cos-frame cos-frame-sov-mirror",
+  "frame-sov-eclipse": "cos-frame cos-frame-sov-eclipse",
+  "frame-admin-scanline": "cos-frame cos-frame-scanline",
 };
 
 /** Banner → background style for the profile header. */
@@ -174,14 +180,15 @@ export const BANNER_STYLE: Record<string, string> = {
     "radial-gradient(100% 120% at 20% 130%, oklch(0.72 0.2 35 / 0.9), transparent 60%), radial-gradient(90% 110% at 80% 130%, oklch(0.85 0.18 75 / 0.75), transparent 60%), linear-gradient(120deg, oklch(0.19 0.05 30), oklch(0.12 0.03 258))",
   "banner-galaxy":
     "radial-gradient(35% 60% at 25% 30%, oklch(0.85 0.1 300 / 0.5), transparent 70%), radial-gradient(50% 80% at 70% 80%, oklch(0.6 0.16 265 / 0.7), transparent 70%), repeating-radial-gradient(circle at 60% 40%, oklch(1 0 0 / 0.14) 0 1px, transparent 1px 26px), linear-gradient(120deg, oklch(0.16 0.05 280), oklch(0.1 0.03 258))",
-  "banner-crown-empyrean":
-    "radial-gradient(90% 140% at 50% 150%, oklch(0.98 0.13 92 / 0.85), transparent 60%), radial-gradient(60% 100% at 12% 0%, oklch(0.8 0.12 300 / 0.35), transparent 66%), repeating-linear-gradient(100deg, oklch(1 0.03 100 / 0.07) 0 2px, transparent 2px 30px), linear-gradient(180deg, oklch(0.08 0.015 258), oklch(0.18 0.045 60) 58%, oklch(0.6 0.15 78))",
-  "banner-crown-goldsea":
-    "repeating-linear-gradient(0deg, oklch(1 0.04 100 / 0.09) 0 1px, transparent 1px 9px), radial-gradient(120% 90% at 50% 130%, oklch(0.9 0.16 84 / 0.9), transparent 62%), linear-gradient(180deg, oklch(0.07 0.01 258) 0 46%, oklch(0.42 0.11 66) 62%, oklch(0.85 0.15 86))",
-  "banner-crown-thronehall":
-    "repeating-linear-gradient(90deg, oklch(0.95 0.12 90 / 0.16) 0 3px, transparent 3px 54px), radial-gradient(38% 130% at 50% 140%, oklch(1 0.09 96 / 0.6), transparent 60%), radial-gradient(70% 60% at 50% -10%, oklch(0.9 0.13 88 / 0.3), transparent 70%), linear-gradient(180deg, oklch(0.07 0.012 258), oklch(0.15 0.03 262))",
-  "banner-crown-solareclipse":
-    "radial-gradient(circle at 50% 62%, oklch(0.04 0 0) 0 26%, oklch(1 0.07 96 / 0.95) 27% 29%, oklch(0.9 0.16 86 / 0.35) 30% 44%, transparent 60%), radial-gradient(120% 120% at 50% 62%, oklch(0.28 0.06 70 / 0.5), transparent 70%), linear-gradient(180deg, oklch(0.05 0.008 258), oklch(0.1 0.02 262))",
+  /* ---- Sovereign banners (owner only) ---- */
+  "banner-sov-dawn":
+    "radial-gradient(circle at 50% 104%, oklch(1 0.06 98) 0 9%, oklch(0.95 0.15 88 / 0.95) 10% 13%, oklch(0.85 0.17 78 / 0.55) 14% 22%, transparent 40%), repeating-conic-gradient(from 0deg at 50% 104%, oklch(1 0.05 96 / 0.11) 0 3deg, transparent 3deg 11deg), radial-gradient(80% 60% at 50% 100%, oklch(0.55 0.13 70 / 0.7), transparent 70%), linear-gradient(180deg, oklch(0.05 0.01 262), oklch(0.13 0.03 60) 70%, oklch(0.3 0.08 66))",
+  "banner-sov-goldrain":
+    "repeating-linear-gradient(90deg, transparent 0 17px, oklch(1 0.06 98 / 0.55) 17px 18px, transparent 18px 43px, oklch(0.9 0.15 86 / 0.35) 43px 44px, transparent 44px 71px, oklch(0.97 0.09 94 / 0.6) 71px 72px, transparent 72px 97px), linear-gradient(180deg, transparent 0 20%, oklch(0.06 0.01 262 / 0.7) 55%, oklch(0.06 0.01 262) 78%), radial-gradient(120% 100% at 50% 0%, oklch(0.75 0.15 80 / 0.55), transparent 60%), linear-gradient(180deg, oklch(0.22 0.05 70), oklch(0.05 0.01 262) 78%, oklch(0.4 0.1 72))",
+  "banner-sov-throne":
+    "repeating-linear-gradient(90deg, oklch(0.95 0.12 90 / 0.28) 0 2px, oklch(0.6 0.1 72 / 0.18) 2px 5px, transparent 5px 52px), radial-gradient(70% 70% at 50% 120%, oklch(1 0.08 96 / 0.85), oklch(0.9 0.15 86 / 0.35) 40%, transparent 65%), radial-gradient(80% 50% at 50% -10%, oklch(0.9 0.13 88 / 0.35), transparent 70%), linear-gradient(180deg, oklch(0.05 0.01 262), oklch(0.12 0.025 262) 65%, oklch(0.24 0.06 70))",
+  "banner-sov-blacksun":
+    "radial-gradient(circle at 50% 58%, oklch(0.03 0 0) 0 25%, oklch(1 0.08 96) 25.5% 27.5%, oklch(0.9 0.16 86 / 0.55) 28% 33%, transparent 46%), repeating-conic-gradient(from 8deg at 50% 58%, oklch(0.95 0.14 88 / 0.14) 0 2deg, transparent 2deg 9deg), radial-gradient(90% 90% at 50% 58%, oklch(0.35 0.08 70 / 0.55), transparent 70%), linear-gradient(180deg, oklch(0.04 0.006 258), oklch(0.09 0.02 262))",
 
   "banner-founder-firstlight":
     "radial-gradient(70% 130% at 50% 135%, oklch(0.9 0.15 88 / 0.85), transparent 62%), radial-gradient(60% 110% at 12% -10%, oklch(0.7 0.13 300 / 0.45), transparent 70%), linear-gradient(180deg, oklch(0.16 0.04 268), oklch(0.3 0.09 40) 72%, oklch(0.62 0.14 66))",
@@ -210,9 +217,9 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-aurora": "animate-pop-in cos-aurora-row",
   "fx-void": "animate-pop-in cos-void-row",
   "fx-founder-arrival": "animate-rise cos-founder-row",
-  "fx-crown-ascend": "cos-crown-ascend-row",
-  "fx-crown-decree": "cos-crown-decree-row",
-  "fx-crown-goldwave": "cos-crown-goldwave-row",
+  "fx-sov-coronation": "cos-sov-coronation-row",
+  "fx-sov-decree": "cos-sov-decree-row",
+  "fx-sov-goldwave": "cos-sov-goldwave-row",
   "fx-admin-dispatch": "animate-rise cos-admin-dispatch-row",
 };
 

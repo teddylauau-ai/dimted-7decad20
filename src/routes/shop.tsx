@@ -537,7 +537,12 @@ function ShopPage() {
                   <p className={cn("mt-2 text-sm", BADGE_CLASS[on])}>{BADGE_GLYPH[on]}</p>
                 ) : null}
                 {s.slot === "frame" && on && FRAME_CLASS[on] ? (
-                  <span className={cn("bg-secondary mt-2 block size-8 rounded-lg", FRAME_CLASS[on])} />
+                  <span
+                    style={{ ["--frame-w" as string]: "2px" }}
+                    className={cn("relative isolate mt-2 grid size-8 place-items-center rounded-full", FRAME_CLASS[on])}
+                  >
+                    <span className="bg-secondary block size-7 rounded-full" />
+                  </span>
                 ) : null}
               </div>
             );

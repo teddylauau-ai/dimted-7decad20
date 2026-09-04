@@ -116,7 +116,7 @@ function PublicProfilePage() {
             <div className="flex items-end gap-4">
               <div className="relative shrink-0">
                 <HoloCardTrigger profile={person}>
-                  <Avatar profile={person} size={96} className="glass-raised rounded-2xl text-2xl" />
+                  <Avatar profile={person} size={96} className="text-2xl" />
                 </HoloCardTrigger>
                 <div className="absolute -right-1 -top-1">
                   <RankBadge level={derived.level} size="sm" />

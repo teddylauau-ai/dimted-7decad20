@@ -242,10 +242,10 @@ function ProfilePage() {
                     onClick={() => fileInput.current?.click()}
                     disabled={uploading}
                     aria-label="Change profile picture"
-                    className="group focus-visible:ring-ring relative block rounded-2xl focus-visible:ring-2 focus-visible:outline-none"
+                    className="group focus-visible:ring-ring relative block rounded-full focus-visible:ring-2 focus-visible:outline-none"
                   >
-                    <Avatar profile={profile} size={96} className="glass-raised rounded-2xl" />
-                    <span className="bg-background/70 absolute inset-0 grid place-items-center rounded-2xl opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                    <Avatar profile={profile} size={96} className="text-2xl" />
+                    <span className="bg-background/70 absolute inset-0 grid place-items-center rounded-full opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
                       {uploading ? (
                         <Loader2 className="size-5 animate-spin" />
                       ) : (

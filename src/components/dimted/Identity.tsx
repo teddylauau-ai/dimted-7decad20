@@ -102,10 +102,11 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
-/** Avatar with the wearer's frame. Discord-style rounded square.
- *  The frame lives on an outer wrapper so it always forms a complete ring
- *  around the picture; the presence dot sits on the inner avatar so it never
- *  clips the frame. */
+/** Avatar with the wearer's frame — always a circle.
+ *  The wrapper is exactly `size` px and the frame is drawn inside that box
+ *  (border or ::before ring layer), so it forms a complete, centred ring around
+ *  the picture no matter where the avatar is placed. Callers cannot change the
+ *  shape; `rounded-full` is applied last on purpose. */
 export function Avatar({
   profile,
   size = 40,
@@ -118,13 +119,14 @@ export function Avatar({
   presence?: boolean;
 }) {
   const frame = profile?.equipped_frame ? FRAME_CLASS[profile.equipped_frame] : undefined;
-  const innerSize = Math.max(size - 4, Math.round(size * 0.82));
+  const ringW = size >= 72 ? 4 : size >= 48 ? 3 : 2;
+  const innerSize = size - ringW * 2;
   const fontSize = Math.round(innerSize / 2.6);
 
   const inner = (
     <span
       style={{ width: innerSize, height: innerSize, fontSize }}
-      className="bg-secondary text-foreground/90 font-display grid shrink-0 place-items-center overflow-hidden rounded-full font-semibold select-none"
+      className="bg-secondary text-foreground/90 font-display relative grid shrink-0 place-items-center overflow-hidden rounded-full font-semibold select-none"
     >
       {profile?.avatar_url ? (
         <img
@@ -141,11 +143,11 @@ export function Avatar({
 
   const body = (
     <span
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, ["--frame-w" as string]: `${ringW}px` }}
       className={cn(
-        "relative grid shrink-0 place-items-center overflow-hidden rounded-full",
-        frame,
         className,
+        frame,
+        "relative isolate grid shrink-0 place-items-center rounded-full",
       )}
     >
       {presence ? (
