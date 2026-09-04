@@ -367,15 +367,15 @@ function HomePage() {
       </div>
 
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-        <Panel className="p-5" delay={100}>
+      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+        <Panel className="p-4" delay={100}>
           <PanelHead
             eyebrow="Live"
             title="XP feed"
             aside={feed.data?.length ? `${feed.data.length} events` : undefined}
           />
           {feed.data && feed.data.length > 0 ? (
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-3 space-y-2">
               {feed.data.slice(0, 10).map((e) => (
                 <li key={e.id} className="flex items-baseline justify-between gap-3">
                   <span className="min-w-0 truncate text-sm">
@@ -391,7 +391,7 @@ function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="text-muted-foreground mt-4 text-sm">
+            <p className="text-muted-foreground mt-3 text-sm">
               Nothing has happened yet. Start a conversation in{" "}
               <Link to="/messages" className="text-primary hover:underline">
                 Messages
@@ -400,9 +400,9 @@ function HomePage() {
             </p>
           )}
 
-          <div className="border-border mt-5 border-t pt-4">
+          <div className="border-border mt-4 border-t pt-3">
             <p className="eyebrow">How XP works</p>
-            <ul className="mt-2 space-y-1.5">
+            <ul className="mt-2 space-y-1">
               {XP_SOURCES.slice(0, 4).map((s) => (
                 <li key={s.id} className="flex items-baseline justify-between gap-3 text-xs">
                   <span className="text-foreground/85">{s.label}</span>
@@ -415,21 +415,21 @@ function HomePage() {
           </div>
         </Panel>
 
-        <Panel className="p-5" delay={140}>
+        <Panel className="p-4" delay={140}>
           <PanelHead eyebrow="Ahead of you" title="Still hidden" />
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
             {nextSecret ? (
               <LockedTile hint={nextSecret.hint} requirement={`Level ${nextSecret.requiredLevel}`} />
             ) : null}
           </div>
 
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-3 space-y-1.5">
             {UNLOCKS.filter((u) => u.level > level)
               .slice(0, 5)
               .map((u) => (
                 <li
                   key={u.level}
-                  className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
+                  className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-2.5"
                 >
                   <span className="numeral text-muted-foreground w-8 shrink-0 text-lg">{u.level}</span>
                   <span className="min-w-0 flex-1">
@@ -441,7 +441,7 @@ function HomePage() {
               ))}
           </ul>
 
-          <p className="text-muted-foreground mt-4 flex items-start gap-2 text-xs">
+          <p className="text-muted-foreground mt-3 flex items-start gap-2 text-xs">
             <Sparkles className="text-gold mt-0.5 size-3.5 shrink-0" />
             At Level {level + 1} you'll be a {rankForLevel(level + 1)}. Nothing here can be bought.
           </p>
