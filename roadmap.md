@@ -1,1 +1,1 @@
-- [ ] Remove founder/"first 25" vault; add Admin Vault (non-gold styling; gold reserved for owner)
+- [x] Remove founder/"first 25" vault; add Admin Vault (non-gold styling; gold reserved for owner)
