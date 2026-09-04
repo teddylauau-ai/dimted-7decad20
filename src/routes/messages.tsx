@@ -10,7 +10,13 @@ import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { useDimted } from "@/lib/dimted-store";
 import { friendshipLevel } from "@/lib/dimted";
 import { useDirectMessages, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
-import { deleteDirectMessage, sendDirectMessage, sendDirectVoiceMessage } from "@/lib/dimted-actions";
+import {
+  deleteDirectMessage,
+  markConversationNotificationsRead,
+  sendDirectMessage,
+  sendDirectVoiceMessage,
+} from "@/lib/dimted-actions";
+import { useQueryClient } from "@tanstack/react-query";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
@@ -88,6 +94,18 @@ function MessagesPage() {
   useEffect(() => {
     if (!activeId && accepted[0]) setActiveId(accepted[0].friendshipId);
   }, [accepted, activeId]);
+
+  const qc = useQueryClient();
+  // Opening a conversation clears that person's unread message pings — the red
+  // nav badge and the (n) tab-title count go away together.
+  const activeProfileId = active?.profile.id;
+  const messageCount = messages.data?.length ?? 0;
+  useEffect(() => {
+    if (!activeProfileId) return;
+    markConversationNotificationsRead(activeProfileId)
+      .then(() => qc.invalidateQueries({ queryKey: ["notifications"] }))
+      .catch(() => {});
+  }, [activeProfileId, qc, messageCount]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
