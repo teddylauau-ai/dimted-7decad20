@@ -66,7 +66,7 @@ type Phase = "select" | "playing" | "result";
 const KIND_ORDER: ItemKind[] = ["icon", "ship", "ball", "wave", "trail", "death", "colors"];
 
 function PulsePage() {
-  const { profile } = useDimted();
+  const { profile, syncXp } = useDimted();
   const state = usePulseState(profile?.id);
   const items = usePulseItems();
   const progress = usePulseProgress(profile?.id);
@@ -128,6 +128,7 @@ function PulsePage() {
         );
         setResult((r) => (r ? { ...r, reward } : r));
         if (reward.status === "granted" || reward.status === "awarded") {
+          syncXp(reward, `Pulse Rush level ${level.n}`);
           toast.success(`+${reward.gained} XP · +${reward.sparks_gained} sparks`);
         }
         refresh();
@@ -135,7 +136,7 @@ function PulsePage() {
         toast.error(e instanceof Error ? e.message : "Couldn't save that attempt");
       }
     },
-    [level, practice, finish, refresh],
+    [level, practice, finish, refresh, syncXp],
   );
 
   if (!profile) return null;
