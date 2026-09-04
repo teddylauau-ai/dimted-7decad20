@@ -46,9 +46,14 @@ export function CursorGlow() {
 
   return (
     <div
-      ref={ref}
       aria-hidden
-      className="cursor-glow pointer-events-none fixed inset-0 z-[60] opacity-0 transition-opacity duration-500"
-    />
+      className="pointer-events-none fixed inset-0 z-[60] opacity-0 transition-opacity duration-500"
+      ref={ref}
+    >
+      {/* Core bright spotlight */}
+      <div className="cursor-glow absolute inset-0" />
+      {/* Wide ambient aura */}
+      <div className="cursor-glow-aura absolute inset-0 opacity-70" />
+    </div>
   );
 }
