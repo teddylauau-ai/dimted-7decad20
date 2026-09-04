@@ -117,7 +117,7 @@ function MessagesPage() {
       <PageHeader
         eyebrow="Direct"
         title="Messages"
-        blurb="Newest message sits at the top. Chats keep their latest 100 messages, so nothing ever bogs down."
+        blurb="Newest message drops to the bottom like a normal chat. Chats keep their latest 100 messages, so nothing ever bogs down."
       />
 
       {accepted.length === 0 ? (
