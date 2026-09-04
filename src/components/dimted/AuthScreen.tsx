@@ -11,6 +11,37 @@ import { UNLOCKS, XP_SOURCES } from "@/lib/dimted";
 
 const ROTATING = ["talk", "play", "climb", "unlock", "win"];
 
+type Shape = {
+  kind: "square" | "hex" | "triangle" | "ring" | "diamond";
+  left: string;
+  top: string;
+  size: string;
+  rot: number;
+  tone: "primary" | "secret" | "gold";
+  fill: number;
+  stroke: number;
+};
+
+/** Ambient geometry scattered across the whole sign-in backdrop. */
+const SHAPES: Shape[] = [
+  { kind: "hex", left: "4%", top: "6%", size: "11rem", rot: 12, tone: "primary", fill: 0.16, stroke: 0.35 },
+  { kind: "square", left: "22%", top: "-3%", size: "7rem", rot: 24, tone: "secret", fill: 0.12, stroke: 0.28 },
+  { kind: "triangle", left: "44%", top: "10%", size: "5rem", rot: -14, tone: "gold", fill: 0.1, stroke: 0.3 },
+  { kind: "ring", left: "68%", top: "2%", size: "13rem", rot: 0, tone: "primary", fill: 0.1, stroke: 0.26 },
+  { kind: "diamond", left: "88%", top: "16%", size: "8rem", rot: 8, tone: "secret", fill: 0.14, stroke: 0.3 },
+  { kind: "square", left: "-4%", top: "34%", size: "14rem", rot: -18, tone: "primary", fill: 0.1, stroke: 0.24 },
+  { kind: "triangle", left: "30%", top: "44%", size: "6rem", rot: 32, tone: "primary", fill: 0.08, stroke: 0.24 },
+  { kind: "hex", left: "56%", top: "38%", size: "9rem", rot: -8, tone: "gold", fill: 0.08, stroke: 0.22 },
+  { kind: "ring", left: "82%", top: "48%", size: "6rem", rot: 0, tone: "gold", fill: 0.12, stroke: 0.3 },
+  { kind: "diamond", left: "10%", top: "62%", size: "6.5rem", rot: -6, tone: "gold", fill: 0.1, stroke: 0.28 },
+  { kind: "square", left: "38%", top: "74%", size: "10rem", rot: 14, tone: "secret", fill: 0.1, stroke: 0.26 },
+  { kind: "hex", left: "62%", top: "82%", size: "7rem", rot: 20, tone: "primary", fill: 0.12, stroke: 0.3 },
+  { kind: "triangle", left: "86%", top: "76%", size: "9rem", rot: -22, tone: "primary", fill: 0.1, stroke: 0.26 },
+  { kind: "ring", left: "18%", top: "88%", size: "8rem", rot: 0, tone: "secret", fill: 0.1, stroke: 0.24 },
+  { kind: "diamond", left: "50%", top: "-6%", size: "5rem", rot: 18, tone: "primary", fill: 0.12, stroke: 0.28 },
+  { kind: "square", left: "72%", top: "62%", size: "5rem", rot: -12, tone: "gold", fill: 0.1, stroke: 0.26 },
+];
+
 const PILLARS = [
   { title: "Chat that counts", body: "Every message, voice note and reply feeds your XP bar." },
   { title: "Pulse Rush", body: "15 hand-built rhythm levels, leaderboards and secret coins." },
@@ -94,67 +125,94 @@ export function AuthScreen() {
           }}
         />
 
-        {/* stylised geometric "L" — stacked blocks + pip, textured, drifting slowly */}
-        <svg
-          viewBox="0 0 200 200"
-          className="animate-breathe absolute -bottom-24 -left-24 h-[34rem] w-[34rem] opacity-[0.45] sm:-bottom-32 sm:left-auto sm:-right-24 sm:h-[46rem] sm:w-[46rem]"
-          style={{ animationDuration: "14s" }}
-        >
-          <defs>
-            <linearGradient id="lz-a" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="var(--primary)" stopOpacity="0.55" />
-              <stop offset="1" stopColor="var(--secret)" stopOpacity="0.18" />
-            </linearGradient>
-            <linearGradient id="lz-b" x1="0" y1="1" x2="1" y2="0">
-              <stop offset="0" stopColor="var(--gold)" stopOpacity="0.5" />
-              <stop offset="1" stopColor="var(--primary)" stopOpacity="0.12" />
-            </linearGradient>
-            <pattern id="lz-grain" width="6" height="6" patternUnits="userSpaceOnUse">
-              <rect width="6" height="6" fill="none" />
-              <circle cx="1" cy="1" r="0.55" fill="var(--foreground)" opacity="0.5" />
-              <circle cx="4" cy="3.5" r="0.4" fill="var(--foreground)" opacity="0.32" />
-            </pattern>
-            <clipPath id="lz-clip">
-              <path d="M52 30h30v96h68v30H52z" />
-            </clipPath>
-          </defs>
+        {/* scattered geometric shapes — squares, hexes, triangles, rings, drifting slowly */}
+        {SHAPES.map((s, i) => (
+          <span
+            key={i}
+            className="animate-breathe absolute"
+            style={{
+              left: s.left,
+              top: s.top,
+              width: s.size,
+              height: s.size,
+              animationDuration: `${9 + (i % 5) * 2.5}s`,
+              animationDelay: `${(i % 6) * 0.9}s`,
+            }}
+          >
+            <svg viewBox="0 0 100 100" className="h-full w-full" style={{ transform: `rotate(${s.rot}deg)` }}>
+              <defs>
+                <linearGradient id={`sg-${i}`} x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor={`var(--${s.tone})`} stopOpacity={s.fill} />
+                  <stop offset="1" stopColor={`var(--${s.tone})`} stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              {s.kind === "square" ? (
+                <rect
+                  x="6"
+                  y="6"
+                  width="88"
+                  height="88"
+                  rx="14"
+                  fill={`url(#sg-${i})`}
+                  stroke={`var(--${s.tone})`}
+                  strokeOpacity={s.stroke}
+                  strokeWidth="1.6"
+                />
+              ) : null}
+              {s.kind === "hex" ? (
+                <path
+                  d="M50 4 92 27v46L50 96 8 73V27z"
+                  fill={`url(#sg-${i})`}
+                  stroke={`var(--${s.tone})`}
+                  strokeOpacity={s.stroke}
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+              ) : null}
+              {s.kind === "triangle" ? (
+                <path
+                  d="M50 8 94 88H6z"
+                  fill={`url(#sg-${i})`}
+                  stroke={`var(--${s.tone})`}
+                  strokeOpacity={s.stroke}
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+              ) : null}
+              {s.kind === "ring" ? (
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="42"
+                  fill={`url(#sg-${i})`}
+                  stroke={`var(--${s.tone})`}
+                  strokeOpacity={s.stroke}
+                  strokeWidth="1.6"
+                />
+              ) : null}
+              {s.kind === "diamond" ? (
+                <path
+                  d="M50 6 94 50 50 94 6 50z"
+                  fill={`url(#sg-${i})`}
+                  stroke={`var(--${s.tone})`}
+                  strokeOpacity={s.stroke}
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+              ) : null}
+            </svg>
+          </span>
+        ))}
 
-          {/* the L, as one solid slab */}
-          <path d="M52 30h30v96h68v30H52z" fill="url(#lz-a)" />
-          <g clipPath="url(#lz-clip)" opacity="0.5">
-            <rect x="0" y="0" width="200" height="200" fill="url(#lz-grain)" />
-            {[46, 70, 94, 118, 142].map((y) => (
-              <rect key={y} x="40" y={y} width="130" height="2" fill="var(--background)" opacity="0.45" />
-            ))}
-            <path d="M20 200 L200 20 L200 60 L60 200 Z" fill="url(#lz-b)" opacity="0.6" />
-          </g>
-          <path
-            d="M52 30h30v96h68v30H52z"
-            fill="none"
-            stroke="var(--primary)"
-            strokeOpacity="0.5"
-            strokeWidth="1.2"
-          />
-
-          {/* detached pip — the level you haven't reached */}
-          <circle cx="132" cy="52" r="12" fill="url(#lz-b)" />
-          <circle cx="132" cy="52" r="12" fill="none" stroke="var(--gold)" strokeOpacity="0.5" strokeWidth="1.2" />
-
-          {/* orbiting geometry */}
-          <rect
-            x="150"
-            y="92"
-            width="18"
-            height="18"
-            rx="3"
-            transform="rotate(18 159 101)"
-            fill="none"
-            stroke="var(--primary)"
-            strokeOpacity="0.35"
-            strokeWidth="1.2"
-          />
-          <path d="M34 150l11 19H23z" fill="none" stroke="var(--secret)" strokeOpacity="0.35" strokeWidth="1.2" />
-        </svg>
+        {/* fine grain texture over everything */}
+        <div
+          className="absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "radial-gradient(color-mix(in oklab, var(--foreground) 60%, transparent) 1px, transparent 1px)",
+            backgroundSize: "5px 5px",
+          }}
+        />
       </div>
 
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-4 py-10 lg:grid-cols-[1.1fr_minmax(0,400px)] lg:px-8">
