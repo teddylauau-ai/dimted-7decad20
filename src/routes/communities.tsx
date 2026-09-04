@@ -499,22 +499,23 @@ function CommunitiesPage() {
               )}
             </div>
 
-            <TypingIndicator names={typingNames} />
-
-            <form onSubmit={post} className="border-border flex gap-2 border-t px-5 py-4">
-              <VoiceRecorder onSend={postVoice} disabled={!activeChannel} />
-              <Input
-                value={draft}
-                onChange={(e) => {
-                  setDraft(e.target.value);
-                  if (e.target.value.trim()) typing.signal();
-                }}
-                placeholder={activeChannel ? `Message #${activeChannel.name}` : "Pick a channel"}
-                disabled={!activeChannel}
-              />
-              <Button type="submit" disabled={!draft.trim() || !activeChannel}>
-                <Send className="size-4" />
-              </Button>
+            <form onSubmit={post} className="border-border overflow-hidden border-t">
+              <TypingIndicator names={typingNames} />
+              <div className="flex gap-2 px-5 py-4">
+                <VoiceRecorder onSend={postVoice} disabled={!activeChannel} />
+                <Input
+                  value={draft}
+                  onChange={(e) => {
+                    setDraft(e.target.value);
+                    if (e.target.value.trim()) typing.signal();
+                  }}
+                  placeholder={activeChannel ? `Message #activeChannel.name}` : "Pick a channel"}
+                  disabled={!activeChannel}
+                />
+                <Button type="submit" disabled={!draft.trim() || !activeChannel}>
+                  <Send className="size-4" />
+                </Button>
+              </div>
             </form>
           </Panel>
         </div>
