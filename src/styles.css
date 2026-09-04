@@ -133,6 +133,61 @@
   color-scheme: dark;
 }
 
+html.light {
+  color-scheme: light;
+
+  --background: oklch(0.97 0.008 250);
+  --foreground: oklch(0.22 0.03 258);
+  --surface: oklch(1 0 0 / 0.78);
+  --surface-raised: oklch(1 0 0 / 0.92);
+  --hairline: oklch(0.45 0.04 250 / 0.16);
+
+  --card: oklch(1 0 0 / 0.8);
+  --card-foreground: oklch(0.22 0.03 258);
+  --popover: oklch(0.99 0.005 250);
+  --popover-foreground: oklch(0.22 0.03 258);
+
+  --primary: oklch(0.6 0.12 189);
+  --primary-foreground: oklch(0.99 0.005 250);
+  --secondary: oklch(0.92 0.012 250);
+  --secondary-foreground: oklch(0.26 0.03 258);
+  --muted: oklch(0.93 0.01 250);
+  --muted-foreground: oklch(0.48 0.025 255);
+  --accent: oklch(0.9 0.03 210);
+  --accent-foreground: oklch(0.24 0.03 258);
+  --destructive: oklch(0.55 0.2 20);
+  --destructive-foreground: oklch(0.99 0.005 250);
+  --border: oklch(0.45 0.04 250 / 0.18);
+  --input: oklch(0.45 0.04 250 / 0.26);
+  --ring: oklch(0.6 0.12 189 / 0.55);
+
+  --gold: oklch(0.62 0.13 72);
+  --gold-foreground: oklch(0.99 0.005 250);
+  --energy: oklch(0.62 0.15 55);
+  --xp: oklch(0.6 0.13 168);
+  --secret: oklch(0.55 0.14 300);
+
+  --common: oklch(0.5 0.015 250);
+  --uncommon: oklch(0.55 0.13 155);
+  --rare: oklch(0.53 0.14 250);
+  --epic: oklch(0.52 0.16 305);
+  --legendary: oklch(0.6 0.14 72);
+  --mythic: oklch(0.55 0.18 8);
+}
+
+html.light body {
+  background-image:
+    radial-gradient(1100px 620px at 88% -12%, oklch(0.78 0.08 205 / 0.35), transparent 62%),
+    radial-gradient(900px 520px at 6% 108%, oklch(0.85 0.07 72 / 0.3), transparent 58%);
+}
+
+html.light .glass,
+html.light .glass-raised {
+  box-shadow:
+    0 1px 0 0 oklch(1 0 0 / 0.7) inset,
+    0 20px 50px -38px oklch(0.35 0.05 258 / 0.55);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
