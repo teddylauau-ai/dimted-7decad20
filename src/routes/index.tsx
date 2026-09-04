@@ -126,20 +126,20 @@ function HomePage() {
       </header>
 
 
-      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-5">
-          <Panel className="p-5">
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+        <div className="space-y-4">
+          <Panel className="p-4">
             <PanelHead
               eyebrow="Your ladder"
               title={`${(needed - intoLevel).toLocaleString()} XP to Level ${level + 1}`}
               aside={`${intoLevel.toLocaleString()} / ${needed.toLocaleString()}`}
             />
-            <Meter value={progress} tone="xp" className="mt-4 h-3" animate />
+            <Meter value={progress} tone="xp" className="mt-3 h-2.5" animate />
             <XpTicker />
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
 
-              <div className="border-border bg-background/40 rounded-xl border p-4">
+              <div className="border-border bg-background/40 rounded-xl border p-3">
                 <p className="eyebrow">Next unlock</p>
                 {upcoming ? (
                   <>
@@ -160,8 +160,8 @@ function HomePage() {
               <div
                 className={
                   surgeActive
-                    ? "border-gold/40 bg-gold/10 rounded-xl border p-4"
-                    : "border-border bg-background/40 rounded-xl border p-4"
+                    ? "border-gold/40 bg-gold/10 rounded-xl border p-3"
+                    : "border-border bg-background/40 rounded-xl border p-3"
                 }
               >
                 <p className="eyebrow">Energy</p>
@@ -193,15 +193,15 @@ function HomePage() {
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {[
                 { label: "Friends", value: stats.friends },
                 { label: "Communities", value: stats.communities },
                 { label: "Arcade runs", value: stats.activities },
                 { label: "Discoveries", value: stats.discoveries },
               ].map((s) => (
-                <div key={s.label} className="border-border bg-background/40 rounded-xl border p-3">
-                  <p className="numeral text-xl">{s.value}</p>
+                <div key={s.label} className="border-border bg-background/40 rounded-xl border p-2.5">
+                  <p className="numeral text-lg">{s.value}</p>
                   <p className="text-muted-foreground mt-0.5 font-mono text-[10px] tracking-[0.18em] uppercase">
                     {s.label}
                   </p>
