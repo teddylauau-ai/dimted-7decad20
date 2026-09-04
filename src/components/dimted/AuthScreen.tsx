@@ -22,7 +22,7 @@ const PILLARS = [
  * pre-made friends — the only people in Lazu are people who signed up.
  */
 export function AuthScreen() {
-  const [mode, setMode] = useState<"signin" | "signup">("signup");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -93,6 +93,68 @@ export function AuthScreen() {
             maskImage: "radial-gradient(ellipse at 30% 25%, black, transparent 72%)",
           }}
         />
+
+        {/* stylised geometric "L" — stacked blocks + pip, textured, drifting slowly */}
+        <svg
+          viewBox="0 0 200 200"
+          className="animate-breathe absolute -bottom-24 -left-24 h-[34rem] w-[34rem] opacity-[0.45] sm:-bottom-32 sm:left-auto sm:-right-24 sm:h-[46rem] sm:w-[46rem]"
+          style={{ animationDuration: "14s" }}
+        >
+          <defs>
+            <linearGradient id="lz-a" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="var(--primary)" stopOpacity="0.55" />
+              <stop offset="1" stopColor="var(--secret)" stopOpacity="0.18" />
+            </linearGradient>
+            <linearGradient id="lz-b" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stopColor="var(--gold)" stopOpacity="0.5" />
+              <stop offset="1" stopColor="var(--primary)" stopOpacity="0.12" />
+            </linearGradient>
+            <pattern id="lz-grain" width="6" height="6" patternUnits="userSpaceOnUse">
+              <rect width="6" height="6" fill="none" />
+              <circle cx="1" cy="1" r="0.55" fill="var(--foreground)" opacity="0.5" />
+              <circle cx="4" cy="3.5" r="0.4" fill="var(--foreground)" opacity="0.32" />
+            </pattern>
+            <clipPath id="lz-clip">
+              <path d="M52 30h30v96h68v30H52z" />
+            </clipPath>
+          </defs>
+
+          {/* the L, as one solid slab */}
+          <path d="M52 30h30v96h68v30H52z" fill="url(#lz-a)" />
+          <g clipPath="url(#lz-clip)" opacity="0.5">
+            <rect x="0" y="0" width="200" height="200" fill="url(#lz-grain)" />
+            {[46, 70, 94, 118, 142].map((y) => (
+              <rect key={y} x="40" y={y} width="130" height="2" fill="var(--background)" opacity="0.45" />
+            ))}
+            <path d="M20 200 L200 20 L200 60 L60 200 Z" fill="url(#lz-b)" opacity="0.6" />
+          </g>
+          <path
+            d="M52 30h30v96h68v30H52z"
+            fill="none"
+            stroke="var(--primary)"
+            strokeOpacity="0.5"
+            strokeWidth="1.2"
+          />
+
+          {/* detached pip — the level you haven't reached */}
+          <circle cx="132" cy="52" r="12" fill="url(#lz-b)" />
+          <circle cx="132" cy="52" r="12" fill="none" stroke="var(--gold)" strokeOpacity="0.5" strokeWidth="1.2" />
+
+          {/* orbiting geometry */}
+          <rect
+            x="150"
+            y="92"
+            width="18"
+            height="18"
+            rx="3"
+            transform="rotate(18 159 101)"
+            fill="none"
+            stroke="var(--primary)"
+            strokeOpacity="0.35"
+            strokeWidth="1.2"
+          />
+          <path d="M34 150l11 19H23z" fill="none" stroke="var(--secret)" strokeOpacity="0.35" strokeWidth="1.2" />
+        </svg>
       </div>
 
       <div className="mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-4 py-10 lg:grid-cols-[1.1fr_minmax(0,400px)] lg:px-8">
