@@ -108,7 +108,7 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-void": "text-secret",
   "badge-sigil": "text-mythic cos-glow-mythos",
   "badge-founder-crest": "cos-gradient cos-gradient-founder-halo cos-shimmer cos-glow-founder",
-  "badge-founder-key": "text-gold cos-glow-founder",
+  "badge-founder-key": "text-primary cos-glow-founder",
   "badge-owner-crown": "cos-gradient cos-gradient-owner-sovereign cos-shimmer cos-glow-owner",
   "badge-owner-eye": "cos-gradient cos-gradient-owner-eclipse cos-shimmer",
   "badge-owner-nova": "cos-gradient cos-gradient-owner-starforge cos-shimmer cos-glow-owner",
