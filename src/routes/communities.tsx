@@ -39,13 +39,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/communities")({
   head: () => ({
     meta: [
-      { title: "Communities — Dimted" },
+      { title: "Communities — Lumo" },
       {
         name: "description",
         content:
-          "Communities in Dimted level up from real participation, unlocking channels, roles and shared spaces.",
+          "Communities in Lumo level up from real participation, unlocking channels, roles and shared spaces.",
       },
-      { property: "og:title", content: "Communities — Dimted" },
+      { property: "og:title", content: "Communities — Lumo" },
       { property: "og:description", content: "Communities have their own progression." },
     ],
   }),

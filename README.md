@@ -1,4 +1,4 @@
-# Dimted
+# Lumo
 
 Yeah — you're describing DIMTED as a social game, where the chat itself is part of the progression system. Instead of adding random games like chess, make the whole app feel like a game that evolves as you use it.
 

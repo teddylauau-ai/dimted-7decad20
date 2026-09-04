@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Dimted's mark: a squared-off "D" drawn as one open stroke, with a small
- * detached dot for the level you haven't reached yet. Minimal on purpose —
- * it has to read at 20px in the rail and at 64px on the sign-in screen.
+ * Lumo's mark: an "L" drawn as one open stroke — the upright is the ladder,
+ * the base is the ground — with a small detached pip for the level you haven't
+ * reached yet. Minimal on purpose: it has to read at 20px in the rail and at
+ * 64px on the sign-in screen.
  */
 export function BrandMark({ size = 40, className }: { size?: number; className?: string }) {
   return (
@@ -24,11 +25,12 @@ export function BrandMark({ size = 40, className }: { size?: number; className?:
         className="text-primary-foreground"
         strokeWidth={2.6}
         strokeLinecap="round"
+        strokeLinejoin="round"
       >
-        <path d="M8 4v16" />
-        <path d="M8 4h4a8 8 0 0 1 0 16H8" />
-        <circle cx="18.5" cy="5.5" r="1.6" fill="currentColor" stroke="none" opacity="0.75" />
+        <path d="M8 4v16h9" />
+        <circle cx="17.5" cy="6" r="1.7" fill="currentColor" stroke="none" opacity="0.75" />
       </svg>
+
     </span>
   );
 }
@@ -37,7 +39,7 @@ export function BrandMark({ size = 40, className }: { size?: number; className?:
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-display font-semibold tracking-[-0.02em] lowercase", className)}>
-      dimted
+      lumo
       <span className="text-gold">.</span>
     </span>
   );

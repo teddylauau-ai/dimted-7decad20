@@ -39,13 +39,13 @@ export const Route = createFileRoute("/")({
   head: () => ({
 
     meta: [
-      { title: "Dimted — chat, level up, unlock a world" },
+      { title: "Lumo — chat, level up, unlock a world" },
       {
         name: "description",
         content:
-          "Your Dimted progression hub: level, XP, Energy Surge, daily and weekly challenges, and what unlocks next.",
+          "Your Lumo progression hub: level, XP, Energy Surge, daily and weekly challenges, and what unlocks next.",
       },
-      { property: "og:title", content: "Dimted — your progression hub" },
+      { property: "og:title", content: "Lumo — your progression hub" },
       {
         property: "og:description",
         content: "Real conversations earn XP. XP raises your Level. Levels open the world.",

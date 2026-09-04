@@ -387,7 +387,7 @@ export function useProfileByUsername(username: string | undefined) {
   });
 }
 
-/** How many accounts exist in total — Dimted never pads this number. */
+/** How many accounts exist in total — Lumo never pads this number. */
 export function usePlayerCount() {
   return useQuery({
     queryKey: ["player-count"],

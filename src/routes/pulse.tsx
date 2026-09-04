@@ -42,13 +42,13 @@ import type { GameId } from "@/lib/games";
 export const Route = createFileRoute("/pulse")({
   head: () => ({
     meta: [
-      { title: "Pulse Rush — one-button rhythm platformer | Dimted" },
+      { title: "Pulse Rush — one-button rhythm platformer | Lumo" },
       {
         name: "description",
         content:
-          "Pulse Rush is Dimted's flagship game: fifteen hand-built rhythm levels, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
+          "Pulse Rush is Lumo's flagship game: fifteen hand-built rhythm levels, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
       },
-      { property: "og:title", content: "Pulse Rush — Dimted" },
+      { property: "og:title", content: "Pulse Rush — Lumo" },
       {
         property: "og:description",
         content:

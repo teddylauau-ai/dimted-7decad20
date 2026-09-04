@@ -47,13 +47,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/activities")({
   head: () => ({
     meta: [
-      { title: "Arcade & Nova Rift Campaign — Dimted" },
+      { title: "Arcade & Nova Rift Campaign — Lumo" },
       {
         name: "description",
         content:
           "Play Nova Rift's 12-level campaign with stars, unlockable abilities and par times, plus eight endless arcade games with mastery ranks. Every run pays XP and sparks.",
       },
-      { property: "og:title", content: "Dimted Arcade & Nova Rift Campaign" },
+      { property: "og:title", content: "Lumo Arcade & Nova Rift Campaign" },
       {
         property: "og:description",
         content: "A 12-level platformer campaign plus eight arcade games with mastery progression.",
