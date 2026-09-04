@@ -3,13 +3,29 @@ import { cn } from "@/lib/utils";
 import { levelFromTotalXp, rankForLevel } from "@/lib/dimted";
 import { Avatar } from "./Identity";
 import { RankBadge } from "./RankBadge";
-import type { PublicProfile } from "@/lib/dimted-queries";
+
+type HoloProfile = {
+  id: string;
+  username: string;
+  display_name: string;
+  title: string;
+  total_xp: number;
+  last_active_at: string;
+  activity_context?: string | null;
+  avatar_url: string | null;
+  banner_url?: string | null;
+  equipped_nametag?: string | null;
+  equipped_badge?: string | null;
+  equipped_frame?: string | null;
+  equipped_banner?: string | null;
+  equipped_effect?: string | null;
+};
 
 export function HoloCardTrigger({
   profile,
   children,
 }: {
-  profile: PublicProfile | null | undefined;
+  profile: HoloProfile | null | undefined;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -29,7 +45,7 @@ export function HoloCard({
   open,
   onClose,
 }: {
-  profile: PublicProfile;
+  profile: HoloProfile;
   open: boolean;
   onClose: () => void;
 }) {
