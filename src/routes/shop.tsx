@@ -136,7 +136,7 @@ function ItemCard({
             </>
           ) : exclusive ? (
             <>
-              <Lock className="size-3.5" /> {item.pool === "owner" ? "Owner only" : "Founders only"}
+              <Lock className="size-3.5" /> {item.pool === "owner" ? "Owner only" : "Founder only"}
             </>
           ) : levelLocked ? (
             <>
@@ -321,13 +321,13 @@ function ShopPage() {
           <div className="relative">
             <PanelHead
               eyebrow="Founders' Vault"
-              title={ownsFounder ? "Yours forever — the first 25" : "Sealed to the first 25 accounts"}
+              title={ownsFounder ? "Yours forever — the founder" : "Sealed to the founder account"}
               aside="never for sale"
             />
             <p className="text-muted-foreground mt-2 text-xs">
               {ownsFounder
-                ? "You were here at the start. These cannot be bought, granted by level, or ever minted again."
-                : "The founder window has closed. These exist only on the accounts that opened Dimted."}
+                ? "Minted for the account that started Dimted. They cannot be bought, granted, or ever minted again."
+                : "These live on one account only — the founder who opened Dimted."}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {founder.map((item) => (

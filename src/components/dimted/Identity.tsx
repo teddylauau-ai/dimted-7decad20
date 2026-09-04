@@ -137,13 +137,16 @@ export function Avatar({
     </span>
   );
 
-  if (!presence) return inner;
-  return (
+  const withDot = !presence ? (
+    inner
+  ) : (
     <span className="relative inline-flex shrink-0">
       {inner}
       <PresenceDot profile={profile} size={size} />
     </span>
   );
+  if (!profile?.username) return withDot;
+  return <ProfileHoverCard username={profile.username}>{withDot}</ProfileHoverCard>;
 }
 
 /** The name itself, wearing its nametag + badge. */
@@ -159,7 +162,7 @@ export function Nametag({
   const tag = profile?.equipped_nametag ? NAMETAG_CLASS[profile.equipped_nametag] : undefined;
   const badge = profile?.equipped_badge;
   const Tag = as;
-  return (
+  const body = (
     <Tag className={cn("inline-flex items-center gap-1.5 font-medium", className)}>
       <span className={cn(tag)}>{profile?.display_name ?? "Unknown"}</span>
       {badge && BADGE_GLYPH[badge] ? (
@@ -169,6 +172,8 @@ export function Nametag({
       ) : null}
     </Tag>
   );
+  if (!profile?.username) return body;
+  return <ProfileHoverCard username={profile.username}>{body}</ProfileHoverCard>;
 }
 
 /** Clickable name → that person's public profile. */
