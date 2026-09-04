@@ -113,6 +113,12 @@ function MessagesPage() {
 
   const list = messages.data ?? [];
 
+  // Keep the chat pinned to the bottom as new messages arrive.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [list.length, activeId]);
+
   return (
     <div className="space-y-5">
       <PageHeader
