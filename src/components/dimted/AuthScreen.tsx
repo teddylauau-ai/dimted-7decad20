@@ -11,6 +11,37 @@ import { UNLOCKS, XP_SOURCES } from "@/lib/dimted";
 
 const ROTATING = ["talk", "play", "climb", "unlock", "win"];
 
+type Shape = {
+  kind: "square" | "hex" | "triangle" | "ring" | "diamond";
+  left: string;
+  top: string;
+  size: string;
+  rot: number;
+  tone: "primary" | "secret" | "gold";
+  fill: number;
+  stroke: number;
+};
+
+/** Ambient geometry scattered across the whole sign-in backdrop. */
+const SHAPES: Shape[] = [
+  { kind: "hex", left: "4%", top: "6%", size: "11rem", rot: 12, tone: "primary", fill: 0.16, stroke: 0.35 },
+  { kind: "square", left: "22%", top: "-3%", size: "7rem", rot: 24, tone: "secret", fill: 0.12, stroke: 0.28 },
+  { kind: "triangle", left: "44%", top: "10%", size: "5rem", rot: -14, tone: "gold", fill: 0.1, stroke: 0.3 },
+  { kind: "ring", left: "68%", top: "2%", size: "13rem", rot: 0, tone: "primary", fill: 0.1, stroke: 0.26 },
+  { kind: "diamond", left: "88%", top: "16%", size: "8rem", rot: 8, tone: "secret", fill: 0.14, stroke: 0.3 },
+  { kind: "square", left: "-4%", top: "34%", size: "14rem", rot: -18, tone: "primary", fill: 0.1, stroke: 0.24 },
+  { kind: "triangle", left: "30%", top: "44%", size: "6rem", rot: 32, tone: "primary", fill: 0.08, stroke: 0.24 },
+  { kind: "hex", left: "56%", top: "38%", size: "9rem", rot: -8, tone: "gold", fill: 0.08, stroke: 0.22 },
+  { kind: "ring", left: "82%", top: "48%", size: "6rem", rot: 0, tone: "gold", fill: 0.12, stroke: 0.3 },
+  { kind: "diamond", left: "10%", top: "62%", size: "6.5rem", rot: -6, tone: "gold", fill: 0.1, stroke: 0.28 },
+  { kind: "square", left: "38%", top: "74%", size: "10rem", rot: 14, tone: "secret", fill: 0.1, stroke: 0.26 },
+  { kind: "hex", left: "62%", top: "82%", size: "7rem", rot: 20, tone: "primary", fill: 0.12, stroke: 0.3 },
+  { kind: "triangle", left: "86%", top: "76%", size: "9rem", rot: -22, tone: "primary", fill: 0.1, stroke: 0.26 },
+  { kind: "ring", left: "18%", top: "88%", size: "8rem", rot: 0, tone: "secret", fill: 0.1, stroke: 0.24 },
+  { kind: "diamond", left: "50%", top: "-6%", size: "5rem", rot: 18, tone: "primary", fill: 0.12, stroke: 0.28 },
+  { kind: "square", left: "72%", top: "62%", size: "5rem", rot: -12, tone: "gold", fill: 0.1, stroke: 0.26 },
+];
+
 const PILLARS = [
   { title: "Chat that counts", body: "Every message, voice note and reply feeds your XP bar." },
   { title: "Pulse Rush", body: "15 hand-built rhythm levels, leaderboards and secret coins." },
