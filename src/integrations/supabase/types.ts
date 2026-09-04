@@ -588,7 +588,6 @@ export type Database = {
           last_active_at: string
           mute_reason: string | null
           muted_until: string | null
-          realm_name: string
           sanctioned_by: string | null
           sparks: number
           streak: number
@@ -616,7 +615,6 @@ export type Database = {
           last_active_at?: string
           mute_reason?: string | null
           muted_until?: string | null
-          realm_name?: string
           sanctioned_by?: string | null
           sparks?: number
           streak?: number
@@ -644,7 +642,6 @@ export type Database = {
           last_active_at?: string
           mute_reason?: string | null
           muted_until?: string | null
-          realm_name?: string
           sanctioned_by?: string | null
           sparks?: number
           streak?: number
