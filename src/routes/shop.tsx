@@ -7,6 +7,7 @@ import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/pr
 import { Avatar, Nametag } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics, useInventory } from "@/lib/dimted-queries";
+import { useMyRole } from "@/lib/roles-queries";
 import { equipCosmetic, purchaseCosmetic } from "@/lib/dimted-actions";
 import {
   BADGE_CLASS,
@@ -193,15 +194,30 @@ function ShopPage() {
     [all],
   );
 
-  const adminVault = useMemo(() => all.filter((i) => i.pool === "admin"), [all]);
+  // The vaults are a secret shelf: normal accounts never learn they exist.
+  // Owner sees both, admins see the staff vault only, everyone else sees neither.
+  const { isOwner, isStaff } = useMyRole(profile?.id);
+  const adminVault = useMemo(
+    () => (isStaff ? all.filter((i) => i.pool === "admin") : []),
+    [all, isStaff],
+  );
   const ownsAdminVault = adminVault.some((i) => owned.has(i.slug));
-  const ownerVault = useMemo(() => all.filter((i) => i.pool === "owner"), [all]);
+  const ownerVault = useMemo(
+    () => (isOwner ? all.filter((i) => i.pool === "owner") : []),
+    [all, isOwner],
+  );
   const ownsVault = ownerVault.some((i) => owned.has(i.slug));
 
   // The permanent shelf: core stock plus anything you already own.
   const stock = useMemo(
-    () => all.filter((i) => i.pool === "core" || owned.has(i.slug)),
-    [all, owned],
+    () =>
+      all.filter(
+        (i) =>
+          (i.pool !== "owner" && i.pool !== "admin" && (i.pool === "core" || owned.has(i.slug))) ||
+          (i.pool === "admin" && isStaff && owned.has(i.slug)) ||
+          (i.pool === "owner" && isOwner && owned.has(i.slug)),
+      ),
+    [all, owned, isStaff, isOwner],
   );
   const items = stock.filter((i) => slot === "all" || i.slot === slot);
 
