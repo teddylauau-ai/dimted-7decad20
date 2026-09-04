@@ -98,8 +98,7 @@ function MessagesPage() {
     try {
       await sendDirectMessage(active.friendshipId, profile.id, body);
       await messages.refetch();
-      const result = await award("message", `Message to ${active.profile.display_name}`);
-      if (result === "capped") toast("Message XP is capped for this hour — keep talking anyway.");
+      await award("message", `Message to ${active.profile.display_name}`);
       refresh();
     } catch {
       toast.error("Message didn't send");
@@ -110,8 +109,7 @@ function MessagesPage() {
     if (!active || !profile) return;
     await sendDirectVoiceMessage(active.friendshipId, profile.id, blob, ms);
     await messages.refetch();
-    const result = await award("message", `Voice message to ${active.profile.display_name}`);
-    if (result === "capped") toast("Message XP is capped for this hour — keep talking anyway.");
+    await award("message", `Voice message to ${active.profile.display_name}`);
     refresh();
   }
 

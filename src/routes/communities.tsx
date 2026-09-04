@@ -124,8 +124,7 @@ function CommunitiesPage() {
     try {
       await postChannelMessage(active.id, activeChannel.id, profile.id, body);
       await messages.refetch();
-      const result = await award("community", `Posted in #${activeChannel.name}`);
-      if (result === "capped") toast("Community XP is capped for today.");
+      await award("community", `Posted in #${activeChannel.name}`);
       refresh();
     } catch {
       toast.error("Message didn't post");
@@ -136,8 +135,7 @@ function CommunitiesPage() {
     if (!profile || !active || !activeChannel) return;
     await postChannelVoiceMessage(active.id, activeChannel.id, profile.id, blob, ms);
     await messages.refetch();
-    const result = await award("community", `Voice note in #${activeChannel.name}`);
-    if (result === "capped") toast("Community XP is capped for today.");
+    await award("community", `Voice note in #${activeChannel.name}`);
     refresh();
   }
 

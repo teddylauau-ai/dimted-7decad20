@@ -204,7 +204,7 @@ export function unlockAt(level: number): Unlock | undefined {
   return UNLOCKS.find((u) => u.level === level);
 }
 
-/** XP sources. Cooldowns and caps are enforced server-side, not here. */
+/** XP sources. Awarded server-side every time, with no cooldowns or caps. */
 export type XpSourceId =
   | "message"
   | "conversation"
@@ -228,56 +228,56 @@ export const XP_SOURCES: XpSource[] = [
     id: "message",
     label: "Meaningful message",
     xp: 4,
-    cooldownLabel: "max 15 / hour",
-    note: "Counted once a minute at most, so volume alone earns nothing.",
+    cooldownLabel: "no limit",
+    note: "Every message you send earns XP.",
   },
   {
     id: "conversation",
     label: "Two-way conversation",
     xp: 40,
-    cooldownLabel: "3 / day",
+    cooldownLabel: "no limit",
     note: "Both people have to actually reply.",
   },
   {
     id: "community",
     label: "Community participation",
     xp: 60,
-    cooldownLabel: "5 / day",
+    cooldownLabel: "no limit",
     note: "Posting in a channel you haven't touched recently.",
   },
   {
     id: "friend",
     label: "New friend",
     xp: 120,
-    cooldownLabel: "5 / week",
+    cooldownLabel: "no limit",
     note: "Awarded when a friend request is accepted.",
   },
   {
     id: "arcade",
     label: "Arcade run",
     xp: 200,
-    cooldownLabel: "18 / day",
+    cooldownLabel: "no limit",
     note: "Scales with your score. Beat your personal best for a bonus — no other players needed.",
   },
   {
     id: "activity",
     label: "Social activity",
     xp: 100,
-    cooldownLabel: "4 / day",
+    cooldownLabel: "no limit",
     note: "Doing something with another real account.",
   },
   {
     id: "challenge",
     label: "Challenge complete",
     xp: 150,
-    cooldownLabel: "6 / day",
+    cooldownLabel: "no limit",
     note: "Daily and weekly challenge rewards.",
   },
   {
     id: "discovery",
     label: "Discovery",
     xp: 80,
-    cooldownLabel: "6 / day",
+    cooldownLabel: "no limit",
     note: "Finding a new community or secret.",
   },
 ];
