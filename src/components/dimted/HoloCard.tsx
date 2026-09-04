@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { levelFromTotalXp, rankForLevel } from "@/lib/dimted";
 import { Avatar } from "./Identity";
 import { RankBadge } from "./RankBadge";
