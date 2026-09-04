@@ -1091,6 +1091,7 @@ export type Database = {
         Returns: undefined
       }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
+      grant_admin_cosmetics: { Args: { _user_id: string }; Returns: undefined }
       grant_founder_cosmetics: {
         Args: { _user_id: string }
         Returns: undefined
