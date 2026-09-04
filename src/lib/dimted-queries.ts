@@ -180,7 +180,7 @@ export function useDirectMessages(friendshipId: string | undefined) {
         .from("messages")
         .select(`id, body, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
         .eq("friendship_id", friendshipId!)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: true })
         .limit(100);
 
       if (error) throw error;
