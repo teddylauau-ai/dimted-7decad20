@@ -50,6 +50,7 @@ function MessagesPage() {
   const [draft, setDraft] = useState("");
   const [filter, setFilter] = useState("");
   const { isModerator } = useMyRole(profile?.id);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   /** Most recently active conversation first — that's the one you land in. */
   const accepted = useMemo(
