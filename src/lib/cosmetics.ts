@@ -63,6 +63,11 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-owner-eclipse": "cos-gradient cos-gradient-owner-eclipse cos-shimmer cos-glow-owner",
   "tag-owner-starforge": "cos-gradient cos-gradient-owner-starforge cos-shimmer cos-glow-owner",
   "tag-owner-monarch": "cos-gradient cos-gradient-owner-monarch cos-shimmer",
+  "tag-owner-godray": "cos-gradient cos-gradient-owner-godray cos-shimmer cos-glow-owner",
+  "tag-owner-liquidgold": "cos-gradient cos-gradient-owner-liquidgold cos-shimmer cos-glow-owner",
+  "tag-owner-aether": "cos-gradient cos-gradient-owner-aether cos-shimmer cos-glow-owner",
+  "tag-admin-cipher": "cos-gradient cos-gradient-admin-cipher cos-shimmer cos-glow-founder",
+  "tag-admin-tidecall": "cos-gradient cos-gradient-admin-tidecall cos-shimmer",
 };
 
 /** Badge → the glyph drawn after the name. */
@@ -88,6 +93,8 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-owner-crown": "♛",
   "badge-owner-eye": "◉",
   "badge-owner-nova": "✸",
+  "badge-owner-sigilprime": "✧",
+  "badge-admin-shield": "⛨",
 };
 
 export const BADGE_CLASS: Record<string, string> = {
@@ -112,6 +119,8 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-owner-crown": "cos-gradient cos-gradient-owner-sovereign cos-shimmer cos-glow-owner",
   "badge-owner-eye": "cos-gradient cos-gradient-owner-eclipse cos-shimmer",
   "badge-owner-nova": "cos-gradient cos-gradient-owner-starforge cos-shimmer cos-glow-owner",
+  "badge-owner-sigilprime": "cos-gradient cos-gradient-owner-godray cos-shimmer cos-glow-owner",
+  "badge-admin-shield": "cos-gradient cos-gradient-admin-cipher cos-shimmer",
 };
 
 /** Frame → ring classes on the avatar wrapper. */
@@ -134,6 +143,9 @@ export const FRAME_CLASS: Record<string, string> = {
   "frame-owner-throne": "cos-frame-throne",
   "frame-owner-singularity": "cos-frame-singularity",
   "frame-owner-relic": "cos-frame-relic",
+  "frame-owner-goldstorm": "cos-frame-goldstorm",
+  "frame-owner-eventhorizon": "cos-frame-eventhorizon",
+  "frame-admin-scanline": "cos-frame-scanline",
 };
 
 /** Banner → background style for the profile header. */
@@ -175,6 +187,10 @@ export const BANNER_STYLE: Record<string, string> = {
     "radial-gradient(70% 130% at 50% 135%, oklch(0.9 0.15 88 / 0.85), transparent 62%), radial-gradient(60% 110% at 12% -10%, oklch(0.7 0.13 300 / 0.45), transparent 70%), linear-gradient(180deg, oklch(0.16 0.04 268), oklch(0.3 0.09 40) 72%, oklch(0.62 0.14 66))",
   "banner-founder-vault":
     "repeating-linear-gradient(90deg, oklch(0.88 0.13 88 / 0.13) 0 1px, transparent 1px 26px), repeating-linear-gradient(0deg, oklch(0.88 0.13 88 / 0.1) 0 1px, transparent 1px 26px), radial-gradient(70% 120% at 50% 120%, oklch(0.78 0.13 84 / 0.45), transparent 68%), linear-gradient(120deg, oklch(0.17 0.035 262), oklch(0.12 0.025 258))",
+  "banner-owner-goldenhour":
+    "radial-gradient(80% 130% at 50% 135%, oklch(0.96 0.13 90 / 0.75), transparent 62%), radial-gradient(45% 90% at 14% 10%, oklch(0.9 0.12 60 / 0.35), transparent 66%), linear-gradient(180deg, oklch(0.1 0.02 258), oklch(0.24 0.06 50) 62%, oklch(0.62 0.15 76))",
+  "banner-admin-controlroom":
+    "repeating-linear-gradient(0deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), repeating-linear-gradient(90deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), radial-gradient(60% 110% at 50% 120%, oklch(0.7 0.14 200 / 0.45), transparent 68%), linear-gradient(180deg, oklch(0.11 0.02 258), oklch(0.17 0.04 240))",
   "banner-eventide":
     "linear-gradient(180deg, oklch(0.32 0.09 285), oklch(0.6 0.14 30) 70%, oklch(0.85 0.13 82))",
 };
@@ -196,6 +212,8 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-void": "animate-pop-in cos-void-row",
   "fx-founder-arrival": "animate-rise cos-founder-row",
   "fx-owner-descend": "animate-rise cos-owner-row",
+  "fx-owner-coronation": "animate-pop-in cos-owner-coronation-row",
+  "fx-admin-dispatch": "animate-rise cos-admin-dispatch-row",
 };
 
 export type WornCosmetics = {

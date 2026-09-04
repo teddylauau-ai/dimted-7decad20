@@ -6,6 +6,7 @@ import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/pr
 import { Avatar, Nametag } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics, useInventory } from "@/lib/dimted-queries";
+import { useMyRole } from "@/lib/roles-queries";
 import { equipCosmetic } from "@/lib/dimted-actions";
 import {
   SLOTS,
@@ -69,6 +70,7 @@ function SlotPreview({ slug, slot }: { slug: string; slot: CosmeticSlot }) {
 
 function ArmoryPage() {
   const { profile, sparks, refreshProfile } = useDimted();
+  const { isOwner, isStaff } = useMyRole(profile?.id);
   const cosmetics = useCosmetics();
   const inventory = useInventory(profile?.id);
   const [slot, setSlot] = useState<CosmeticSlot | "vault" | "admin">("nametag");
@@ -85,8 +87,14 @@ function ArmoryPage() {
     effect: profile?.equipped_effect ?? null,
   };
 
-  const vaultItems = useMemo(() => ownedItems.filter((i) => i.pool === "owner"), [ownedItems]);
-  const adminItems = useMemo(() => ownedItems.filter((i) => i.pool === "admin"), [ownedItems]);
+  const vaultItems = useMemo(
+    () => (isOwner ? ownedItems.filter((i) => i.pool === "owner") : []),
+    [ownedItems, isOwner],
+  );
+  const adminItems = useMemo(
+    () => (isStaff ? ownedItems.filter((i) => i.pool === "admin") : []),
+    [ownedItems, isStaff],
+  );
   const isVault = slot === "vault";
   const isAdmin = slot === "admin";
   const isExclusive = isVault || isAdmin;
