@@ -254,7 +254,7 @@ export function usePulseLeaderboard() {
         const { data: profs } = await supabase
           .from("profiles")
           .select(
-            "id, username, display_name, avatar_url, equipped_nametag, equipped_badge, equipped_frame, equipped_effect",
+            "id, username, display_name, last_active_at, activity_context, avatar_url, equipped_nametag, equipped_badge, equipped_frame, equipped_effect",
           )
           .in("id", rows.map((r) => r.user_id));
         const byId = new Map((profs ?? []).map((p) => [p.id, p]));

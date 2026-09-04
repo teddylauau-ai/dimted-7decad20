@@ -548,7 +548,7 @@ export function useCommunityMembers(communityId: string | undefined) {
       const { data, error } = await supabase
         .from("community_members")
         .select(
-          "user_id, role, profile:profiles!community_members_user_id_fkey (id, username, display_name, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url)",
+          "user_id, role, profile:profiles!community_members_user_id_fkey (id, username, display_name, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url)",
         )
         .eq("community_id", communityId!);
       if (error) throw error;
