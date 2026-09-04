@@ -39,19 +39,43 @@ export function VoiceRecorder({
   }, []);
 
   async function start() {
-    if (!navigator.mediaDevices?.getUserMedia) {
-      toast.error("This browser can't record audio");
+    if (typeof window === "undefined") return;
+    if (!window.isSecureContext) {
+      toast.error("Voice recording needs a secure (https) connection");
+      return;
+    }
+    if (typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      toast.error("This browser can't record audio — try Chrome, Edge or Safari");
       return;
     }
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch {
-      toast.error("Microphone access is needed to record a voice message");
+    } catch (err) {
+      const name = (err as { name?: string } | null)?.name ?? "";
+      if (name === "NotAllowedError" || name === "SecurityError") {
+        toast.error("Microphone blocked — allow mic access for this site, then tap again");
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        toast.error("No microphone found on this device");
+      } else if (name === "NotReadableError") {
+        toast.error("Your microphone is being used by another app");
+      } else {
+        toast.error("Couldn't start the microphone");
+      }
       return;
     }
-    const mime = ["audio/webm", "audio/mp4"].find((t) => MediaRecorder.isTypeSupported(t));
-    const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+    let rec: MediaRecorder;
+    try {
+      const mime = ["audio/webm", "audio/mp4", "audio/ogg"].find(
+        (t) => MediaRecorder.isTypeSupported?.(t) ?? false,
+      );
+      rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+    } catch {
+      stream.getTracks().forEach((t) => t.stop());
+      toast.error("This browser can't record in a supported audio format");
+      return;
+    }
+
     chunksRef.current = [];
     rec.ondataavailable = (e) => {
       if (e.data.size > 0) chunksRef.current.push(e.data);
