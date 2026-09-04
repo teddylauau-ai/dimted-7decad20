@@ -253,6 +253,20 @@ export async function markNotificationsRead(ids: string[]) {
   if (error) throw error;
 }
 
+/**
+ * Opening a conversation with someone clears the unread message pings they
+ * sent you — the red badge and the tab-title count disappear together.
+ */
+export async function markConversationNotificationsRead(actorId: string) {
+  const { error } = await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .eq("kind", "message")
+    .eq("actor_id", actorId)
+    .is("read_at", null);
+  if (error) throw error;
+}
+
 export async function clearNotifications(userId: string) {
   const { error } = await supabase.from("notifications").delete().eq("user_id", userId);
   if (error) throw error;
