@@ -59,6 +59,11 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-founder-halo": "cos-gradient cos-gradient-founder-halo cos-shimmer cos-glow-founder",
   "tag-founder-genesis": "cos-gradient cos-gradient-founder-genesis cos-shimmer cos-glow-founder",
   "tag-founder-obsidian": "cos-gradient cos-gradient-founder-obsidian cos-shimmer",
+  "tag-crown-ascendant": "cos-gradient cos-tag-ascendant cos-crown-shimmer cos-glow-crown",
+  "tag-crown-molten": "cos-gradient cos-tag-molten cos-crown-shimmer cos-glow-crown",
+  "tag-crown-oracle": "cos-gradient cos-tag-oracle cos-crown-shimmer cos-glow-crown",
+  "tag-crown-infinite": "cos-gradient cos-tag-infinite cos-crown-shimmer-fast cos-glow-crown",
+  "tag-crown-blackgold": "cos-gradient cos-tag-blackgold cos-crown-shimmer cos-glow-crown-hard",
   "tag-admin-cipher": "cos-gradient cos-gradient-admin-cipher cos-shimmer cos-glow-founder",
   "tag-admin-tidecall": "cos-gradient cos-gradient-admin-tidecall cos-shimmer",
 };
@@ -83,6 +88,10 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-sigil": "✜",
   "badge-founder-crest": "⟡",
   "badge-founder-key": "⚿",
+  "badge-crown-diadem": "♚",
+  "badge-crown-solaris": "☀",
+  "badge-crown-seal": "❈",
+  "badge-crown-monolith": "⟁",
   "badge-admin-shield": "⛨",
 };
 
@@ -105,6 +114,10 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-sigil": "text-mythic cos-glow-mythos",
   "badge-founder-crest": "cos-gradient cos-gradient-founder-halo cos-shimmer cos-glow-founder",
   "badge-founder-key": "text-primary cos-glow-founder",
+  "badge-crown-diadem": "cos-gradient cos-tag-ascendant cos-crown-shimmer cos-glow-crown cos-crown-badge",
+  "badge-crown-solaris": "cos-gradient cos-tag-molten cos-crown-shimmer cos-glow-crown cos-crown-badge",
+  "badge-crown-seal": "cos-gradient cos-tag-oracle cos-crown-shimmer cos-glow-crown cos-crown-badge",
+  "badge-crown-monolith": "cos-gradient cos-tag-blackgold cos-crown-shimmer cos-glow-crown-hard cos-crown-badge",
   "badge-admin-shield": "cos-gradient cos-gradient-admin-cipher cos-shimmer",
 };
 
@@ -125,6 +138,10 @@ export const FRAME_CLASS: Record<string, string> = {
   "frame-prismatic": "cos-frame-prismatic",
   "frame-founder-aureate": "cos-frame-aureate",
   "frame-founder-orbital": "cos-frame-orbital",
+  "frame-crown-ascension": "cos-frame-ascension",
+  "frame-crown-solarcrown": "cos-frame-solarcrown",
+  "frame-crown-mirrorgold": "cos-frame-mirrorgold",
+  "frame-crown-eclipsecrown": "cos-frame-eclipsecrown",
   "frame-admin-scanline": "cos-frame-scanline",
 };
 
@@ -193,6 +210,9 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-aurora": "animate-pop-in cos-aurora-row",
   "fx-void": "animate-pop-in cos-void-row",
   "fx-founder-arrival": "animate-rise cos-founder-row",
+  "fx-crown-ascend": "cos-crown-ascend-row",
+  "fx-crown-decree": "cos-crown-decree-row",
+  "fx-crown-goldwave": "cos-crown-goldwave-row",
   "fx-admin-dispatch": "animate-rise cos-admin-dispatch-row",
 };
 
