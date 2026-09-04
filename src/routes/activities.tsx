@@ -154,7 +154,7 @@ function Campaign() {
       }
       try {
         const res = await awardArcadeXp("nova-rift" as GameId, score);
-        if (res.status === "granted") {
+        if (res.status === "awarded" || res.status === "granted") {
           toast.success(
             `Level ${level.n} cleared · +${res.gained} XP · +${res.sparks_gained} sparks` +
               (surgeActive ? " · surge doubled" : ""),
@@ -388,7 +388,7 @@ function Arcade() {
       try {
         const result = await awardArcadeXp(gameId, finalScore);
         setReward(result);
-        if (result.status === "granted") {
+        if (result.status === "awarded" || result.status === "granted") {
           toast.success(
             `+${result.gained} XP · +${result.sparks_gained} sparks` +
               (result.personal_best ? " · new personal best bonus" : "") +

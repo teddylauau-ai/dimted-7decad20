@@ -118,7 +118,7 @@ function RevisionSection() {
         // Score scales with accuracy so a real effort pays more than a guess-spam.
         const score = Math.round(percent * 12 + correct * 40);
         const res = await awardArcadeXp("revision-quiz" as never, score);
-        if (res.status === "granted") {
+        if (res.status === "awarded" || res.status === "granted") {
           toast.success(
             `+${res.gained} XP · +${res.sparks_gained} sparks for ${correct}/${total}` +
               (surgeActive ? " · surge doubled" : ""),
