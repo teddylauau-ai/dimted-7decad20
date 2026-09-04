@@ -31,6 +31,8 @@ import {
   setCommunityVisibility,
 } from "@/lib/dimted-actions";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
+import { TypingIndicator } from "@/components/dimted/TypingIndicator";
+import { useTypingSignal, useTypingUsers } from "@/lib/typing";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -110,11 +112,15 @@ function CommunitiesPage() {
     }
   }
 
+  const typingNames = useTypingUsers("channel", activeChannel?.id, profile?.id);
+  const typing = useTypingSignal("channel", activeChannel?.id);
+
   async function post(e: React.FormEvent) {
     e.preventDefault();
     const body = draft.trim();
     if (!body || !profile || !active || !activeChannel) return;
     setDraft("");
+    typing.clear();
     try {
       await postChannelMessage(active.id, activeChannel.id, profile.id, body);
       await messages.refetch();
@@ -493,11 +499,16 @@ function CommunitiesPage() {
               )}
             </div>
 
+            <TypingIndicator names={typingNames} />
+
             <form onSubmit={post} className="border-border flex gap-2 border-t px-5 py-4">
               <VoiceRecorder onSend={postVoice} disabled={!activeChannel} />
               <Input
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  if (e.target.value.trim()) typing.signal();
+                }}
                 placeholder={activeChannel ? `Message #${activeChannel.name}` : "Pick a channel"}
                 disabled={!activeChannel}
               />

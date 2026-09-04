@@ -12,6 +12,8 @@ import { friendshipLevel } from "@/lib/dimted";
 import { useDirectMessages, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
 import { deleteDirectMessage, sendDirectMessage, sendDirectVoiceMessage } from "@/lib/dimted-actions";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
+import { TypingIndicator } from "@/components/dimted/TypingIndicator";
+import { useTypingSignal, useTypingUsers } from "@/lib/typing";
 import { useMyRole } from "@/lib/roles-queries";
 import { cn } from "@/lib/utils";
 
@@ -79,6 +81,8 @@ function MessagesPage() {
 
   const active = accepted.find((f) => f.friendshipId === activeId) ?? accepted[0] ?? null;
   const messages = useDirectMessages(active?.friendshipId);
+  const typingNames = useTypingUsers("dm", active?.friendshipId, profile?.id);
+  const typing = useTypingSignal("dm", active?.friendshipId);
 
   // Open the most recent chat automatically the first time the page loads.
   useEffect(() => {
@@ -90,6 +94,7 @@ function MessagesPage() {
     const body = draft.trim();
     if (!body || !active || !profile) return;
     setDraft("");
+    typing.clear();
     try {
       await sendDirectMessage(active.friendshipId, profile.id, body);
       await messages.refetch();
@@ -337,6 +342,8 @@ function MessagesPage() {
               ) : null}
             </div>
 
+            <TypingIndicator names={typingNames} />
+
             <form
               onSubmit={send}
               className="border-border bg-secondary/15 flex gap-2 border-t px-5 py-3"
@@ -344,7 +351,10 @@ function MessagesPage() {
               <VoiceRecorder onSend={sendVoice} disabled={!active} />
               <Input
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  if (e.target.value.trim()) typing.signal();
+                }}
                 placeholder="Write something worth replying to…"
               />
               <Button type="submit" disabled={!draft.trim()}>
