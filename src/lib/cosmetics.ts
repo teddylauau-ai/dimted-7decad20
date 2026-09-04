@@ -8,7 +8,7 @@ import type { Rarity } from "./dimted";
 export type CosmeticSlot = "nametag" | "badge" | "frame" | "banner" | "effect";
 
 /** Which shelf of the shop an item lives on. */
-export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "founder" | "owner";
+export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "admin" | "founder" | "owner";
 
 export const SLOTS: { slot: CosmeticSlot; label: string; blurb: string }[] = [
   { slot: "nametag", label: "Nametags", blurb: "How your name reads everywhere you speak." },
