@@ -291,9 +291,7 @@ function PublicProfilePage() {
           const rows = GAMES.filter((g) => bests.has(g.id) || false);
           if (rows.length === 0) {
             return (
-              <p className="text-muted-foreground mt-4 text-sm">
-                They haven't posted an arcade score yet.
-              </p>
+              <EmptyState title="No arcade scores yet">They haven't posted an arcade score yet.</EmptyState>
             );
           }
           const top = Math.max(...rows.map((g) => bests.get(g.id) ?? 0), 1);
