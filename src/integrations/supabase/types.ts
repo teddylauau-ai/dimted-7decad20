@@ -1091,6 +1091,10 @@ export type Database = {
         Returns: undefined
       }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
+      grant_founder_cosmetics: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

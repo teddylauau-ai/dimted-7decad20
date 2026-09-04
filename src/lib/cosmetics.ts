@@ -8,7 +8,7 @@ import type { Rarity } from "./dimted";
 export type CosmeticSlot = "nametag" | "badge" | "frame" | "banner" | "effect";
 
 /** Which shelf of the shop an item lives on. */
-export type CosmeticPool = "core" | "daily" | "weekly" | "limited";
+export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "founder";
 
 export const SLOTS: { slot: CosmeticSlot; label: string; blurb: string }[] = [
   { slot: "nametag", label: "Nametags", blurb: "How your name reads everywhere you speak." },
@@ -56,6 +56,9 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-mythos": "cos-gradient cos-gradient-mythos cos-shimmer cos-glow-mythos",
   "tag-abyss": "cos-gradient cos-gradient-abyss cos-shimmer cos-glow-mythos",
   "tag-vanta": "cos-gradient cos-gradient-vanta cos-shimmer",
+  "tag-founder-halo": "cos-gradient cos-gradient-founder-halo cos-shimmer cos-glow-founder",
+  "tag-founder-genesis": "cos-gradient cos-gradient-founder-genesis cos-shimmer cos-glow-founder",
+  "tag-founder-obsidian": "cos-gradient cos-gradient-founder-obsidian cos-shimmer",
 };
 
 /** Badge → the glyph drawn after the name. */
@@ -76,6 +79,8 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-flag": "⚑",
   "badge-void": "◍",
   "badge-sigil": "✜",
+  "badge-founder-crest": "⟡",
+  "badge-founder-key": "⚿",
 };
 
 export const BADGE_CLASS: Record<string, string> = {
@@ -95,6 +100,8 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-flag": "text-legendary",
   "badge-void": "text-secret",
   "badge-sigil": "text-mythic cos-glow-mythos",
+  "badge-founder-crest": "cos-gradient cos-gradient-founder-halo cos-shimmer cos-glow-founder",
+  "badge-founder-key": "text-gold cos-glow-founder",
 };
 
 /** Frame → ring classes on the avatar wrapper. */
@@ -112,6 +119,8 @@ export const FRAME_CLASS: Record<string, string> = {
   "frame-cometcrown": "ring-2 ring-gold/70 cos-glow-gold animate-breathe",
   "frame-relic": "ring-2 ring-mythic/80 cos-glow-mythic",
   "frame-prismatic": "cos-frame-prismatic",
+  "frame-founder-aureate": "cos-frame-aureate",
+  "frame-founder-orbital": "cos-frame-orbital",
 };
 
 /** Banner → background style for the profile header. */
@@ -143,6 +152,10 @@ export const BANNER_STYLE: Record<string, string> = {
     "radial-gradient(100% 120% at 20% 130%, oklch(0.72 0.2 35 / 0.9), transparent 60%), radial-gradient(90% 110% at 80% 130%, oklch(0.85 0.18 75 / 0.75), transparent 60%), linear-gradient(120deg, oklch(0.19 0.05 30), oklch(0.12 0.03 258))",
   "banner-galaxy":
     "radial-gradient(35% 60% at 25% 30%, oklch(0.85 0.1 300 / 0.5), transparent 70%), radial-gradient(50% 80% at 70% 80%, oklch(0.6 0.16 265 / 0.7), transparent 70%), repeating-radial-gradient(circle at 60% 40%, oklch(1 0 0 / 0.14) 0 1px, transparent 1px 26px), linear-gradient(120deg, oklch(0.16 0.05 280), oklch(0.1 0.03 258))",
+  "banner-founder-firstlight":
+    "radial-gradient(70% 130% at 50% 135%, oklch(0.9 0.15 88 / 0.85), transparent 62%), radial-gradient(60% 110% at 12% -10%, oklch(0.7 0.13 300 / 0.45), transparent 70%), linear-gradient(180deg, oklch(0.16 0.04 268), oklch(0.3 0.09 40) 72%, oklch(0.62 0.14 66))",
+  "banner-founder-vault":
+    "repeating-linear-gradient(90deg, oklch(0.88 0.13 88 / 0.13) 0 1px, transparent 1px 26px), repeating-linear-gradient(0deg, oklch(0.88 0.13 88 / 0.1) 0 1px, transparent 1px 26px), radial-gradient(70% 120% at 50% 120%, oklch(0.78 0.13 84 / 0.45), transparent 68%), linear-gradient(120deg, oklch(0.17 0.035 262), oklch(0.12 0.025 258))",
   "banner-eventide":
     "linear-gradient(180deg, oklch(0.32 0.09 285), oklch(0.6 0.14 30) 70%, oklch(0.85 0.13 82))",
 };
@@ -162,6 +175,7 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-comet": "animate-rise cos-comet-row",
   "fx-aurora": "animate-pop-in cos-aurora-row",
   "fx-void": "animate-pop-in cos-void-row",
+  "fx-founder-arrival": "animate-rise cos-founder-row",
 };
 
 export type WornCosmetics = {

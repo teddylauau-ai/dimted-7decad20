@@ -98,6 +98,7 @@ function ItemCard({
 }) {
   const levelLocked = level < item.required_level;
   const affordable = sparks >= item.price_sparks;
+  const exclusive = item.pool === "founder";
 
   return (
     <div
@@ -133,6 +134,10 @@ function ItemCard({
             <>
               <Check className="text-uncommon size-3.5" /> Owned
             </>
+          ) : exclusive ? (
+            <>
+              <Lock className="size-3.5" /> Founders only
+            </>
           ) : levelLocked ? (
             <>
               <Lock className="size-3.5" /> Level {item.required_level}
@@ -147,6 +152,10 @@ function ItemCard({
         {owned ? (
           <Button size="sm" variant={equipped ? "secondary" : "outline"} onClick={onEquip}>
             {equipped ? "Take off" : "Equip"}
+          </Button>
+        ) : exclusive ? (
+          <Button size="sm" variant="outline" disabled>
+            Sealed
           </Button>
         ) : (
           <Button size="sm" disabled={levelLocked || !affordable} onClick={onBuy}>
@@ -183,6 +192,9 @@ function ShopPage() {
       ),
     [all],
   );
+
+  const founder = useMemo(() => all.filter((i) => i.pool === "founder"), [all]);
+  const ownsFounder = founder.some((i) => owned.has(i.slug));
 
   // The permanent shelf: core stock plus anything you already own.
   const stock = useMemo(
@@ -256,6 +268,44 @@ function ShopPage() {
       </Panel>
 
 
+
+      {founder.length ? (
+        <Panel className="border-gold/40 relative overflow-hidden p-5">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{
+              background:
+                "radial-gradient(70% 120% at 12% -20%, oklch(0.86 0.15 86 / 0.14), transparent 65%)",
+            }}
+          />
+          <div className="relative">
+            <PanelHead
+              eyebrow="Founders' Vault"
+              title={ownsFounder ? "Yours forever — the first 25" : "Sealed to the first 25 accounts"}
+              aside="never for sale"
+            />
+            <p className="text-muted-foreground mt-2 text-xs">
+              {ownsFounder
+                ? "You were here at the start. These cannot be bought, granted by level, or ever minted again."
+                : "The founder window has closed. These exist only on the accounts that opened Dimted."}
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {founder.map((item) => (
+                <ItemCard
+                  key={item.slug}
+                  item={item}
+                  owned={owned.has(item.slug)}
+                  equipped={equippedSlug[item.slot] === item.slug}
+                  level={level}
+                  sparks={sparks}
+                  onBuy={() => void buy(item)}
+                  onEquip={() => void equip(item)}
+                />
+              ))}
+            </div>
+          </div>
+        </Panel>
+      ) : null}
 
       {limited.length ? (
         <Panel className="border-gold/30 p-5">
