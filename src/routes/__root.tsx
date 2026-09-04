@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lumo — a social world that levels up with you" },
+      { title: "Lumo — the more you talk, the further you get" },
       {
         name: "description",
         content:
