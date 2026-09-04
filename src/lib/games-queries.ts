@@ -101,7 +101,7 @@ export function useDeleteScore() {
 }
 
 export type ArcadeReward = {
-  status: "granted" | "cooldown" | "capped" | "no_profile" | "unknown_game";
+  status: "awarded" | "granted" | "cooldown" | "capped" | "no_profile" | "unknown_game";
   gained?: number;
   sparks_gained?: number;
   personal_best?: boolean;
