@@ -12,13 +12,13 @@ import { respondToFriendRequest } from "@/lib/dimted-actions";
 export const Route = createFileRoute("/friends")({
   head: () => ({
     meta: [
-      { title: "Friends — Lumo" },
+      { title: "Friends — Lazu" },
       {
         name: "description",
         content:
-          "Friendship Levels, streaks and duo rewards in Lumo. Every friendship has its own progression track.",
+          "Friendship Levels, streaks and duo rewards in Lazu. Every friendship has its own progression track.",
       },
-      { property: "og:title", content: "Friends — Lumo" },
+      { property: "og:title", content: "Friends — Lazu" },
       { property: "og:description", content: "Friendships level up too." },
     ],
   }),
@@ -95,7 +95,7 @@ export function FriendsPage() {
         <Panel className="p-8 text-center">
           <p className="font-display text-lg font-semibold">Nobody here yet</p>
           <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
-            Lumo never gives you fake friends. Every name on this page is a real account that
+            Lazu never gives you fake friends. Every name on this page is a real account that
             accepted you.
           </p>
           <Button asChild className="mt-5">

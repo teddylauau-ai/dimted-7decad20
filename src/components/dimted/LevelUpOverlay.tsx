@@ -72,7 +72,7 @@ export function LevelUpOverlay() {
             <div className="border-gold/25 bg-gold/[0.06] rounded-2xl border p-3">
               <p className="font-display text-sm font-semibold">New rank: {levelUp.rank}</p>
               <p className="text-muted-foreground mt-0.5 text-xs">
-                Shown beside your name everywhere on Lumo.
+                Shown beside your name everywhere on Lazu.
               </p>
             </div>
           ) : null}

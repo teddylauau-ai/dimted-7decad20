@@ -1,5 +1,5 @@
 /**
- * Lumo Arcade — real, playable minigames. Nothing here needs a chat partner
+ * Lazu Arcade — real, playable minigames. Nothing here needs a chat partner
  * or a turn from someone else: you press start and you play.
  */
 export type GameId =

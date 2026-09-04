@@ -26,13 +26,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/messages")({
   head: () => ({
     meta: [
-      { title: "Messages — Lumo" },
+      { title: "Messages — Lazu" },
       {
         name: "description",
         content:
-          "Direct messages in Lumo raise your Level and your Friendship Level. Real replies count; spam does not.",
+          "Direct messages in Lazu raise your Level and your Friendship Level. Real replies count; spam does not.",
       },
-      { property: "og:title", content: "Messages — Lumo" },
+      { property: "og:title", content: "Messages — Lazu" },
       { property: "og:description", content: "Conversations are the game." },
     ],
   }),
@@ -162,7 +162,7 @@ function MessagesPage() {
         <Panel className="p-8 text-center">
           <p className="font-display text-lg font-semibold">No conversations yet</p>
           <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
-            Lumo has no pre-made friends. Find real accounts in Discover, send a request, and this
+            Lazu has no pre-made friends. Find real accounts in Discover, send a request, and this
             page opens up.
           </p>
           <Button asChild className="mt-5">

@@ -19,7 +19,7 @@ const PILLARS = [
 
 /**
  * Everyone starts at Level 1 with zero XP. There are no demo accounts and no
- * pre-made friends — the only people in Lumo are people who signed up.
+ * pre-made friends — the only people in Lazu are people who signed up.
  */
 export function AuthScreen() {
   const [mode, setMode] = useState<"signin" | "signup">("signup");
@@ -127,7 +127,7 @@ export function AuthScreen() {
           </h1>
 
           <p className="text-muted-foreground mt-5 max-w-lg text-sm leading-relaxed sm:text-base">
-            Lumo is a social world disguised as a game. Talk to people, run the arcade, clear Pulse
+            Lazu is a social world disguised as a game. Talk to people, run the arcade, clear Pulse
             Rush — it all pours into one XP bar that keeps opening things you couldn&apos;t see before.
           </p>
 
@@ -255,7 +255,7 @@ export function AuthScreen() {
           </Button>
 
           <p className="text-muted-foreground mt-6 text-center text-xs">
-            {mode === "signup" ? "Already have an account?" : "New to Lumo?"}{" "}
+            {mode === "signup" ? "Already have an account?" : "New to Lazu?"}{" "}
             <button
               type="button"
               className="text-primary hover:underline"

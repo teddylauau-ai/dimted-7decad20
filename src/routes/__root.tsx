@@ -81,21 +81,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lumo — the more you talk, the further you get" },
+      { title: "Lazu — the more you talk, the further you get" },
       {
         name: "description",
         content:
-          "Lumo is a communication platform where chatting, friendships and communities feed one connected progression system.",
+          "Lazu is a communication platform where chatting, friendships and communities feed one connected progression system.",
       },
-      { property: "og:title", content: "Lumo" },
+      { property: "og:title", content: "Lazu" },
       { property: "og:description", content: "Chat. Level up. Unlock. Explore." },
       { property: "og:type", content: "website" },
-      { property: "og:site_name", content: "Lumo" },
+      { property: "og:site_name", content: "Lazu" },
       { property: "og:url", content: "https://dimted.com/" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "theme-color", content: "#04121c" },
-      { name: "application-name", content: "Lumo" },
-      { name: "apple-mobile-web-app-title", content: "Lumo" },
+      { name: "application-name", content: "Lazu" },
+      { name: "apple-mobile-web-app-title", content: "Lazu" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -122,10 +122,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "Lumo",
+          name: "Lazu",
           url: "https://dimted.com/",
           description:
-            "Lumo is a social platform where chatting, friendships, communities and arcade games feed one connected progression system.",
+            "Lazu is a social platform where chatting, friendships, communities and arcade games feed one connected progression system.",
         }),
       },
     ],

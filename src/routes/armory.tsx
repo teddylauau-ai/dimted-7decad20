@@ -21,16 +21,16 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/armory")({
   head: () => ({
     meta: [
-      { title: "Armory — your Lumo locker" },
+      { title: "Armory — your Lazu locker" },
       {
         name: "description",
         content:
           "Every cosmetic you own in one locker: nametags, badges, frames, banners and message effects, with a live preview and one-tap equipping.",
       },
-      { property: "og:title", content: "Armory — your Lumo locker" },
+      { property: "og:title", content: "Armory — your Lazu locker" },
       {
         property: "og:description",
-        content: "Preview and equip every cosmetic you've earned in Lumo.",
+        content: "Preview and equip every cosmetic you've earned in Lazu.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
