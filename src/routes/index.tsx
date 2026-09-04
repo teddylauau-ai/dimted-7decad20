@@ -108,7 +108,9 @@ function HomePage() {
                 >
                   {i + 1}
                 </span>
-                <Avatar profile={p} size={22} />
+                <HoloCardTrigger profile={p}>
+                  <Avatar profile={p} size={22} />
+                </HoloCardTrigger>
                 <Link
                   to="/u/$username"
                   params={{ username: p.username }}
@@ -116,9 +118,7 @@ function HomePage() {
                 >
                   <Nametag profile={p} className="text-[13px]" />
                 </Link>
-                <span className="text-primary shrink-0 font-mono text-[10px]">
-                  Lv {levelFromTotalXp(p.total_xp).level}
-                </span>
+                <RankPill level={levelFromTotalXp(p.total_xp).level} />
               </li>
             ))}
             {rows.length === 0 ? (
