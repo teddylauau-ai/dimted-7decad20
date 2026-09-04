@@ -99,12 +99,13 @@ function MessagesPage() {
   // Opening a conversation clears that person's unread message pings — the red
   // nav badge and the (n) tab-title count go away together.
   const activeProfileId = active?.profile.id;
+  const messageCount = messages.data?.length ?? 0;
   useEffect(() => {
     if (!activeProfileId) return;
     markConversationNotificationsRead(activeProfileId)
       .then(() => qc.invalidateQueries({ queryKey: ["notifications"] }))
       .catch(() => {});
-  }, [activeProfileId, qc, list.length]);
+  }, [activeProfileId, qc, messageCount]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
