@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Check, Clock, Coins, Lock } from "lucide-react";
 import { toast } from "sonner";
@@ -158,150 +158,6 @@ function ItemCard({
   );
 }
 
-/** The Armory: everything you own, one tap from being worn. */
-function Armory({
-  all,
-  owned,
-  equipped,
-  onEquip,
-  onClear,
-}: {
-  all: Cosmetic[];
-  owned: Set<string>;
-  equipped: Record<CosmeticSlot, string | null>;
-  onEquip: (item: Cosmetic) => void;
-  onClear: (slot: CosmeticSlot) => void;
-}) {
-  const { profile } = useDimted();
-  const ownedItems = all.filter((i) => owned.has(i.slug));
-  const [slot, setSlot] = useState<CosmeticSlot>("nametag");
-  const list = ownedItems.filter((i) => i.slot === slot);
-  const activeSlug = equipped[slot];
-
-  return (
-    <Panel className="border-primary/25 p-5" delay={20}>
-      <PanelHead
-        eyebrow="Armory"
-        title="Your locker"
-        aside={`${ownedItems.length} owned`}
-      />
-
-      <div className="mt-4 grid gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
-        {/* Live look */}
-        <div className="border-border bg-background/40 overflow-hidden rounded-xl border">
-          <div className="h-20 w-full" style={{ background: bannerFor(equipped.banner) }} />
-          <div className="-mt-7 flex flex-col items-center px-4 pb-4">
-            <Avatar profile={profile} size={56} />
-            <Nametag profile={profile} className="mt-2 text-sm" />
-            <p className="text-muted-foreground font-mono text-[10px]">
-              @{profile?.username ?? "you"}
-            </p>
-            <div className="mt-3 w-full space-y-1">
-              {SLOTS.map((s) => {
-                const on = equipped[s.slot];
-                const item = all.find((c) => c.slug === on);
-                return (
-                  <button
-                    key={s.slot}
-                    onClick={() => setSlot(s.slot)}
-                    className={cn(
-                      "flex w-full items-center justify-between gap-2 rounded-lg border px-2 py-1.5 text-left transition-colors",
-                      slot === s.slot
-                        ? "border-primary/45 bg-primary/10"
-                        : "border-border/60 hover:bg-secondary/50",
-                    )}
-                  >
-                    <span className="text-muted-foreground font-mono text-[10px] tracking-[0.14em] uppercase">
-                      {s.label}
-                    </span>
-                    <span
-                      className={cn(
-                        "min-w-0 truncate text-[12px]",
-                        item ? "text-foreground" : "text-muted-foreground/60",
-                      )}
-                    >
-                      {item?.name ?? "empty"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Slot contents */}
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {SLOTS.map((s) => (
-              <button
-                key={s.slot}
-                onClick={() => setSlot(s.slot)}
-                className={cn(
-                  "rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.12em] uppercase transition-colors",
-                  slot === s.slot
-                    ? "border-primary/50 bg-primary/15 text-primary"
-                    : "border-border text-muted-foreground hover:text-foreground",
-                )}
-              >
-                {s.label}
-                <span className="ml-1.5 opacity-60">
-                  {ownedItems.filter((i) => i.slot === s.slot).length}
-                </span>
-              </button>
-            ))}
-            {activeSlug ? (
-              <button
-                onClick={() => onClear(slot)}
-                className="text-muted-foreground hover:text-destructive ml-auto font-mono text-[10px] tracking-[0.12em] uppercase"
-              >
-                Unequip slot
-              </button>
-            ) : null}
-          </div>
-
-          {list.length === 0 ? (
-            <p className="text-muted-foreground mt-4 text-sm">
-              Nothing in this slot yet — buy one below and it lands here instantly.
-            </p>
-          ) : (
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-              {list.map((item) => {
-                const on = activeSlug === item.slug;
-                return (
-                  <button
-                    key={item.slug}
-                    onClick={() => onEquip(item)}
-                    className={cn(
-                      "bg-background/40 hover:border-primary/40 group flex flex-col gap-2 rounded-xl border p-3 text-left transition-colors",
-                      on ? "border-primary/60 bg-primary/10" : rarityBorder[item.rarity],
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-display min-w-0 truncate text-[13px] font-semibold">
-                        {item.name}
-                      </p>
-                      <RarityChip rarity={item.rarity} />
-                    </div>
-                    <PreviewName slug={item.slug} slot={item.slot} />
-                    <span
-                      className={cn(
-                        "font-mono text-[10px] tracking-[0.14em] uppercase",
-                        on ? "text-primary" : "text-muted-foreground",
-                      )}
-                    >
-                      {on ? "✓ worn — tap to remove" : "tap to equip"}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-    </Panel>
-  );
-}
-
 function ShopPage() {
 
   const { profile, level, sparks, refreshProfile } = useDimted();
@@ -368,15 +224,7 @@ function ShopPage() {
     }
   }
 
-  async function clearSlot(s: CosmeticSlot) {
-    try {
-      await equipCosmetic(null, s);
-      await refreshProfile();
-      toast.success("Slot cleared.");
-    } catch {
-      toast.error("Couldn't clear that slot.");
-    }
-  }
+
 
 
   return (
@@ -395,13 +243,17 @@ function ShopPage() {
         }
       />
 
-      <Armory
-        all={all}
-        owned={owned}
-        equipped={equippedSlug}
-        onEquip={(item) => void equip(item)}
-        onClear={(s) => void clearSlot(s)}
-      />
+      <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
+        <div>
+          <p className="eyebrow">Armory</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Everything you own lives in your locker — preview and equip it there.
+          </p>
+        </div>
+        <Button asChild size="sm" variant="outline">
+          <Link to="/armory">Open the Armory</Link>
+        </Button>
+      </Panel>
 
 
 

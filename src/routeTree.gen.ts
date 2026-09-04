@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as AdminRouteImport } from './routes/admin'
+import { Route as ArmoryRouteImport } from './routes/armory'
 import { Route as CommunitiesRouteImport } from './routes/communities'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
@@ -35,6 +36,11 @@ const ActivitiesRoute = ActivitiesRouteImport.update({
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArmoryRoute = ArmoryRouteImport.update({
+  id: '/armory',
+  path: '/armory',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunitiesRoute = CommunitiesRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
+  '/armory': typeof ArmoryRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
+  '/armory': typeof ArmoryRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
+  '/armory': typeof ArmoryRoute
   '/communities': typeof CommunitiesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activities'
     | '/admin'
+    | '/armory'
     | '/communities'
     | '/discover'
     | '/friends'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activities'
     | '/admin'
+    | '/armory'
     | '/communities'
     | '/discover'
     | '/friends'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/activities'
     | '/admin'
+    | '/armory'
     | '/communities'
     | '/discover'
     | '/friends'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActivitiesRoute: typeof ActivitiesRoute
   AdminRoute: typeof AdminRoute
+  ArmoryRoute: typeof ArmoryRoute
   CommunitiesRoute: typeof CommunitiesRoute
   DiscoverRoute: typeof DiscoverRoute
   FriendsRoute: typeof FriendsRoute
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/armory': {
+      id: '/armory'
+      path: '/armory'
+      fullPath: '/armory'
+      preLoaderRoute: typeof ArmoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/communities': {
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActivitiesRoute: ActivitiesRoute,
   AdminRoute: AdminRoute,
+  ArmoryRoute: ArmoryRoute,
   CommunitiesRoute: CommunitiesRoute,
   DiscoverRoute: DiscoverRoute,
   FriendsRoute: FriendsRoute,
