@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, RarityChip, LockedTile, EmptyState } from "@/components/dimted/primitives";
+import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
 import { QuestBoard } from "@/components/dimted/QuestBoard";
@@ -111,13 +112,15 @@ function HomePage() {
                 <HoloCardTrigger profile={p}>
                   <Avatar profile={p} size={22} />
                 </HoloCardTrigger>
-                <Link
-                  to="/u/$username"
-                  params={{ username: p.username }}
-                  className="min-w-0 flex-1 truncate text-[13px] hover:underline"
-                >
-                  <Nametag profile={p} className="text-[13px]" />
-                </Link>
+                <ProfileHoverCard username={p.username} className="min-w-0 flex-1">
+                  <Link
+                    to="/u/$username"
+                    params={{ username: p.username }}
+                    className="min-w-0 flex-1 truncate text-[13px] hover:underline"
+                  >
+                    <Nametag profile={p} className="text-[13px]" />
+                  </Link>
+                </ProfileHoverCard>
                 <RankPill level={levelFromTotalXp(p.total_xp).level} />
               </li>
             ))}
@@ -313,6 +316,7 @@ function HomePage() {
                 const fl = friendshipLevel(f.friendshipXp);
                 return (
                   <li key={f.friendshipId}>
+                   <ProfileHoverCard username={f.profile.username} className="w-full">
                     <Link
                       to="/u/$username"
                       params={{ username: f.profile.username }}
@@ -330,6 +334,7 @@ function HomePage() {
                       </span>
                       <span className="text-primary shrink-0 font-mono text-[10px]">FL {fl.level}</span>
                     </Link>
+                   </ProfileHoverCard>
                   </li>
                 );
               })}
@@ -359,11 +364,12 @@ function HomePage() {
               const me = p.id === profile?.id;
               return (
                 <li key={p.id}>
+                 <ProfileHoverCard username={p.username} className="w-full">
                   <Link
                     to="/u/$username"
                     params={{ username: p.username }}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl border px-3 py-1.5 transition-colors",
+                      "flex w-full items-center gap-3 rounded-xl border px-3 py-1.5 transition-colors",
                       me
                         ? "border-primary/40 bg-primary/10"
                         : "border-border bg-background/40 hover:border-primary/30",
