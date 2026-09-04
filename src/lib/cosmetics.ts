@@ -170,7 +170,7 @@ export const BANNER_STYLE: Record<string, string> = {
     "radial-gradient(70% 130% at 50% 135%, oklch(0.9 0.15 88 / 0.85), transparent 62%), radial-gradient(60% 110% at 12% -10%, oklch(0.7 0.13 300 / 0.45), transparent 70%), linear-gradient(180deg, oklch(0.16 0.04 268), oklch(0.3 0.09 40) 72%, oklch(0.62 0.14 66))",
   "banner-founder-vault":
     "repeating-linear-gradient(90deg, oklch(0.88 0.13 88 / 0.13) 0 1px, transparent 1px 26px), repeating-linear-gradient(0deg, oklch(0.88 0.13 88 / 0.1) 0 1px, transparent 1px 26px), radial-gradient(70% 120% at 50% 120%, oklch(0.78 0.13 84 / 0.45), transparent 68%), linear-gradient(120deg, oklch(0.17 0.035 262), oklch(0.12 0.025 258))",
-    "radial-gradient(80% 130% at 50% 135%, oklch(0.96 0.13 90 / 0.75), transparent 62%), radial-gradient(45% 90% at 14% 10%, oklch(0.9 0.12 60 / 0.35), transparent 66%), linear-gradient(180deg, oklch(0.1 0.02 258), oklch(0.24 0.06 50) 62%, oklch(0.62 0.15 76))",
+    
   "banner-admin-controlroom":
     "repeating-linear-gradient(0deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), repeating-linear-gradient(90deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), radial-gradient(60% 110% at 50% 120%, oklch(0.7 0.14 200 / 0.45), transparent 68%), linear-gradient(180deg, oklch(0.11 0.02 258), oklch(0.17 0.04 240))",
   "banner-eventide":
