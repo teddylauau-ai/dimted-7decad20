@@ -53,7 +53,7 @@ export function CursorGlow() {
       {/* Core bright spotlight */}
       <div className="cursor-glow absolute inset-0" />
       {/* Wide ambient aura */}
-      <div className="cursor-glow-aura absolute inset-0 opacity-70" />
+      <div className="cursor-glow-aura absolute inset-0 opacity-40" />
     </div>
   );
 }
