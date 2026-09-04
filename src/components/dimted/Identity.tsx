@@ -102,7 +102,10 @@ export function initials(name: string): string {
     .toUpperCase();
 }
 
-/** Avatar with the wearer's frame. Discord-style rounded square. */
+/** Avatar with the wearer's frame. Discord-style rounded square.
+ *  The frame lives on an outer wrapper so it always forms a complete ring
+ *  around the picture; the presence dot sits on the inner avatar so it never
+ *  clips the frame. */
 export function Avatar({
   profile,
   size = 40,
@@ -115,21 +118,20 @@ export function Avatar({
   presence?: boolean;
 }) {
   const frame = profile?.equipped_frame ? FRAME_CLASS[profile.equipped_frame] : undefined;
+  const innerSize = Math.max(size - 4, Math.round(size * 0.82));
+  const fontSize = Math.round(innerSize / 2.6);
+
   const inner = (
     <span
-      style={{ width: size, height: size, fontSize: Math.round(size / 2.6) }}
-      className={cn(
-        "bg-secondary text-foreground/90 font-display grid shrink-0 place-items-center overflow-hidden rounded-xl font-semibold select-none",
-        frame,
-        className,
-      )}
+      style={{ width: innerSize, height: innerSize, fontSize }}
+      className="bg-secondary text-foreground/90 font-display grid shrink-0 place-items-center overflow-hidden rounded-[10px] font-semibold select-none"
     >
       {profile?.avatar_url ? (
         <img
           src={profile.avatar_url}
           alt={`${profile.display_name}'s profile picture`}
           loading="lazy"
-          className="h-full w-full rounded-xl object-cover"
+          className="h-full w-full object-cover"
         />
       ) : (
         initials(profile?.display_name ?? "?")
@@ -137,16 +139,28 @@ export function Avatar({
     </span>
   );
 
-  const withDot = !presence ? (
-    inner
-  ) : (
-    <span className="relative inline-flex shrink-0">
-      {inner}
-      <PresenceDot profile={profile} size={size} />
+  const body = (
+    <span
+      style={{ width: size, height: size }}
+      className={cn(
+        "relative grid shrink-0 place-items-center overflow-hidden rounded-xl",
+        frame,
+        className,
+      )}
+    >
+      {presence ? (
+        <span className="relative inline-flex shrink-0">
+          {inner}
+          <PresenceDot profile={profile} size={size} />
+        </span>
+      ) : (
+        inner
+      )}
     </span>
   );
-  if (!profile?.username) return withDot;
-  return <ProfileHoverCard username={profile.username}>{withDot}</ProfileHoverCard>;
+
+  if (!profile?.username) return body;
+  return <ProfileHoverCard username={profile.username}>{body}</ProfileHoverCard>;
 }
 
 /** The name itself, wearing its nametag + badge. */
