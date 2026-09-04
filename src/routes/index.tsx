@@ -127,29 +127,63 @@ function HomePage() {
 
 
       <div className="space-y-4">
-          <Panel className="relative overflow-hidden p-4">
-            <div className="pointer-events-none absolute -right-16 -top-16 size-40 rounded-full bg-primary/10 blur-[80px]" />
-            <div className="pointer-events-none absolute -bottom-16 -left-16 size-40 rounded-full bg-gold/10 blur-[80px]" />
+          <Panel className="relative overflow-hidden p-0">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_100%_0%,var(--color-primary)/18%,transparent_55%),radial-gradient(90%_120%_at_0%_100%,var(--color-gold)/14%,transparent_55%)]" />
+            <div className="pointer-events-none absolute -top-24 right-8 size-56 rounded-full bg-primary/20 blur-[90px]" />
+            <div className="pointer-events-none absolute -bottom-24 left-4 size-56 rounded-full bg-gold/15 blur-[90px]" />
 
-            <PanelHead
-              eyebrow="Your ladder"
-              title={`Level ${level} · ${(needed - intoLevel).toLocaleString()} XP to Level ${level + 1}`}
-              aside={
-                <div className="flex items-center gap-2">
-                  <span className="bg-primary/10 text-primary border-primary/20 rounded-md border px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase">
-                    {rank}
-                  </span>
-                  <span className="text-muted-foreground font-mono text-[11px]">
-                    {intoLevel.toLocaleString()} / {needed.toLocaleString()}
-                  </span>
+            <div className="relative p-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-2xl bg-primary/25 blur-lg" />
+                  <div className="border-primary/40 from-primary/25 to-gold/15 relative grid size-16 place-items-center rounded-2xl border bg-gradient-to-br">
+                    <span className="numeral text-primary text-2xl leading-none">{level}</span>
+                    <span className="text-muted-foreground mt-0.5 font-mono text-[8px] tracking-[0.22em] uppercase">
+                      level
+                    </span>
+                  </div>
                 </div>
-              }
-            />
 
-            <div className="relative mt-3">
-              <Meter value={progress} tone="xp" className="h-2.5 shadow-[0_0_18px_-6px_var(--color-primary)]" animate />
-            </div>
-            <XpTicker />
+                <div className="min-w-0 flex-1">
+                  <p className="eyebrow">Your ladder</p>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-2">
+                    <span className="numeral text-lg leading-tight">{rank}</span>
+                    <span className="bg-primary/10 text-primary border-primary/30 shadow-[0_0_20px_-8px_var(--color-primary)] rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase">
+                      Lv {level}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground mt-0.5 font-mono text-[11px]">
+                    {(needed - intoLevel).toLocaleString()} XP to Level {level + 1}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <p className="numeral text-gold text-xl leading-none">
+                    {intoLevel.toLocaleString()}
+                  </p>
+                  <p className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
+                    / {needed.toLocaleString()} xp
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative mt-3">
+                <div className="bg-background/60 border-border relative h-3 overflow-hidden rounded-full border">
+                  <div
+                    className="from-xp via-primary to-gold absolute inset-y-0 left-0 rounded-full bg-gradient-to-r shadow-[0_0_24px_-4px_var(--color-primary)] transition-[width] duration-700"
+                    style={{ width: `${Math.max(2, Math.min(100, progress * 100))}%` }}
+                  />
+                  <div className="pointer-events-none absolute inset-0 grid grid-cols-10">
+                    {Array.from({ length: 10 }).map((_, i) => (
+                      <span key={i} className={cn("h-full", i !== 0 && "border-l border-background/50")} />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-muted-foreground mt-1 text-right font-mono text-[10px]">
+                  {Math.round(progress * 100)}%
+                </p>
+              </div>
+              <XpTicker />
 
             <div className="relative mt-4 grid gap-2.5 sm:grid-cols-2">
               <div className="group border-border bg-background/40 hover:border-primary/40 flex flex-col gap-2 rounded-xl border p-3 transition-colors">
