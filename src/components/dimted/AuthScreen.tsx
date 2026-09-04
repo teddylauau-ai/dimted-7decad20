@@ -95,19 +95,6 @@ export function AuthScreen() {
         />
 
         {/* scattered geometric shapes — squares, hexes, triangles, rings, drifting slowly */}
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="absolute inset-0 h-full w-full opacity-[0.55]"
-        >
-          <defs>
-            <pattern id="lz-grain" width="4" height="4" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="0.35" fill="var(--foreground)" opacity="0.4" />
-              <circle cx="3" cy="2.6" r="0.25" fill="var(--foreground)" opacity="0.26" />
-            </pattern>
-          </defs>
-        </svg>
-
         {SHAPES.map((s, i) => (
           <span
             key={i}
