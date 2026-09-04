@@ -219,7 +219,7 @@ html.light .glass-raised {
     border: 1px solid var(--hairline);
     backdrop-filter: blur(18px);
     box-shadow:
-      0 1px 0 0 oklch(1 0 0 / 0.05) inset,
+      0 1px 0 0 oklch(1 0 0 / 0.06) inset,
       0 24px 60px -40px oklch(0.05 0.02 258 / 0.9);
   }
 
@@ -227,6 +227,9 @@ html.light .glass-raised {
     background-color: var(--surface-raised);
     border: 1px solid var(--hairline);
     backdrop-filter: blur(22px);
+    box-shadow:
+      0 1px 0 0 oklch(1 0 0 / 0.08) inset,
+      0 18px 44px -34px oklch(0.05 0.02 258 / 0.85);
   }
 
   .eyebrow {
@@ -242,6 +245,42 @@ html.light .glass-raised {
     font-weight: 700;
     letter-spacing: -0.03em;
   }
+}
+
+@utility skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--surface-raised) 0%,
+    color-mix(in oklch, var(--foreground) 8%, var(--surface-raised)) 50%,
+    var(--surface-raised) 100%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.8s linear infinite;
+  border-radius: var(--radius-md);
+}
+
+@utility page-transition {
+  animation: page-in 0.35s var(--ease-soft) both;
+}
+
+@utility presence-dot {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  border: 2px solid var(--background);
+  box-shadow: 0 0 0 1px var(--hairline);
+}
+
+@utility rank-emblem {
+  display: inline-grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
 }
 
 @utility glow-primary {
