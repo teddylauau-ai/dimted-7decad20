@@ -26,13 +26,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/u/$username")({
   head: () => ({
     meta: [
-      { title: "Player profile — Dimted" },
+      { title: "Player profile — Lumo" },
       {
         name: "description",
         content:
-          "Look at a Dimted player's level, rank, nametag, badges, unlocks and cosmetic collection. Only real signed-up accounts appear.",
+          "Look at a Lumo player's level, rank, nametag, badges, unlocks and cosmetic collection. Only real signed-up accounts appear.",
       },
-      { property: "og:title", content: "Player profile — Dimted" },
+      { property: "og:title", content: "Player profile — Lumo" },
       {
         property: "og:description",
         content: "Levels, nametags and collections belonging to actual players.",
@@ -70,7 +70,7 @@ function PublicProfilePage() {
       <Panel className="p-8 text-center">
         <p className="numeral text-2xl">No such player</p>
         <p className="text-muted-foreground mt-2 text-sm">
-          Nobody signed up with the handle @{username}. Dimted only shows real accounts.
+          Nobody signed up with the handle @{username}. Lumo only shows real accounts.
         </p>
         <Link
           to="/discover"

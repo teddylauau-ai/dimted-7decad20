@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Dimted's mark: a squared-off "D" drawn as one open stroke, with a small
+ * Lumo's mark: a squared-off "D" drawn as one open stroke, with a small
  * detached dot for the level you haven't reached yet. Minimal on purpose —
  * it has to read at 20px in the rail and at 64px on the sign-in screen.
  */
@@ -37,7 +37,7 @@ export function BrandMark({ size = 40, className }: { size?: number; className?:
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-display font-semibold tracking-[-0.02em] lowercase", className)}>
-      dimted
+      lumo
       <span className="text-gold">.</span>
     </span>
   );

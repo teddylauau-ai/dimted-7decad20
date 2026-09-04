@@ -1,5 +1,5 @@
 /**
- * Dimted Revision — non-AI study content aligned to the Australian Curriculum
+ * Lumo Revision — non-AI study content aligned to the Australian Curriculum
  * Year 9 (v9.0). Everything here is a fixed, offline question bank: no model
  * call, no network, works even if the AI gateway is down or blocked.
  */

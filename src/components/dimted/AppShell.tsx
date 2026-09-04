@@ -96,7 +96,7 @@ function Rail() {
   const unread = useUnreadMessages(profile?.id);
   return (
     <aside className="glass hidden w-[68px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-3 lg:flex">
-      <Link to="/" aria-label="Dimted home" className="mb-1.5">
+      <Link to="/" aria-label="Lumo home" className="mb-1.5">
         <BrandMark size={44} />
       </Link>
       <span className="bg-border my-1 h-px w-8" />
@@ -272,7 +272,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   }
 
-  // No account, no world: Dimted has no guest mode and no demo data.
+  // No account, no world: Lumo has no guest mode and no demo data.
   if (!session) return <AuthScreen />;
 
   const banned = profile?.banned_until && new Date(profile.banned_until) > new Date();

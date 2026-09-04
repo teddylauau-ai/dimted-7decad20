@@ -1,5 +1,5 @@
 /**
- * Nova Rift — Dimted's campaign game. Unlike the endless arcade titles this one
+ * Nova Rift — Lumo's campaign game. Unlike the endless arcade titles this one
  * is built out of hand-designed levels with unlocks, stars and abilities that
  * arrive as you progress.
  *

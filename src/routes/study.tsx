@@ -18,13 +18,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/study")({
   head: () => ({
     meta: [
-      { title: "Study — Tutor & Year 9 Revision Decks | Dimted" },
+      { title: "Study — Tutor & Year 9 Revision Decks | Lumo" },
       {
         name: "description",
         content:
-          "Dimted Study: AI Tutor for step-by-step homework help plus offline Year 9 Australian Curriculum revision decks in Maths, Science, English, History and Geography. Earn XP as you revise.",
+          "Lumo Study: AI Tutor for step-by-step homework help plus offline Year 9 Australian Curriculum revision decks in Maths, Science, English, History and Geography. Earn XP as you revise.",
       },
-      { property: "og:title", content: "Study — Tutor & Year 9 Revision Decks | Dimted" },
+      { property: "og:title", content: "Study — Tutor & Year 9 Revision Decks | Lumo" },
       {
         property: "og:description",
         content:
