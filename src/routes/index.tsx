@@ -279,6 +279,7 @@ function HomePage() {
                 ))}
               </div>
             </div>
+            </div>
           </Panel>
 
         <Panel className="p-4" delay={80}>
