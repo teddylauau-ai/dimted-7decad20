@@ -85,8 +85,14 @@ function ArmoryPage() {
     effect: profile?.equipped_effect ?? null,
   };
 
-  const vaultItems = useMemo(() => ownedItems.filter((i) => i.pool === "owner"), [ownedItems]);
-  const adminItems = useMemo(() => ownedItems.filter((i) => i.pool === "admin"), [ownedItems]);
+  const vaultItems = useMemo(
+    () => (isOwner ? ownedItems.filter((i) => i.pool === "owner") : []),
+    [ownedItems, isOwner],
+  );
+  const adminItems = useMemo(
+    () => (isStaff ? ownedItems.filter((i) => i.pool === "admin") : []),
+    [ownedItems, isStaff],
+  );
   const isVault = slot === "vault";
   const isAdmin = slot === "admin";
   const isExclusive = isVault || isAdmin;
