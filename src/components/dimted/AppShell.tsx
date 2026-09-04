@@ -277,7 +277,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               {banned ? (profile?.ban_reason ? ` Reason: ${profile.ban_reason}` : "") : profile?.mute_reason ? ` Reason: ${profile.mute_reason}` : ""}
             </div>
           ) : null}
-          {children}
+          <div key={location.pathname} className="page-transition">
+            {children}
+          </div>
         </main>
 
       </div>
