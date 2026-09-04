@@ -140,7 +140,7 @@ export function Avatar({
   return (
     <span className="relative inline-flex shrink-0">
       {inner}
-      <PresenceDot profile={profile} />
+      <PresenceDot profile={profile} size={size} />
     </span>
   );
 }
