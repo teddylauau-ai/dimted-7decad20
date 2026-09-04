@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { DimtedProvider } from "@/lib/dimted-store";
 import { AppShell } from "@/components/dimted/AppShell";
+import { CursorGlow } from "@/components/dimted/CursorGlow";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -161,6 +162,7 @@ function RootComponent() {
           <Outlet />
         </AppShell>
       </DimtedProvider>
+      <CursorGlow />
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
