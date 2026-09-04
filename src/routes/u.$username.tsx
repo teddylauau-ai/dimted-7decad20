@@ -249,9 +249,9 @@ function PublicProfilePage() {
             aside={`${ownedItems.length} item${ownedItems.length === 1 ? "" : "s"}`}
           />
           {ownedItems.length === 0 ? (
-            <p className="text-muted-foreground mt-4 text-sm">
+            <EmptyState icon={Sparkles} title="No cosmetics yet">
               Nothing collected yet — they're still early.
-            </p>
+            </EmptyState>
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {ownedItems.map((item) => (
