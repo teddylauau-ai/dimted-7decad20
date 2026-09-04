@@ -339,7 +339,7 @@ function HomePage() {
                 <li
                   key={r.name}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border px-3 py-1.5",
+                    "flex items-center gap-3 rounded-xl border px-3 py-1",
                     current
                       ? "border-gold/50 bg-gold/10"
                       : reached
