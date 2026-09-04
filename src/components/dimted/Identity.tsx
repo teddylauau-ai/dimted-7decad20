@@ -20,12 +20,24 @@ export type IdentityProfile = {
   activity_context?: string | null;
 };
 
+function presenceVars(size: number) {
+  const s = Math.max(8, Math.round(size / 4));
+  const stroke = Math.max(2, Math.round(size / 22));
+  const offset = Math.round(stroke / 2);
+  return {
+    ["--pd-size" as string]: `${s}`,
+    ["--pd-offset" as string]: `${offset}`,
+  } as React.CSSProperties;
+}
+
 /** Live status dot. Derived from real activity — nobody can set it by hand. */
 export function PresenceDot({
   profile,
+  size = 40,
   className,
 }: {
   profile: IdentityProfile | null | undefined;
+  size?: number;
   className?: string;
 }) {
   const p = presenceFor(profile?.last_active_at, profile?.activity_context);
@@ -34,6 +46,7 @@ export function PresenceDot({
     <span
       title={p.label}
       aria-label={p.label}
+      style={presenceVars(size)}
       className={cn(
         "presence-dot grid place-items-center",
         offline ? "bg-muted text-muted-foreground" : p.dotClass,
@@ -41,7 +54,7 @@ export function PresenceDot({
       )}
     >
       {offline ? (
-        <svg viewBox="0 0 10 10" aria-hidden className="size-[7px]">
+        <svg viewBox="0 0 10 10" aria-hidden className="size-[55%]">
           <path
             d="M2 2 L8 8 M8 2 L2 8"
             stroke="currentColor"
