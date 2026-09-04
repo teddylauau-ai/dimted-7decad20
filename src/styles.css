@@ -722,15 +722,15 @@ html.light .glass-raised {
     );
 }
 
-/* ------------------------------------------------- founder-exclusive styles */
+/* --------------------------------------------------- admin-exclusive styles */
 .cos-gradient-founder-halo {
   background-image: linear-gradient(
     92deg,
-    oklch(0.98 0.04 92),
-    oklch(0.86 0.15 86),
-    oklch(0.99 0.02 100),
-    oklch(0.78 0.14 66),
-    oklch(0.98 0.04 92)
+    oklch(0.95 0.05 200),
+    oklch(0.82 0.14 195),
+    oklch(0.97 0.03 210),
+    oklch(0.74 0.15 285),
+    oklch(0.95 0.05 200)
   );
 }
 .cos-gradient-founder-genesis {
@@ -738,7 +738,7 @@ html.light .glass-raised {
     92deg,
     oklch(0.93 0.11 190),
     oklch(0.9 0.14 300),
-    oklch(0.97 0.05 95),
+    oklch(0.97 0.04 215),
     oklch(0.88 0.13 200),
     oklch(0.93 0.11 190)
   );
@@ -747,48 +747,48 @@ html.light .glass-raised {
   background-image: linear-gradient(
     92deg,
     oklch(0.34 0.03 262),
-    oklch(1 0 0) 46%,
-    oklch(0.9 0.13 86) 54%,
+    oklch(0.97 0.02 210) 46%,
+    oklch(0.8 0.14 196) 54%,
     oklch(0.34 0.03 262)
   );
 }
 .cos-glow-founder {
   text-shadow:
-    0 0 10px oklch(0.9 0.14 88 / 0.55),
-    0 0 26px oklch(0.86 0.15 86 / 0.35);
+    0 0 10px oklch(0.85 0.13 196 / 0.55),
+    0 0 26px oklch(0.74 0.15 285 / 0.35);
 }
 
 .cos-frame-aureate {
   box-shadow:
-    0 0 0 2px oklch(0.9 0.14 88),
-    0 0 0 4px oklch(0.55 0.09 80 / 0.45),
-    0 0 30px -6px oklch(0.88 0.15 86 / 0.85);
+    0 0 0 2px oklch(0.84 0.13 196),
+    0 0 0 4px oklch(0.5 0.1 285 / 0.45),
+    0 0 30px -6px oklch(0.8 0.14 200 / 0.85);
   animation: breathe 4.5s ease-in-out infinite;
 }
 .cos-frame-orbital {
   padding: 2px;
   background-image: conic-gradient(
     from 0deg,
-    oklch(0.95 0.05 95),
-    oklch(0.88 0.15 86) 22%,
+    oklch(0.95 0.04 210),
+    oklch(0.84 0.14 196) 22%,
     transparent 42%,
-    oklch(0.86 0.13 195) 62%,
+    oklch(0.76 0.15 288) 62%,
     transparent 80%,
-    oklch(0.95 0.05 95)
+    oklch(0.95 0.04 210)
   );
-  box-shadow: 0 0 26px -6px oklch(0.88 0.14 88 / 0.7);
+  box-shadow: 0 0 26px -6px oklch(0.82 0.13 198 / 0.7);
   animation: cos-spin 5.5s linear infinite;
 }
 
 .cos-founder-row {
   background-image: linear-gradient(
     90deg,
-    oklch(0.88 0.14 88 / 0.2),
-    oklch(0.86 0.12 60 / 0.1) 40%,
+    oklch(0.82 0.13 196 / 0.2),
+    oklch(0.76 0.14 288 / 0.1) 40%,
     transparent 72%
   );
   border-radius: 0.6rem;
-  text-shadow: 0 0 12px oklch(0.9 0.14 88 / 0.4);
+  text-shadow: 0 0 12px oklch(0.84 0.13 198 / 0.4);
   animation: cos-founder-sweep 720ms ease-out;
 }
 @keyframes cos-founder-sweep {

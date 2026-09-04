@@ -98,7 +98,7 @@ function ItemCard({
 }) {
   const levelLocked = level < item.required_level;
   const affordable = sparks >= item.price_sparks;
-  const exclusive = item.pool === "founder" || item.pool === "owner";
+  const exclusive = item.pool === "admin" || item.pool === "owner";
 
   return (
     <div
@@ -136,7 +136,7 @@ function ItemCard({
             </>
           ) : exclusive ? (
             <>
-              <Lock className="size-3.5" /> {item.pool === "owner" ? "Owner only" : "Founder only"}
+              <Lock className="size-3.5" /> {item.pool === "owner" ? "Owner only" : "Admins only"}
             </>
           ) : levelLocked ? (
             <>
@@ -193,8 +193,8 @@ function ShopPage() {
     [all],
   );
 
-  const founder = useMemo(() => all.filter((i) => i.pool === "founder"), [all]);
-  const ownsFounder = founder.some((i) => owned.has(i.slug));
+  const adminVault = useMemo(() => all.filter((i) => i.pool === "admin"), [all]);
+  const ownsAdminVault = adminVault.some((i) => owned.has(i.slug));
   const ownerVault = useMemo(() => all.filter((i) => i.pool === "owner"), [all]);
   const ownsVault = ownerVault.some((i) => owned.has(i.slug));
 
@@ -288,7 +288,7 @@ function ShopPage() {
             />
             <p className="text-muted-foreground mt-2 text-xs">
               {ownsVault
-                ? "Regalia minted for the founder-owner of Dimted. It cannot be bought, traded, granted, or duplicated — not even by admins."
+                ? "Regalia minted for the owner of Dimted. It cannot be bought, traded, granted, or duplicated — not even by admins."
                 : "These belong to the owner of Dimted. No level, price, or grant will ever unlock them for another account."}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -309,28 +309,28 @@ function ShopPage() {
         </Panel>
       ) : null}
 
-      {founder.length ? (
-        <Panel className="border-gold/40 relative overflow-hidden p-5">
+      {adminVault.length ? (
+        <Panel className="border-primary/40 relative overflow-hidden p-5">
           <div
             className="pointer-events-none absolute inset-0 opacity-70"
             style={{
               background:
-                "radial-gradient(70% 120% at 12% -20%, oklch(0.86 0.15 86 / 0.14), transparent 65%)",
+                "radial-gradient(70% 120% at 12% -20%, oklch(0.72 0.13 195 / 0.16), transparent 65%), radial-gradient(50% 110% at 92% 120%, oklch(0.66 0.16 300 / 0.12), transparent 68%)",
             }}
           />
           <div className="relative">
             <PanelHead
-              eyebrow="Founders' Vault"
-              title={ownsFounder ? "Yours forever — the founder" : "Sealed to the founder account"}
-              aside="never for sale"
+              eyebrow="Admin Vault"
+              title={ownsAdminVault ? "Issued with your admin role" : "Staff only — never for sale"}
+              aside="not purchasable"
             />
             <p className="text-muted-foreground mt-2 text-xs">
-              {ownsFounder
-                ? "Minted for the account that started Dimted. They cannot be bought, granted, or ever minted again."
-                : "These live on one account only — the founder who opened Dimted."}
+              {ownsAdminVault
+                ? "Staff regalia. It arrives with the admin role and cannot be bought, traded, or level-unlocked."
+                : "These are issued to Dimted admins only. No amount of Sparks or levels will unlock them."}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              {founder.map((item) => (
+              {adminVault.map((item) => (
                 <ItemCard
                   key={item.slug}
                   item={item}
