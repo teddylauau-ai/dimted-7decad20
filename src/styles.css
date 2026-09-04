@@ -1213,7 +1213,6 @@ html.light .glass-raised {
 
 
 @media (prefers-reduced-motion: reduce) {
-  .cos-crown-shimmer, .cos-crown-shimmer-fast,
   .cos-sov, .cos-sov::before, .cos-sov::after, .cos-sov-badge,
   .cos-frame-sov-ascension, .cos-frame-sov-ascension::before,
   .cos-frame-sov-corona, .cos-frame-sov-corona::before,
