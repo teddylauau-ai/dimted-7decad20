@@ -19,6 +19,7 @@ import { nextUnlock } from "@/lib/dimted";
 import { formatSparks } from "@/lib/cosmetics";
 import { Backpack } from "lucide-react";
 import { useMyRole } from "@/lib/roles-queries";
+import { useUnreadMessages, useMessageTabBadge } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 import { Meter } from "./primitives";
 import { Avatar, Nametag, PresenceLabel } from "./Identity";
@@ -73,7 +74,25 @@ const GROUPS = [
 ] as const;
 
 
+/** Small red count that rides on a nav item. */
+function UnreadDot({ count, className }: { count: number; className?: string }) {
+  if (count < 1) return null;
+  return (
+    <span
+      aria-label={`${count} unread messages`}
+      className={cn(
+        "bg-destructive text-destructive-foreground pointer-events-none absolute grid min-w-[16px] place-items-center rounded-full px-1 text-[10px] leading-[16px] font-semibold shadow-sm",
+        className,
+      )}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 function Rail() {
+  const { profile } = useDimted();
+  const unread = useUnreadMessages(profile?.id);
   return (
     <aside className="glass hidden w-[68px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-3 lg:flex">
       <Link to="/" aria-label="Dimted home" className="mb-1.5">
@@ -94,6 +113,7 @@ function Rail() {
           }}
         >
           <Icon className="size-[18px]" strokeWidth={1.9} />
+          {to === "/messages" ? <UnreadDot count={unread} className="top-1 right-1" /> : null}
         </Link>
       ))}
     </aside>
@@ -117,6 +137,7 @@ function Sidebar() {
   } = useDimted();
   const upcoming = nextUnlock(level);
   const { isModerator: isStaff } = useMyRole(profile?.id);
+  const unread = useUnreadMessages(profile?.id);
 
   return (
     <aside className="glass hidden w-[236px] shrink-0 flex-col rounded-2xl lg:flex">
@@ -138,11 +159,14 @@ function Sidebar() {
                 key={`${group.label}-${to}`}
                 to={to}
                 activeOptions={{ exact: to === "/" }}
-                className="text-muted-foreground hover:bg-secondary/60 hover:text-foreground flex h-8 items-center gap-2.5 rounded-md px-2 text-sm transition-colors"
+                className="text-muted-foreground hover:bg-secondary/60 hover:text-foreground relative flex h-8 items-center gap-2.5 rounded-md px-2 text-sm transition-colors"
                 activeProps={{ className: "bg-secondary text-foreground font-medium" }}
               >
                 <Icon className="size-4 shrink-0" strokeWidth={1.85} />
                 <span className="truncate">{label}</span>
+                {to === "/messages" ? (
+                  <UnreadDot count={unread} className="relative ml-auto" />
+                ) : null}
               </Link>
             ))}
           </div>
@@ -236,6 +260,8 @@ function Sidebar() {
 export function AppShell({ children }: { children: ReactNode }) {
   const { loading, session, profile } = useDimted();
   const location = useLocation();
+  const unread = useUnreadMessages(profile?.id);
+  useMessageTabBadge(unread);
 
   if (loading) {
     return (
@@ -293,10 +319,11 @@ export function AppShell({ children }: { children: ReactNode }) {
               to={to}
               activeOptions={{ exact: to === "/" }}
               aria-label={label}
-              className="text-muted-foreground grid size-10 place-items-center rounded-xl"
+              className="text-muted-foreground relative grid size-10 place-items-center rounded-xl"
               activeProps={{ className: "bg-secondary text-primary" }}
             >
               <Icon className="size-4" strokeWidth={1.85} />
+              {to === "/messages" ? <UnreadDot count={unread} className="top-1 right-1" /> : null}
             </Link>
           ),
         )}
