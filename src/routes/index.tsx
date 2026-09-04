@@ -71,14 +71,15 @@ function HomePage() {
   return (
     <div className="space-y-4">
       <header className="animate-rise grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-3 py-2.5">
-          <div className="min-w-0">
+        <div className="glass flex items-center gap-3 rounded-2xl px-3 py-2.5">
+          <RankBadge level={level} size="lg" />
+          <div className="min-w-0 flex-1">
             <p className="eyebrow">Progression</p>
             <h1 className="font-display mt-0.5 truncate text-lg font-semibold tracking-tight">
               Level {level} · {rank}
             </h1>
             <p className="text-muted-foreground mt-0.5 truncate font-mono text-[11px]">
-              {profile?.display_name ?? "—"} · {intoLevel.toLocaleString()}/{needed.toLocaleString()} XP
+              {intoLevel.toLocaleString()}/{needed.toLocaleString()} XP · {profile?.display_name ?? "—"}
             </p>
           </div>
           <div className="shrink-0 text-right">
