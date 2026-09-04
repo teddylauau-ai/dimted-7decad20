@@ -93,7 +93,7 @@ export function Avatar({
   profile,
   size = 40,
   className,
-  presence = false,
+  presence = true,
 }: {
   profile: IdentityProfile | null | undefined;
   size?: number;
