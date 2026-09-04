@@ -6,6 +6,7 @@ import {
   NAMETAG_CLASS,
   type WornCosmetics,
 } from "@/lib/cosmetics";
+import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
 import { presenceFor } from "@/lib/presence";
 import { cn } from "@/lib/utils";
 
@@ -182,13 +183,15 @@ export function ProfileLink({
 }) {
   if (!profile) return <span className={className}>Unknown</span>;
   return (
-    <Link
-      to="/u/$username"
-      params={{ username: profile.username }}
-      className={cn("hover:underline", className)}
-    >
-      {children ?? <Nametag profile={profile} />}
-    </Link>
+    <ProfileHoverCard username={profile.username}>
+      <Link
+        to="/u/$username"
+        params={{ username: profile.username }}
+        className={cn("hover:underline", className)}
+      >
+        {children ?? <Nametag profile={profile} />}
+      </Link>
+    </ProfileHoverCard>
   );
 }
 
@@ -223,15 +226,17 @@ export function IdentityRow({
     return <span className={cn("flex min-w-0 items-center gap-2.5", className)}>{body}</span>;
   }
   return (
-    <Link
-      to="/u/$username"
-      params={{ username: profile.username }}
-      className={cn(
-        "hover:bg-secondary/50 flex min-w-0 items-center gap-2.5 rounded-lg transition-colors",
-        className,
-      )}
-    >
-      {body}
-    </Link>
+    <ProfileHoverCard username={profile.username} className="w-full">
+      <Link
+        to="/u/$username"
+        params={{ username: profile.username }}
+        className={cn(
+          "hover:bg-secondary/50 flex min-w-0 flex-1 items-center gap-2.5 rounded-lg transition-colors",
+          className,
+        )}
+      >
+        {body}
+      </Link>
+    </ProfileHoverCard>
   );
 }
