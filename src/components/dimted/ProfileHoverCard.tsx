@@ -83,29 +83,31 @@ export function ProfileHoverCard({
 
             <div className="px-4 pb-4">
               <div className="-mt-7 flex items-end justify-between gap-3">
-                <span className="relative inline-flex">
-                  <span
-                    className={cn(
-                      "bg-secondary text-foreground/90 font-display glass-raised grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl text-lg font-semibold",
-                      p.equipped_frame ? FRAME_CLASS[p.equipped_frame] : undefined,
-                    )}
-                  >
-                    {p.avatar_url ? (
-                      <img
-                        src={p.avatar_url}
-                        alt=""
-                        className="h-full w-full rounded-2xl object-cover"
-                      />
-                    ) : (
-                      p.display_name.slice(0, 2).toUpperCase()
-                    )}
+                <span
+                  className={cn(
+                    "bg-secondary text-foreground/90 font-display glass-raised relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl text-lg font-semibold",
+                    p.equipped_frame ? FRAME_CLASS[p.equipped_frame] : undefined,
+                  )}
+                >
+                  <span className="relative inline-flex size-[3.25rem] shrink-0">
+                    <span className="bg-secondary grid size-[3.25rem] shrink-0 place-items-center overflow-hidden rounded-xl">
+                      {p.avatar_url ? (
+                        <img
+                          src={p.avatar_url}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        p.display_name.slice(0, 2).toUpperCase()
+                      )}
+                    </span>
+                    <span
+                      className={cn(
+                        "border-card absolute -right-0.5 -bottom-0.5 size-3.5 rounded-full border-2",
+                        presence.state === "offline" ? "bg-muted" : presence.dotClass,
+                      )}
+                    />
                   </span>
-                  <span
-                    className={cn(
-                      "border-card absolute -right-0.5 -bottom-0.5 size-3.5 rounded-full border-2",
-                      presence.state === "offline" ? "bg-muted" : presence.dotClass,
-                    )}
-                  />
                 </span>
                 <span className="border-border/60 bg-secondary/60 mb-1 rounded-full border px-2 py-0.5 font-mono text-[10px]">
                   LVL {derived?.level ?? 1}
