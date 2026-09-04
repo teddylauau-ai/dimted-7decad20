@@ -225,45 +225,44 @@ function MessagesPage() {
               ) : null}
             </header>
 
-            <form
-              onSubmit={send}
-              className="border-border bg-secondary/15 flex gap-2 border-b px-5 py-3"
-            >
-              <Input
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                placeholder="Write something worth replying to…"
-              />
-              <Button type="submit" disabled={!draft.trim()}>
-                <Send className="size-4" />
-              </Button>
-            </form>
-
-            {/* Newest first: your new message appears right under the composer. */}
-            <div className="flex-1 overflow-y-auto px-3 py-4">
+            {/* Oldest first: the chat scrolls up like Discord/iMessage. */}
+            <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4">
               {list.length === 0 ? (
                 <p className="text-muted-foreground py-10 text-center text-sm">
                   Say something first. The first message is worth XP to both of you.
                 </p>
               ) : (
                 list.map((m, i) => {
-                  const older = list[i + 1];
+                  const previous = list[i - 1];
                   const grouped =
-                    !!older &&
-                    older.author?.id === m.author?.id &&
-                    Date.parse(m.created_at) - Date.parse(older.created_at) < 5 * 60 * 1000 &&
-                    new Date(older.created_at).toDateString() ===
+                    !!previous &&
+                    previous.author?.id === m.author?.id &&
+                    Date.parse(m.created_at) - Date.parse(previous.created_at) < 5 * 60 * 1000 &&
+                    new Date(previous.created_at).toDateString() ===
                       new Date(m.created_at).toDateString();
                   const fx = m.author?.equipped_effect
                     ? EFFECT_CLASS[m.author.equipped_effect]
                     : undefined;
-                  const dayEnds =
-                    !older ||
-                    new Date(older.created_at).toDateString() !==
+                  const dayStarts =
+                    !previous ||
+                    new Date(previous.created_at).toDateString() !==
                       new Date(m.created_at).toDateString();
                   const mine = m.author?.id === profile?.id;
                   return (
                     <div key={m.id}>
+                      {dayStarts ? (
+                        <div className="my-4 flex items-center gap-3">
+                          <span className="bg-border h-px flex-1" />
+                          <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
+                            {new Date(m.created_at).toLocaleDateString([], {
+                              weekday: "short",
+                              day: "numeric",
+                              month: "short",
+                            })}
+                          </span>
+                          <span className="bg-border h-px flex-1" />
+                        </div>
+                      ) : null}
                       <div
                         className={cn(
                           "chat-row group hover:bg-secondary/35 flex gap-3 rounded-lg px-2 py-1 transition-colors",
@@ -313,19 +312,6 @@ function MessagesPage() {
                           </button>
                         ) : null}
                       </div>
-                      {dayEnds ? (
-                        <div className="my-4 flex items-center gap-3">
-                          <span className="bg-border h-px flex-1" />
-                          <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
-                            {new Date(m.created_at).toLocaleDateString([], {
-                              weekday: "short",
-                              day: "numeric",
-                              month: "short",
-                            })}
-                          </span>
-                          <span className="bg-border h-px flex-1" />
-                        </div>
-                      ) : null}
                     </div>
                   );
                 })
@@ -336,6 +322,20 @@ function MessagesPage() {
                 </p>
               ) : null}
             </div>
+
+            <form
+              onSubmit={send}
+              className="border-border bg-secondary/15 flex gap-2 border-t px-5 py-3"
+            >
+              <Input
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                placeholder="Write something worth replying to…"
+              />
+              <Button type="submit" disabled={!draft.trim()}>
+                <Send className="size-4" />
+              </Button>
+            </form>
           </Panel>
         </div>
       )}
