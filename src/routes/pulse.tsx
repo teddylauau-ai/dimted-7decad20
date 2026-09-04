@@ -121,17 +121,16 @@ function PulsePage() {
         });
         if (practice) return;
         if (res.gained) toast.success(`+${res.gained} coins`);
-        if (run.cleared) {
-          const reward = await awardArcadeXp(
-            "pulse-rush" as GameId,
-            runScore(level.n, run.pct, coinBits(run.coinMask).filter(Boolean).length),
-          );
-          setResult((r) => (r ? { ...r, reward } : r));
-          if (reward.status === "granted") {
-            toast.success(`+${reward.gained} XP · +${reward.sparks_gained} sparks`);
-          }
-          refresh();
+        // Every real run earns XP — a 72% attempt still counts toward your level.
+        const reward = await awardArcadeXp(
+          "pulse-rush" as GameId,
+          runScore(level.n, run.pct, coinBits(run.coinMask).filter(Boolean).length),
+        );
+        setResult((r) => (r ? { ...r, reward } : r));
+        if (reward.status === "granted" || reward.status === "awarded") {
+          toast.success(`+${reward.gained} XP · +${reward.sparks_gained} sparks`);
         }
+        refresh();
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Couldn't save that attempt");
       }
@@ -192,6 +191,12 @@ function PulsePage() {
             <span>{(result.ms / 1000).toFixed(1)}s</span>
             {practice ? <span>practice — no rewards</span> : null}
           </div>
+          {!practice && result.reward?.gained ? (
+            <div className="border-primary/30 bg-primary/5 mt-4 inline-flex items-center gap-4 rounded-full border px-5 py-2 font-mono text-sm">
+              <span className="text-primary font-semibold">+{result.reward.gained} XP</span>
+              <span className="text-gold font-semibold">+{result.reward.sparks_gained} sparks</span>
+            </div>
+          ) : null}
           <div className="mt-5 flex flex-wrap justify-center gap-2">
             <Button onClick={() => start(level, practice)}>
               <Repeat className="mr-1 size-4" /> Again
