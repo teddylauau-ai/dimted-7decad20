@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Coins, ShoppingBag, Sparkles } from "lucide-react";
+import { Coins, Crown, ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
