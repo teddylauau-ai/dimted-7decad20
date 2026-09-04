@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useDimted } from "@/lib/dimted-store";
 import { RarityChip } from "./primitives";
 import { Button } from "@/components/ui/button";
+import { nextUnlock, rankForLevel } from "@/lib/dimted";
+import partyPig from "@/assets/party-pig.png";
 
 const SPARKS = [
   { left: "18%", delay: "0ms", size: "size-1.5", x: "-14px" },
@@ -10,6 +12,13 @@ const SPARKS = [
   { left: "58%", delay: "320ms", size: "size-1", x: "18px" },
   { left: "71%", delay: "140ms", size: "size-1.5", x: "-20px" },
   { left: "84%", delay: "260ms", size: "size-1", x: "8px" },
+];
+
+const PIG_LINES = [
+  "No new toys this level. The pig is proud anyway.",
+  "Nothing unlocked — but this pig threw a party for you.",
+  "Zero rewards. Maximum pig.",
+  "The vault stayed shut, so here's a pig instead.",
 ];
 
 /**
@@ -21,11 +30,16 @@ export function LevelUpOverlay() {
 
   useEffect(() => {
     if (!levelUp) return;
-    const t = window.setTimeout(dismissLevelUp, 6000);
+    const t = window.setTimeout(dismissLevelUp, 9000);
     return () => window.clearTimeout(t);
   }, [levelUp, dismissLevelUp]);
 
   if (!levelUp) return null;
+
+  const previousRank = rankForLevel(Math.max(1, levelUp.level - 1));
+  const newRank = levelUp.rank !== previousRank;
+  const upcoming = nextUnlock(levelUp.level);
+  const pigLine = PIG_LINES[levelUp.level % PIG_LINES.length]!;
 
   return (
     <div
@@ -47,23 +61,55 @@ export function LevelUpOverlay() {
         <p className="text-gold font-mono text-[11px] tracking-[0.34em] uppercase">Level up</p>
         <p className="numeral text-glow mt-3 text-6xl leading-none">{levelUp.level}</p>
         <p className="text-muted-foreground mt-2 font-mono text-xs">
-          {levelUp.rank} · +{levelUp.gained} XP
+          {levelUp.rank}
+          {levelUp.gained ? ` · +${levelUp.gained} XP` : ""}
         </p>
 
-        {levelUp.unlock ? (
-          <div className="border-border bg-background/40 mt-6 rounded-2xl border p-4 text-left">
-            <div className="flex items-center justify-between gap-3">
-              <p className="eyebrow">New unlock</p>
-              <RarityChip rarity={levelUp.unlock.rarity} />
+        <p className="eyebrow mt-6 text-left">What you get</p>
+
+        <div className="mt-2 space-y-2 text-left">
+          {newRank ? (
+            <div className="border-gold/25 bg-gold/[0.06] rounded-2xl border p-3">
+              <p className="font-display text-sm font-semibold">New rank: {levelUp.rank}</p>
+              <p className="text-muted-foreground mt-0.5 text-xs">
+                Shown beside your name everywhere on Dimted.
+              </p>
             </div>
-            <p className="font-display mt-2 text-base font-semibold">{levelUp.unlock.name}</p>
-            <p className="text-muted-foreground mt-1 text-xs">{levelUp.unlock.detail}</p>
+          ) : null}
+
+          {levelUp.unlock ? (
+            <div className="border-border bg-background/40 rounded-2xl border p-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-display text-sm font-semibold">{levelUp.unlock.name}</p>
+                <RarityChip rarity={levelUp.unlock.rarity} />
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">{levelUp.unlock.detail}</p>
+            </div>
+          ) : null}
+
+          {!levelUp.unlock && !newRank ? (
+            <div className="border-border bg-background/40 rounded-2xl border p-3 text-center">
+              <img
+                src={partyPig}
+                alt="Cartoon party pig celebrating your level up"
+                loading="lazy"
+                width={768}
+                height={768}
+                className="animate-pop-in mx-auto size-28 object-contain drop-shadow-lg"
+              />
+              <p className="font-display mt-1 text-sm font-semibold">Level {levelUp.level}!</p>
+              <p className="text-muted-foreground mt-1 text-xs">{pigLine}</p>
+            </div>
+          ) : null}
+
+          <div className="border-border/70 bg-background/30 rounded-2xl border border-dashed p-3">
+            <p className="text-muted-foreground text-xs">
+              {upcoming
+                ? `Next up at level ${upcoming.level}: ${upcoming.name}`
+                : "You've unlocked everything on the ladder. Absolute unit."}
+            </p>
           </div>
-        ) : (
-          <p className="text-muted-foreground mt-6 text-xs">
-            Nothing unlocks at this level — but something is close.
-          </p>
-        )}
+        </div>
 
         <Button onClick={dismissLevelUp} className="mt-6 w-full">
           Keep going
