@@ -151,9 +151,7 @@ function HomePage() {
                   <p className="eyebrow">Your ladder</p>
                   <div className="mt-0.5 flex flex-wrap items-center gap-2">
                     <span className="numeral text-lg leading-tight">{rank}</span>
-                    <span className="bg-primary/10 text-primary border-primary/30 shadow-[0_0_20px_-8px_var(--color-primary)] rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-wider uppercase">
-                      Lv {level}
-                    </span>
+                    <RankPill level={level} />
                   </div>
                   <p className="text-muted-foreground mt-0.5 font-mono text-[11px]">
                     {(needed - intoLevel).toLocaleString()} XP to Level {level + 1}
