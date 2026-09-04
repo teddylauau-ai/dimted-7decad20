@@ -1,44 +1,14 @@
 import { cn } from "@/lib/utils";
-import { rankForLevel, type Rank } from "@/lib/dimted";
+import { rankForLevel } from "@/lib/dimted";
 
-const rankTone: Record<Rank["tier"], { base: string; border: string; text: string; icon: string }> = {
-  newcomer: {
-    base: "from-slate-500/20 to-slate-400/10",
-    border: "border-slate-400/30",
-    text: "text-slate-200",
-    icon: "✦",
-  },
-  explorer: {
-    base: "from-emerald-500/20 to-emerald-400/10",
-    border: "border-emerald-400/30",
-    text: "text-emerald-200",
-    icon: "◆",
-  },
-  vanguard: {
-    base: "from-primary/25 to-primary/10",
-    border: "border-primary/35",
-    text: "text-primary-foreground",
-    icon: "▲",
-  },
-  elite: {
-    base: "from-violet-500/20 to-violet-400/10",
-    border: "border-violet-400/30",
-    text: "text-violet-200",
-    icon: "✸",
-  },
-  prime: {
-    base: "from-amber-500/25 to-gold/10",
-    border: "border-gold/40",
-    text: "text-gold",
-    icon: "✹",
-  },
-  apex: {
-    base: "from-rose-500/20 to-rose-400/10",
-    border: "border-rose-400/30",
-    text: "text-rose-200",
-    icon: "◉",
-  },
-};
+function rankTone(level: number) {
+  if (level >= 90) return { base: "from-rose-500/20 to-rose-400/10", border: "border-rose-400/30", text: "text-rose-200", icon: "◉" };
+  if (level >= 75) return { base: "from-amber-500/25 to-gold/10", border: "border-gold/40", text: "text-gold", icon: "✹" };
+  if (level >= 50) return { base: "from-violet-500/20 to-violet-400/10", border: "border-violet-400/30", text: "text-violet-200", icon: "✸" };
+  if (level >= 25) return { base: "from-primary/25 to-primary/10", border: "border-primary/35", text: "text-primary-foreground", icon: "▲" };
+  if (level >= 10) return { base: "from-emerald-500/20 to-emerald-400/10", border: "border-emerald-400/30", text: "text-emerald-200", icon: "◆" };
+  return { base: "from-slate-500/20 to-slate-400/10", border: "border-slate-400/30", text: "text-slate-200", icon: "✦" };
+}
 
 export function RankBadge({
   level,
@@ -49,8 +19,7 @@ export function RankBadge({
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
-  const rank = rankForLevel(level);
-  const tone = rankTone[rank.tier];
+  const tone = rankTone(level);
   const sizes = {
     sm: "h-5 w-5 text-[9px]",
     md: "h-7 w-7 text-[11px]",
@@ -59,7 +28,7 @@ export function RankBadge({
 
   return (
     <span
-      title={rank.label}
+      title={rankForLevel(level)}
       className={cn(
         "rank-emblem shrink-0 bg-gradient-to-br border",
         tone.base,
@@ -75,8 +44,7 @@ export function RankBadge({
 }
 
 export function RankPill({ level, className }: { level: number; className?: string }) {
-  const rank = rankForLevel(level);
-  const tone = rankTone[rank.tier];
+  const tone = rankTone(level);
   return (
     <span
       className={cn(
@@ -87,7 +55,7 @@ export function RankPill({ level, className }: { level: number; className?: stri
       )}
     >
       <span>{tone.icon}</span>
-      {rank.label}
+      {rankForLevel(level)}
     </span>
   );
 }

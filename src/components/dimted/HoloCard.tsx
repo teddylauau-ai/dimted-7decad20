@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { rankForLevel } from "@/lib/dimted";
+import { levelFromTotalXp, rankForLevel } from "@/lib/dimted";
 import { Avatar } from "./Identity";
 import { RankBadge } from "./RankBadge";
 import type { PublicProfile } from "@/lib/dimted-queries";
@@ -34,7 +34,7 @@ export function HoloCard({
   onClose: () => void;
 }) {
   if (!open) return null;
-  const rank = rankForLevel(profile.level);
+  const { level } = levelFromTotalXp(profile.total_xp);
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
@@ -53,8 +53,8 @@ export function HoloCard({
           </button>
 
           <div className="mx-auto mb-4 inline-flex items-center gap-3 rounded-full border border-border/60 bg-background/60 px-3 py-1.5">
-            <RankBadge level={profile.level} size="sm" />
-            <span className="font-display text-sm font-semibold">{rank.label}</span>
+            <RankBadge level={level} size="sm" />
+            <span className="font-display text-sm font-semibold">{rankForLevel(level)}</span>
           </div>
 
           <div className="relative mx-auto mb-4 inline-flex">
@@ -73,9 +73,9 @@ export function HoloCard({
           ) : null}
 
           <div className="mt-5 grid grid-cols-3 gap-2">
-            <Stat label="Level" value={profile.level} />
-            <Stat label="Sparks" value={profile.sparks} />
-            <Stat label="XP" value={profile.xp} />
+            <Stat label="Level" value={level} />
+            <Stat label="XP" value={profile.total_xp} />
+            <Stat label="Rank" value={rankForLevel(level)} />
           </div>
 
           <div className="mt-4 rounded-xl border border-border/50 bg-background/40 p-3 text-xs text-muted-foreground">
@@ -87,10 +87,10 @@ export function HoloCard({
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl border border-border/40 bg-background/40 p-2">
-      <p className="numeral text-lg font-semibold">{value.toLocaleString()}</p>
+      <p className="numeral text-lg font-semibold">{typeof value === "number" ? value.toLocaleString() : value}</p>
       <p className="text-muted-foreground text-[10px] uppercase tracking-wider">{label}</p>
     </div>
   );
