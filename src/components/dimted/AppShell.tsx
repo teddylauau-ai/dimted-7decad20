@@ -235,6 +235,7 @@ function Sidebar() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { loading, session, profile } = useDimted();
+  const location = useLocation();
 
   if (loading) {
     return (
