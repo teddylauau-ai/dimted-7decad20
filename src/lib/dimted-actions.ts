@@ -29,6 +29,62 @@ export async function sendDirectMessage(friendshipId: string, senderId: string, 
   if (error) throw error;
 }
 
+/**
+ * Voice notes live in the private `voice` bucket under the sender's folder; we
+ * store a long-lived signed URL on the message so chat rows can play it back.
+ */
+export async function uploadVoiceClip(userId: string, blob: Blob): Promise<string> {
+  if (blob.size > 10 * 1024 * 1024) throw new Error("Voice messages must be under 10MB");
+  const type = blob.type.split(";")[0] || "audio/webm";
+  const ext = type.includes("mp4") ? "mp4" : type.includes("mpeg") ? "mp3" : type.includes("wav") ? "wav" : "webm";
+  const path = `${userId}/voice-${Date.now()}.${ext}`;
+
+  const { error: upErr } = await supabase.storage
+    .from("voice")
+    .upload(path, blob, { cacheControl: "31536000", contentType: type, upsert: true });
+  if (upErr) throw upErr;
+
+  const { data, error } = await supabase.storage.from("voice").createSignedUrl(path, 60 * 60 * 24 * 365);
+  if (error || !data?.signedUrl) throw error ?? new Error("Couldn't read that recording back");
+  return data.signedUrl;
+}
+
+export async function sendDirectVoiceMessage(
+  friendshipId: string,
+  senderId: string,
+  blob: Blob,
+  durationMs: number,
+) {
+  const audio_url = await uploadVoiceClip(senderId, blob);
+  const { error } = await supabase.from("messages").insert({
+    friendship_id: friendshipId,
+    sender_id: senderId,
+    body: "\u{1F3A4} Voice message",
+    audio_url,
+    audio_ms: Math.round(durationMs),
+  });
+  if (error) throw error;
+}
+
+export async function postChannelVoiceMessage(
+  communityId: string,
+  channelId: string,
+  userId: string,
+  blob: Blob,
+  durationMs: number,
+) {
+  const audio_url = await uploadVoiceClip(userId, blob);
+  const { error } = await supabase.from("community_messages").insert({
+    community_id: communityId,
+    channel_id: channelId,
+    user_id: userId,
+    body: "\u{1F3A4} Voice message",
+    audio_url,
+    audio_ms: Math.round(durationMs),
+  });
+  if (error) throw error;
+}
+
 function slugify(name: string) {
   return (
     name
