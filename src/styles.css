@@ -800,182 +800,217 @@ html.light .glass-raised {
   .cos-frame-aureate, .cos-frame-orbital, .cos-founder-row { animation: none; }
 }
 
-/* ---------------------------------------------------- owner-only cosmetics */
-.cos-gradient-owner-sovereign {
-  background-image: linear-gradient(
-    92deg,
-    oklch(0.72 0.12 68),
-    oklch(0.99 0.05 96) 30%,
-    oklch(0.87 0.16 84) 52%,
-    oklch(1 0.02 100) 72%,
-    oklch(0.72 0.12 68)
-  );
+/* ------------------------------------------- owner regalia (owner only) */
+/* Gold is reserved for the owner. These are the top of the entire catalogue:
+   multi-stop animated metal, real depth, layered glow. */
+
+.cos-crown-shimmer { animation: crown-flow 5.2s linear infinite; }
+.cos-crown-shimmer-fast { animation: crown-flow 2.8s linear infinite; }
+@keyframes crown-flow {
+  from { background-position: 0% 50%; }
+  to { background-position: 220% 50%; }
 }
-.cos-gradient-owner-eclipse {
-  background-image: linear-gradient(
-    92deg,
-    oklch(0.32 0.02 262),
-    oklch(0.2 0.01 260) 38%,
-    oklch(1 0 0) 50%,
-    oklch(0.9 0.15 70) 60%,
-    oklch(0.32 0.02 262)
-  );
-}
-.cos-gradient-owner-starforge {
-  background-image: linear-gradient(
-    92deg,
-    oklch(0.92 0.13 30),
-    oklch(0.97 0.09 90) 32%,
-    oklch(0.9 0.14 200) 62%,
-    oklch(0.86 0.16 320) 82%,
-    oklch(0.92 0.13 30)
-  );
-}
-.cos-gradient-owner-monarch {
-  background-image: linear-gradient(
-    92deg,
-    oklch(0.6 0.19 305),
-    oklch(0.96 0.02 260) 44%,
-    oklch(0.78 0.17 300) 64%,
-    oklch(0.6 0.19 305)
-  );
-}
-.cos-glow-owner {
+.cos-crown-badge { filter: drop-shadow(0 0 10px oklch(0.95 0.12 92 / 0.55)); }
+
+.cos-glow-crown {
   text-shadow:
-    0 0 8px oklch(0.95 0.1 92 / 0.6),
-    0 0 22px oklch(0.88 0.16 84 / 0.45),
-    0 0 44px oklch(0.88 0.16 84 / 0.22);
+    0 0 6px oklch(1 0.06 98 / 0.75),
+    0 0 18px oklch(0.92 0.16 88 / 0.55),
+    0 0 40px oklch(0.88 0.16 84 / 0.3),
+    0 1px 0 oklch(0.32 0.05 66 / 0.6);
+}
+.cos-glow-crown-hard {
+  text-shadow:
+    0 0 4px oklch(1 0.05 98 / 0.9),
+    0 0 16px oklch(0.92 0.16 88 / 0.6),
+    0 0 46px oklch(0.85 0.16 84 / 0.35);
 }
 
-.cos-frame-throne {
-  padding: 2px;
+.cos-tag-ascendant {
+  background-image: linear-gradient(
+    96deg,
+    oklch(0.46 0.07 66),
+    oklch(0.86 0.15 84) 14%,
+    oklch(1 0.04 100) 26%,
+    oklch(0.78 0.15 76) 38%,
+    oklch(0.55 0.09 68) 50%,
+    oklch(0.98 0.06 98) 64%,
+    oklch(0.88 0.16 86) 78%,
+    oklch(0.46 0.07 66)
+  );
+  background-size: 320% auto;
+}
+.cos-tag-molten {
+  background-image: linear-gradient(
+    96deg,
+    oklch(0.5 0.12 48),
+    oklch(0.82 0.18 68) 16%,
+    oklch(1 0.06 96) 30%,
+    oklch(0.72 0.19 52) 46%,
+    oklch(0.95 0.12 84) 62%,
+    oklch(0.58 0.15 44) 80%,
+    oklch(0.5 0.12 48)
+  );
+  background-size: 300% auto;
+  filter: saturate(1.2);
+}
+.cos-tag-oracle {
+  background-image: linear-gradient(
+    96deg,
+    oklch(0.9 0.14 88),
+    oklch(1 0.04 100) 18%,
+    oklch(0.88 0.13 196) 36%,
+    oklch(0.99 0.05 96) 52%,
+    oklch(0.86 0.15 312) 68%,
+    oklch(1 0.04 100) 84%,
+    oklch(0.9 0.14 88)
+  );
+  background-size: 340% auto;
+}
+.cos-tag-infinite {
+  background-image: linear-gradient(
+    96deg,
+    oklch(0.95 0.11 92),
+    oklch(0.9 0.15 60) 12%,
+    oklch(0.86 0.17 20) 26%,
+    oklch(0.84 0.16 320) 40%,
+    oklch(0.86 0.14 265) 54%,
+    oklch(0.9 0.13 196) 68%,
+    oklch(0.94 0.13 128) 82%,
+    oklch(0.95 0.11 92)
+  );
+  background-size: 380% auto;
+}
+.cos-tag-blackgold {
+  background-image: linear-gradient(
+    96deg,
+    oklch(0.14 0.01 260),
+    oklch(0.1 0.005 260) 34%,
+    oklch(1 0.06 98) 47%,
+    oklch(0.88 0.16 86) 53%,
+    oklch(0.1 0.005 260) 66%,
+    oklch(0.14 0.01 260)
+  );
+  background-size: 280% auto;
+}
+
+/* --- frames: layered rings with real depth --- */
+.cos-frame-ascension {
+  padding: 3px;
   background-image: conic-gradient(
     from 0deg,
-    oklch(1 0.02 100),
-    oklch(0.88 0.16 84) 18%,
-    oklch(0.45 0.07 70) 38%,
-    oklch(0.96 0.08 92) 58%,
-    oklch(0.5 0.08 66) 80%,
-    oklch(1 0.02 100)
+    oklch(1 0.04 100),
+    oklch(0.88 0.16 84) 12%,
+    oklch(0.34 0.05 66) 26%,
+    oklch(0.99 0.05 98) 42%,
+    oklch(0.8 0.15 76) 58%,
+    oklch(0.3 0.04 62) 74%,
+    oklch(1 0.04 100)
   );
   box-shadow:
-    0 0 0 1px oklch(0.5 0.07 70 / 0.7),
-    0 0 34px -6px oklch(0.9 0.15 86 / 0.85);
-  animation: cos-spin 9s linear infinite;
+    0 0 0 1px oklch(0.62 0.09 72 / 0.75),
+    inset 0 0 0 1px oklch(0.1 0.01 260 / 0.9),
+    0 0 26px -4px oklch(0.92 0.16 86 / 0.85),
+    0 0 60px -10px oklch(0.88 0.16 84 / 0.55);
+  animation: cos-spin 6s linear infinite;
 }
-.cos-frame-singularity {
+.cos-frame-solarcrown {
+  padding: 3px;
+  background-image:
+    conic-gradient(from 90deg, oklch(1 0.05 98 / 0.95), oklch(0.86 0.17 74 / 0.5) 25%, oklch(1 0.05 98 / 0.95) 50%, oklch(0.86 0.17 74 / 0.5) 75%, oklch(1 0.05 98 / 0.95));
   box-shadow:
-    0 0 0 2px oklch(0.1 0.01 260),
-    0 0 0 3.5px oklch(0.95 0.06 92 / 0.9),
-    inset 0 0 22px oklch(0.05 0 0 / 0.85),
-    0 0 40px -8px oklch(0.86 0.14 88 / 0.7);
-  animation: breathe 3.6s ease-in-out infinite;
+    0 0 0 1px oklch(0.95 0.1 92 / 0.6),
+    0 0 22px oklch(0.95 0.13 90 / 0.6),
+    0 0 60px -6px oklch(0.9 0.17 78 / 0.6);
+  animation: crown-flare 3.4s ease-in-out infinite;
 }
-.cos-frame-relic {
-  padding: 2px;
+@keyframes crown-flare {
+  0%, 100% { box-shadow: 0 0 0 1px oklch(0.95 0.1 92 / 0.55), 0 0 16px oklch(0.95 0.13 90 / 0.45), 0 0 44px -8px oklch(0.9 0.17 78 / 0.45); }
+  50% { box-shadow: 0 0 0 1px oklch(1 0.08 96 / 0.85), 0 0 30px oklch(0.97 0.14 92 / 0.8), 0 0 80px -6px oklch(0.9 0.17 78 / 0.8); }
+}
+.cos-frame-mirrorgold {
+  padding: 3px;
   background-image: linear-gradient(
-    140deg,
-    oklch(0.78 0.13 72),
-    oklch(0.28 0.03 258) 45%,
-    oklch(0.9 0.14 86) 70%,
-    oklch(0.3 0.03 258)
+    135deg,
+    oklch(1 0.03 100) 0 12%,
+    oklch(0.62 0.1 70) 12% 24%,
+    oklch(0.98 0.06 96) 24% 38%,
+    oklch(0.4 0.06 66) 38% 52%,
+    oklch(0.94 0.12 88) 52% 68%,
+    oklch(0.55 0.09 68) 68% 82%,
+    oklch(1 0.03 100) 82%
   );
+  background-size: 260% 260%;
   box-shadow:
-    0 0 0 1px oklch(0.6 0.08 70 / 0.5),
-    0 0 26px -8px oklch(0.85 0.12 80 / 0.8);
-  animation: breathe 5.5s ease-in-out infinite;
+    inset 0 0 0 1px oklch(0.08 0.01 260 / 0.9),
+    0 0 30px -8px oklch(0.92 0.15 86 / 0.8);
+  animation: crown-sweep 6.5s ease-in-out infinite;
+}
+@keyframes crown-sweep {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+.cos-frame-eclipsecrown {
+  padding: 3px;
+  background-image: radial-gradient(circle, oklch(0.04 0 0) 46%, oklch(1 0.06 98) 58%, oklch(0.86 0.16 84) 70%, oklch(0.2 0.02 262) 100%);
+  box-shadow:
+    inset 0 0 30px oklch(0 0 0 / 0.95),
+    0 0 0 1px oklch(0.95 0.12 90 / 0.6),
+    0 0 54px -10px oklch(0.9 0.16 86 / 0.85);
+  animation: breathe 4s ease-in-out infinite;
 }
 
-.cos-owner-row {
+/* --- message effects --- */
+.cos-crown-ascend-row {
+  position: relative;
+  border-radius: 0.65rem;
   background-image:
-    linear-gradient(90deg, oklch(0.92 0.15 86 / 0.26), oklch(0.85 0.12 60 / 0.12) 45%, transparent 78%),
-    repeating-linear-gradient(115deg, oklch(1 0.02 100 / 0.08) 0 2px, transparent 2px 16px);
-  border-left: 2px solid oklch(0.9 0.15 86 / 0.75);
-  border-radius: 0.6rem;
-  text-shadow: 0 0 14px oklch(0.95 0.11 92 / 0.5);
-  animation: cos-owner-descend 780ms cubic-bezier(0.16, 1, 0.3, 1);
+    linear-gradient(90deg, oklch(0.95 0.14 90 / 0.22), oklch(0.88 0.13 60 / 0.08) 48%, transparent 80%),
+    repeating-linear-gradient(112deg, oklch(1 0.04 100 / 0.07) 0 2px, transparent 2px 18px);
+  border-left: 2px solid oklch(0.95 0.13 90 / 0.8);
+  text-shadow: 0 0 14px oklch(0.98 0.1 94 / 0.5);
+  animation: crown-ascend 760ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-@keyframes cos-owner-descend {
-  from { transform: translateY(-6px); opacity: 0; filter: blur(3px) brightness(1.6); }
-  to { transform: translateY(0); opacity: 1; filter: blur(0) brightness(1); }
+@keyframes crown-ascend {
+  from { transform: translateY(10px) scale(0.985); opacity: 0; filter: blur(3px) brightness(1.7); }
+  to { transform: none; opacity: 1; filter: none; }
+}
+.cos-crown-decree-row {
+  border-radius: 0.65rem;
+  background-image: linear-gradient(90deg, oklch(0.96 0.13 92 / 0.26), transparent 72%);
+  border-top: 1px solid oklch(0.96 0.12 90 / 0.55);
+  border-bottom: 1px solid oklch(0.96 0.12 90 / 0.35);
+  text-shadow: 0 0 16px oklch(0.98 0.1 94 / 0.55);
+  animation: crown-decree 780ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes crown-decree {
+  from { transform: scale(0.97); opacity: 0; letter-spacing: 0.08em; filter: brightness(1.9); }
+  to { transform: scale(1); opacity: 1; letter-spacing: normal; filter: brightness(1); }
+}
+.cos-crown-goldwave-row {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.65rem;
+  background-image: linear-gradient(90deg, oklch(0.92 0.15 86 / 0.16), transparent 70%);
+}
+.cos-crown-goldwave-row::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(100deg, transparent 0 40%, oklch(1 0.06 98 / 0.35) 50%, transparent 60% 100%);
+  background-size: 260% 100%;
+  animation: crown-wave 2.4s ease-out 1;
+}
+@keyframes crown-wave {
+  from { background-position: -60% 0; }
+  to { background-position: 160% 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cos-frame-throne, .cos-frame-singularity, .cos-frame-relic, .cos-owner-row { animation: none; }
-}
-
-/* ------------------------------------- new owner-only vault cosmetics */
-.cos-gradient-owner-godray {
-  background-image: linear-gradient(
-    92deg,
-    oklch(0.55 0.08 70),
-    oklch(1 0.03 100) 24%,
-    oklch(0.9 0.16 88) 44%,
-    oklch(1 0.02 104) 62%,
-    oklch(0.6 0.1 66) 82%,
-    oklch(0.55 0.08 70)
-  );
-}
-.cos-gradient-owner-liquidgold {
-  background-image: linear-gradient(
-    92deg,
-    oklch(0.68 0.13 62),
-    oklch(0.98 0.08 96) 22%,
-    oklch(0.8 0.16 78) 40%,
-    oklch(1 0.04 100) 58%,
-    oklch(0.74 0.15 70) 76%,
-    oklch(0.68 0.13 62)
-  );
-  filter: saturate(1.15);
-}
-.cos-gradient-owner-aether {
-  background-image: linear-gradient(
-    92deg,
-    oklch(0.95 0.06 200),
-    oklch(0.98 0.07 96) 28%,
-    oklch(0.9 0.13 300) 52%,
-    oklch(0.97 0.05 190) 74%,
-    oklch(0.95 0.06 200)
-  );
-}
-.cos-frame-goldstorm {
-  padding: 2px;
-  background-image: conic-gradient(
-    from 0deg,
-    oklch(0.98 0.05 100),
-    oklch(0.86 0.16 84) 14%,
-    oklch(0.38 0.05 68) 30%,
-    oklch(1 0.03 100) 46%,
-    oklch(0.8 0.15 76) 64%,
-    oklch(0.32 0.04 62) 84%,
-    oklch(0.98 0.05 100)
-  );
-  box-shadow:
-    0 0 0 1px oklch(0.6 0.09 72 / 0.65),
-    0 0 40px -8px oklch(0.92 0.15 86 / 0.9);
-  animation: cos-spin 4.2s linear infinite;
-}
-.cos-frame-eventhorizon {
-  padding: 3px;
-  background-image: radial-gradient(circle, oklch(0.06 0 0) 52%, oklch(0.92 0.15 86) 66%, oklch(0.5 0.08 70) 100%);
-  box-shadow:
-    inset 0 0 26px oklch(0 0 0 / 0.9),
-    0 0 0 1px oklch(0.9 0.14 88 / 0.55),
-    0 0 46px -10px oklch(0.88 0.15 86 / 0.75);
-  animation: breathe 3s ease-in-out infinite;
-}
-.cos-owner-coronation-row {
-  background-image:
-    linear-gradient(90deg, oklch(0.96 0.13 92 / 0.28), transparent 70%),
-    repeating-linear-gradient(90deg, oklch(1 0.03 100 / 0.1) 0 1px, transparent 1px 12px);
-  border-radius: 0.6rem;
-  border-top: 1px solid oklch(0.95 0.12 90 / 0.6);
-  text-shadow: 0 0 16px oklch(0.98 0.1 94 / 0.6);
-  animation: cos-coronation 820ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes cos-coronation {
-  from { transform: scale(0.97); opacity: 0; filter: brightness(1.8) blur(2px); }
-  to { transform: scale(1); opacity: 1; filter: brightness(1) blur(0); }
+  .cos-crown-shimmer, .cos-crown-shimmer-fast,
+  .cos-frame-ascension, .cos-frame-solarcrown, .cos-frame-mirrorgold, .cos-frame-eclipsecrown,
+  .cos-crown-ascend-row, .cos-crown-decree-row, .cos-crown-goldwave-row::after { animation: none; }
 }
 
 /* ------------------------------------- new admin vault cosmetics */
@@ -1028,6 +1063,5 @@ html.light .glass-raised {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cos-frame-goldstorm, .cos-frame-eventhorizon, .cos-frame-scanline,
-  .cos-owner-coronation-row, .cos-admin-dispatch-row { animation: none; }
+  .cos-frame-scanline, .cos-admin-dispatch-row { animation: none; }
 }
