@@ -114,7 +114,14 @@ function PublicProfilePage() {
         <div className="px-6 pb-6">
           <div className="flex flex-wrap items-end justify-between gap-5 pt-5">
             <div className="flex items-end gap-4">
-              <Avatar profile={person} size={96} className="glass-raised rounded-2xl text-2xl" />
+              <div className="relative shrink-0">
+                <HoloCardTrigger profile={person}>
+                  <Avatar profile={person} size={96} className="glass-raised rounded-2xl text-2xl" />
+                </HoloCardTrigger>
+                <div className="absolute -right-1 -top-1">
+                  <RankBadge level={derived.level} size="sm" />
+                </div>
+              </div>
               <div className="pb-1">
                 <Nametag
                   profile={person}
@@ -122,7 +129,7 @@ function PublicProfilePage() {
                   className="font-display text-2xl font-semibold tracking-tight"
                 />
                 <p className="text-muted-foreground font-mono text-[11px]">
-                  @{person.username} · <span className="text-primary">{person.title}</span> ·{" "}
+                  @{person.username} · <span className="text-primary">{person.title || "Newcomer"}</span> ·{" "}
                   {rankForLevel(derived.level)}
                 </p>
                 <p className="text-muted-foreground/70 mt-1 font-mono text-[10px]">
@@ -130,6 +137,7 @@ function PublicProfilePage() {
                 </p>
                 <p className="mt-1 flex flex-wrap items-center gap-2">
                   <PresenceLabel profile={person} />
+                  <RankPill level={derived.level} />
                   {theirRole.role !== "member" ? (
                     <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-[0.12em] uppercase">
                       {ROLE_LABEL[theirRole.role]}
