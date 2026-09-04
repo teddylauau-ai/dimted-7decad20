@@ -1,9 +1,11 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { Coins, MessageCircle, UserPlus } from "lucide-react";
+import { Coins, MessageCircle, UserPlus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, Nametag, PresenceLabel } from "@/components/dimted/Identity";
-import { LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
+import { EmptyState, LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
+import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
+import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { rarityBorder, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { bannerFor, SLOTS, type Cosmetic } from "@/lib/cosmetics";
