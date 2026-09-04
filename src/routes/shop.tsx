@@ -175,6 +175,7 @@ function ShopPage() {
   const inventory = useInventory(profile?.id);
   const qc = useQueryClient();
   const [slot, setSlot] = useState<CosmeticSlot | "all">("all");
+  const [view, setView] = useState<"shop" | "vault">("shop");
 
   const owned = useMemo(() => new Set(inventory.data ?? []), [inventory.data]);
   const all = cosmetics.data ?? [];
@@ -207,6 +208,8 @@ function ShopPage() {
     [all, isOwner],
   );
   const ownsVault = ownerVault.some((i) => owned.has(i.slug));
+
+  const hasVault = ownerVault.length > 0 || adminVault.length > 0;
 
   // The permanent shelf: core stock plus anything you already own.
   const stock = useMemo(
@@ -273,6 +276,37 @@ function ShopPage() {
         }
       />
 
+      {hasVault ? (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setView("shop")}
+            className={cn(
+              "rounded-full border px-4 py-1.5 font-mono text-[11px] tracking-[0.14em] uppercase transition-colors",
+              view === "shop"
+                ? "border-primary/50 bg-primary/15 text-primary"
+                : "border-border text-muted-foreground hover:text-foreground",
+            )}
+          >
+            Public shop
+          </button>
+          <button
+            onClick={() => setView("vault")}
+            className={cn(
+              "flex items-center gap-1.5 rounded-full border px-4 py-1.5 font-mono text-[11px] tracking-[0.14em] uppercase transition-colors",
+              view === "vault"
+                ? isOwner
+                  ? "border-gold/60 bg-gold/15 text-gold"
+                  : "border-primary/50 bg-primary/15 text-primary"
+                : "border-border text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Lock className="size-3" /> {isOwner ? "Restricted vaults" : "Staff vault"}
+            <span className="opacity-60">{ownerVault.length + adminVault.length}</span>
+          </button>
+        </div>
+      ) : null}
+
+      {view === "shop" ? (
       <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
         <div>
           <p className="eyebrow">Armory</p>
@@ -284,10 +318,11 @@ function ShopPage() {
           <Link to="/armory">Open the Armory</Link>
         </Button>
       </Panel>
+      ) : null}
 
 
 
-      {ownerVault.length ? (
+      {view === "vault" && ownerVault.length ? (
         <Panel className="border-gold/45 relative overflow-hidden p-5">
           <div
             className="pointer-events-none absolute inset-0"
@@ -325,7 +360,7 @@ function ShopPage() {
         </Panel>
       ) : null}
 
-      {adminVault.length ? (
+      {view === "vault" && adminVault.length ? (
         <Panel className="border-primary/40 relative overflow-hidden p-5">
           <div
             className="pointer-events-none absolute inset-0 opacity-70"
@@ -363,7 +398,7 @@ function ShopPage() {
         </Panel>
       ) : null}
 
-      {limited.length ? (
+      {view === "shop" && limited.length ? (
         <Panel className="border-gold/30 p-5">
           <PanelHead
             eyebrow="Limited time"
@@ -387,7 +422,7 @@ function ShopPage() {
         </Panel>
       ) : null}
 
-      {daily.length ? (
+      {view === "shop" && daily.length ? (
         <Panel className="p-5" delay={40}>
           <PanelHead
             eyebrow="Daily rotation"
@@ -411,7 +446,7 @@ function ShopPage() {
         </Panel>
       ) : null}
 
-      {weekly.length ? (
+      {view === "shop" && weekly.length ? (
         <Panel className="p-5" delay={60}>
           <PanelHead
             eyebrow="Weekly feature"
@@ -435,6 +470,7 @@ function ShopPage() {
         </Panel>
       ) : null}
 
+      {view === "shop" ? (
       <Panel className="p-5" delay={80}>
         <PanelHead
           eyebrow={`${owned.size} owned`}
@@ -478,7 +514,9 @@ function ShopPage() {
           </div>
         )}
       </Panel>
+      ) : null}
 
+      {view === "shop" ? (
       <Panel className="p-5" delay={120}>
         <PanelHead eyebrow="How the slots work" title="One item per slot" />
         <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -506,6 +544,7 @@ function ShopPage() {
           })}
         </div>
       </Panel>
+      ) : null}
     </div>
   );
 }
