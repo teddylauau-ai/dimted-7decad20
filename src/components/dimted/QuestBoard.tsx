@@ -71,7 +71,7 @@ export function QuestBoard() {
           </p>
           <p className="text-muted-foreground/70 font-mono text-[10px]">resets in {resets}</p>
         </div>
-        <ul className="mt-2 space-y-3">
+        <ul className="mt-1.5 space-y-2.5">
           {list.map((q) => {
             const done = countEvents(events.data, q.source, cadence);
             const complete = done >= q.goal;
@@ -82,7 +82,7 @@ export function QuestBoard() {
                   <span className="min-w-0 truncate text-sm">{q.title}</span>
                   <RarityChip rarity={q.rarity} />
                 </div>
-                <div className="mt-1.5 flex items-center gap-2">
+                <div className="mt-1 flex items-center gap-2">
                   <Meter
                     value={Math.min(1, done / q.goal)}
                     tone={cadence === "daily" ? "gold" : "primary"}
@@ -92,7 +92,7 @@ export function QuestBoard() {
                     {Math.min(done, q.goal)}/{q.goal}
                   </span>
                 </div>
-                <div className="mt-1.5 flex items-center justify-between gap-2">
+                <div className="mt-1 flex items-center justify-between gap-2">
                   <span className="text-muted-foreground font-mono text-[10px]">
                     +{q.reward_xp} XP · +{q.reward_sparks} ✦
                   </span>
@@ -126,9 +126,9 @@ export function QuestBoard() {
   };
 
   return (
-    <Panel className="p-5" delay={60}>
+    <Panel className="p-4" delay={60}>
       <PanelHead eyebrow="Quests" title="Today & this week" />
-      <div className="mt-4 space-y-5">
+      <div className="mt-3 space-y-4">
         {render("daily")}
         {render("weekly")}
       </div>

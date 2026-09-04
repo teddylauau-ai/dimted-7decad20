@@ -67,12 +67,12 @@ function HomePage() {
   const myIndex = rows.findIndex((r) => r.id === profile?.id);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <header className="animate-rise grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-4 py-3">
+        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-3 py-2.5">
           <div className="min-w-0">
             <p className="eyebrow">Progression</p>
-            <h1 className="font-display mt-0.5 truncate text-xl font-semibold tracking-tight">
+            <h1 className="font-display mt-0.5 truncate text-lg font-semibold tracking-tight">
               Level {level} · {rank}
             </h1>
             <p className="text-muted-foreground mt-0.5 truncate font-mono text-[11px]">
@@ -80,12 +80,12 @@ function HomePage() {
             </p>
           </div>
           <div className="shrink-0 text-right">
-            <p className="numeral text-2xl">{totalXp.toLocaleString()}</p>
+            <p className="numeral text-xl">{totalXp.toLocaleString()}</p>
             <p className="text-muted-foreground font-mono text-[9px] tracking-[0.2em] uppercase">total xp</p>
           </div>
         </div>
 
-        <div className="glass rounded-2xl px-4 py-3">
+        <div className="glass rounded-2xl px-3 py-2.5">
           <div className="flex items-center justify-between">
             <p className="eyebrow flex items-center gap-1.5">
               <Trophy className="text-gold size-3" /> Top of the ladder
@@ -94,7 +94,7 @@ function HomePage() {
               {myIndex >= 0 ? `you · #${myIndex + 1}` : "unranked"}
             </span>
           </div>
-          <ol className="mt-2 space-y-1">
+          <ol className="mt-1.5 space-y-0.5">
             {rows.slice(0, 3).map((p, i) => (
               <li key={p.id} className="flex items-center gap-2">
                 <span
@@ -126,20 +126,20 @@ function HomePage() {
       </header>
 
 
-      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-5">
-          <Panel className="p-5">
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+        <div className="space-y-4">
+          <Panel className="p-4">
             <PanelHead
               eyebrow="Your ladder"
               title={`${(needed - intoLevel).toLocaleString()} XP to Level ${level + 1}`}
               aside={`${intoLevel.toLocaleString()} / ${needed.toLocaleString()}`}
             />
-            <Meter value={progress} tone="xp" className="mt-4 h-3" animate />
+            <Meter value={progress} tone="xp" className="mt-3 h-2.5" animate />
             <XpTicker />
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
 
-              <div className="border-border bg-background/40 rounded-xl border p-4">
+              <div className="border-border bg-background/40 rounded-xl border p-3">
                 <p className="eyebrow">Next unlock</p>
                 {upcoming ? (
                   <>
@@ -160,8 +160,8 @@ function HomePage() {
               <div
                 className={
                   surgeActive
-                    ? "border-gold/40 bg-gold/10 rounded-xl border p-4"
-                    : "border-border bg-background/40 rounded-xl border p-4"
+                    ? "border-gold/40 bg-gold/10 rounded-xl border p-3"
+                    : "border-border bg-background/40 rounded-xl border p-3"
                 }
               >
                 <p className="eyebrow">Energy</p>
@@ -193,15 +193,15 @@ function HomePage() {
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {[
                 { label: "Friends", value: stats.friends },
                 { label: "Communities", value: stats.communities },
                 { label: "Arcade runs", value: stats.activities },
                 { label: "Discoveries", value: stats.discoveries },
               ].map((s) => (
-                <div key={s.label} className="border-border bg-background/40 rounded-xl border p-3">
-                  <p className="numeral text-xl">{s.value}</p>
+                <div key={s.label} className="border-border bg-background/40 rounded-xl border p-2.5">
+                  <p className="numeral text-lg">{s.value}</p>
                   <p className="text-muted-foreground mt-0.5 font-mono text-[10px] tracking-[0.18em] uppercase">
                     {s.label}
                   </p>
@@ -210,18 +210,20 @@ function HomePage() {
             </div>
           </Panel>
 
-          <Panel className="p-5" delay={80}>
+          <Panel className="p-4" delay={80}>
             <PanelHead
               eyebrow="Your circle"
               title="Friends"
               aside={
-                myFriends.length
-                  ? `${myFriends.length} connected`
-                  : undefined
+                myFriends.length ? (
+                  <Link to="/friends" className="text-primary hover:underline">
+                    {myFriends.length} connected
+                  </Link>
+                ) : undefined
               }
             />
             {myFriends.length === 0 ? (
-              <p className="text-muted-foreground mt-4 text-sm">
+              <p className="text-muted-foreground mt-3 text-sm">
                 No friends yet. Find real accounts in{" "}
                 <Link to="/discover" className="text-primary hover:underline">
                   Discover
@@ -229,7 +231,7 @@ function HomePage() {
                 and send a request — every accepted request is worth XP.
               </p>
             ) : (
-              <ul className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
                 {myFriends.map((f) => {
                   const fl = friendshipLevel(f.friendshipXp);
                   return (
@@ -237,9 +239,9 @@ function HomePage() {
                       <Link
                         to="/u/$username"
                         params={{ username: f.profile.username }}
-                        className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-3 transition-colors"
+                        className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-2.5 transition-colors"
                       >
-                        <Avatar profile={f.profile} size={44} />
+                        <Avatar profile={f.profile} size={40} />
                         <span className="min-w-0 flex-1">
                           <Nametag profile={f.profile} className="block truncate text-sm" />
                           <span className="text-muted-foreground block truncate font-mono text-[10px]">
@@ -260,15 +262,21 @@ function HomePage() {
         <QuestBoard />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
-        <Panel className="p-5" delay={60}>
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+        <Panel className="p-4" delay={60}>
           <PanelHead
             eyebrow="Global"
             title="The ladder"
-            aside={rows.length ? `${rows.length} players` : undefined}
+            aside={
+              rows.length ? (
+                <span className="text-muted-foreground font-mono text-[10px]">
+                  {Math.min(rows.length, 10)} of {rows.length} players
+                </span>
+              ) : undefined
+            }
           />
-          <ol className="mt-4 space-y-1.5">
-            {rows.map((p, i) => {
+          <ol className="mt-3 space-y-1">
+            {rows.slice(0, 10).map((p, i) => {
               const lv = levelFromTotalXp(p.total_xp);
               const me = p.id === profile?.id;
               return (
@@ -277,7 +285,7 @@ function HomePage() {
                     to="/u/$username"
                     params={{ username: p.username }}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl border px-3 py-2 transition-colors",
+                      "flex items-center gap-3 rounded-xl border px-3 py-1.5 transition-colors",
                       me
                         ? "border-primary/40 bg-primary/10"
                         : "border-border bg-background/40 hover:border-primary/30",
@@ -296,7 +304,7 @@ function HomePage() {
                       {i + 1}
                     </span>
                     {i === 0 ? <Crown className="text-gold size-3.5 shrink-0" /> : null}
-                    <Avatar profile={p} size={34} />
+                    <Avatar profile={p} size={32} />
                     <span className="min-w-0 flex-1">
                       <Nametag profile={p} className="block truncate text-sm" />
                       <span className="text-muted-foreground block truncate font-mono text-[10px]">
@@ -321,9 +329,9 @@ function HomePage() {
           </ol>
         </Panel>
 
-        <Panel className="p-5" delay={100}>
+        <Panel className="p-4" delay={100}>
           <PanelHead eyebrow="Prestige" title="Rank ladder" aside={`Lv ${level} · ${rank}`} />
-          <ul className="mt-4 space-y-1.5">
+          <ul className="mt-3 space-y-1">
             {RANKS.map((r) => {
               const reached = level >= r.from;
               const current = rankForLevel(level) === r.name;
@@ -331,7 +339,7 @@ function HomePage() {
                 <li
                   key={r.name}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border px-3 py-2",
+                    "flex items-center gap-3 rounded-xl border px-3 py-1",
                     current
                       ? "border-gold/50 bg-gold/10"
                       : reached
@@ -359,15 +367,15 @@ function HomePage() {
       </div>
 
 
-      <div className="grid gap-5 xl:grid-cols-[1fr_1fr]">
-        <Panel className="p-5" delay={100}>
+      <div className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+        <Panel className="p-4" delay={100}>
           <PanelHead
             eyebrow="Live"
             title="XP feed"
             aside={feed.data?.length ? `${feed.data.length} events` : undefined}
           />
           {feed.data && feed.data.length > 0 ? (
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-3 space-y-2">
               {feed.data.slice(0, 10).map((e) => (
                 <li key={e.id} className="flex items-baseline justify-between gap-3">
                   <span className="min-w-0 truncate text-sm">
@@ -383,7 +391,7 @@ function HomePage() {
               ))}
             </ul>
           ) : (
-            <p className="text-muted-foreground mt-4 text-sm">
+            <p className="text-muted-foreground mt-3 text-sm">
               Nothing has happened yet. Start a conversation in{" "}
               <Link to="/messages" className="text-primary hover:underline">
                 Messages
@@ -392,9 +400,9 @@ function HomePage() {
             </p>
           )}
 
-          <div className="border-border mt-5 border-t pt-4">
+          <div className="border-border mt-4 border-t pt-3">
             <p className="eyebrow">How XP works</p>
-            <ul className="mt-2 space-y-1.5">
+            <ul className="mt-2 space-y-1">
               {XP_SOURCES.slice(0, 4).map((s) => (
                 <li key={s.id} className="flex items-baseline justify-between gap-3 text-xs">
                   <span className="text-foreground/85">{s.label}</span>
@@ -407,21 +415,21 @@ function HomePage() {
           </div>
         </Panel>
 
-        <Panel className="p-5" delay={140}>
+        <Panel className="p-4" delay={140}>
           <PanelHead eyebrow="Ahead of you" title="Still hidden" />
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
             {nextSecret ? (
               <LockedTile hint={nextSecret.hint} requirement={`Level ${nextSecret.requiredLevel}`} />
             ) : null}
           </div>
 
-          <ul className="mt-4 space-y-2">
+          <ul className="mt-3 space-y-1.5">
             {UNLOCKS.filter((u) => u.level > level)
               .slice(0, 5)
               .map((u) => (
                 <li
                   key={u.level}
-                  className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
+                  className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-2.5"
                 >
                   <span className="numeral text-muted-foreground w-8 shrink-0 text-lg">{u.level}</span>
                   <span className="min-w-0 flex-1">
@@ -433,7 +441,7 @@ function HomePage() {
               ))}
           </ul>
 
-          <p className="text-muted-foreground mt-4 flex items-start gap-2 text-xs">
+          <p className="text-muted-foreground mt-3 flex items-start gap-2 text-xs">
             <Sparkles className="text-gold mt-0.5 size-3.5 shrink-0" />
             At Level {level + 1} you'll be a {rankForLevel(level + 1)}. Nothing here can be bought.
           </p>
