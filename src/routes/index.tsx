@@ -126,141 +126,139 @@ function HomePage() {
       </header>
 
 
-      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-4">
-          <Panel className="p-4">
-            <PanelHead
-              eyebrow="Your ladder"
-              title={`${(needed - intoLevel).toLocaleString()} XP to Level ${level + 1}`}
-              aside={`${intoLevel.toLocaleString()} / ${needed.toLocaleString()}`}
-            />
-            <Meter value={progress} tone="xp" className="mt-3 h-2.5" animate />
-            <XpTicker />
+      <div className="space-y-4">
+        <Panel className="p-4">
+          <PanelHead
+            eyebrow="Your ladder"
+            title={`${(needed - intoLevel).toLocaleString()} XP to Level ${level + 1}`}
+            aside={`${intoLevel.toLocaleString()} / ${needed.toLocaleString()}`}
+          />
+          <Meter value={progress} tone="xp" className="mt-3 h-2.5" animate />
+          <XpTicker />
 
-            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
 
-              <div className="border-border bg-background/40 rounded-xl border p-3">
-                <p className="eyebrow">Next unlock</p>
-                {upcoming ? (
-                  <>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="numeral text-gold text-xl">{upcoming.level}</span>
-                      <RarityChip rarity={upcoming.rarity} />
-                    </div>
-                    <p className="mt-2 text-sm font-medium">{upcoming.name}</p>
-                    <p className="text-muted-foreground mt-1 text-xs">{upcoming.detail}</p>
-                  </>
-                ) : (
-                  <p className="text-muted-foreground mt-2 text-sm">
-                    You've passed every published unlock.
-                  </p>
-                )}
-              </div>
-
-              <div
-                className={
-                  surgeActive
-                    ? "border-gold/40 bg-gold/10 rounded-xl border p-3"
-                    : "border-border bg-background/40 rounded-xl border p-3"
-                }
-              >
-                <p className="eyebrow">Energy</p>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="numeral text-xl">
-                    {surgeActive
-                      ? `${Math.floor(surgeSecondsLeft / 60)}:${String(surgeSecondsLeft % 60).padStart(2, "0")}`
-                      : `${energy}%`}
-                  </span>
-                  <span className="text-muted-foreground font-mono text-[10px] tracking-[0.18em] uppercase">
-                    {surgeActive ? "surge live" : "charge"}
-                  </span>
-                </div>
-                <Meter
-                  value={surgeActive ? surgeSecondsLeft / 1800 : energy / 100}
-                  tone="energy"
-                  className="mt-3 h-1.5"
-                />
-                <Button
-                  size="sm"
-                  variant={surgeActive ? "outline" : "default"}
-                  className="mt-3 w-full"
-                  disabled={surgeActive || energy < 100}
-                  onClick={() => void igniteSurge()}
-                >
-                  <Flame className="size-3.5" />
-                  {surgeActive ? "Surge running" : energy < 100 ? "Charging from chat" : "Ignite surge"}
-                </Button>
-              </div>
+            <div className="border-border bg-background/40 rounded-xl border p-3">
+              <p className="eyebrow">Next unlock</p>
+              {upcoming ? (
+                <>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="numeral text-gold text-xl">{upcoming.level}</span>
+                    <RarityChip rarity={upcoming.rarity} />
+                  </div>
+                  <p className="mt-2 text-sm font-medium">{upcoming.name}</p>
+                  <p className="text-muted-foreground mt-1 text-xs">{upcoming.detail}</p>
+                </>
+              ) : (
+                <p className="text-muted-foreground mt-2 text-sm">
+                  You've passed every published unlock.
+                </p>
+              )}
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              {[
-                { label: "Friends", value: stats.friends },
-                { label: "Communities", value: stats.communities },
-                { label: "Arcade runs", value: stats.activities },
-                { label: "Discoveries", value: stats.discoveries },
-              ].map((s) => (
-                <div key={s.label} className="border-border bg-background/40 rounded-xl border p-2.5">
-                  <p className="numeral text-lg">{s.value}</p>
-                  <p className="text-muted-foreground mt-0.5 font-mono text-[10px] tracking-[0.18em] uppercase">
-                    {s.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </Panel>
-
-          <Panel className="p-4" delay={80}>
-            <PanelHead
-              eyebrow="Your circle"
-              title="Friends"
-              aside={
-                myFriends.length ? (
-                  <Link to="/friends" className="text-primary hover:underline">
-                    {myFriends.length} connected
-                  </Link>
-                ) : undefined
+            <div
+              className={
+                surgeActive
+                  ? "border-gold/40 bg-gold/10 rounded-xl border p-3"
+                  : "border-border bg-background/40 rounded-xl border p-3"
               }
-            />
-            {myFriends.length === 0 ? (
-              <p className="text-muted-foreground mt-3 text-sm">
-                No friends yet. Find real accounts in{" "}
-                <Link to="/discover" className="text-primary hover:underline">
-                  Discover
-                </Link>{" "}
-                and send a request — every accepted request is worth XP.
-              </p>
-            ) : (
-              <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
-                {myFriends.map((f) => {
-                  const fl = friendshipLevel(f.friendshipXp);
-                  return (
-                    <li key={f.friendshipId}>
-                      <Link
-                        to="/u/$username"
-                        params={{ username: f.profile.username }}
-                        className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-2.5 transition-colors"
-                      >
-                        <Avatar profile={f.profile} size={40} />
-                        <span className="min-w-0 flex-1">
-                          <Nametag profile={f.profile} className="block truncate text-sm" />
-                          <span className="text-muted-foreground block truncate font-mono text-[10px]">
-                            @{f.profile.username}
-                          </span>
-                          <PresenceLabel profile={f.profile} className="mt-0.5" />
-                        </span>
-                        <span className="text-primary shrink-0 font-mono text-[10px]">FL {fl.level}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </Panel>
-        </div>
+            >
+              <p className="eyebrow">Energy</p>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="numeral text-xl">
+                  {surgeActive
+                    ? `${Math.floor(surgeSecondsLeft / 60)}:${String(surgeSecondsLeft % 60).padStart(2, "0")}`
+                    : `${energy}%`}
+                </span>
+                <span className="text-muted-foreground font-mono text-[10px] tracking-[0.18em] uppercase">
+                  {surgeActive ? "surge live" : "charge"}
+                </span>
+              </div>
+              <Meter
+                value={surgeActive ? surgeSecondsLeft / 1800 : energy / 100}
+                tone="energy"
+                className="mt-3 h-1.5"
+              />
+              <Button
+                size="sm"
+                variant={surgeActive ? "outline" : "default"}
+                className="mt-3 w-full"
+                disabled={surgeActive || energy < 100}
+                onClick={() => void igniteSurge()}
+              >
+                <Flame className="size-3.5" />
+                {surgeActive ? "Surge running" : energy < 100 ? "Charging from chat" : "Ignite surge"}
+              </Button>
+            </div>
+          </div>
 
-        <QuestBoard />
+          <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+            {[
+              { label: "Friends", value: stats.friends },
+              { label: "Communities", value: stats.communities },
+              { label: "Arcade runs", value: stats.activities },
+              { label: "Discoveries", value: stats.discoveries },
+            ].map((s) => (
+              <div key={s.label} className="border-border bg-background/40 rounded-xl border p-2.5">
+                <p className="numeral text-lg">{s.value}</p>
+                <p className="text-muted-foreground mt-0.5 font-mono text-[10px] tracking-[0.18em] uppercase">
+                  {s.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel className="p-4" delay={80}>
+          <PanelHead
+            eyebrow="Your circle"
+            title="Friends"
+            aside={
+              myFriends.length ? (
+                <Link to="/friends" className="text-primary hover:underline">
+                  {myFriends.length} connected
+                </Link>
+              ) : undefined
+            }
+          />
+          {myFriends.length === 0 ? (
+            <p className="text-muted-foreground mt-3 text-sm">
+              No friends yet. Find real accounts in{" "}
+              <Link to="/discover" className="text-primary hover:underline">
+                Discover
+              </Link>{" "}
+              and send a request — every accepted request is worth XP.
+            </p>
+          ) : (
+            <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+              {myFriends.map((f) => {
+                const fl = friendshipLevel(f.friendshipXp);
+                return (
+                  <li key={f.friendshipId}>
+                    <Link
+                      to="/u/$username"
+                      params={{ username: f.profile.username }}
+                      className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-2.5 transition-colors"
+                    >
+                      <Avatar profile={f.profile} size={40} />
+                      <span className="min-w-0 flex-1">
+                        <Nametag profile={f.profile} className="block truncate text-sm" />
+                        <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                          @{f.profile.username}
+                        </span>
+                        <PresenceLabel profile={f.profile} className="mt-0.5" />
+                      </span>
+                      <span className="text-primary shrink-0 font-mono text-[10px]">FL {fl.level}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Panel>
       </div>
+
+      <QuestBoard />
 
       <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
         <Panel className="p-4" delay={60}>
