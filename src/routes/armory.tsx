@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Coins, Crown, ShoppingBag, Sparkles } from "lucide-react";
+import { Shield, Coins, Crown, ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
@@ -71,7 +71,7 @@ function ArmoryPage() {
   const { profile, sparks, refreshProfile } = useDimted();
   const cosmetics = useCosmetics();
   const inventory = useInventory(profile?.id);
-  const [slot, setSlot] = useState<CosmeticSlot | "vault">("nametag");
+  const [slot, setSlot] = useState<CosmeticSlot | "vault" | "admin">("nametag");
 
   const owned = useMemo(() => new Set(inventory.data ?? []), [inventory.data]);
   const all = cosmetics.data ?? [];
@@ -85,16 +85,22 @@ function ArmoryPage() {
     effect: profile?.equipped_effect ?? null,
   };
 
-  const vaultItems = useMemo(
-    () => ownedItems.filter((i) => i.pool === "owner" || i.pool === "founder"),
-    [ownedItems],
-  );
+  const vaultItems = useMemo(() => ownedItems.filter((i) => i.pool === "owner"), [ownedItems]);
+  const adminItems = useMemo(() => ownedItems.filter((i) => i.pool === "admin"), [ownedItems]);
   const isVault = slot === "vault";
-  const list = isVault ? vaultItems : ownedItems.filter((i) => i.slot === slot);
-  const activeSlug = isVault ? null : equipped[slot];
+  const isAdmin = slot === "admin";
+  const isExclusive = isVault || isAdmin;
+  const list = isVault
+    ? vaultItems
+    : isAdmin
+      ? adminItems
+      : ownedItems.filter((i) => i.slot === slot);
+  const activeSlug = isExclusive ? null : equipped[slot as CosmeticSlot];
   const meta = isVault
     ? { label: "Owner's Vault", blurb: "One-of-a-kind pieces bound to your account only" }
-    : SLOTS.find((s) => s.slot === slot);
+    : isAdmin
+      ? { label: "Admin Vault", blurb: "Staff-issue regalia, granted with your admin role" }
+      : SLOTS.find((s) => s.slot === slot);
 
   async function equip(item: Cosmetic) {
     const isOn = equipped[item.slot] === item.slug;
@@ -226,6 +232,29 @@ function ArmoryPage() {
               </button>
             ) : null}
 
+            {adminItems.length ? (
+              <button
+                onClick={() => setSlot("admin")}
+                className={cn(
+                  "mt-2 flex w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-2 text-left transition-colors",
+                  isAdmin
+                    ? "border-primary/60 bg-primary/10"
+                    : "border-primary/35 hover:bg-primary/5",
+                )}
+              >
+                <span className="min-w-0">
+                  <span className="text-primary block font-mono text-[10px] tracking-[0.14em] uppercase">
+                    Admin Vault
+                    <span className="ml-1.5 opacity-70">{adminItems.length}</span>
+                  </span>
+                  <span className="text-muted-foreground block truncate text-[12px]">
+                    staff issue only
+                  </span>
+                </span>
+                <Shield className="text-primary size-3.5 shrink-0" />
+              </button>
+            ) : null}
+
             <Button asChild size="sm" variant="outline" className="mt-4 w-full">
               <Link to="/shop">
                 <ShoppingBag className="size-3.5" /> Find more in the Shop
@@ -235,7 +264,7 @@ function ArmoryPage() {
         </Panel>
 
         {/* Slot contents */}
-        <Panel className={cn("p-5", isVault && "border-gold/40")} delay={40}>
+        <Panel className={cn("p-5", isVault && "border-gold/40", isAdmin && "border-primary/40")} delay={40}>
           <PanelHead
             eyebrow={meta?.label ?? "Locker"}
             title={meta?.blurb ?? "Your gear"}
@@ -274,7 +303,21 @@ function ArmoryPage() {
                 <span className="opacity-70">{vaultItems.length}</span>
               </button>
             ) : null}
-            {activeSlug && !isVault ? (
+            {adminItems.length ? (
+              <button
+                onClick={() => setSlot("admin")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.12em] uppercase transition-colors",
+                  isAdmin
+                    ? "border-primary/60 bg-primary/15 text-primary"
+                    : "border-primary/35 text-primary/80 hover:text-primary",
+                )}
+              >
+                <Shield className="size-3" /> Admin
+                <span className="opacity-70">{adminItems.length}</span>
+              </button>
+            ) : null}
+            {activeSlug && !isExclusive ? (
               <button
                 onClick={() => void clearSlot(slot as CosmeticSlot)}
                 className="text-muted-foreground hover:text-destructive ml-auto font-mono text-[10px] tracking-[0.12em] uppercase"
@@ -291,6 +334,8 @@ function ArmoryPage() {
               <p className="text-muted-foreground text-sm">
                 {isVault
                   ? "No owner-exclusive pieces on this account."
+                  : isAdmin
+                  ? "No admin-issue pieces on this account."
                   : "Nothing in this slot yet — earn Sparks by playing and pick something up."}
               </p>
               <Button asChild size="sm" className="mt-3">
