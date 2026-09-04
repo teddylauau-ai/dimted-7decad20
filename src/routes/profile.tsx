@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
-import { Camera, Check, Flame, Image as ImageIcon, Loader2, Lock, Trash2 } from "lucide-react";
+import { Camera, Check, Flame, Image as ImageIcon, Loader2, Lock, Trash2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import {
   ACHIEVEMENTS,
@@ -24,12 +24,15 @@ import {
 import { bannerFor, SLOTS, type CosmeticSlot } from "@/lib/cosmetics";
 import { Avatar, Nametag, PresenceLabel } from "@/components/dimted/Identity";
 import {
+  EmptyState,
   LockedTile,
   Meter,
   Panel,
   PanelHead,
   RarityChip,
 } from "@/components/dimted/primitives";
+import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
+import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { rarityBorder, rarityDot, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
