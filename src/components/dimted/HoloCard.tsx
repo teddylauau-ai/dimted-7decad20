@@ -31,9 +31,21 @@ export function HoloCardTrigger({
   if (!profile) return children;
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="cursor-pointer">
+      <span
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+        className="inline-block cursor-pointer"
+        aria-label={`Open ${profile.display_name || profile.username} profile card`}
+      >
         {children}
-      </button>
+      </span>
       <HoloCard profile={profile} open={open} onClose={() => setOpen(false)} />
     </>
   );
