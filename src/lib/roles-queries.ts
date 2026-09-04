@@ -239,7 +239,6 @@ export type StaffAccount = {
   sparks: number;
   energy: number;
   streak: number;
-  realm_name: string;
   avatar_url: string | null;
   equipped_nametag: string | null;
   equipped_badge: string | null;
@@ -262,7 +261,7 @@ export function useAllAccounts(enabled: boolean) {
       const { data, error } = await supabase
         .from("profiles")
         .select(
-          "id, username, display_name, bio, title, total_xp, sparks, energy, streak, realm_name, avatar_url, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, banned_until, ban_reason, muted_until, mute_reason, created_at",
+          "id, username, display_name, bio, title, total_xp, sparks, energy, streak, avatar_url, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, banned_until, ban_reason, muted_until, mute_reason, created_at",
         )
         .order("created_at", { ascending: true });
       if (error) throw error;
@@ -306,7 +305,6 @@ export type ProfilePatch = Partial<{
   username: string;
   bio: string;
   title: string;
-  realm_name: string;
   avatar_url: string;
   total_xp: number;
   sparks: number;
