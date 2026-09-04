@@ -915,6 +915,27 @@ export type Database = {
         }
         Relationships: []
       }
+      typing_signals: {
+        Row: {
+          scope_id: string
+          scope_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          scope_id: string
+          scope_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          scope_id?: string
+          scope_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1065,6 +1086,10 @@ export type Database = {
         Returns: boolean
       }
       claim_quest: { Args: { _slug: string }; Returns: Json }
+      clear_typing: {
+        Args: { _scope_id: string; _scope_type: string }
+        Returns: undefined
+      }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       has_role: {
         Args: {
@@ -1172,6 +1197,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["app_role"]
       }
       touch_presence: { Args: { _context?: string }; Returns: undefined }
+      touch_typing: {
+        Args: { _scope_id: string; _scope_type: string }
+        Returns: undefined
+      }
       vanguard_equip: {
         Args: { _gear: string; _weapon: string }
         Returns: Json
