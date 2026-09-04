@@ -780,24 +780,31 @@ html.light .glass-raised {
 }
 
 .cos-frame-aureate {
-  box-shadow:
-    0 0 0 2px oklch(0.84 0.13 196),
-    0 0 0 4px oklch(0.5 0.1 285 / 0.45),
-    0 0 30px -6px oklch(0.8 0.14 200 / 0.85);
+  box-shadow: 0 0 30px -6px oklch(0.8 0.14 200 / 0.85);
   animation: breathe 4.5s ease-in-out infinite;
 }
+.cos-frame-aureate::before {
+  background-image: conic-gradient(
+    from 0deg,
+    oklch(0.84 0.13 196),
+    oklch(0.5 0.1 285) 50%,
+    oklch(0.84 0.13 196)
+  );
+  box-shadow: inset 0 0 0 1px oklch(0.1 0.02 258 / 0.7);
+}
 .cos-frame-orbital {
-  padding: 2px;
+  box-shadow: 0 0 26px -6px oklch(0.82 0.13 198 / 0.7);
+}
+.cos-frame-orbital::before {
   background-image: conic-gradient(
     from 0deg,
     oklch(0.95 0.04 210),
     oklch(0.84 0.14 196) 22%,
-    transparent 42%,
+    oklch(0.5 0.08 220 / 0.25) 42%,
     oklch(0.76 0.15 288) 62%,
-    transparent 80%,
+    oklch(0.5 0.08 220 / 0.25) 80%,
     oklch(0.95 0.04 210)
   );
-  box-shadow: 0 0 26px -6px oklch(0.82 0.13 198 / 0.7);
   animation: cos-spin 5.5s linear infinite;
 }
 
