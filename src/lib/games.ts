@@ -1,6 +1,6 @@
 /**
- * Dimted Arcade — real, playable minigames. Nothing here needs a chat partner,
- * a Realm, or a turn from someone else: you press start and you play.
+ * Dimted Arcade — real, playable minigames. Nothing here needs a chat partner
+ * or a turn from someone else: you press start and you play.
  */
 export type GameId =
   | "nova-blocks"

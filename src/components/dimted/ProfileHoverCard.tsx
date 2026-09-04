@@ -157,11 +157,11 @@ export function ProfileHoverCard({
                 </div>
               </div>
 
-              <div className="mt-3 grid grid-cols-3 gap-1.5 text-center">
+              <div className="mt-3 grid grid-cols-2 gap-1.5 text-center">
                 <Stat label="XP" value={(p.total_xp ?? 0).toLocaleString()} />
-                <Stat label="Realm" value={p.realm_name ?? "—"} />
                 <Stat label="Joined" value={joined ?? "—"} />
               </div>
+
 
               <Link
                 to="/u/$username"
