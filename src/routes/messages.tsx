@@ -10,7 +10,8 @@ import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { useDimted } from "@/lib/dimted-store";
 import { friendshipLevel } from "@/lib/dimted";
 import { useDirectMessages, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
-import { deleteDirectMessage, sendDirectMessage } from "@/lib/dimted-actions";
+import { deleteDirectMessage, sendDirectMessage, sendDirectVoiceMessage } from "@/lib/dimted-actions";
+import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { useMyRole } from "@/lib/roles-queries";
 import { cn } from "@/lib/utils";
 
@@ -98,6 +99,15 @@ function MessagesPage() {
     } catch {
       toast.error("Message didn't send");
     }
+  }
+
+  async function sendVoice(blob: Blob, ms: number) {
+    if (!active || !profile) return;
+    await sendDirectVoiceMessage(active.friendshipId, profile.id, blob, ms);
+    await messages.refetch();
+    const result = await award("message", `Voice message to ${active.profile.display_name}`);
+    if (result === "capped") toast("Message XP is capped for this hour — keep talking anyway.");
+    refresh();
   }
 
   const fl = active ? friendshipLevel(active.friendshipXp) : null;
@@ -297,9 +307,13 @@ function MessagesPage() {
                               )}
                             </p>
                           )}
-                          <p className="text-foreground/95 text-sm leading-relaxed break-words">
-                            {m.body}
-                          </p>
+                          {m.audio_url ? (
+                            <VoicePlayer url={m.audio_url} ms={m.audio_ms} />
+                          ) : (
+                            <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                              {m.body}
+                            </p>
+                          )}
                         </div>
                         {mine || isModerator ? (
                           <button
@@ -327,6 +341,7 @@ function MessagesPage() {
               onSubmit={send}
               className="border-border bg-secondary/15 flex gap-2 border-t px-5 py-3"
             >
+              <VoiceRecorder onSend={sendVoice} disabled={!active} />
               <Input
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
