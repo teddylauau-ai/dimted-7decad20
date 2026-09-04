@@ -136,7 +136,7 @@ export function VoiceRecorder({
 }
 
 /** Compact bubble player used inside chat rows. */
-export function VoicePlayer({ url, ms }: { url: string; ms?: number | null }) {
+export function VoicePlayer({ url, ms }: { url: string; ms?: number | null | undefined }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
