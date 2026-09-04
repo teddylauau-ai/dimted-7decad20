@@ -97,7 +97,7 @@ export function AuthScreen() {
         {/* stylised geometric "L" — stacked blocks + pip, textured, drifting slowly */}
         <svg
           viewBox="0 0 200 200"
-          className="animate-breathe absolute top-1/2 right-[-6%] hidden h-[42rem] w-[42rem] -translate-y-1/2 opacity-[0.5] lg:block"
+          className="animate-breathe absolute -bottom-24 -left-24 h-[34rem] w-[34rem] opacity-[0.45] sm:-bottom-32 sm:left-auto sm:-right-24 sm:h-[46rem] sm:w-[46rem]"
           style={{ animationDuration: "14s" }}
         >
           <defs>
