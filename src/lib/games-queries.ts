@@ -19,7 +19,7 @@ export type ScoreRow = {
   } | null;
 };
 
-const AUTHOR = "id, username, display_name, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
+const AUTHOR = "id, username, display_name, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
 
 /** Top run per game, best first. */
 export function useLeaderboard(game: GameId) {

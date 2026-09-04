@@ -37,7 +37,7 @@ const PROFILE_FIELDS =
   "id, username, display_name, bio, title, total_xp, realm_name, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url";
 
 const AUTHOR_FIELDS =
-  "id, display_name, username, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
+  "id, display_name, username, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
 
 /** Someone counts as "around" if they've been active in the last 5 minutes. */
 export function isRecentlyActive(iso: string): boolean {
@@ -548,7 +548,7 @@ export function useCommunityMembers(communityId: string | undefined) {
       const { data, error } = await supabase
         .from("community_members")
         .select(
-          "user_id, role, profile:profiles!community_members_user_id_fkey (id, username, display_name, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url)",
+          "user_id, role, profile:profiles!community_members_user_id_fkey (id, username, display_name, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url)",
         )
         .eq("community_id", communityId!);
       if (error) throw error;
