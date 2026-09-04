@@ -404,7 +404,9 @@ function HomePage() {
                       </span>
                     </span>
                   </Link>
+                 </ProfileHoverCard>
                 </li>
+
               );
             })}
             {rows.length === 0 ? (
