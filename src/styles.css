@@ -799,3 +799,107 @@ html.light .glass-raised {
 @media (prefers-reduced-motion: reduce) {
   .cos-frame-aureate, .cos-frame-orbital, .cos-founder-row { animation: none; }
 }
+
+/* ---------------------------------------------------- owner-only cosmetics */
+.cos-gradient-owner-sovereign {
+  background-image: linear-gradient(
+    92deg,
+    oklch(0.72 0.12 68),
+    oklch(0.99 0.05 96) 30%,
+    oklch(0.87 0.16 84) 52%,
+    oklch(1 0.02 100) 72%,
+    oklch(0.72 0.12 68)
+  );
+}
+.cos-gradient-owner-eclipse {
+  background-image: linear-gradient(
+    92deg,
+    oklch(0.32 0.02 262),
+    oklch(0.2 0.01 260) 38%,
+    oklch(1 0 0) 50%,
+    oklch(0.9 0.15 70) 60%,
+    oklch(0.32 0.02 262)
+  );
+}
+.cos-gradient-owner-starforge {
+  background-image: linear-gradient(
+    92deg,
+    oklch(0.92 0.13 30),
+    oklch(0.97 0.09 90) 32%,
+    oklch(0.9 0.14 200) 62%,
+    oklch(0.86 0.16 320) 82%,
+    oklch(0.92 0.13 30)
+  );
+}
+.cos-gradient-owner-monarch {
+  background-image: linear-gradient(
+    92deg,
+    oklch(0.6 0.19 305),
+    oklch(0.96 0.02 260) 44%,
+    oklch(0.78 0.17 300) 64%,
+    oklch(0.6 0.19 305)
+  );
+}
+.cos-glow-owner {
+  text-shadow:
+    0 0 8px oklch(0.95 0.1 92 / 0.6),
+    0 0 22px oklch(0.88 0.16 84 / 0.45),
+    0 0 44px oklch(0.88 0.16 84 / 0.22);
+}
+
+.cos-frame-throne {
+  padding: 2px;
+  background-image: conic-gradient(
+    from 0deg,
+    oklch(1 0.02 100),
+    oklch(0.88 0.16 84) 18%,
+    oklch(0.45 0.07 70) 38%,
+    oklch(0.96 0.08 92) 58%,
+    oklch(0.5 0.08 66) 80%,
+    oklch(1 0.02 100)
+  );
+  box-shadow:
+    0 0 0 1px oklch(0.5 0.07 70 / 0.7),
+    0 0 34px -6px oklch(0.9 0.15 86 / 0.85);
+  animation: cos-spin 9s linear infinite;
+}
+.cos-frame-singularity {
+  box-shadow:
+    0 0 0 2px oklch(0.1 0.01 260),
+    0 0 0 3.5px oklch(0.95 0.06 92 / 0.9),
+    inset 0 0 22px oklch(0.05 0 0 / 0.85),
+    0 0 40px -8px oklch(0.86 0.14 88 / 0.7);
+  animation: breathe 3.6s ease-in-out infinite;
+}
+.cos-frame-relic {
+  padding: 2px;
+  background-image: linear-gradient(
+    140deg,
+    oklch(0.78 0.13 72),
+    oklch(0.28 0.03 258) 45%,
+    oklch(0.9 0.14 86) 70%,
+    oklch(0.3 0.03 258)
+  );
+  box-shadow:
+    0 0 0 1px oklch(0.6 0.08 70 / 0.5),
+    0 0 26px -8px oklch(0.85 0.12 80 / 0.8);
+  animation: breathe 5.5s ease-in-out infinite;
+}
+
+.cos-owner-row {
+  background-image:
+    linear-gradient(90deg, oklch(0.92 0.15 86 / 0.26), oklch(0.85 0.12 60 / 0.12) 45%, transparent 78%),
+    repeating-linear-gradient(115deg, oklch(1 0.02 100 / 0.08) 0 2px, transparent 2px 16px);
+  border-left: 2px solid oklch(0.9 0.15 86 / 0.75);
+  border-radius: 0.6rem;
+  text-shadow: 0 0 14px oklch(0.95 0.11 92 / 0.5);
+  animation: cos-owner-descend 780ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes cos-owner-descend {
+  from { transform: translateY(-6px); opacity: 0; filter: blur(3px) brightness(1.6); }
+  to { transform: translateY(0); opacity: 1; filter: blur(0) brightness(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cos-frame-throne, .cos-frame-singularity, .cos-frame-relic, .cos-owner-row { animation: none; }
+}

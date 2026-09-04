@@ -98,7 +98,7 @@ function ItemCard({
 }) {
   const levelLocked = level < item.required_level;
   const affordable = sparks >= item.price_sparks;
-  const exclusive = item.pool === "founder";
+  const exclusive = item.pool === "founder" || item.pool === "owner";
 
   return (
     <div
@@ -136,7 +136,7 @@ function ItemCard({
             </>
           ) : exclusive ? (
             <>
-              <Lock className="size-3.5" /> Founders only
+              <Lock className="size-3.5" /> {item.pool === "owner" ? "Owner only" : "Founders only"}
             </>
           ) : levelLocked ? (
             <>
@@ -195,6 +195,8 @@ function ShopPage() {
 
   const founder = useMemo(() => all.filter((i) => i.pool === "founder"), [all]);
   const ownsFounder = founder.some((i) => owned.has(i.slug));
+  const ownerVault = useMemo(() => all.filter((i) => i.pool === "owner"), [all]);
+  const ownsVault = ownerVault.some((i) => owned.has(i.slug));
 
   // The permanent shelf: core stock plus anything you already own.
   const stock = useMemo(
@@ -268,6 +270,44 @@ function ShopPage() {
       </Panel>
 
 
+
+      {ownerVault.length ? (
+        <Panel className="border-gold/45 relative overflow-hidden p-5">
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(60% 130% at 88% -25%, oklch(0.9 0.15 86 / 0.2), transparent 62%), radial-gradient(50% 110% at 6% 120%, oklch(0.86 0.16 84 / 0.12), transparent 66%)",
+            }}
+          />
+          <div className="relative">
+            <PanelHead
+              eyebrow="Owner's Vault"
+              title={ownsVault ? "Bound to your account alone" : "Owner-exclusive — unobtainable"}
+              aside="1 of 1"
+            />
+            <p className="text-muted-foreground mt-2 text-xs">
+              {ownsVault
+                ? "Regalia minted for the founder-owner of Dimted. It cannot be bought, traded, granted, or duplicated — not even by admins."
+                : "These belong to the owner of Dimted. No level, price, or grant will ever unlock them for another account."}
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {ownerVault.map((item) => (
+                <ItemCard
+                  key={item.slug}
+                  item={item}
+                  owned={owned.has(item.slug)}
+                  equipped={equippedSlug[item.slot] === item.slug}
+                  level={level}
+                  sparks={sparks}
+                  onBuy={() => void buy(item)}
+                  onEquip={() => void equip(item)}
+                />
+              ))}
+            </div>
+          </div>
+        </Panel>
+      ) : null}
 
       {founder.length ? (
         <Panel className="border-gold/40 relative overflow-hidden p-5">
