@@ -1030,8 +1030,12 @@ html.light .glass-raised {
 
 @media (prefers-reduced-motion: reduce) {
   .cos-crown-shimmer, .cos-crown-shimmer-fast,
-  .cos-frame-ascension, .cos-frame-solarcrown, .cos-frame-mirrorgold, .cos-frame-eclipsecrown,
-  .cos-crown-ascend-row, .cos-crown-decree-row, .cos-crown-goldwave-row::after { animation: none; }
+  .cos-sov, .cos-sov::before, .cos-sov::after, .cos-sov-badge,
+  .cos-frame-sov-ascension, .cos-frame-sov-ascension::before,
+  .cos-frame-sov-corona, .cos-frame-sov-corona::before,
+  .cos-frame-sov-mirror::before, .cos-frame-sov-eclipse::before,
+  .cos-sov-coronation-row, .cos-sov-coronation-row::after,
+  .cos-sov-decree-row, .cos-sov-goldwave-row::after { animation: none; }
 }
 
 /* ------------------------------------- new admin vault cosmetics */
@@ -1056,18 +1060,17 @@ html.light .glass-raised {
   );
 }
 .cos-frame-scanline {
-  padding: 2px;
+  box-shadow: 0 0 24px -8px oklch(0.82 0.13 198 / 0.8);
+}
+.cos-frame-scanline::before {
   background-image: conic-gradient(
     from 0deg,
-    transparent 0deg,
+    oklch(0.7 0.12 200 / 0.35) 0deg,
     oklch(0.85 0.14 196) 40deg,
     oklch(0.97 0.04 205) 60deg,
-    transparent 110deg,
-    transparent 360deg
+    oklch(0.7 0.12 200 / 0.35) 110deg,
+    oklch(0.7 0.12 200 / 0.35) 360deg
   );
-  box-shadow:
-    0 0 0 1px oklch(0.7 0.12 200 / 0.5),
-    0 0 24px -8px oklch(0.82 0.13 198 / 0.8);
   animation: cos-spin 3.4s linear infinite;
 }
 .cos-admin-dispatch-row {
