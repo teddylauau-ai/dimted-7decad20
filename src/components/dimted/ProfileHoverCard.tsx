@@ -39,7 +39,7 @@ export function ProfileHoverCard({
   if (!username) return <>{children}</>;
 
   const derived = p ? levelFromTotalXp(p.total_xp ?? 0) : null;
-  const pct = derived ? Math.min(100, Math.round((derived.into / derived.needed) * 100)) : 0;
+  const pct = derived ? Math.min(100, Math.round((derived.intoLevel / derived.needed) * 100)) : 0;
   const presence = presenceFor(p?.last_active_at, p?.activity_context);
   const joined = p?.created_at
     ? new Date(p.created_at).toLocaleDateString(undefined, { month: "short", year: "numeric" })
