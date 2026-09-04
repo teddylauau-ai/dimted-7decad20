@@ -262,15 +262,21 @@ function HomePage() {
         <QuestBoard />
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[1.4fr_1fr]">
-        <Panel className="p-5" delay={60}>
+      <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+        <Panel className="p-4" delay={60}>
           <PanelHead
             eyebrow="Global"
             title="The ladder"
-            aside={rows.length ? `${rows.length} players` : undefined}
+            aside={
+              rows.length ? (
+                <span className="text-muted-foreground font-mono text-[10px]">
+                  {Math.min(rows.length, 10)} of {rows.length} players
+                </span>
+              ) : undefined
+            }
           />
-          <ol className="mt-4 space-y-1.5">
-            {rows.map((p, i) => {
+          <ol className="mt-3 space-y-1">
+            {rows.slice(0, 10).map((p, i) => {
               const lv = levelFromTotalXp(p.total_xp);
               const me = p.id === profile?.id;
               return (
@@ -279,7 +285,7 @@ function HomePage() {
                     to="/u/$username"
                     params={{ username: p.username }}
                     className={cn(
-                      "flex items-center gap-3 rounded-xl border px-3 py-2 transition-colors",
+                      "flex items-center gap-3 rounded-xl border px-3 py-1.5 transition-colors",
                       me
                         ? "border-primary/40 bg-primary/10"
                         : "border-border bg-background/40 hover:border-primary/30",
@@ -298,7 +304,7 @@ function HomePage() {
                       {i + 1}
                     </span>
                     {i === 0 ? <Crown className="text-gold size-3.5 shrink-0" /> : null}
-                    <Avatar profile={p} size={34} />
+                    <Avatar profile={p} size={32} />
                     <span className="min-w-0 flex-1">
                       <Nametag profile={p} className="block truncate text-sm" />
                       <span className="text-muted-foreground block truncate font-mono text-[10px]">
@@ -323,9 +329,9 @@ function HomePage() {
           </ol>
         </Panel>
 
-        <Panel className="p-5" delay={100}>
+        <Panel className="p-4" delay={100}>
           <PanelHead eyebrow="Prestige" title="Rank ladder" aside={`Lv ${level} · ${rank}`} />
-          <ul className="mt-4 space-y-1.5">
+          <ul className="mt-3 space-y-1">
             {RANKS.map((r) => {
               const reached = level >= r.from;
               const current = rankForLevel(level) === r.name;
@@ -333,7 +339,7 @@ function HomePage() {
                 <li
                   key={r.name}
                   className={cn(
-                    "flex items-center gap-3 rounded-xl border px-3 py-2",
+                    "flex items-center gap-3 rounded-xl border px-3 py-1.5",
                     current
                       ? "border-gold/50 bg-gold/10"
                       : reached
