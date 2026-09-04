@@ -382,11 +382,13 @@ function HomePage() {
                       {i + 1}
                     </span>
                     {i === 0 ? <Crown className="text-gold size-3.5 shrink-0" /> : null}
-                    <Avatar profile={p} size={32} />
+                    <HoloCardTrigger profile={p}>
+                      <Avatar profile={p} size={32} />
+                    </HoloCardTrigger>
                     <span className="min-w-0 flex-1">
                       <Nametag profile={p} className="block truncate text-sm" />
-                      <span className="text-muted-foreground block truncate font-mono text-[10px]">
-                        @{p.username} · {rankForLevel(lv.level)}
+                      <span className="text-muted-foreground flex items-center gap-1.5 truncate font-mono text-[10px]">
+                        @{p.username} · <RankPill level={lv.level} />
                       </span>
                     </span>
                     <span className="shrink-0 text-right">
@@ -400,9 +402,9 @@ function HomePage() {
               );
             })}
             {rows.length === 0 ? (
-              <li className="text-muted-foreground text-sm">
-                Nobody has earned XP yet — start chatting and claim the top spot.
-              </li>
+              <EmptyState icon={Trophy} title="The ladder is empty">
+                Nobody has earned XP yet. Start chatting or play Pulse Rush to claim the top spot.
+              </EmptyState>
             ) : null}
           </ol>
         </Panel>
