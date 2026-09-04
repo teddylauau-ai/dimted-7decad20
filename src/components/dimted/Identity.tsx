@@ -124,7 +124,7 @@ export function Avatar({
   const inner = (
     <span
       style={{ width: innerSize, height: innerSize, fontSize }}
-      className="bg-secondary text-foreground/90 font-display grid shrink-0 place-items-center overflow-hidden rounded-[10px] font-semibold select-none"
+      className="bg-secondary text-foreground/90 font-display grid shrink-0 place-items-center overflow-hidden rounded-full font-semibold select-none"
     >
       {profile?.avatar_url ? (
         <img
@@ -143,7 +143,7 @@ export function Avatar({
     <span
       style={{ width: size, height: size }}
       className={cn(
-        "relative grid shrink-0 place-items-center overflow-hidden rounded-xl",
+        "relative grid shrink-0 place-items-center overflow-hidden rounded-full",
         frame,
         className,
       )}

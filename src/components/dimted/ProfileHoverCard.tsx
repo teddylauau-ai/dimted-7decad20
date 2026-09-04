@@ -85,12 +85,12 @@ export function ProfileHoverCard({
               <div className="-mt-7 flex items-end justify-between gap-3">
                 <span
                   className={cn(
-                    "bg-secondary text-foreground/90 font-display glass-raised relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl text-lg font-semibold",
+                    "bg-secondary text-foreground/90 font-display glass-raised relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-full text-lg font-semibold",
                     p.equipped_frame ? FRAME_CLASS[p.equipped_frame] : undefined,
                   )}
                 >
                   <span className="relative inline-flex size-[3.25rem] shrink-0">
-                    <span className="bg-secondary grid size-[3.25rem] shrink-0 place-items-center overflow-hidden rounded-xl">
+                    <span className="bg-secondary grid size-[3.25rem] shrink-0 place-items-center overflow-hidden rounded-full">
                       {p.avatar_url ? (
                         <img
                           src={p.avatar_url}
