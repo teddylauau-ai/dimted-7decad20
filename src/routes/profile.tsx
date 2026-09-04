@@ -421,9 +421,9 @@ function ProfilePage() {
                 ...(profile?.streak ? [{ label: "Daily activity", days: profile.streak }] : []),
                 ...streaks,
               ].length === 0 ? (
-                <p className="text-muted-foreground text-sm">
-                  No streaks yet. Talk to someone two days in a row to start one.
-                </p>
+                <EmptyState icon={Flame} title="No streaks yet">
+                  Talk to someone two days in a row to start one. Streaks pause for 48 hours before resetting.
+                </EmptyState>
               ) : (
                 [
                   ...(profile?.streak ? [{ label: "Daily activity", days: profile.streak }] : []),
