@@ -1,10 +1,7 @@
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
+import { HoverCardContent } from "@/components/ui/hover-card";
 import {
   BADGE_CLASS,
   BADGE_GLYPH,
@@ -21,6 +18,8 @@ import { cn } from "@/lib/utils";
  * Discord-style hover preview. Peeks at somebody's card without leaving the page:
  * banner, avatar, worn cosmetics, rank, level meter and a couple of live stats.
  */
+const InsideHoverCard = createContext(false);
+
 export function ProfileHoverCard({
   username,
   children,
@@ -32,11 +31,12 @@ export function ProfileHoverCard({
   className?: string;
   side?: "top" | "right" | "bottom" | "left";
 }) {
+  const nested = useContext(InsideHoverCard);
   const [open, setOpen] = useState(false);
   const query = useProfileByUsername(open ? username : undefined);
   const p = query.data;
 
-  if (!username) return <>{children}</>;
+  if (!username || nested) return <>{children}</>;
 
   const derived = p ? levelFromTotalXp(p.total_xp ?? 0) : null;
   const pct = derived ? Math.min(100, Math.round((derived.intoLevel / derived.needed) * 100)) : 0;
@@ -46,10 +46,13 @@ export function ProfileHoverCard({
     : null;
 
   return (
-    <HoverCard openDelay={180} closeDelay={90} open={open} onOpenChange={setOpen}>
-      <HoverCardTrigger asChild>
-        <span className={cn("inline-flex min-w-0", className)}>{children}</span>
-      </HoverCardTrigger>
+    <HoverCardPrimitive.Root openDelay={160} closeDelay={100} open={open} onOpenChange={setOpen}>
+      <HoverCardPrimitive.Trigger asChild>
+        <span className={cn("inline-flex min-w-0", className)}>
+          <InsideHoverCard.Provider value={true}>{children}</InsideHoverCard.Provider>
+        </span>
+      </HoverCardPrimitive.Trigger>
+      <HoverCardPrimitive.Portal>
       <HoverCardContent
         side={side}
         align="start"
@@ -169,7 +172,8 @@ export function ProfileHoverCard({
           </>
         )}
       </HoverCardContent>
-    </HoverCard>
+      </HoverCardPrimitive.Portal>
+    </HoverCardPrimitive.Root>
   );
 }
 
