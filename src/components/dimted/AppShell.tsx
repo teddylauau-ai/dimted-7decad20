@@ -25,6 +25,7 @@ import { Meter } from "./primitives";
 import { Avatar, Nametag, PresenceLabel } from "./Identity";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
+import { StatusClock } from "./StatusClock";
 import { BrandMark, Wordmark } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
 import { LevelUpOverlay } from "./LevelUpOverlay";
@@ -279,11 +280,14 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-screen flex-col overflow-hidden p-3">
-      <div className="mx-auto mb-2 flex w-full max-w-[1680px] items-center justify-end gap-2">
-        <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
-          Theme
-        </span>
-        <ThemeToggle />
+      <div className="mx-auto mb-2 flex w-full max-w-[1680px] items-center justify-between gap-2">
+        <StatusClock />
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
+            Theme
+          </span>
+          <ThemeToggle />
+        </div>
       </div>
       <div className="mx-auto flex min-h-0 w-full max-w-[1680px] flex-1 gap-3">
         <Rail />
