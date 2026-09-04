@@ -146,3 +146,32 @@ export function PageHeader({
     </header>
   );
 }
+
+export function Skeleton({ className }: { className?: string }) {
+  return <div className={cn("skeleton", className)} aria-hidden />;
+}
+
+export function EmptyState({
+  icon: Icon,
+  title,
+  children,
+  action,
+}: {
+  icon?: React.ComponentType<{ className?: string }>;
+  title: string;
+  children: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-background/30 px-6 py-8 text-center">
+      {Icon ? (
+        <div className="bg-secondary text-muted-foreground mb-3 grid size-12 place-items-center rounded-2xl">
+          <Icon className="size-5" />
+        </div>
+      ) : null}
+      <p className="font-display text-sm font-semibold">{title}</p>
+      <p className="text-muted-foreground mt-1 max-w-xs text-xs leading-relaxed">{children}</p>
+      {action ? <div className="mt-4">{action}</div> : null}
+    </div>
+  );
+}
