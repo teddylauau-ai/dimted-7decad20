@@ -531,16 +531,10 @@ html.light .glass-raised {
   }
 
   .cos-frame-prismatic {
-    box-shadow:
-      0 0 0 2px oklch(0.85 0.15 300),
-      0 0 26px -6px oklch(0.85 0.14 190);
-    animation: breathe 5s ease-in-out infinite;
+    box-shadow: 0 0 26px -6px oklch(0.85 0.14 190);
   }
   .cos-frame-glitch {
-    box-shadow:
-      0 0 0 2px var(--rare),
-      2px 0 0 2px oklch(0.7 0.18 20 / 0.5),
-      -2px 0 0 2px oklch(0.8 0.16 190 / 0.5);
+    box-shadow: 0 0 18px -6px oklch(0.8 0.16 190 / 0.6);
   }
 
   /* message effects */
@@ -715,7 +709,7 @@ html.light .glass-raised {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cos-shimmer, .cos-frame-glitch, .cos-frame-prismatic,
+  .cos-shimmer, .cos-frame-glitch::before, .cos-frame-prismatic::before,
   .cos-ripple-row, .cos-static-row, .cos-wave-row, .cos-comet-row {
     animation: none;
   }
