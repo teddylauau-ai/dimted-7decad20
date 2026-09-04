@@ -67,12 +67,12 @@ function HomePage() {
   const myIndex = rows.findIndex((r) => r.id === profile?.id);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <header className="animate-rise grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-4 py-3">
+        <div className="glass flex items-center justify-between gap-4 rounded-2xl px-3 py-2.5">
           <div className="min-w-0">
             <p className="eyebrow">Progression</p>
-            <h1 className="font-display mt-0.5 truncate text-xl font-semibold tracking-tight">
+            <h1 className="font-display mt-0.5 truncate text-lg font-semibold tracking-tight">
               Level {level} · {rank}
             </h1>
             <p className="text-muted-foreground mt-0.5 truncate font-mono text-[11px]">
@@ -80,12 +80,12 @@ function HomePage() {
             </p>
           </div>
           <div className="shrink-0 text-right">
-            <p className="numeral text-2xl">{totalXp.toLocaleString()}</p>
+            <p className="numeral text-xl">{totalXp.toLocaleString()}</p>
             <p className="text-muted-foreground font-mono text-[9px] tracking-[0.2em] uppercase">total xp</p>
           </div>
         </div>
 
-        <div className="glass rounded-2xl px-4 py-3">
+        <div className="glass rounded-2xl px-3 py-2.5">
           <div className="flex items-center justify-between">
             <p className="eyebrow flex items-center gap-1.5">
               <Trophy className="text-gold size-3" /> Top of the ladder
@@ -94,7 +94,7 @@ function HomePage() {
               {myIndex >= 0 ? `you · #${myIndex + 1}` : "unranked"}
             </span>
           </div>
-          <ol className="mt-2 space-y-1">
+          <ol className="mt-1.5 space-y-0.5">
             {rows.slice(0, 3).map((p, i) => (
               <li key={p.id} className="flex items-center gap-2">
                 <span
