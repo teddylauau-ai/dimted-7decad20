@@ -157,8 +157,15 @@ export const BANNER_STYLE: Record<string, string> = {
     "radial-gradient(100% 120% at 20% 130%, oklch(0.72 0.2 35 / 0.9), transparent 60%), radial-gradient(90% 110% at 80% 130%, oklch(0.85 0.18 75 / 0.75), transparent 60%), linear-gradient(120deg, oklch(0.19 0.05 30), oklch(0.12 0.03 258))",
   "banner-galaxy":
     "radial-gradient(35% 60% at 25% 30%, oklch(0.85 0.1 300 / 0.5), transparent 70%), radial-gradient(50% 80% at 70% 80%, oklch(0.6 0.16 265 / 0.7), transparent 70%), repeating-radial-gradient(circle at 60% 40%, oklch(1 0 0 / 0.14) 0 1px, transparent 1px 26px), linear-gradient(120deg, oklch(0.16 0.05 280), oklch(0.1 0.03 258))",
-    "radial-gradient(50% 80% at 22% 10%, oklch(0.9 0.14 190 / 0.55), transparent 62%), radial-gradient(55% 85% at 78% 6%, oklch(0.9 0.15 88 / 0.5), transparent 60%), radial-gradient(70% 100% at 50% 120%, oklch(0.8 0.13 300 / 0.35), transparent 70%), linear-gradient(180deg, oklch(0.1 0.02 258), oklch(0.16 0.04 266))",
-    "repeating-linear-gradient(115deg, oklch(0.92 0.13 88 / 0.16) 0 3px, transparent 3px 42px), radial-gradient(45% 120% at 50% 130%, oklch(0.95 0.1 92 / 0.5), transparent 62%), linear-gradient(180deg, oklch(0.09 0.015 258), oklch(0.14 0.03 262))",
+  "banner-crown-empyrean":
+    "radial-gradient(90% 140% at 50% 150%, oklch(0.98 0.13 92 / 0.85), transparent 60%), radial-gradient(60% 100% at 12% 0%, oklch(0.8 0.12 300 / 0.35), transparent 66%), repeating-linear-gradient(100deg, oklch(1 0.03 100 / 0.07) 0 2px, transparent 2px 30px), linear-gradient(180deg, oklch(0.08 0.015 258), oklch(0.18 0.045 60) 58%, oklch(0.6 0.15 78))",
+  "banner-crown-goldsea":
+    "repeating-linear-gradient(0deg, oklch(1 0.04 100 / 0.09) 0 1px, transparent 1px 9px), radial-gradient(120% 90% at 50% 130%, oklch(0.9 0.16 84 / 0.9), transparent 62%), linear-gradient(180deg, oklch(0.07 0.01 258) 0 46%, oklch(0.42 0.11 66) 62%, oklch(0.85 0.15 86))",
+  "banner-crown-thronehall":
+    "repeating-linear-gradient(90deg, oklch(0.95 0.12 90 / 0.16) 0 3px, transparent 3px 54px), radial-gradient(38% 130% at 50% 140%, oklch(1 0.09 96 / 0.6), transparent 60%), radial-gradient(70% 60% at 50% -10%, oklch(0.9 0.13 88 / 0.3), transparent 70%), linear-gradient(180deg, oklch(0.07 0.012 258), oklch(0.15 0.03 262))",
+  "banner-crown-solareclipse":
+    "radial-gradient(circle at 50% 62%, oklch(0.04 0 0) 0 26%, oklch(1 0.07 96 / 0.95) 27% 29%, oklch(0.9 0.16 86 / 0.35) 30% 44%, transparent 60%), radial-gradient(120% 120% at 50% 62%, oklch(0.28 0.06 70 / 0.5), transparent 70%), linear-gradient(180deg, oklch(0.05 0.008 258), oklch(0.1 0.02 262))",
+
   "banner-founder-firstlight":
     "radial-gradient(70% 130% at 50% 135%, oklch(0.9 0.15 88 / 0.85), transparent 62%), radial-gradient(60% 110% at 12% -10%, oklch(0.7 0.13 300 / 0.45), transparent 70%), linear-gradient(180deg, oklch(0.16 0.04 268), oklch(0.3 0.09 40) 72%, oklch(0.62 0.14 66))",
   "banner-founder-vault":
