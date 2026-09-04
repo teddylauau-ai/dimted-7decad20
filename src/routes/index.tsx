@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Crown, Flame, Sparkles, Trophy } from "lucide-react";
+import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Meter, Panel, PanelHead, RarityChip, LockedTile } from "@/components/dimted/primitives";
+import { Meter, Panel, PanelHead, RarityChip, LockedTile, EmptyState } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
 import { QuestBoard } from "@/components/dimted/QuestBoard";
+import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
+import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import {
   RANKS,
   SECRETS,
