@@ -1,6 +1,6 @@
 /**
  * Presence is observed, never declared. You can't set "do not disturb" in
- * Lumo — your status is whatever you're actually doing, worked out from the
+ * Lazu — your status is whatever you're actually doing, worked out from the
  * last time the app told the server you were alive and what you were doing.
  */
 

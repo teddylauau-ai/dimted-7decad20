@@ -9,7 +9,7 @@ export function useUnreadMessages(userId: string | undefined): number {
 
 /**
  * Mirrors the unread DM count into the browser tab title, so a new message is
- * visible even when Lumo is in a background tab. Messages only — no other
+ * visible even when Lazu is in a background tab. Messages only — no other
  * notification kind touches the tab.
  */
 export function useMessageTabBadge(count: number) {

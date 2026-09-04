@@ -54,14 +54,14 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Control panel — Lumo" },
+      { title: "Control panel — Lazu" },
       {
         name: "description",
         content:
-          "Owner and admin controls for Lumo: role hierarchy, titles, XP and sparks grants, cosmetics and leaderboard moderation.",
+          "Owner and admin controls for Lazu: role hierarchy, titles, XP and sparks grants, cosmetics and leaderboard moderation.",
       },
-      { property: "og:title", content: "Lumo control panel" },
-      { property: "og:description", content: "Roles, titles and grants for Lumo." },
+      { property: "og:title", content: "Lazu control panel" },
+      { property: "og:description", content: "Roles, titles and grants for Lazu." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

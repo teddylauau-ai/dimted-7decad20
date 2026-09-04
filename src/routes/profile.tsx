@@ -42,13 +42,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
-      { title: "Profile — Lumo" },
+      { title: "Profile — Lazu" },
       {
         name: "description",
         content:
-          "Your Lumo profile evolves with you: level and rank, titles, achievements across seven categories, and a collection graded common to mythic.",
+          "Your Lazu profile evolves with you: level and rank, titles, achievements across seven categories, and a collection graded common to mythic.",
       },
-      { property: "og:title", content: "Profile — Lumo" },
+      { property: "og:title", content: "Profile — Lazu" },
       {
         property: "og:description",
         content: "A profile that shows how long you've been here, not what you paid.",

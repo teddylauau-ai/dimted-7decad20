@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 /**
- * Lumo's mark: an "L" drawn as one open stroke — the upright is the ladder,
+ * Lazu's mark: an "L" drawn as one open stroke — the upright is the ladder,
  * the base is the ground — with a small detached pip for the level you haven't
  * reached yet. Minimal on purpose: it has to read at 20px in the rail and at
  * 64px on the sign-in screen.
@@ -39,7 +39,7 @@ export function BrandMark({ size = 40, className }: { size?: number; className?:
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("font-display font-semibold tracking-[-0.02em] lowercase", className)}>
-      lumo
+      lazu
       <span className="text-gold">.</span>
     </span>
   );

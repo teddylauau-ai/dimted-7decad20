@@ -1,5 +1,5 @@
 /**
- * Lumo progression model.
+ * Lazu progression model.
  * Pure data + math — no React, no mock people, safe to import anywhere.
  *
  * Everything here is a *definition* (a ladder, a catalogue, a rule).
@@ -556,7 +556,7 @@ export type Item = {
 
 /** You own an item once you've reached the level that unlocks it. */
 export const ITEMS: Item[] = [
-  { id: "i1", name: "First Light", type: "Badge", rarity: "common", requiredLevel: 1, source: "Joining Lumo" },
+  { id: "i1", name: "First Light", type: "Badge", rarity: "common", requiredLevel: 1, source: "Joining Lazu" },
   { id: "i2", name: "Quiet Bell", type: "Trophy", rarity: "common", requiredLevel: 2, source: "Level 2" },
   { id: "i3", name: "Tideline", type: "Frame", rarity: "uncommon", requiredLevel: 5, source: "Level 5" },
   { id: "i4", name: "Low Hum", type: "Effect", rarity: "uncommon", requiredLevel: 7, source: "Level 7" },

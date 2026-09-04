@@ -33,13 +33,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/shop")({
   head: () => ({
     meta: [
-      { title: "Shop — Lumo Sparks & cosmetics" },
+      { title: "Shop — Lazu Sparks & cosmetics" },
       {
         name: "description",
         content:
           "Spend Sparks you earned by chatting on nametags, badges, avatar frames, banners and message effects. Nothing here costs real money.",
       },
-      { property: "og:title", content: "Shop — Lumo Sparks & cosmetics" },
+      { property: "og:title", content: "Shop — Lazu Sparks & cosmetics" },
       {
         property: "og:description",
         content: "Earned currency, worn cosmetics, zero pay-to-win.",
@@ -246,7 +246,7 @@ function ShopPage() {
       <PageHeader
         eyebrow="Earned, never bought with money"
         title="Shop"
-        blurb="Sparks come from playing Lumo — chatting, streaks, activities, levelling. Cosmetics change how you look, never how you rank."
+        blurb="Sparks come from playing Lazu — chatting, streaks, activities, levelling. Cosmetics change how you look, never how you rank."
         aside={
           <div className="glass-raised rounded-2xl px-4 py-3 text-right">
             <p className="eyebrow">Your Sparks</p>
@@ -288,8 +288,8 @@ function ShopPage() {
             />
             <p className="text-muted-foreground mt-2 text-xs">
               {ownsVault
-                ? "Regalia minted for the owner of Lumo. It cannot be bought, traded, granted, or duplicated — not even by admins."
-                : "These belong to the owner of Lumo. No level, price, or grant will ever unlock them for another account."}
+                ? "Regalia minted for the owner of Lazu. It cannot be bought, traded, granted, or duplicated — not even by admins."
+                : "These belong to the owner of Lazu. No level, price, or grant will ever unlock them for another account."}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {ownerVault.map((item) => (
@@ -327,7 +327,7 @@ function ShopPage() {
             <p className="text-muted-foreground mt-2 text-xs">
               {ownsAdminVault
                 ? "Staff regalia. It arrives with the admin role and cannot be bought, traded, or level-unlocked."
-                : "These are issued to Lumo admins only. No amount of Sparks or levels will unlock them."}
+                : "These are issued to Lazu admins only. No amount of Sparks or levels will unlock them."}
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {adminVault.map((item) => (

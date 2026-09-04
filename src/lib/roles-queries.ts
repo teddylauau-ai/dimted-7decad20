@@ -20,7 +20,7 @@ export type RoleRow = {
   profile: { id: string; username: string; display_name: string } | null;
 };
 
-/** Every role grant in Lumo, with the account it belongs to. */
+/** Every role grant in Lazu, with the account it belongs to. */
 export function useRoles() {
   return useQuery({
     queryKey: ["roles"],

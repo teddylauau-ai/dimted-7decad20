@@ -1,5 +1,5 @@
 /**
- * PULSE RUSH — Lumo's flagship rhythm runner.
+ * PULSE RUSH — Lazu's flagship rhythm runner.
  *
  * One button. You auto-run forward, tap to jump, and the level is a fixed,
  * memorisable sequence of hazards placed on a musical grid. Levels are authored
@@ -533,7 +533,7 @@ export const LEVELS: LevelDef[] = [
   },
   {
     n: 15,
-    name: "Lumo Prime",
+    name: "Lazu Prime",
     brief: "Demon finale. The whole game in one run.",
     difficulty: "demon",
     bpm: 178,
