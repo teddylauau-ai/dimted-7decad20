@@ -71,7 +71,7 @@ function ArmoryPage() {
   const { profile, sparks, refreshProfile } = useDimted();
   const cosmetics = useCosmetics();
   const inventory = useInventory(profile?.id);
-  const [slot, setSlot] = useState<CosmeticSlot>("nametag");
+  const [slot, setSlot] = useState<CosmeticSlot | "vault">("nametag");
 
   const owned = useMemo(() => new Set(inventory.data ?? []), [inventory.data]);
   const all = cosmetics.data ?? [];
@@ -85,9 +85,16 @@ function ArmoryPage() {
     effect: profile?.equipped_effect ?? null,
   };
 
-  const list = ownedItems.filter((i) => i.slot === slot);
-  const activeSlug = equipped[slot];
-  const meta = SLOTS.find((s) => s.slot === slot);
+  const vaultItems = useMemo(
+    () => ownedItems.filter((i) => i.pool === "owner" || i.pool === "founder"),
+    [ownedItems],
+  );
+  const isVault = slot === "vault";
+  const list = isVault ? vaultItems : ownedItems.filter((i) => i.slot === slot);
+  const activeSlug = isVault ? null : equipped[slot];
+  const meta = isVault
+    ? { label: "Owner's Vault", blurb: "One-of-a-kind pieces bound to your account only" }
+    : SLOTS.find((s) => s.slot === slot);
 
   async function equip(item: Cosmetic) {
     const isOn = equipped[item.slot] === item.slug;
@@ -196,6 +203,29 @@ function ArmoryPage() {
               })}
             </div>
 
+            {vaultItems.length ? (
+              <button
+                onClick={() => setSlot("vault")}
+                className={cn(
+                  "mt-2 flex w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-2 text-left transition-colors",
+                  isVault
+                    ? "border-gold/60 bg-gold/10"
+                    : "border-gold/35 hover:bg-gold/5",
+                )}
+              >
+                <span className="min-w-0">
+                  <span className="text-gold block font-mono text-[10px] tracking-[0.14em] uppercase">
+                    Owner's Vault
+                    <span className="ml-1.5 opacity-70">{vaultItems.length}</span>
+                  </span>
+                  <span className="text-muted-foreground block truncate text-[12px]">
+                    exclusive to you
+                  </span>
+                </span>
+                <Crown className="text-gold size-3.5 shrink-0" />
+              </button>
+            ) : null}
+
             <Button asChild size="sm" variant="outline" className="mt-4 w-full">
               <Link to="/shop">
                 <ShoppingBag className="size-3.5" /> Find more in the Shop
@@ -205,7 +235,7 @@ function ArmoryPage() {
         </Panel>
 
         {/* Slot contents */}
-        <Panel className="p-5" delay={40}>
+        <Panel className={cn("p-5", isVault && "border-gold/40")} delay={40}>
           <PanelHead
             eyebrow={meta?.label ?? "Locker"}
             title={meta?.blurb ?? "Your gear"}
@@ -230,9 +260,23 @@ function ArmoryPage() {
                 </span>
               </button>
             ))}
-            {activeSlug ? (
+            {vaultItems.length ? (
               <button
-                onClick={() => void clearSlot(slot)}
+                onClick={() => setSlot("vault")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.12em] uppercase transition-colors",
+                  isVault
+                    ? "border-gold/60 bg-gold/15 text-gold"
+                    : "border-gold/35 text-gold/80 hover:text-gold",
+                )}
+              >
+                <Crown className="size-3" /> Vault
+                <span className="opacity-70">{vaultItems.length}</span>
+              </button>
+            ) : null}
+            {activeSlug && !isVault ? (
+              <button
+                onClick={() => void clearSlot(slot as CosmeticSlot)}
                 className="text-muted-foreground hover:text-destructive ml-auto font-mono text-[10px] tracking-[0.12em] uppercase"
               >
                 Unequip slot
@@ -245,7 +289,9 @@ function ArmoryPage() {
           ) : list.length === 0 ? (
             <div className="border-border/60 mt-5 rounded-xl border border-dashed p-6 text-center">
               <p className="text-muted-foreground text-sm">
-                Nothing in this slot yet — earn Sparks by playing and pick something up.
+                {isVault
+                  ? "No owner-exclusive pieces on this account."
+                  : "Nothing in this slot yet — earn Sparks by playing and pick something up."}
               </p>
               <Button asChild size="sm" className="mt-3">
                 <Link to="/shop">Open the Shop</Link>
@@ -254,7 +300,7 @@ function ArmoryPage() {
           ) : (
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {list.map((item) => {
-                const on = activeSlug === item.slug;
+                const on = equipped[item.slot] === item.slug;
                 return (
                   <button
                     key={item.slug}
