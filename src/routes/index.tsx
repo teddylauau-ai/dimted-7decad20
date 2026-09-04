@@ -296,13 +296,17 @@ function HomePage() {
             }
           />
           {myFriends.length === 0 ? (
-            <p className="text-muted-foreground mt-3 text-sm">
-              No friends yet. Find real accounts in{" "}
-              <Link to="/discover" className="text-primary hover:underline">
-                Discover
-              </Link>{" "}
-              and send a request — every accepted request is worth XP.
-            </p>
+            <EmptyState
+              icon={Users}
+              title="Your circle is empty"
+              action={
+                <Link to="/discover">
+                  <Button variant="outline" size="sm">Find people</Button>
+                </Link>
+              }
+            >
+              Send friend requests to real signed-up accounts. Every accepted request earns XP.
+            </EmptyState>
           ) : (
             <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
               {myFriends.map((f) => {
