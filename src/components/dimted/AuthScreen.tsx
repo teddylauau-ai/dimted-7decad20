@@ -22,7 +22,7 @@ const PILLARS = [
  * pre-made friends — the only people in Lazu are people who signed up.
  */
 export function AuthScreen() {
-  const [mode, setMode] = useState<"signin" | "signup">("signup");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
