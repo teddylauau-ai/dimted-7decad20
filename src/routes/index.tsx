@@ -318,7 +318,9 @@ function HomePage() {
                       params={{ username: f.profile.username }}
                       className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-2.5 transition-colors"
                     >
-                      <Avatar profile={f.profile} size={40} />
+                      <HoloCardTrigger profile={f.profile}>
+                        <Avatar profile={f.profile} size={40} />
+                      </HoloCardTrigger>
                       <span className="min-w-0 flex-1">
                         <Nametag profile={f.profile} className="block truncate text-sm" />
                         <span className="text-muted-foreground block truncate font-mono text-[10px]">
