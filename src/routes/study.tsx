@@ -97,6 +97,7 @@ function RevisionSection() {
   const progress = useStudyProgress(profile?.id);
   const save = useSaveAttempt(profile?.id);
   const refresh = useRefreshDimted();
+  const { syncXp } = useDimted();
   const [subject, setSubject] = useState<(typeof SUBJECT_LIST)[number] | "All">("All");
   const [active, setActive] = useState<Deck | null>(null);
 
@@ -119,6 +120,7 @@ function RevisionSection() {
         const score = Math.round(percent * 12 + correct * 40);
         const res = await awardArcadeXp("revision-quiz" as never, score);
         if (res.status === "awarded" || res.status === "granted") {
+          syncXp(res, "revision quiz");
           toast.success(
             `+${res.gained} XP · +${res.sparks_gained} sparks for ${correct}/${total}` +
               (surgeActive ? " · surge doubled" : ""),
@@ -133,7 +135,7 @@ function RevisionSection() {
         toast("Result saved.");
       }
     },
-    [active, profile, refresh, save, surgeActive],
+    [active, profile, refresh, save, surgeActive, syncXp],
   );
 
   if (active) {
