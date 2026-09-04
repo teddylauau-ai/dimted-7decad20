@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -54,6 +55,15 @@ export type LevelUpPayload = {
   unlock?: Unlock | undefined;
 };
 
+export type XpReward = {
+  gained?: number | undefined;
+  total_xp?: number | undefined;
+  sparks?: number | undefined;
+  sparks_gained?: number | undefined;
+  energy?: number | undefined;
+  surge_until?: string | null | undefined;
+};
+
 export type AwardResult = "granted" | "cooldown" | "capped" | "error";
 
 type Ctx = {
@@ -73,6 +83,7 @@ type Ctx = {
   levelUp: LevelUpPayload | null;
   lastGain: { amount: number; label: string; at: number } | null;
   award: (source: XpSourceId, label?: string) => Promise<AwardResult>;
+  syncXp: (reward: XpReward, label?: string) => void;
   igniteSurge: () => Promise<void>;
   dismissLevelUp: () => void;
   refreshProfile: () => Promise<void>;
@@ -290,6 +301,7 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
     levelUp,
     lastGain,
     award,
+    syncXp,
     igniteSurge,
     dismissLevelUp: () => setLevelUp(null),
     refreshProfile,
