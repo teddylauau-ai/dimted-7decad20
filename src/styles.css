@@ -637,24 +637,45 @@ html.light .glass-raised {
 .cos-glow-ember { box-shadow: 0 0 16px oklch(0.78 0.16 45 / 0.45); }
 .cos-glow-mythic { box-shadow: 0 0 22px oklch(0.8 0.16 330 / 0.5); }
 
-.cos-frame-glitch {
-  box-shadow:
-    -2px 0 0 oklch(0.8 0.18 20 / 0.8),
-    2px 0 0 oklch(0.8 0.15 195 / 0.8);
+/* ---- avatar frame system ----
+   The avatar wrapper is a fixed circular box; `--frame-w` is the ring width
+   (set inline by <Avatar>). Simple frames are a border (inside the box).
+   Fancy frames paint a ::before ring layer that fills the box and sits under
+   the picture — so spinning/flaring never touches the picture itself and the
+   ring is always a complete circle. */
+.cos-ring {
+  border-width: var(--frame-w, 2px);
+  border-style: solid;
+}
+.cos-frame { position: relative; isolation: isolate; }
+.cos-frame::before,
+.cos-frame::after {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: -1;
+}
+.cos-frame::before { content: ""; }
+
+.cos-frame-glitch::before {
+  background-image: conic-gradient(
+    from 0deg,
+    oklch(0.8 0.18 20 / 0.9) 0 50%,
+    oklch(0.8 0.15 195 / 0.9) 50% 100%
+  );
   animation: cos-glitch 2.6s steps(2, end) infinite;
 }
 @keyframes cos-glitch {
-  0%, 82%, 100% { transform: translateX(0); }
-  86% { transform: translateX(-1.5px); }
-  92% { transform: translateX(1.5px); }
+  0%, 82%, 100% { transform: rotate(0deg); }
+  86% { transform: rotate(150deg); }
+  92% { transform: rotate(240deg); }
 }
-.cos-frame-prismatic {
-  box-shadow: 0 0 0 2px transparent;
+.cos-frame-prismatic::before {
   background-image: conic-gradient(
     oklch(0.86 0.16 20), oklch(0.88 0.16 90), oklch(0.86 0.15 190),
     oklch(0.82 0.16 300), oklch(0.86 0.16 20)
   );
-  padding: 2px;
   animation: cos-spin 6s linear infinite;
 }
 @keyframes cos-spin { to { transform: rotate(360deg); } }
