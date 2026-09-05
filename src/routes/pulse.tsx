@@ -276,26 +276,53 @@ function PulsePage() {
         }
       />
 
-      <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
-        <div className="flex items-center gap-3">
-          <span className="bg-primary/15 text-primary grid size-9 place-items-center rounded-xl">
-            <CalendarClock className="size-4" />
-          </span>
-          <div>
-            <p className="font-display text-sm font-semibold">
-              Daily challenge · Level {dailyLevel.n} — {dailyLevel.name}
-            </p>
-            <p className="text-muted-foreground text-xs">
-              {dailyClaimed.data
-                ? "Bonus claimed — come back tomorrow for a new level."
-                : "Clear it today for a one-time +50 coin bonus. Resets at UTC midnight."}
-            </p>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
+          <div className="flex items-center gap-3">
+            <span className="bg-primary/15 text-primary grid size-9 place-items-center rounded-xl">
+              <CalendarClock className="size-4" />
+            </span>
+            <div>
+              <p className="font-display text-sm font-semibold">
+                Daily challenge · Level {dailyLevel.n} — {dailyLevel.name}
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {dailyClaimed.data
+                  ? "Bonus claimed — come back tomorrow for a new level."
+                  : "Clear it today for a one-time +50 coin bonus. Resets at UTC midnight."}
+              </p>
+            </div>
           </div>
-        </div>
-        <Button size="sm" variant="outline" onClick={() => start(dailyLevel, false)}>
-          <Play className="size-3.5" /> {dailyClaimed.data ? "Replay" : "Play the daily"}
-        </Button>
-      </Panel>
+          <div className="flex items-center gap-2">
+            {(streak.data ?? 0) > 0 ? (
+              <span className="text-gold flex items-center gap-1 font-mono text-xs" title="Daily streak">
+                <Flame className="size-3.5" /> {streak.data}d
+              </span>
+            ) : null}
+            <Button size="sm" variant="outline" onClick={() => start(dailyLevel, false)}>
+              <Play className="size-3.5" /> {dailyClaimed.data ? "Replay" : "Play the daily"}
+            </Button>
+          </div>
+        </Panel>
+
+        <Panel className="border-fuchsia-400/25 flex flex-wrap items-center justify-between gap-3 p-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-xl bg-fuchsia-400/15 text-fuchsia-300">
+              <InfinityIcon className="size-4" />
+            </span>
+            <div>
+              <p className="font-display text-sm font-semibold">Infinite Run</p>
+              <p className="text-muted-foreground text-xs">
+                No finish line — today's mountain is the same for everyone. Best:{" "}
+                <span className="text-foreground font-mono">{endlessBest.data ?? 0}u</span>
+              </p>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => start(endlessDef, false, true)}>
+            <Play className="size-3.5" /> Run it
+          </Button>
+        </Panel>
+      </div>
 
       <div className="flex gap-2">
         {(["levels", "locker", "ranks"] as const).map((t) => (
