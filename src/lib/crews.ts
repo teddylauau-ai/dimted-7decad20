@@ -200,9 +200,11 @@ export async function revokeCrewInvite(crewId: string, userId: string) {
 }
 
 export async function acceptCrewInvite(crewId: string) {
+  const userId = (await supabase.auth.getUser()).data.user?.id;
+  if (!userId) throw new Error("Not signed in");
   const { data, error } = await supabase.rpc("add_member_to_crew", {
     _crew_id: crewId,
-    _user_id: (await supabase.auth.getUser()).data.user?.id,
+    _user_id: userId,
     _role: "member",
   });
   if (error) throw error;
