@@ -399,6 +399,17 @@ function MessagesPage() {
                           <Avatar profile={m.author} size={36} className="mt-0.5" />
                         )}
                         <div className="min-w-0 flex-1">
+                          {m.reply_to_id ? (
+                            <ReplyQuote
+                              target={findReplyTarget(list, m)}
+                              onJump={(id) => {
+                                const el = document.getElementById(`msg-${id}`);
+                                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                el?.classList.add("bg-amber-500/10");
+                                setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
+                              }}
+                            />
+                          ) : null}
                           {grouped ? null : (
                             <p className="flex items-baseline gap-2">
                               <ProfileLink profile={m.author} className="text-sm" />
@@ -475,6 +486,15 @@ function MessagesPage() {
                         <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
                           <button
                             type="button"
+                            aria-label="Reply to message"
+                            title="Reply"
+                            onClick={() => setReplyTo(m)}
+                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-primary rounded p-0.5"
+                          >
+                            <Reply className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
                             aria-label="Pin message"
                             title="Pin message"
                             onClick={() =>
@@ -539,6 +559,7 @@ function MessagesPage() {
               onSubmit={send}
               className="border-border bg-secondary/15 overflow-hidden border-t"
             >
+              {replyTo ? <ReplyChip target={replyTo} onCancel={() => setReplyTo(null)} /> : null}
               <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-3">
                 <ImagePicker onPick={sendImage} disabled={!active} />
