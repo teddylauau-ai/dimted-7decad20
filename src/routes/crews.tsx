@@ -125,6 +125,13 @@ function CrewsPage() {
     refetchInterval: 4000,
   });
 
+  const chatList = useMemo(() => messages.data ?? [], [messages.data]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [chatList.length, active?.id, tab]);
+
   const invites = useQuery({
     queryKey: ["crew-invites", active?.id],
     enabled: !!active?.id,
