@@ -138,6 +138,29 @@ function CrewsPage() {
 
   const chatList = useMemo(() => messages.data ?? [], [messages.data]);
 
+  // Rain confetti when a fresh "joined the crew" line lands in the open crew.
+  const [party, setParty] = useState(0);
+  const [partyLabel, setPartyLabel] = useState<string | undefined>(undefined);
+  const seenJoin = useRef<string | null>(null);
+  useEffect(() => {
+    seenJoin.current = null;
+  }, [active?.id]);
+  useEffect(() => {
+    const joins = chatList.filter((m) => m.body === "/sys:join");
+    const latest = joins[joins.length - 1];
+    if (!latest) return;
+    if (seenJoin.current === null) {
+      seenJoin.current = latest.id;
+      return;
+    }
+    if (seenJoin.current === latest.id) return;
+    seenJoin.current = latest.id;
+    if (Date.now() - Date.parse(latest.created_at) > 60_000) return;
+    const who = latest.author?.display_name || latest.author?.username || "Someone";
+    setPartyLabel(`${who} joined the crew`);
+    setParty(Date.now());
+  }, [chatList]);
+
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
