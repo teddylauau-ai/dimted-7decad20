@@ -342,6 +342,46 @@ function PulsePage() {
       </div>
 
       {tab === "ranks" ? (
+        <div className="space-y-4">
+        <Panel className="p-4">
+          <PanelHead
+            eyebrow="Today"
+            title="Daily challenge board"
+            aside={
+              <span className="text-muted-foreground font-mono text-xs">
+                best score today · resets UTC midnight
+              </span>
+            }
+          />
+          {(dailyBoard.data ?? []).length === 0 ? (
+            <p className="text-muted-foreground mt-4 text-sm">
+              Nobody has run the daily yet. First clear takes the crown.
+            </p>
+          ) : (
+            <ol className="mt-3 divide-y divide-white/5">
+              {(dailyBoard.data ?? []).map((r, i) => (
+                <li
+                  key={r.user_id}
+                  className={cn(
+                    "flex items-center gap-3 py-2.5",
+                    r.user_id === profile.id && "bg-primary/5 -mx-2 rounded-lg px-2",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "w-7 shrink-0 text-center font-mono text-sm",
+                      i === 0 ? "text-gold" : "text-muted-foreground",
+                    )}
+                  >
+                    {i === 0 ? <Crown className="mx-auto size-4" /> : i + 1}
+                  </span>
+                  <IdentityRow profile={r.profile} className="flex-1" />
+                  <span className="text-foreground shrink-0 font-mono text-xs">{r.score}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Panel>
         <Panel className="p-4">
           <PanelHead
             eyebrow="Global"
