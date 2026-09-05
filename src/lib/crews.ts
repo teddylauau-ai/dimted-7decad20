@@ -465,9 +465,19 @@ export async function removeCrewMember(crewId: string, userId: string) {
   if (error) throw error;
 }
 
-export async function promoteCrewMember(crewId: string, userId: string, role: CrewRole) {
-  const { error } = await supabase.from("crew_members").update({ role }).eq("crew_id", crewId).eq("user_id", userId);
+/** Set a member's crew rank. Server enforces who may set what. */
+export async function setCrewRank(crewId: string, userId: string, role: CrewRole) {
+  const { data, error } = await supabase.rpc("set_crew_rank", {
+    _crew_id: crewId,
+    _user_id: userId,
+    _role: role,
+  });
   if (error) throw error;
+  return data as { ok: boolean; role: CrewRole };
+}
+
+export async function promoteCrewMember(crewId: string, userId: string, role: CrewRole) {
+  return setCrewRank(crewId, userId, role);
 }
 
 export async function postCrewMessage(
