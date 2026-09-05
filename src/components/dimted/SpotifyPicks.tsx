@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Music4, Plus, Trash2, ExternalLink } from "lucide-react";
+import { Music4, Plus, Trash2, ExternalLink, Play, Radio } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SpotifyPlayer, SpotifyKindChip } from "./SpotifyPlayer";
+import { useMusic, useNowPlaying } from "@/lib/music";
 import {
   MAX_PICKS,
   useAddSpotifyPick,
   useRemoveSpotifyPick,
   useSpotifyPicks,
+  KIND_LABEL,
 } from "@/lib/spotify";
 
 /**
