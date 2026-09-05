@@ -102,6 +102,7 @@ export type PulseFinishResult = {
   coins?: number;
   gained?: number;
   new_coins?: number;
+  daily_bonus?: number;
 };
 
 export function usePulseFinish(userId: string | undefined) {
@@ -113,6 +114,7 @@ export function usePulseFinish(userId: string | undefined) {
       ms: number;
       coinMask: number;
       practice: boolean;
+      daily?: boolean;
     }) => {
       const { data, error } = await supabase.rpc("pulse_finish", {
         _level: args.level,
@@ -120,6 +122,7 @@ export function usePulseFinish(userId: string | undefined) {
         _time_ms: Math.round(args.ms),
         _coins: args.coinMask,
         _practice: args.practice,
+        _daily: !!args.daily,
       });
       if (error) throw error;
       return data as unknown as PulseFinishResult;
@@ -128,6 +131,28 @@ export function usePulseFinish(userId: string | undefined) {
       void qc.invalidateQueries({ queryKey: ["pulse-state", userId] });
       void qc.invalidateQueries({ queryKey: ["pulse-progress", userId] });
       void qc.invalidateQueries({ queryKey: ["pulse-leaderboard"] });
+      void qc.invalidateQueries({ queryKey: ["pulse-daily", userId] });
+    },
+  });
+}
+
+/** True once today's daily-challenge bonus has been claimed. */
+export function usePulseDailyClaim(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["pulse-daily", userId],
+    enabled: !!userId,
+    queryFn: async (): Promise<boolean> => {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      const { data, error } = await supabase
+        .from("game_scores")
+        .select("id")
+        .eq("user_id", userId!)
+        .eq("game", "pulse-daily")
+        .gte("created_at", today.toISOString())
+        .limit(1);
+      if (error) return false;
+      return (data ?? []).length > 0;
     },
   });
 }
