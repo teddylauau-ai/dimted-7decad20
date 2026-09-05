@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { CalendarClock, Check, Coins, Crown, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
+import { CalendarClock, Check, Coins, Crown, Flame, Infinity as InfinityIcon, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
@@ -11,9 +11,12 @@ import {
   DIFFICULTY_TONE,
   KIND_LABEL,
   LEVELS,
+  buildLevel,
   coinBits,
   colorPair,
+  dailyEndlessSeed,
   dailyLevelN,
+  endlessLevel,
   featText,
   isLevelUnlocked,
   runScore,
@@ -22,9 +25,13 @@ import {
 } from "@/lib/pulse";
 import {
   clearedLevels,
+  recordEndlessRun,
   rowFor,
   totalCoins,
   usePulseDailyClaim,
+  usePulseDailyLeaderboard,
+  usePulseDailyStreak,
+  usePulseEndlessBest,
   usePulseEquip,
   usePulseFinish,
   usePulseItems,
