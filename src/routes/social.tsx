@@ -89,9 +89,9 @@ function SocialPage() {
                       params={{ username: pick.author.username }}
                       className="flex min-w-0 items-center gap-2"
                     >
-                      <Avatar person={pick.author} size={30} />
+                      <Avatar profile={pick.author} size={30} />
                       <span className="min-w-0 truncate">
-                        <Nametag person={pick.author} />
+                        <Nametag profile={pick.author} />
                       </span>
                     </Link>
                   ) : (

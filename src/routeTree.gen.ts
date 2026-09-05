@@ -20,6 +20,7 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as ShopRouteImport } from './routes/shop'
+import { Route as SocialRouteImport } from './routes/social'
 import { Route as StudyRouteImport } from './routes/study'
 import { Route as UUsernameRouteImport } from './routes/u.$username'
 
@@ -78,6 +79,11 @@ const ShopRoute = ShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SocialRoute = SocialRouteImport.update({
+  id: '/social',
+  path: '/social',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StudyRoute = StudyRouteImport.update({
   id: '/study',
   path: '/study',
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/pulse': typeof PulseRoute
   '/shop': typeof ShopRoute
+  '/social': typeof SocialRoute
   '/study': typeof StudyRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/pulse': typeof PulseRoute
   '/shop': typeof ShopRoute
+  '/social': typeof SocialRoute
   '/study': typeof StudyRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -132,6 +140,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/pulse': typeof PulseRoute
   '/shop': typeof ShopRoute
+  '/social': typeof SocialRoute
   '/study': typeof StudyRoute
   '/u/$username': typeof UUsernameRoute
 }
@@ -149,6 +158,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/pulse'
     | '/shop'
+    | '/social'
     | '/study'
     | '/u/$username'
   fileRoutesByTo: FileRoutesByTo
@@ -164,6 +174,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/pulse'
     | '/shop'
+    | '/social'
     | '/study'
     | '/u/$username'
   id:
@@ -179,6 +190,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/pulse'
     | '/shop'
+    | '/social'
     | '/study'
     | '/u/$username'
   fileRoutesById: FileRoutesById
@@ -195,6 +207,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   PulseRoute: typeof PulseRoute
   ShopRoute: typeof ShopRoute
+  SocialRoute: typeof SocialRoute
   StudyRoute: typeof StudyRoute
   UUsernameRoute: typeof UUsernameRoute
 }
@@ -278,6 +291,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShopRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/social': {
+      id: '/social'
+      path: '/social'
+      fullPath: '/social'
+      preLoaderRoute: typeof SocialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/study': {
       id: '/study'
       path: '/study'
@@ -307,6 +327,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   PulseRoute: PulseRoute,
   ShopRoute: ShopRoute,
+  SocialRoute: SocialRoute,
   StudyRoute: StudyRoute,
   UUsernameRoute: UUsernameRoute,
 }

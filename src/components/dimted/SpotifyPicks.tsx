@@ -21,9 +21,9 @@ export function SpotifyPicks({
   editable = false,
   emptyHint,
 }: {
-  userId?: string;
-  editable?: boolean;
-  emptyHint?: string;
+  userId?: string | undefined;
+  editable?: boolean | undefined;
+  emptyHint?: string | undefined;
 }) {
   const picks = useSpotifyPicks(userId);
   const add = useAddSpotifyPick(userId);
