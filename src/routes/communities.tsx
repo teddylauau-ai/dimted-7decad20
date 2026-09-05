@@ -543,8 +543,19 @@ function CommunitiesPage() {
                       ) : (
                         <Avatar profile={m.author} size={36} className="mt-0.5" />
                       )}
-                      <div className="min-w-0 flex-1">
-                        {grouped ? null : (
+                        <div className="min-w-0 flex-1">
+                          {m.reply_to_id ? (
+                            <ReplyQuote
+                              target={findReplyTarget(list, m)}
+                              onJump={(id) => {
+                                const el = document.getElementById(`cmsg-${id}`);
+                                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                el?.classList.add("bg-amber-500/10");
+                                setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
+                              }}
+                            />
+                          ) : null}
+                          {grouped ? null : (
                           <p className="flex items-baseline gap-2">
                             <ProfileLink profile={m.author} className="text-sm" />
                             <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
