@@ -20,6 +20,7 @@ export type PublicProfile = {
   equipped_effect: string | null;
   avatar_url: string | null;
   banner_url: string | null;
+  showcase: string[];
 };
 
 export type FriendRow = {
@@ -33,7 +34,7 @@ export type FriendRow = {
 };
 
 const PROFILE_FIELDS =
-  "id, username, display_name, bio, title, total_xp, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url";
+  "id, username, display_name, bio, title, total_xp, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url, showcase";
 
 const AUTHOR_FIELDS =
   "id, display_name, username, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
