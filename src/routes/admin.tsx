@@ -20,6 +20,7 @@ import { Avatar, IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics } from "@/lib/dimted-queries";
 import { usePulseItems } from "@/lib/pulse-queries";
+import { LEVELS } from "@/lib/pulse";
 import {
   ROLE_LABEL,
   ROLE_ORDER,
@@ -659,7 +660,7 @@ function AdminPage() {
                     onClick={async () => {
                       if (!target) return;
                       try {
-                        await completePulse.mutateAsync({ userId: target.id, levels: 15 });
+                        await completePulse.mutateAsync({ userId: target.id, levels: LEVELS.length });
                         toast.success("Every Pulse Rush level marked cleared with all secret coins.");
                       } catch (e) {
                         fail(e);
