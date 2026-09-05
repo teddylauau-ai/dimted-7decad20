@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, Check, Pencil, Pin, Search, Send, Trash2, X } from "lucide-react";
+import { ArrowDown, Check, Pencil, Pin, Reply, Search, Send, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
 import { useMyRole } from "@/lib/roles-queries";
-import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import { ChatImage, ImagePicker, PinBanner, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import {
   editDirectMessage,
   pinnedMessageId,
@@ -72,6 +72,7 @@ function MessagesPage() {
   const [filter, setFilter] = useState("");
   const { isModerator } = useMyRole(profile?.id);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [replyTo, setReplyTo] = useState<(typeof list)[number] | null>(null);
 
   /** Most recently active conversation first — that's the one you land in. */
   const accepted = useMemo(
