@@ -1,7 +1,60 @@
 import type React from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type CrewRole = "owner" | "captain" | "member";
+export type CrewRole = "owner" | "captain" | "lieutenant" | "member" | "recruit";
+
+/** Crew rank ladder — Captain is the top of a crew. */
+export const CREW_RANKS: {
+  key: CrewRole;
+  label: string;
+  level: number;
+  blurb: string;
+  cls: string;
+}[] = [
+  {
+    key: "owner",
+    label: "Captain",
+    level: 5,
+    blurb: "Leads the crew. Full control of settings, ranks and members.",
+    cls: "bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/30",
+  },
+  {
+    key: "captain",
+    label: "First Mate",
+    level: 4,
+    blurb: "Second in command. Can customise the crew, invite and set lower ranks.",
+    cls: "bg-teal-400/15 text-teal-300 ring-1 ring-teal-400/30",
+  },
+  {
+    key: "lieutenant",
+    label: "Lieutenant",
+    level: 3,
+    blurb: "Trusted veteran. Keeps the chat tidy and welcomes new faces.",
+    cls: "bg-violet-400/15 text-violet-300 ring-1 ring-violet-400/30",
+  },
+  {
+    key: "member",
+    label: "Crewmate",
+    level: 2,
+    blurb: "Full member — chats, plays and banks crew XP.",
+    cls: "bg-sky-400/15 text-sky-300 ring-1 ring-sky-400/30",
+  },
+  {
+    key: "recruit",
+    label: "Recruit",
+    level: 1,
+    blurb: "Just joined. Prove yourself and climb the ladder.",
+    cls: "bg-slate-400/15 text-slate-300 ring-1 ring-slate-400/30",
+  },
+];
+
+export function rankOf(role: CrewRole | null | undefined) {
+  return CREW_RANKS.find((r) => r.key === role) ?? CREW_RANKS[3]!;
+}
+
+export function rankLevel(role: CrewRole | null | undefined) {
+  return rankOf(role).level;
+}
 
 export type CrewAccent = "teal" | "violet" | "amber" | "rose" | "emerald" | "sky" | "slate";
 
@@ -412,9 +465,19 @@ export async function removeCrewMember(crewId: string, userId: string) {
   if (error) throw error;
 }
 
-export async function promoteCrewMember(crewId: string, userId: string, role: CrewRole) {
-  const { error } = await supabase.from("crew_members").update({ role }).eq("crew_id", crewId).eq("user_id", userId);
+/** Set a member's crew rank. Server enforces who may set what. */
+export async function setCrewRank(crewId: string, userId: string, role: CrewRole) {
+  const { data, error } = await supabase.rpc("set_crew_rank", {
+    _crew_id: crewId,
+    _user_id: userId,
+    _role: role,
+  });
   if (error) throw error;
+  return data as { ok: boolean; role: CrewRole };
+}
+
+export async function promoteCrewMember(crewId: string, userId: string, role: CrewRole) {
+  return setCrewRank(crewId, userId, role);
 }
 
 export async function postCrewMessage(

@@ -1896,6 +1896,10 @@ export type Database = {
         Args: { _amount: number; _crew_id: string }
         Returns: Json
       }
+      crew_rank_level: {
+        Args: { _role: Database["public"]["Enums"]["crew_role"] }
+        Returns: number
+      }
       ensure_active_season: { Args: never; Returns: string }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       grant_admin_cosmetics: { Args: { _user_id: string }; Returns: undefined }
@@ -2019,6 +2023,10 @@ export type Database = {
         Returns: number
       }
       save_profile_widgets: { Args: { _widgets: Json }; Returns: Json }
+      set_crew_rank: {
+        Args: { _crew_id: string; _role: string; _user_id: string }
+        Returns: Json
+      }
       set_now_playing: {
         Args: { _id: string; _kind: string; _note: string; _url: string }
         Returns: undefined
@@ -2087,7 +2095,7 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "moderator" | "member"
-      crew_role: "owner" | "captain" | "member"
+      crew_role: "owner" | "captain" | "member" | "lieutenant" | "recruit"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2216,7 +2224,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "moderator", "member"],
-      crew_role: ["owner", "captain", "member"],
+      crew_role: ["owner", "captain", "member", "lieutenant", "recruit"],
     },
   },
 } as const
