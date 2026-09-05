@@ -73,19 +73,6 @@ function DiscoverPage() {
     }
   }
 
-  async function join(id: string) {
-    if (!profile) return;
-    try {
-      await joinCommunity(id, profile.id);
-      await communities.refetch();
-      await award("discovery", "Joined a community");
-      refresh();
-    } catch {
-      toast.error("Couldn't join");
-    }
-  }
-
-  const openCommunities = (communities.data ?? []).filter((c) => !c.isMember);
 
   return (
     <div className="space-y-5">
