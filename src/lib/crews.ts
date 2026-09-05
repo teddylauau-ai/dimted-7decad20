@@ -410,3 +410,37 @@ export async function fetchInvitablePeople(): Promise<InvitablePerson[]> {
   if (error) throw error;
   return (data ?? []) as unknown as InvitablePerson[];
 }
+
+/** Add XP to a crew's shared pool (server checks membership and clamps the amount). */
+export async function contributeCrewXp(crewId: string, amount: number) {
+  const { data, error } = await supabase.rpc("crew_contribute_xp", {
+    _crew_id: crewId,
+    _amount: Math.max(0, Math.round(amount)),
+  } as never);
+  if (error) throw error;
+  return (data ?? {}) as { ok?: boolean; added?: number; total_xp?: number; error?: string };
+}
+
+export type CrewPerk = { level: number; title: string; blurb: string };
+
+/** What a crew earns as its shared pool grows. */
+export const CREW_PERKS: CrewPerk[] = [
+  { level: 1, title: "Crew formed", blurb: "Private crew chat, voice notes, images and replies." },
+  { level: 2, title: "Crew colour", blurb: "Pick your accent theme — it tints the whole crew panel." },
+  { level: 3, title: "Crew picture", blurb: "Swap the emoji badge for a real crew picture." },
+  { level: 4, title: "Skyward unlocked", blurb: "The crew minigame starts banking XP into the pool." },
+  { level: 5, title: "Crew banner", blurb: "Upload a wide banner across the top of your crew." },
+  { level: 6, title: "Captains", blurb: "Promote up to two captains who can invite and customise." },
+  { level: 8, title: "Voice & video rooms", blurb: "Crew calls with everyone in one room." },
+  { level: 10, title: "Roster boost", blurb: "Member limit rises — bring more people in." },
+  { level: 12, title: "Crew Anchor badge", blurb: "Epic badge unlocked for every member to wear." },
+  { level: 15, title: "Crew Sigil banner", blurb: "Epic profile banner shared across the crew." },
+  { level: 18, title: "Ladder spotlight", blurb: "Your crew is highlighted on the crew ladder." },
+  { level: 20, title: "Skyward multiplier", blurb: "Skyward runs bank 1.5x XP into the crew pool." },
+  { level: 25, title: "Legend crest", blurb: "A permanent legendary crest next to the crew name." },
+  { level: 30, title: "Apex crew", blurb: "Top-tier status: gold ladder trim and bragging rights." },
+];
+
+export function perksUpTo(level: number) {
+  return CREW_PERKS.filter((p) => p.level <= level);
+}
