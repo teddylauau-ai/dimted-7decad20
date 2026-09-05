@@ -100,7 +100,8 @@ function pickMissions() {
   return out;
 }
 
-export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crewName: string; boosted: boolean }) {
+export function CrewFlight({ crewId, crewName, boostMult = 1 }: { crewId: string; crewName: string; boostMult?: number }) {
+  const boosted = boostMult > 1;
   const { syncXp, surgeActive, profile } = useDimted();
   const board = useSkywardLeaderboard();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -179,7 +180,7 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
       }
 
       const crewGain = Math.round(
-        (totals.gates * 22 + totals.orbs * 14 + totals.powers * 18 + missionXp) * (boosted ? 1.5 : 1),
+        (totals.gates * 22 + totals.orbs * 14 + totals.powers * 18 + missionXp) * boostMult,
       );
       try {
         const [reward, contrib] = await Promise.all([
@@ -207,7 +208,7 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
         toast.error("Couldn't bank that run");
       }
     },
-    [best, board, boosted, crewId, missions, profile, runs, surgeActive, syncXp],
+    [best, board, boostMult, crewId, missions, profile, runs, surgeActive, syncXp],
   );
 
   const makeGate = useCallback((x: number, atScore: number): Gate => {
@@ -757,7 +758,7 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
 
       <p className={cn("text-muted-foreground max-w-[560px] text-center text-xs", boosted && "text-gold")}>
         {boosted
-          ? "Crew Lv 20+ boost active: 1.5x crew XP from gates, orbs, power-ups and missions."
+          ? `Crew boost active: ${boostMult}x crew XP from gates, orbs, power-ups and missions.`
           : "Gates 22 · orbs 14 · power-ups 18 crew XP each, plus mission bonuses into the shared pool."}
       </p>
 

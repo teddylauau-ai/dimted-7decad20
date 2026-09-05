@@ -425,7 +425,12 @@ function CrewsPage() {
                       )}
                       {perkFlags.skywardBoost && (
                         <span className="text-primary bg-primary/10 ring-primary/30 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
-                          Skyward 1.5x
+                          Skyward {perkFlags.skywardBoost2 ? "2x" : "1.5x"}
+                        </span>
+                      )}
+                      {perkFlags.centurion && (
+                        <span className="text-gold ring-gold/50 bg-gold/15 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
+                          Centurion
                         </span>
                       )}
                     </p>
@@ -492,7 +497,7 @@ function CrewsPage() {
 
             {tab === "skyward" ? (
               <div className="flex-1 overflow-y-auto p-4">
-                <CrewFlight crewId={active.id} crewName={active.name} boosted={lvl.level >= 20} />
+                <CrewFlight crewId={active.id} crewName={active.name} boostMult={perkFlags.skywardBoost2 ? 2 : perkFlags.skywardBoost ? 1.5 : 1} />
               </div>
             ) : tab === "ladder" ? (
               <div className="flex-1 overflow-y-auto p-4">
@@ -1018,6 +1023,10 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
     { label: "Skyward 1.5x XP", on: flags.skywardBoost, at: 20 },
     { label: "Legend crest", on: flags.legendCrest, at: 25 },
     { label: "Apex gold trim", on: flags.apex, at: 30 },
+    { label: "Skyward 2x XP", on: flags.skywardBoost2, at: 50 },
+    { label: "Chat XP ceiling x8", on: flags.chatXpUnleashed, at: 70 },
+    { label: "Sovereign trim", on: flags.sovereignTrim, at: 85 },
+    { label: "Centurion crest", on: flags.centurion, at: 100 },
   ];
   return (
     <div className="space-y-3">
