@@ -51,6 +51,12 @@ export type CrewInvite = {
     username: string;
     display_name: string;
   } | null;
+  crew: {
+    id: string;
+    slug: string;
+    name: string;
+    badge_emoji: string;
+  } | null;
 };
 
 export type CrewMessage = {
