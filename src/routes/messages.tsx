@@ -194,6 +194,8 @@ function MessagesPage() {
   }
 
   const list = messages.data ?? [];
+  /** Receipt shows on your newest message only, like a phone messenger. */
+  const lastMineId = [...list].reverse().find((m) => m.author?.id === profile?.id)?.id ?? null;
   const ids = useMemo(() => list.map((m) => m.id), [list]);
   const reactions = useReactions("dm", activeId, ids);
   const toggleReaction = useToggleReaction("dm", activeId);
