@@ -54,6 +54,13 @@ export function totalXpForLevel(level: number): number {
   return sum;
 }
 
+/**
+ * The hard XP ceiling: exactly the XP needed for Level 100. Nothing — earning,
+ * quests or an Owner grant — can push an account past this, so a total like
+ * 100,000 over the cap can never happen.
+ */
+export const MAX_TOTAL_XP = totalXpForLevel(MAX_LEVEL);
+
 export function levelFromTotalXp(totalXp: number): {
   level: number;
   intoLevel: number;
