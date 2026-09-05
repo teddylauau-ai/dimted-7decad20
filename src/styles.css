@@ -1368,3 +1368,28 @@ body,
 [data-slot="dialog-overlay"] {
   backdrop-filter: blur(4px);
 }
+
+/* ---- Crew message text effects ---------------------------------------- */
+@keyframes crew-shimmer {
+  0% { background-position: -180% 0; }
+  100% { background-position: 180% 0; }
+}
+.crew-fx-shimmer {
+  background-image: linear-gradient(100deg, currentColor 30%, hsl(var(--gold, 45 90% 60%)) 50%, currentColor 70%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: crew-shimmer 3.4s linear infinite;
+}
+@keyframes crew-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+.crew-fx-wave {
+  display: inline-block;
+  animation: crew-wave 2.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .crew-fx-shimmer, .crew-fx-wave { animation: none; }
+}
