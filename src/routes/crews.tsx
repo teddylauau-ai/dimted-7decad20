@@ -1044,6 +1044,13 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
   const level = crewLevel(crew.total_xp).level;
 
   async function save() {
+    // Never save a style the crew hasn't unlocked yet.
+    const allowed = <T extends string>(opts: { key: T; unlock: number }[], val: T, fallback: T) =>
+      (opts.find((o) => o.key === val)?.unlock ?? 99) <= level ? val : fallback;
+    const safeBadge = allowed(CREW_BADGE_STYLES, badgeStyle, "plain");
+    const safeNametag = allowed(CREW_NAMETAGS, nametag, "none");
+    const safeEffect = allowed(CREW_TEXT_EFFECTS, textEffect, "none");
+    const safeBg = allowed(CREW_CHAT_BGS, chatBg, "none");
     setBusy(true);
     try {
       await updateCrew(crew.id, {
@@ -1054,11 +1061,15 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
         accent,
         visibility,
         join_policy: visibility === "private" ? "invite" : joinPolicy,
-        badge_style: badgeStyle,
-        nametag_style: nametag,
-        text_effect: textEffect,
-        chat_bg: chatBg,
+        badge_style: safeBadge,
+        nametag_style: safeNametag,
+        text_effect: safeEffect,
+        chat_bg: safeBg,
       });
+      setBadgeStyle(safeBadge);
+      setNametag(safeNametag);
+      setTextEffect(safeEffect);
+      setChatBg(safeBg);
       await onSaved();
       toast.success("Crew updated");
     } catch (err) {
