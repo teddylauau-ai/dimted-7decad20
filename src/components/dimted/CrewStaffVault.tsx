@@ -65,6 +65,27 @@ export function CrewStaffVault({
     }
   }
 
+  async function grantAllTo(userIds: string[], who: string) {
+    if (!vault.length || !userIds.length) return;
+    setBulk(userIds.length > 1 ? "crew" : "one");
+    let done = 0;
+    let failed = 0;
+    for (const userId of userIds) {
+      for (const c of vault) {
+        try {
+          await grantCosmetic.mutateAsync({ userId, slug: c.slug });
+          done += 1;
+        } catch {
+          failed += 1;
+        }
+      }
+    }
+    setBulk(null);
+    if (done) toast.success(`${done} crew cosmetic${done === 1 ? "" : "s"} granted to ${who}`);
+    if (!done) toast.error("None of those grants went through.");
+    else if (failed) toast.message(`${failed} were already owned or blocked.`);
+  }
+
   async function grantAll() {
     try {
       await ownerGrantAllCrests(crewId);
