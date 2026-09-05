@@ -597,27 +597,64 @@ export async function contributeCrewXp(crewId: string, amount: number) {
 
 export type CrewPerk = { level: number; title: string; blurb: string };
 
-/** What a crew earns as its shared pool grows. */
+/**
+ * What a crew earns as its shared pool grows.
+ * Every entry below is actually enforced somewhere in the app:
+ * style unlocks come from CREW_BADGE_STYLES / CREW_NAMETAGS / CREW_TEXT_EFFECTS /
+ * CREW_CHAT_BGS, and the ladder/Skyward perks are checked with the helpers here.
+ */
 export const CREW_PERKS: CrewPerk[] = [
-  { level: 1, title: "Crew formed", blurb: "Private crew chat, voice notes, images and replies." },
-  { level: 2, title: "Crew colour", blurb: "Pick your accent theme — it tints the whole crew panel." },
-  { level: 3, title: "Crew picture", blurb: "Swap the emoji badge for a real crew picture." },
-  { level: 4, title: "Skyward unlocked", blurb: "The crew minigame starts banking XP into the pool." },
-  { level: 5, title: "Crew banner", blurb: "Upload a wide banner across the top of your crew." },
-  { level: 6, title: "Captains", blurb: "Promote up to two captains who can invite and customise." },
-  { level: 8, title: "Voice & video rooms", blurb: "Crew calls with everyone in one room." },
-  { level: 10, title: "Roster boost", blurb: "Member limit rises — bring more people in." },
-  { level: 12, title: "Crew Anchor badge", blurb: "Epic badge unlocked for every member to wear." },
-  { level: 15, title: "Crew Sigil banner", blurb: "Epic profile banner shared across the crew." },
-  { level: 18, title: "Ladder spotlight", blurb: "Your crew is highlighted on the crew ladder." },
+  {
+    level: 1,
+    title: "Crew formed",
+    blurb:
+      "Private crew chat with voice notes, images and replies, voice & video rooms, a crew picture or emoji badge, a banner, your accent colour, and the Ring badge shell, Accent nametag, Grid and Frosted chat backgrounds.",
+  },
+  { level: 2, title: "Aurora & Glow", blurb: "Unlocks the Aurora chat background and the Glow message effect." },
+  { level: 3, title: "Plate badge shell", blurb: "Unlocks the Plate shell for your crew badge." },
+  { level: 4, title: "Glow nametag", blurb: "Unlocks the Glow crew nametag style." },
+  { level: 5, title: "Starfield & tone", blurb: "Unlocks the Starfield chat background plus the Sharp and Soft message effects." },
+  { level: 6, title: "Crest badge shell", blurb: "Unlocks the tilted Crest shell for your crew badge." },
+  { level: 7, title: "Shimmer messages", blurb: "Unlocks the animated Shimmer message effect." },
+  { level: 8, title: "Gradient nametag", blurb: "Unlocks the Gradient crew nametag style." },
+  { level: 9, title: "Waves background", blurb: "Unlocks the Waves chat background." },
+  { level: 12, title: "Holo & Outline", blurb: "Unlocks the Holo badge shell and the Outline nametag style." },
+  { level: 13, title: "Circuit background", blurb: "Unlocks the Circuit chat background." },
+  { level: 14, title: "Wave messages", blurb: "Unlocks the animated Wave message effect." },
+  { level: 16, title: "Terminal nametag", blurb: "Unlocks the Terminal crew nametag style." },
+  {
+    level: 18,
+    title: "Ladder spotlight",
+    blurb: "Your crew row is highlighted with a glowing accent frame on the crew ladder.",
+  },
   { level: 20, title: "Skyward multiplier", blurb: "Skyward runs bank 1.5x XP into the crew pool." },
-  { level: 25, title: "Legend crest", blurb: "A permanent legendary crest next to the crew name." },
-  { level: 30, title: "Apex crew", blurb: "Top-tier status: gold ladder trim and bragging rights." },
+  { level: 25, title: "Legend crest", blurb: "A legendary crest sits next to your crew name on the ladder." },
+  { level: 30, title: "Apex crew", blurb: "Gold ladder trim and the Apex tag on your crew row." },
 ];
 
 export function perksUpTo(level: number) {
   return CREW_PERKS.filter((p) => p.level <= level);
 }
+
+/** Crew-level perk gates that live outside the style pickers. */
+export const CREW_PERK_LEVELS = {
+  spotlight: 18,
+  skywardBoost: 20,
+  legendCrest: 25,
+  apex: 30,
+} as const;
+
+export function crewPerkFlags(totalXp: number) {
+  const level = crewLevel(totalXp).level;
+  return {
+    level,
+    spotlight: level >= CREW_PERK_LEVELS.spotlight,
+    skywardBoost: level >= CREW_PERK_LEVELS.skywardBoost,
+    legendCrest: level >= CREW_PERK_LEVELS.legendCrest,
+    apex: level >= CREW_PERK_LEVELS.apex,
+  };
+}
+
 
 /* --------------------------------------------------------- owner overrides */
 
