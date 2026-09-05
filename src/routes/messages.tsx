@@ -239,20 +239,28 @@ function MessagesPage() {
         blurb="Newest message drops to the bottom like a normal chat. Chats keep their latest 100 messages, so nothing ever bogs down."
       />
 
-      {accepted.length === 0 ? (
-        <Panel className="p-8 text-center">
-          <p className="font-display text-lg font-semibold">No conversations yet</p>
-          <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
-            Lazu has no pre-made friends. Find real accounts in Discover, send a request, and this
-            page opens up.
-          </p>
-          <Button asChild className="mt-5">
-            <Link to="/discover">Find people</Link>
-          </Button>
-        </Panel>
-      ) : (
-        <div className="grid gap-5 lg:grid-cols-[276px_1fr]">
+      <div className="grid gap-5 lg:grid-cols-[276px_1fr]">
           <Panel className="p-3">
+            <button
+              onClick={() => setActiveId("general")}
+              className={cn(
+                "relative mb-2 flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors",
+                showGeneral ? "bg-secondary" : "hover:bg-secondary/60",
+              )}
+            >
+              {showGeneral ? (
+                <span className="bg-primary absolute top-1/2 left-0 h-7 w-[3px] -translate-y-1/2 rounded-r-full" />
+              ) : null}
+              <span className="bg-primary/15 text-primary flex size-8 shrink-0 items-center justify-center rounded-full">
+                <Globe2 className="size-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-semibold">General</span>
+                <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                  Everyone on Lazu
+                </span>
+              </span>
+            </button>
             <div className="relative mb-2">
               <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
               <Input
@@ -262,6 +270,14 @@ function MessagesPage() {
                 className="h-9 pl-8 text-sm"
               />
             </div>
+            {accepted.length === 0 ? (
+              <p className="text-muted-foreground px-3 py-4 text-center text-xs">
+                No direct chats yet.{" "}
+                <Link to="/discover" className="text-primary underline">
+                  Find people
+                </Link>
+              </p>
+            ) : null}
             <ul className="space-y-1">
               {visible.map((f) => {
                 const lvl = friendshipLevel(f.friendshipXp);
