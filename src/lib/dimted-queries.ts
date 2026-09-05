@@ -594,7 +594,10 @@ export function useCommunityInvites(communityId: string | undefined) {
   });
 }
 
-/** Global XP ladder — every real account, ranked by total XP. */
+/**
+ * Global XP ladder — every real account, ranked by total XP, except the Owner,
+ * who always holds the number one seat regardless of XP.
+ */
 export function useXpLeaderboard(limit = 50) {
   return useQuery({
     queryKey: ["xp-leaderboard", limit],
@@ -606,7 +609,21 @@ export function useXpLeaderboard(limit = 50) {
         .order("total_xp", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []) as PublicProfile[];
+      const rows = (data ?? []) as PublicProfile[];
+
+      const { data: owners } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "owner");
+      const ownerIds = new Set((owners ?? []).map((o) => o.user_id));
+      if (ownerIds.size === 0) return rows;
+
+      return [...rows].sort((a, b) => {
+        const ao = ownerIds.has(a.id) ? 1 : 0;
+        const bo = ownerIds.has(b.id) ? 1 : 0;
+        if (ao !== bo) return bo - ao;
+        return b.total_xp - a.total_xp;
+      });
     },
   });
 }

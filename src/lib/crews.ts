@@ -189,12 +189,21 @@ export function accentOf(accent: string | null | undefined) {
   return CREW_ACCENTS.find((a) => a.key === accent) ?? DEFAULT_ACCENT;
 }
 
-/** Crew level: shared XP pool, 1500 XP per level with gentle scaling. */
+/** Crew ladder tops out here — a crew cannot go past level 100. */
+export const CREW_MAX_LEVEL = 100;
+
+/** Shared XP that lands a crew exactly on the final crew level. */
+export const CREW_MAX_XP = 900 * (CREW_MAX_LEVEL - 1) ** 2;
+
+/** Crew level: shared XP pool, square-scaled, capped at level 100. */
 export function crewLevel(totalXp: number) {
-  const level = Math.max(1, Math.floor(Math.sqrt(Math.max(0, totalXp) / 900)) + 1);
+  const xp = Math.max(0, Math.min(totalXp, CREW_MAX_XP));
+  const raw = Math.max(1, Math.floor(Math.sqrt(xp / 900)) + 1);
+  const level = Math.min(CREW_MAX_LEVEL, raw);
   const floor = 900 * (level - 1) ** 2;
   const next = 900 * level ** 2;
-  return { level, floor, next, pct: Math.min(100, Math.round(((totalXp - floor) / (next - floor)) * 100)) };
+  if (level >= CREW_MAX_LEVEL) return { level, floor, next: floor, pct: 100 };
+  return { level, floor, next, pct: Math.min(100, Math.round(((xp - floor) / (next - floor)) * 100)) };
 }
 
 export type CrewRow = {
@@ -704,8 +713,7 @@ export async function ownerEditCrew(crewId: string, patch: Record<string, unknow
   return data as unknown as { status: string };
 }
 
-/** XP that puts a crew past the top perk level (30) with headroom. */
-export const CREW_MAX_XP = 900 * 31 ** 2;
+/* CREW_MAX_XP lives with crewLevel above — level 100 is the ceiling. */
 
 /**
  * Owner-only: hand a crew every unlock at once — max shared XP (past level 30,

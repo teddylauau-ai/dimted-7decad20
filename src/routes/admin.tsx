@@ -21,6 +21,7 @@ import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics } from "@/lib/dimted-queries";
 import { usePulseItems } from "@/lib/pulse-queries";
 import { LEVELS } from "@/lib/pulse";
+import { MAX_TOTAL_XP } from "@/lib/dimted";
 import {
   ROLE_LABEL,
   ROLE_ORDER,
@@ -559,7 +560,7 @@ function AdminPage() {
               <PanelHead
                 eyebrow="Economy"
                 title="XP and sparks"
-                aside={me.isOwner ? "uncapped" : "±25,000 each"}
+                aside={me.isOwner ? `max ${MAX_TOTAL_XP.toLocaleString()} XP` : "±25,000 each"}
               />
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 <Input className="h-9" value={xp} inputMode="numeric" onChange={(e) => setXp(e.target.value)} />
@@ -587,7 +588,7 @@ function AdminPage() {
                   Take back
                 </Button>
                 {me.isOwner ? (
-                  <Button size="sm" variant="outline" onClick={() => void payOut(250000, 50000)}>
+                  <Button size="sm" variant="outline" onClick={() => void payOut(MAX_TOTAL_XP, 50000)}>
                     Max out
                   </Button>
                 ) : null}
