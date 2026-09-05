@@ -8,6 +8,7 @@ import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
 import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { Showcase } from "@/components/dimted/Showcase";
 import { SpotifyPicks } from "@/components/dimted/SpotifyPicks";
+import { WidgetProfile } from "@/components/dimted/WidgetProfile";
 import { rarityBorder, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { bannerFor, SLOTS, type Cosmetic } from "@/lib/cosmetics";
