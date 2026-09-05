@@ -101,6 +101,11 @@ function PulsePage() {
   const dailyN = useMemo(() => dailyLevelN(cleared), [cleared]);
   const dailyClaimed = usePulseDailyClaim(profile?.id);
   const dailyLevel = LEVELS[dailyN - 1] ?? LEVELS[0]!;
+  const endlessDef = useMemo(() => endlessLevel(dailyEndlessSeed()), []);
+  const endlessBest = usePulseEndlessBest(profile?.id);
+  const dailyBoard = usePulseDailyLeaderboard();
+  const streak = usePulseDailyStreak(profile?.id);
+  const [endless, setEndless] = useState(false);
 
   const skins: PulseSkins = {
     icon: state.data?.equipped_icon ?? "cube-origin",
@@ -112,9 +117,10 @@ function PulsePage() {
     colors: state.data?.equipped_colors ?? "col-aurora",
   };
 
-  const start = (l: LevelDef, prac: boolean) => {
+  const start = (l: LevelDef, prac: boolean, isEndless = false) => {
     setLevel(l);
     setPractice(prac);
+    setEndless(isEndless);
     setResult(null);
     setPhase("playing");
   };
@@ -124,6 +130,21 @@ function PulsePage() {
       setResult(run);
       setPhase("result");
       try {
+        if (endless) {
+          // Infinite Run: distance is the score, XP scales with how far you got.
+          const units = Math.round((run.pct / 100) * buildLevel(level).length);
+          if (units > 0 && profile) {
+            await recordEndlessRun(profile.id, units);
+            const reward = await awardArcadeXp("pulse-rush" as GameId, Math.min(units, 20000));
+            setResult((r) => (r ? { ...r, reward } : r));
+            if (reward.status === "granted" || reward.status === "awarded") {
+              syncXp(reward, "Pulse Rush · Infinite Run");
+              toast.success(`+${reward.gained} XP · +${reward.sparks_gained} sparks`);
+            }
+            refresh();
+          }
+          return;
+        }
         const res = await finish.mutateAsync({
           level: level.n,
           pct: run.pct,
