@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, RarityChip, LockedTile, EmptyState } from "@/components/dimted/primitives";
 import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
@@ -20,6 +21,7 @@ import {
 import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
 import { friendshipLevel } from "@/lib/dimted";
+import { fetchActiveSeason, fetchMySeasonProgress, seasonTimeLeft } from "@/lib/season";
 
 
 function XpTicker() {
