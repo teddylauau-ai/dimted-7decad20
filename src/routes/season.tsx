@@ -56,23 +56,46 @@ function RewardPreview({ cosmetic }: { cosmetic: Cosmetic }) {
   if (cosmetic.slot === "banner") {
     return (
       <div
-        className="h-14 w-full rounded-lg border border-border/60"
+        className="h-16 w-full rounded-lg border border-border/60"
         style={{ background: bannerFor(cosmetic.slug) }}
         aria-label={`${cosmetic.name} banner preview`}
       />
     );
   }
 
+  if (cosmetic.slot === "effect") {
+    return (
+      <div className="bg-background/50 rounded-lg px-2 py-2">
+        <div className={cn("flex items-center gap-2", EFFECT_CLASS[cosmetic.slug])}>
+          <Avatar profile={base} size={24} presence={false} />
+          <span className="text-xs">Your messages arrive like this</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background/50 flex items-center gap-2 rounded-lg px-2 py-2">
-      <Avatar profile={base} size={30} presence={false} />
+      <Avatar profile={base} size={34} presence={false} />
       <Nametag profile={base} className="text-sm" />
-      {cosmetic.slot === "effect" ? (
-        <span className="text-muted-foreground ml-auto text-[10px]">message effect</span>
-      ) : null}
+      <span className="text-muted-foreground ml-auto text-[10px] capitalize">{cosmetic.slot}</span>
     </div>
   );
 }
+
+function TitlePreview({ label }: { label: string }) {
+  const { profile } = useDimted();
+  return (
+    <div className="bg-background/50 flex items-center gap-2 rounded-lg px-2 py-2">
+      <Avatar profile={{ username: "", display_name: profile?.display_name ?? "You" }} size={34} presence={false} />
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold">{profile?.display_name ?? "You"}</p>
+        <p className="text-legendary truncate text-[11px] font-semibold tracking-wide uppercase">{label}</p>
+      </div>
+    </div>
+  );
+}
+
 
 function SeasonPage() {
   const { profile } = useDimted();
