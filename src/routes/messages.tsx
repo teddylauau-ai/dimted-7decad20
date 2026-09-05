@@ -72,7 +72,7 @@ function MessagesPage() {
   const [filter, setFilter] = useState("");
   const { isModerator } = useMyRole(profile?.id);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [replyTo, setReplyTo] = useState<(typeof list)[number] | null>(null);
+  const [replyTo, setReplyTo] = useState<import("@/lib/dimted-queries").ChatMessage | null>(null);
 
   /** Most recently active conversation first — that's the one you land in. */
   const accepted = useMemo(
@@ -124,10 +124,12 @@ function MessagesPage() {
     e.preventDefault();
     const body = draft.trim();
     if (!body || !active || !profile) return;
+    const replyingTo = replyTo;
     setDraft("");
+    setReplyTo(null);
     typing.clear();
     try {
-      await sendDirectMessage(active.friendshipId, profile.id, body);
+      await sendDirectMessage(active.friendshipId, profile.id, body, replyingTo?.id ?? null);
       await messages.refetch();
       await award("message", `Message to ${active.profile.display_name}`);
       refresh();
