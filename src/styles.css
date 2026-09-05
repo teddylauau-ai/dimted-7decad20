@@ -1393,3 +1393,12 @@ body,
 @media (prefers-reduced-motion: reduce) {
   .crew-fx-shimmer, .crew-fx-wave { animation: none; }
 }
+
+/* Falling celebration pieces used when someone joins a crew. */
+@keyframes lz-confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(540deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  @keyframes lz-confetti { 0%, 100% { opacity: 0; } }
+}

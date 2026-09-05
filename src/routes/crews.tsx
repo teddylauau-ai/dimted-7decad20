@@ -68,6 +68,7 @@ import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { ChatImage, ImagePicker, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import { CallPanel } from "@/components/dimted/CallPanel";
 import { CrewFlight } from "@/components/dimted/CrewFlight";
+import { Celebration } from "@/components/dimted/Celebration";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
@@ -707,6 +708,8 @@ function CrewsPage() {
                     const previous = chatList[i - 1];
                     const grouped =
                       !!previous &&
+                      !systemKind(previous.body) &&
+                      !systemKind(m.body) &&
                       previous.user_id === m.user_id &&
                       Date.parse(m.created_at) - Date.parse(previous.created_at) < 5 * 60 * 1000 &&
                       new Date(previous.created_at).toDateString() === new Date(m.created_at).toDateString();
@@ -724,13 +727,17 @@ function CrewsPage() {
                             <span className="bg-border h-px flex-1" />
                           </div>
                         ) : null}
-                        <CrewChatRow
-                          message={m}
-                          crew={active}
-                          grouped={grouped}
-                          list={chatList}
-                          onReply={() => setReplyTo(m)}
-                        />
+                        {systemKind(m.body) ? (
+                          <SystemLine message={m} />
+                        ) : (
+                          <CrewChatRow
+                            message={m}
+                            crew={active}
+                            grouped={grouped}
+                            list={chatList}
+                            onReply={() => setReplyTo(m)}
+                          />
+                        )}
                       </div>
                     );
                   })}
@@ -1525,6 +1532,34 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
         })}
         {list.length === 0 && <p className="text-muted-foreground text-sm">No public crews to show yet.</p>}
       </div>
+    </div>
+  );
+}
+
+/** '/sys:join' / '/sys:leave' rows are roster announcements, not chat. */
+function systemKind(body: string | null | undefined): "join" | "leave" | null {
+  if (body === "/sys:join") return "join";
+  if (body === "/sys:leave") return "leave";
+  return null;
+}
+
+/** Centred, admin-style announcement line inside crew chat. */
+function SystemLine({ message }: { message: CrewMessage }) {
+  const kind = systemKind(message.body);
+  const who = message.author?.display_name || message.author?.username || "Someone";
+  const time = new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return (
+    <div className="my-2 flex items-center justify-center gap-2 px-2 text-center">
+      <span
+        className={cn(
+          "glass-surface inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium",
+          kind === "join" ? "text-primary" : "text-muted-foreground",
+        )}
+      >
+        <span aria-hidden>{kind === "join" ? "🎉" : "👋"}</span>
+        {kind === "join" ? `${who} just joined the crew` : `${who} left the crew`}
+        <span className="text-muted-foreground/70 font-mono text-[9px]">{time}</span>
+      </span>
     </div>
   );
 }
