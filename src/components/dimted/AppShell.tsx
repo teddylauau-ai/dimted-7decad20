@@ -56,6 +56,7 @@ const GROUPS = [
       { to: "/profile", label: "Profile", icon: UserRound },
       { to: "/shop", label: "Shop", icon: ShoppingBag },
       { to: "/armory", label: "Armory", icon: Backpack },
+      { to: "/season", label: "Season", icon: Crown },
     ],
   },
   {
@@ -64,6 +65,7 @@ const GROUPS = [
       { to: "/messages", label: "Messages", icon: MessageCircle },
       { to: "/friends", label: "Friends", icon: Sparkle },
       { to: "/communities", label: "Communities", icon: Users },
+      { to: "/crews", label: "Crews", icon: Swords },
     ],
   },
   {
