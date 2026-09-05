@@ -98,7 +98,19 @@ export function CallPanel({
           </span>
         ) : null}
         {session.error ? (
-          <span className="text-xs text-destructive">{session.error}</span>
+          <span className="flex items-center gap-1.5 text-xs text-destructive">
+            {session.error}
+            {typeof window !== "undefined" && window.self !== window.top ? (
+              <a
+                href={window.location.href}
+                target="_blank"
+                rel="noreferrer"
+                className="underline underline-offset-2"
+              >
+                Open in new tab
+              </a>
+            ) : null}
+          </span>
         ) : null}
         <Button
           size="sm"
