@@ -3,7 +3,7 @@ import { Magnet, Play, Shield, Sparkles, Star, Timer, Trophy, Zap } from "lucide
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useDimted } from "@/lib/dimted-store";
-import { awardArcadeXp } from "@/lib/games-queries";
+import { awardArcadeXp, submitSkywardRun, useSkywardLeaderboard } from "@/lib/games-queries";
 import { contributeCrewXp } from "@/lib/crews";
 import { cn } from "@/lib/utils";
 
@@ -102,7 +102,8 @@ function pickMissions() {
 }
 
 export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crewName: string; boosted: boolean }) {
-  const { syncXp, surgeActive } = useDimted();
+  const { syncXp, surgeActive, profile } = useDimted();
+  const board = useSkywardLeaderboard();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [phase, setPhase] = useState<"idle" | "playing" | "over">("idle");
   const [score, setScore] = useState(0);
@@ -185,6 +186,13 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
         const [reward, contrib] = await Promise.all([
           awardArcadeXp("crew-flight" as never, runPoints + missionXp),
           contributeCrewXp(crewId, crewGain),
+          profile
+            ? submitSkywardRun(profile.id, runPoints, {
+                gates: totals.gates,
+                orbs: totals.orbs,
+                powers: totals.powers,
+              }).then(() => board.refetch())
+            : Promise.resolve(),
         ]);
         if (reward.status === "awarded" || reward.status === "granted") {
           syncXp(reward, "Skyward run");
