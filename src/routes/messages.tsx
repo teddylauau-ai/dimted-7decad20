@@ -310,6 +310,9 @@ function MessagesPage() {
             </ul>
           </Panel>
 
+          {showGeneral ? (
+            <GeneralChat />
+          ) : (
           <Panel className="flex h-[620px] flex-col p-0" delay={60}>
             <header className="border-border bg-secondary/25 flex items-center justify-between gap-4 border-b px-5 py-4">
               <div className="flex min-w-0 items-center gap-3">
