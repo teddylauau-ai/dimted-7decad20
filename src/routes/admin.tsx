@@ -122,6 +122,16 @@ function sanctionLabel(until: string | null | undefined) {
   return mins >= 60 ? `${Math.round(mins / 60)}h left` : `${mins}m left`;
 }
 
+type AdminTab = "account" | "grants" | "roles" | "crews" | "logs";
+
+const TABS: { key: AdminTab; label: string; ownerOnly?: boolean; staffOnly?: boolean }[] = [
+  { key: "account", label: "Account" },
+  { key: "grants", label: "Grants", staffOnly: true },
+  { key: "roles", label: "Roles" },
+  { key: "crews", label: "Crews", ownerOnly: true },
+  { key: "logs", label: "Logs" },
+];
+
 function AdminPage() {
   const { profile } = useDimted();
   const me = useMyRole(profile?.id);
@@ -144,6 +154,7 @@ function AdminPage() {
   const setMute = useSetMute();
   const editProfile = useEditProfile();
 
+  const [tab, setTab] = useState<AdminTab>("account");
   const [filter, setFilter] = useState("");
   const [targetId, setTargetId] = useState<string | null>(null);
   const [xp, setXp] = useState("1000");
@@ -358,16 +369,36 @@ function AdminPage() {
         }
       />
 
+      {/* ---- Section tabs ---- */}
+      <div className="border-border bg-background/40 flex flex-wrap gap-1 rounded-2xl border p-1">
+        {TABS.filter((t) => (t.ownerOnly ? me.isOwner : t.staffOnly ? me.isStaff : true)).map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={cn(
+              "rounded-xl px-3 py-1.5 font-mono text-[11px] tracking-[0.14em] uppercase transition-colors",
+              tab === t.key
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {/* ---- Target picker ---- */}
-      <Panel className="p-5">
-        <PanelHead eyebrow="Grant desk" title="Pick an account" aside={`${everyone.length} real accounts`} />
-        <Input
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Search accounts…"
-          className="mt-4"
-        />
-        <div className="mt-3 flex flex-wrap gap-2">
+      <Panel className="p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <PanelHead eyebrow="Target" title={target ? target.display_name : "Pick an account"} />
+          <Input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Search accounts…"
+            className="ml-auto h-9 w-full sm:w-56"
+          />
+        </div>
+        <div className="mt-3 flex max-h-32 flex-wrap gap-2 overflow-y-auto">
           {shown.map((p) => {
             const active = p.id === target?.id;
             const banned = sanctionLabel(p.banned_until);
@@ -402,6 +433,7 @@ function AdminPage() {
       {target ? (
         <div className="grid gap-4 lg:grid-cols-2">
           {/* ---- Sanctions ---- */}
+          {tab === "account" ? (
           <Panel className="p-5">
             <PanelHead
               eyebrow="Moderation"
@@ -473,9 +505,10 @@ function AdminPage() {
               </div>
             ) : null}
           </Panel>
+          ) : null}
 
           {/* ---- Owner: edit anything ---- */}
-          {me.isOwner ? (
+          {tab === "account" && me.isOwner ? (
             <Panel className="p-5">
               <PanelHead eyebrow="Owner" title={`Edit ${target.display_name}'s account`} aside="everything" />
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -512,7 +545,7 @@ function AdminPage() {
           ) : null}
 
           {/* ---- XP / sparks ---- */}
-          {me.isStaff ? (
+          {tab === "grants" && me.isStaff ? (
           <Panel className="p-5">
 
             <PanelHead
@@ -571,7 +604,7 @@ function AdminPage() {
           ) : null}
 
           {/* ---- Cosmetics ---- */}
-          {me.isStaff ? (
+          {tab === "grants" && me.isStaff ? (
           <Panel className="p-5">
 
             <PanelHead eyebrow="Wardrobe" title="Unlock cosmetics" aside={`${(cosmetics.data ?? []).length} items`} />
@@ -605,7 +638,7 @@ function AdminPage() {
 
 
           {/* ---- Pulse Rush ---- */}
-          {me.isStaff ? (
+          {tab === "grants" && me.isStaff ? (
           <Panel className="p-5">
             <PanelHead
               eyebrow="Pulse Rush"
@@ -681,7 +714,7 @@ function AdminPage() {
           ) : null}
 
           {/* ---- Titles: owner only ---- */}
-          {me.isStaff ? (
+          {tab === "grants" && me.isStaff ? (
           <Panel className="p-5">
 
             <PanelHead
@@ -728,7 +761,7 @@ function AdminPage() {
           ) : null}
 
           {/* ---- Roles ---- */}
-          {me.isStaff ? (
+          {tab === "roles" && me.isStaff ? (
           <Panel className="p-5">
 
             <PanelHead eyebrow="Hierarchy" title="Roles" aside="owner › admin › moderator › member" />
@@ -790,6 +823,7 @@ function AdminPage() {
       ) : null}
 
       {/* ---- Who can do what ---- */}
+      {tab === "roles" ? (
       <Panel className="p-5">
         <PanelHead eyebrow="Hierarchy" title="Who can do what" aside="enforced in the database" />
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -811,8 +845,10 @@ function AdminPage() {
           ))}
         </div>
       </Panel>
+      ) : null}
 
       {/* ---- Arcade scores ---- */}
+      {tab === "logs" ? (
       <Panel className="p-5">
 
         <PanelHead eyebrow="Moderation" title="Arcade scores" />
@@ -852,12 +888,13 @@ function AdminPage() {
           ))}
         </ul>
       </Panel>
+      ) : null}
 
       {/* ---- Owner: crews ---- */}
-      {me.isOwner && profile?.id ? <OwnerCrewControl userId={profile.id} /> : null}
+      {tab === "crews" && me.isOwner && profile?.id ? <OwnerCrewControl userId={profile.id} /> : null}
 
       {/* ---- Audit ---- */}
-
+      {tab === "logs" ? (
       <Panel className="p-5">
         <PanelHead eyebrow="Audit" title="Recent staff actions" />
         <ul className="mt-4 space-y-1.5">
@@ -876,6 +913,7 @@ function AdminPage() {
           })}
         </ul>
       </Panel>
+      ) : null}
     </div>
   );
 }
