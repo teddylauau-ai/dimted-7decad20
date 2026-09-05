@@ -33,6 +33,12 @@ export type SeasonProgress = {
 };
 
 export async function fetchActiveSeason(): Promise<Season | null> {
+  // Rolls the next season in automatically the moment the countdown hits zero.
+  try {
+    await supabase.rpc("ensure_active_season");
+  } catch {
+    /* if rollover fails we still show whatever season exists */
+  }
   const { data, error } = await supabase
     .from("seasons")
     .select("*")
