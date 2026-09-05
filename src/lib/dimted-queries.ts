@@ -282,7 +282,7 @@ export function countEvents(
 
 export function usePlayerStats(userId: string | undefined, totalXp: number): PlayerStats {
   const friends = useFriendships(userId);
-  const communities = useCommunities(userId);
+  const crews = useMyCrews(userId);
   const events = useMyXpEvents(userId);
 
   const accepted = (friends.data ?? []).filter((f) => f.status === "accepted");
@@ -293,7 +293,7 @@ export function usePlayerStats(userId: string | undefined, totalXp: number): Pla
     totalXp,
     friends: accepted.length,
     messagesSent: all.filter((e) => e.source === "message").length,
-    communities: (communities.data ?? []).filter((c) => c.isMember).length,
+    crews: (crews.data ?? []).length,
     activities: all.filter((e) => e.source === "activity" || e.source === "arcade").length,
     discoveries: all.filter((e) => e.source === "discovery").length,
     bestFriendshipLevel: accepted.reduce(
@@ -308,7 +308,7 @@ export function useRefreshDimted() {
   const qc = useQueryClient();
   return () => {
     void qc.invalidateQueries({ queryKey: ["friendships"] });
-    void qc.invalidateQueries({ queryKey: ["communities"] });
+    void qc.invalidateQueries({ queryKey: ["my-crews"] });
     void qc.invalidateQueries({ queryKey: ["xp-feed"] });
     void qc.invalidateQueries({ queryKey: ["my-xp-events"] });
   };
