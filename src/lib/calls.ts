@@ -203,14 +203,25 @@ export function useCallSession(
         if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
           throw new Error("insecure");
         }
-        const media = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: withVideo ? { width: 640, height: 480 } : false,
-        });
+        // Some embeds/devices refuse the camera but allow the mic: fall back
+        // to audio-only rather than failing the whole call.
+        let media: MediaStream;
+        let gotVideo = withVideo;
+        try {
+          media = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: withVideo ? { width: 640, height: 480 } : false,
+          });
+        } catch (mediaErr) {
+          if (!withVideo) throw mediaErr;
+          media = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          gotVideo = false;
+        }
         localRef.current = media;
         setLocalStream(media);
         setMicOn(true);
-        setCamOn(withVideo);
+        setCamOn(gotVideo);
+
 
         const { data: live } = await supabase
           .from("calls")
