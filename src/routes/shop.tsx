@@ -212,15 +212,12 @@ function ShopPage() {
 
   const hasVault = ownerVault.length > 0 || adminVault.length > 0;
 
-  // The permanent shelf: core stock plus anything you already own.
-  const stock = useMemo(
-    () =>
-      // Vault pieces never appear here — they live only in the restricted tab.
-      all.filter(
-        (i) => i.pool !== "owner" && i.pool !== "admin" && (i.pool === "core" || owned.has(i.slug)),
-      ),
-    [all, owned],
-  );
+  // The permanent shelf is core stock ONLY. Rotating and limited pieces live
+  // exclusively on their own shelves — otherwise anything you already own would
+  // sit here forever and the rotation would look fake. Owned pieces of any pool
+  // are always reachable in the Armory.
+  const stock = useMemo(() => all.filter((i) => i.pool === "core"), [all]);
+
   const items = stock.filter((i) => slot === "all" || i.slot === slot);
 
   const equippedSlug: Record<CosmeticSlot, string | null> = {
