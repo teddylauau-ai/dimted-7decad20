@@ -196,6 +196,7 @@ function HomePage() {
         </div>
       </header>
 
+      <SeasonTeaser />
 
       <div className="space-y-4">
           <Panel className="relative overflow-hidden p-0">
