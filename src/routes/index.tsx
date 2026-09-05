@@ -377,11 +377,11 @@ function HomePage() {
               Send friend requests to real signed-up accounts. Every accepted request earns XP.
             </EmptyState>
           ) : (
-            <ul className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+            <ul className="mt-3 flex flex-wrap justify-center gap-2.5">
               {myFriends.map((f) => {
                 const fl = friendshipLevel(f.friendshipXp);
                 return (
-                  <li key={f.friendshipId} className="min-w-0">
+                  <li key={f.friendshipId} className="min-w-0 flex-[1_1_140px] max-w-[180px]">
                     <ProfileHoverCard username={f.profile.username} className="w-full">
                       <Link
                         to="/u/$username"
