@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, BarChart3, Gauge, Check, Compass, Crown, Gamepad2, Gift, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
+import { ArrowDown, BarChart3, Gauge, Check, Compass, Crown, Gamepad2, Gift, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,7 @@ import { ChatImage, ImagePicker, ReplyChip, ReplyQuote, findReplyTarget } from "
 import { CallPanel } from "@/components/dimted/CallPanel";
 import { CrewFlight } from "@/components/dimted/CrewFlight";
 import { Celebration } from "@/components/dimted/Celebration";
+import { CrewStaffVault } from "@/components/dimted/CrewStaffVault";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
@@ -90,7 +91,7 @@ export const Route = createFileRoute("/crews")({
   component: CrewsPage,
 });
 
-type Tab = "chat" | "roster" | "settings" | "discover" | "ladder" | "perks" | "skyward" | "stats";
+type Tab = "chat" | "roster" | "settings" | "discover" | "ladder" | "perks" | "skyward" | "stats" | "vault";
 
 function CrewsPage() {
   const { profile, award } = useDimted();
@@ -500,6 +501,11 @@ function CrewsPage() {
                     <Settings2 className="mr-1 inline size-3.5" /> Customise
                   </TabBtn>
                 )}
+                {isStaff && (
+                  <TabBtn active={tab === "vault"} onClick={() => setTab("vault")}>
+                    <ShieldCheck className="mr-1 inline size-3.5" /> Staff vault
+                  </TabBtn>
+                )}
                 {myRole !== "owner" && (
                   <button onClick={leave} className="text-muted-foreground hover:text-destructive ml-auto flex items-center gap-1 rounded-lg px-2 py-1 text-xs">
                     <LogOut className="size-3.5" /> Leave
@@ -508,7 +514,17 @@ function CrewsPage() {
               </div>
             </div>
 
-            {tab === "skyward" ? (
+            {tab === "vault" && isStaff ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <CrewStaffVault
+                  crewId={active.id}
+                  crewName={active.name}
+                  crewXp={active.total_xp}
+                  members={members.data ?? []}
+                  isOwner={isOwner}
+                />
+              </div>
+            ) : tab === "skyward" ? (
               <div className="flex-1 overflow-y-auto p-4">
                 <CrewFlight crewId={active.id} crewName={active.name} boostMult={perkFlags.skywardBoost2 ? 2 : perkFlags.skywardBoost ? 1.5 : 1} />
               </div>
