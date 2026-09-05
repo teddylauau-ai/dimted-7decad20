@@ -910,3 +910,19 @@ export function crewMaxProgress(totalXp: number) {
     pct: Math.min(100, Math.round((xp / CREW_MAX_XP) * 1000) / 10),
   };
 }
+
+/* ------------------------------------------------------------- crest grants */
+
+/**
+ * Owner-only: set a crew's shared XP to exactly the floor of `level`, which is
+ * what actually turns on the crest chips (crests read the crew's level).
+ */
+export async function ownerSetCrewLevel(crewId: string, level: number) {
+  const target = Math.min(CREW_MAX_XP, crewTotalXpForLevel(Math.min(Math.max(level, 1), CREW_MAX_LEVEL)));
+  return ownerEditCrew(crewId, { total_xp: target });
+}
+
+/** Owner-only: hand a crew every crest on the ladder (level 100 worth of XP). */
+export async function ownerGrantAllCrests(crewId: string) {
+  return ownerSetCrewLevel(crewId, CREW_MAX_LEVEL);
+}

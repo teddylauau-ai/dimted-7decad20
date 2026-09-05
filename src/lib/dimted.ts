@@ -703,3 +703,26 @@ export const SECRETS: Secret[] = [
   { id: "s3", hint: "Nobody has reported this one yet…", requiredLevel: 19 },
   { id: "s4", hint: "It appears once your arcade streak is long enough…", requiredLevel: 30 },
 ];
+
+/* ------------------------------------------------------- ladder XP wiring */
+
+/** Server scaling: every award grows +4% per level you already hold. */
+export function scaledXp(base: number, level: number): number {
+  return Math.round(base * (1 + 0.04 * Math.max(0, level)));
+}
+
+export type RungSource = { id: XpSourceId; label: string; amount: number; note: string };
+
+/**
+ * The real, currently-live XP routes toward a rung, with the amount already
+ * scaled for the level you're on. Used on Home so every rung says where its XP
+ * comes from — daily streak, achievements and the one-time game/study bonuses
+ * included.
+ */
+export function rungSources(currentLevel: number): RungSource[] {
+  const ids: XpSourceId[] = ["streak", "achievement", "bonus", "challenge", "message"];
+  return ids
+    .map((id) => XP_SOURCES.find((s) => s.id === id))
+    .filter((s): s is XpSource => !!s)
+    .map((s) => ({ id: s.id, label: s.label, amount: scaledXp(s.xp, currentLevel), note: s.note }));
+}
