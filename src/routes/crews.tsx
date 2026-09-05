@@ -38,6 +38,7 @@ import {
   promoteCrewMember,
   removeCrewMember,
   revokeCrewInvite,
+  ownerDeleteCrew,
   updateCrew,
   uploadCrewAvatar,
   uploadCrewBanner,
@@ -81,7 +82,7 @@ type Tab = "chat" | "roster" | "settings" | "discover" | "ladder" | "perks" | "s
 
 function CrewsPage() {
   const { profile, award } = useDimted();
-  const { isStaff } = useMyRole(profile?.id);
+  const { isStaff, isOwner } = useMyRole(profile?.id);
 
   const crews = useQuery({
     queryKey: ["crews", profile?.id],
