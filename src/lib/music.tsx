@@ -32,10 +32,10 @@ const MusicContext = (g.__lazuMusicCtx ??= createContext<MusicCtx | null>(null))
 async function pushStatus(item: NowPlaying | null) {
   try {
     await supabase.rpc("set_now_playing", {
-      _kind: item?.kind ?? null,
-      _id: item?.spotifyId ?? null,
-      _url: item?.url ?? null,
-      _note: item?.note ?? null,
+      _kind: (item?.kind ?? null) as unknown as string,
+      _id: (item?.spotifyId ?? null) as unknown as string,
+      _url: (item?.url ?? null) as unknown as string,
+      _note: (item?.note ?? null) as unknown as string,
     });
   } catch {
     /* status is cosmetic — never block playback */
