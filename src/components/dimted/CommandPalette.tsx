@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import {
   BookOpen,
   Compass,
+  Music4,
   Gamepad2,
   Home,
   MessageCircle,
@@ -41,6 +42,7 @@ const PAGES = [
   { to: "/armory", label: "Armory", icon: Backpack, hint: "Your collection" },
   { to: "/friends", label: "Friends", icon: Sparkle, hint: "Requests & friend levels" },
   { to: "/discover", label: "Discover", icon: Compass, hint: "Find communities" },
+  { to: "/social", label: "Social", icon: Music4, hint: "Spotify picks" },
   { to: "/profile", label: "Profile", icon: UserRound, hint: "Edit your look" },
 ] as const;
 

@@ -1087,6 +1087,36 @@ export type Database = {
         }
         Relationships: []
       }
+      spotify_picks: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          spotify_id: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          spotify_id: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          spotify_id?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       staff_actions: {
         Row: {
           action: string

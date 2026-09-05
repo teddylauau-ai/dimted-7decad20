@@ -6,6 +6,7 @@ import {
   Home,
   LogOut,
   MessageCircle,
+  Music4,
   ShieldCheck,
   ShoppingBag,
   Sparkle,
@@ -39,6 +40,7 @@ const RAIL = [
   { to: "/pulse", label: "Pulse Rush", icon: Zap },
   { to: "/activities", label: "Arcade", icon: Gamepad2 },
   { to: "/study", label: "Study", icon: BookOpen },
+  { to: "/social", label: "Social", icon: Music4 },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
 ] as const;
 
@@ -71,7 +73,10 @@ const GROUPS = [
   },
   {
     label: "Out there",
-    items: [{ to: "/discover", label: "Discover", icon: Compass }],
+    items: [
+      { to: "/social", label: "Social", icon: Music4 },
+      { to: "/discover", label: "Discover", icon: Compass },
+    ],
   },
 ] as const;
 

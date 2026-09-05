@@ -7,6 +7,7 @@ import { EmptyState, LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/c
 import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
 import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { Showcase } from "@/components/dimted/Showcase";
+import { SpotifyPicks } from "@/components/dimted/SpotifyPicks";
 import { rarityBorder, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { bannerFor, SLOTS, type Cosmetic } from "@/lib/cosmetics";
@@ -209,6 +210,13 @@ function PublicProfilePage() {
               </Button>
             </div>
           )}
+        </div>
+      </Panel>
+
+      <Panel className="p-6" delay={40}>
+        <PanelHead eyebrow="On repeat" title="Their music" />
+        <div className="mt-4">
+          <SpotifyPicks userId={person.id} emptyHint="They haven't pinned any music yet." />
         </div>
       </Panel>
 
