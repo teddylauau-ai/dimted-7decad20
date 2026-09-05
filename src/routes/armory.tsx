@@ -7,7 +7,9 @@ import { Avatar, Nametag } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics, useInventory } from "@/lib/dimted-queries";
 import { useMyRole } from "@/lib/roles-queries";
-import { equipCosmetic } from "@/lib/dimted-actions";
+import { claimArmoryMilestone, equipCosmetic } from "@/lib/dimted-actions";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   SLOTS,
   bannerFor,
@@ -151,6 +153,8 @@ function ArmoryPage() {
           </div>
         }
       />
+
+      <Milestones owned={ownedItems.length} userId={profile?.id ?? null} />
 
       <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
         {/* Live look */}
@@ -391,5 +395,95 @@ function ArmoryPage() {
         </Panel>
       </div>
     </div>
+  );
+}
+
+const MILESTONES = [
+  { slug: "m-collector-5", goal: 5, label: "Collector I", xp: 200, sparks: 150 },
+  { slug: "m-collector-15", goal: 15, label: "Collector II", xp: 500, sparks: 350 },
+  { slug: "m-collector-30", goal: 30, label: "Collector III", xp: 1200, sparks: 800 },
+];
+
+/** Collection milestones: one-time rewards for growing your locker. */
+function Milestones({ owned, userId }: { owned: number; userId: string | null }) {
+  const qc = useQueryClient();
+  const { syncXp } = useDimted();
+  const claims = useQuery({
+    queryKey: ["armory-milestones", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("quest_claims")
+        .select("quest_slug")
+        .in(
+          "quest_slug",
+          MILESTONES.map((m) => m.slug),
+        );
+      if (error) throw error;
+      return new Set((data ?? []).map((r) => r.quest_slug));
+    },
+  });
+
+  async function claim(slug: string) {
+    try {
+      const res = await claimArmoryMilestone(slug);
+      if (res?.status && res.status !== "granted" && res.status !== "awarded") {
+        toast.error("Not ready to claim yet.");
+        return;
+      }
+      syncXp(
+        { gained: res?.reward_xp ?? 0, sparks_gained: res?.reward_sparks ?? 0 },
+        "Collection milestone",
+      );
+      toast.success(`Milestone claimed: +${res?.reward_xp ?? 0} XP`);
+      void qc.invalidateQueries({ queryKey: ["armory-milestones", userId] });
+    } catch {
+      toast.error("Couldn't claim that milestone.");
+    }
+  }
+
+  return (
+    <Panel className="p-4" delay={20}>
+      <PanelHead
+        eyebrow="Collection milestones"
+        title="Rewards for building your locker"
+        aside={`${owned} owned`}
+      />
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+        {MILESTONES.map((m) => {
+          const done = owned >= m.goal;
+          const claimed = claims.data?.has(m.slug) ?? false;
+          const pct = Math.min(100, Math.round((owned / m.goal) * 100));
+          return (
+            <div
+              key={m.slug}
+              className={cn(
+                "bg-background/40 rounded-xl border p-3",
+                claimed ? "border-border/60 opacity-70" : done ? "border-primary/50" : "border-border/60",
+              )}
+            >
+              <p className="font-display text-sm font-semibold">{m.label}</p>
+              <p className="text-muted-foreground text-xs">Own {m.goal} cosmetics</p>
+              <div className="bg-secondary/60 mt-2 h-1.5 overflow-hidden rounded-full">
+                <div className="bg-primary h-full rounded-full" style={{ width: `${pct}%` }} />
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <span className="text-muted-foreground numeral text-[11px]">
+                  +{m.xp} XP · +{m.sparks} Sparks
+                </span>
+                <Button
+                  size="sm"
+                  variant={done && !claimed ? "default" : "outline"}
+                  disabled={!done || claimed}
+                  onClick={() => void claim(m.slug)}
+                >
+                  {claimed ? "Claimed" : done ? "Claim" : `${owned}/${m.goal}`}
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
   );
 }

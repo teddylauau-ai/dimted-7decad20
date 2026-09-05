@@ -162,11 +162,11 @@ export function buildLevel(def: LevelDef): Built {
       case "pillars": {
         const n = step[1];
         const h = Math.min(2, step[2]);
-        const gap = reach() + 2.6 * spd + pad();
+        const gap = reach() + 3.6 * spd + pad();
         for (let i = 0; i < n; i++) {
           // Solid pillar from the ground, then a spike a clean jump later.
           push({ t: "block", x: x + i * gap, y: 0, w: 1.4 * spd, h });
-          push({ t: "spike", x: x + i * gap + reach() * 0.75 + 1.4, y: 0, up: true });
+          push({ t: "spike", x: x + i * gap + reach() * 0.85 + 1.4, y: 0, up: true });
         }
         x += n * gap + reach();
         break;
@@ -557,7 +557,7 @@ export const LEVELS: LevelDef[] = [
     seq: [
       ["flat", 6], ["speed", 2], ["spikes", 4, 4], ["orbs", 3], ["coin", 5],
       ["saws", 3], ["tight", 5], ["ship", 26, 1], ["coin", 4],
-      ["flat", 4], ["pillars", 3, 3], ["spikes", 4, 4], ["saws", 2],
+      ["flat", 4], ["pillars", 3, 2], ["spikes", 4, 4], ["saws", 2],
       ["coin", 3], ["flat", 8],
     ],
   },

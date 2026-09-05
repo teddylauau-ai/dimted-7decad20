@@ -13,6 +13,7 @@ import { levelFromTotalXp, rankForLevel } from "@/lib/dimted";
 import { useProfileByUsername } from "@/lib/dimted-queries";
 import { presenceFor } from "@/lib/presence";
 import { cn } from "@/lib/utils";
+import { usePulseProgress } from "@/lib/pulse-queries";
 
 /**
  * Discord-style hover preview. Peeks at somebody's card without leaving the page:
@@ -35,6 +36,9 @@ export function ProfileHoverCard({
   const [open, setOpen] = useState(false);
   const query = useProfileByUsername(open ? username : undefined);
   const p = query.data;
+  const pulse = usePulseProgress(open ? p?.id : undefined);
+  const pulseClears = (pulse.data ?? []).filter((r) => (r.best_pct ?? 0) >= 100).length;
+  const pulseCoins = (pulse.data ?? []).reduce((sum, r) => sum + (r.coins ?? 0), 0);
 
   if (!username || nested) return <>{children}</>;
 
@@ -162,6 +166,8 @@ export function ProfileHoverCard({
               <div className="mt-3 grid grid-cols-2 gap-1.5 text-center">
                 <Stat label="XP" value={(p.total_xp ?? 0).toLocaleString()} />
                 <Stat label="Joined" value={joined ?? "—"} />
+                <Stat label="Pulse clears" value={String(pulseClears)} />
+                <Stat label="Pulse coins" value={pulseCoins.toLocaleString()} />
               </div>
 
 
