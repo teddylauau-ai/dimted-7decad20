@@ -17,7 +17,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { rarityBorder, rarityText, rarityBg } from "@/components/dimted/rarity";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
-import { bannerFor } from "@/lib/cosmetics";
+import { bannerFor, EFFECT_CLASS } from "@/lib/cosmetics";
 import type { Cosmetic } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 
@@ -56,23 +56,46 @@ function RewardPreview({ cosmetic }: { cosmetic: Cosmetic }) {
   if (cosmetic.slot === "banner") {
     return (
       <div
-        className="h-14 w-full rounded-lg border border-border/60"
+        className="h-16 w-full rounded-lg border border-border/60"
         style={{ background: bannerFor(cosmetic.slug) }}
         aria-label={`${cosmetic.name} banner preview`}
       />
     );
   }
 
+  if (cosmetic.slot === "effect") {
+    return (
+      <div className="bg-background/50 rounded-lg px-2 py-2">
+        <div className={cn("flex items-center gap-2", EFFECT_CLASS[cosmetic.slug])}>
+          <Avatar profile={base} size={24} presence={false} />
+          <span className="text-xs">Your messages arrive like this</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-background/50 flex items-center gap-2 rounded-lg px-2 py-2">
-      <Avatar profile={base} size={30} presence={false} />
+      <Avatar profile={base} size={34} presence={false} />
       <Nametag profile={base} className="text-sm" />
-      {cosmetic.slot === "effect" ? (
-        <span className="text-muted-foreground ml-auto text-[10px]">message effect</span>
-      ) : null}
+      <span className="text-muted-foreground ml-auto text-[10px] capitalize">{cosmetic.slot}</span>
     </div>
   );
 }
+
+function TitlePreview({ label }: { label: string }) {
+  const { profile } = useDimted();
+  return (
+    <div className="bg-background/50 flex items-center gap-2 rounded-lg px-2 py-2">
+      <Avatar profile={{ username: "", display_name: profile?.display_name ?? "You" }} size={34} presence={false} />
+      <div className="min-w-0">
+        <p className="truncate text-sm font-semibold">{profile?.display_name ?? "You"}</p>
+        <p className="text-legendary truncate text-[11px] font-semibold tracking-wide uppercase">{label}</p>
+      </div>
+    </div>
+  );
+}
+
 
 function SeasonPage() {
   const { profile } = useDimted();
@@ -204,51 +227,62 @@ function SeasonPage() {
         {(tiers.data ?? []).map((t) => {
           const unlocked = tier >= t.tier;
           const isClaimed = claimed.includes(t.tier);
+          const isFinal = t.tier === 50;
+          const big = t.reward_type === "cosmetic" || t.reward_type === "title";
+          const rarity = t.cosmetic?.rarity ?? (t.reward_type === "title" ? "legendary" : null);
           return (
             <div
               key={t.id}
               className={cn(
                 "glass relative overflow-hidden rounded-2xl p-4 transition",
-                unlocked ? "opacity-100" : "opacity-60"
+                unlocked ? "opacity-100" : "opacity-70",
+                big && rarity ? cn("border", rarityBorder[rarity]) : null,
+                isFinal ? "sm:col-span-2 lg:col-span-3" : null,
               )}
             >
-              <div className="flex items-start justify-between">
+              {big && rarity ? (
+                <div className={cn("pointer-events-none absolute inset-0 opacity-40", rarityBg[rarity])} />
+              ) : null}
+              <div className="relative flex items-start justify-between gap-3">
                 <div>
-                  <p className="font-display text-2xl font-bold">{t.tier}</p>
-                  <p className="text-muted-foreground text-xs">{t.reward_type === "none" ? "Bonus" : t.reward_type}</p>
+                  <p className="eyebrow">{isFinal ? "Final reward" : `Tier ${t.tier}`}</p>
+                  <p className="font-display text-2xl font-bold">
+                    {t.reward_type === "cosmetic" && t.cosmetic
+                      ? t.cosmetic.name
+                      : t.reward_type === "title"
+                        ? (t.title?.label ?? "Season Title")
+                        : t.reward_type === "sparks"
+                          ? `${t.reward_value.toLocaleString()} Sparks`
+                          : t.reward_type === "xp"
+                            ? `${t.reward_value.toLocaleString()} XP`
+                            : "Bonus"}
+                  </p>
+                  {rarity ? (
+                    <p className={cn("text-[11px] font-semibold capitalize", rarityText[rarity])}>
+                      {rarity} {t.reward_type === "title" ? "title" : (t.cosmetic?.slot ?? "")}
+                    </p>
+                  ) : null}
                 </div>
                 {isClaimed ? (
-                  <span className="grid size-7 place-items-center rounded-full bg-green-500/20 text-green-400">
+                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-green-500/20 text-green-400">
                     <Check className="size-4" />
                   </span>
                 ) : unlocked ? (
                   <Button size="sm" onClick={() => claim(t.tier)}>Claim</Button>
                 ) : (
-                  <span className="grid size-7 place-items-center rounded-full bg-secondary text-muted-foreground">
+                  <span className="text-muted-foreground flex shrink-0 items-center gap-1 text-[11px]">
                     <Lock className="size-3.5" />
+                    Tier {t.tier}
                   </span>
                 )}
               </div>
 
-              <div className="mt-3">
+              <div className="relative mt-3">
                 {t.reward_type === "cosmetic" && t.cosmetic ? (
-                  <div className={cn("space-y-2 rounded-xl border p-3", rarityBorder[t.cosmetic.rarity], rarityBg[t.cosmetic.rarity])}>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={cn("font-semibold", rarityText[t.cosmetic.rarity])}>{t.cosmetic.name}</p>
-                      <p className={cn("text-[10px] capitalize", rarityText[t.cosmetic.rarity])}>{t.cosmetic.rarity}</p>
-                    </div>
-                    <RewardPreview cosmetic={t.cosmetic} />
-                    <p className="text-muted-foreground text-[10px] capitalize">{t.cosmetic.slot} slot</p>
-                  </div>
-                ) : t.reward_type === "title" ? (
-                  <div className="rounded-xl border border-gold/30 bg-gold/10 p-3">
-                    <p className="text-gold font-semibold">Season Title</p>
-                  </div>
-                ) : t.reward_type === "sparks" ? (
-                  <p className="font-display text-xl font-semibold text-primary">{t.reward_value.toLocaleString()} Sparks</p>
-                ) : t.reward_type === "xp" ? (
-                  <p className="font-display text-xl font-semibold text-xp">{t.reward_value.toLocaleString()} XP</p>
-                ) : (
+                  <RewardPreview cosmetic={t.cosmetic} />
+                ) : t.reward_type === "title" && t.title ? (
+                  <TitlePreview label={t.title.label} />
+                ) : t.reward_type === "sparks" || t.reward_type === "xp" ? null : (
                   <p className="text-muted-foreground text-sm italic">Just a celebration.</p>
                 )}
                 {t.description ? <p className="text-muted-foreground mt-1 text-xs">{t.description}</p> : null}
@@ -257,6 +291,7 @@ function SeasonPage() {
           );
         })}
       </div>
+
     </div>
   );
 }
