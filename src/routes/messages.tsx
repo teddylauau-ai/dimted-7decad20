@@ -384,6 +384,16 @@ function MessagesPage() {
               ) : null}
             </div>
 
+            {atBottom ? null : (
+              <button
+                type="button"
+                onClick={jumpToLatest}
+                className="glass-raised text-foreground mx-auto -mt-9 mb-1 flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] shadow-lg"
+              >
+                <ArrowDown className="size-3.5" /> Jump to latest
+              </button>
+            )}
+
             <form
               onSubmit={send}
               className="border-border bg-secondary/15 overflow-hidden border-t"

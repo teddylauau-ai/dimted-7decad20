@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Globe, Lock, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
@@ -31,6 +31,8 @@ import {
   setCommunityVisibility,
 } from "@/lib/dimted-actions";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
+import { Reactions } from "@/components/dimted/Reactions";
+import { useReactions, useToggleReaction } from "@/lib/reactions";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
 import { supabase } from "@/integrations/supabase/client";
@@ -480,6 +482,14 @@ function CommunitiesPage() {
                             {m.body}
                           </p>
                         )}
+                        <Reactions
+                          scope="community"
+                          messageId={m.id}
+                          tallies={reactions.data?.[m.id] ?? []}
+                          onToggle={(emoji, mine) =>
+                            toggleReaction.mutate({ messageId: m.id, emoji, mine })
+                          }
+                        />
                       </div>
                       {m.author?.id === profile?.id || canManage ? (
                         <button
