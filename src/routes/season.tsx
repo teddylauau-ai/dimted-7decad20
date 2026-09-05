@@ -282,11 +282,7 @@ function SeasonPage() {
                   <RewardPreview cosmetic={t.cosmetic} />
                 ) : t.reward_type === "title" && t.title ? (
                   <TitlePreview label={t.title.label} />
-                ) : t.reward_type === "sparks" ? (
-                  <p className="text-muted-foreground text-xs">Spend Sparks in the Shop on cosmetics.</p>
-                ) : t.reward_type === "xp" ? (
-                  <p className="text-muted-foreground text-xs">Counts straight towards your account level.</p>
-                ) : (
+                ) : t.reward_type === "sparks" || t.reward_type === "xp" ? null : (
                   <p className="text-muted-foreground text-sm italic">Just a celebration.</p>
                 )}
                 {t.description ? <p className="text-muted-foreground mt-1 text-xs">{t.description}</p> : null}
