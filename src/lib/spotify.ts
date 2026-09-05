@@ -101,11 +101,25 @@ export function useSpotifyFeed(limit = 40) {
     queryFn: async (): Promise<SpotifyPickWithAuthor[]> => {
       const { data, error } = await supabase
         .from("spotify_picks")
-        .select(`id, user_id, url, kind, spotify_id, note, created_at, author:profiles!spotify_picks_user_id_fkey (${AUTHOR_FIELDS})`)
+        .select("id, user_id, url, kind, spotify_id, note, created_at")
         .order("created_at", { ascending: false })
         .limit(limit);
       if (error) throw error;
-      return (data ?? []) as unknown as SpotifyPickWithAuthor[];
+      const picks = (data ?? []) as unknown as SpotifyPick[];
+      if (picks.length === 0) return [];
+      const ids = [...new Set(picks.map((p) => p.user_id))];
+      const { data: people, error: peopleErr } = await supabase
+        .from("profiles")
+        .select(AUTHOR_FIELDS)
+        .in("id", ids);
+      if (peopleErr) throw peopleErr;
+      const byId = new Map(
+        (people ?? []).map((p) => [
+          (p as { id: string }).id,
+          p as unknown as SpotifyPickWithAuthor["author"],
+        ]),
+      );
+      return picks.map((p) => ({ ...p, author: byId.get(p.user_id) ?? null }));
     },
     staleTime: 20_000,
   });
