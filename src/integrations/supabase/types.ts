@@ -312,7 +312,9 @@ export type Database = {
           channel_id: string
           community_id: string
           created_at: string
+          edited_at: string | null
           id: string
+          image_url: string | null
           user_id: string
         }
         Insert: {
@@ -322,7 +324,9 @@ export type Database = {
           channel_id: string
           community_id: string
           created_at?: string
+          edited_at?: string | null
           id?: string
+          image_url?: string | null
           user_id: string
         }
         Update: {
@@ -332,7 +336,9 @@ export type Database = {
           channel_id?: string
           community_id?: string
           created_at?: string
+          edited_at?: string | null
           id?: string
+          image_url?: string | null
           user_id?: string
         }
         Relationships: [
@@ -659,8 +665,10 @@ export type Database = {
           audio_url: string | null
           body: string
           created_at: string
+          edited_at: string | null
           friendship_id: string
           id: string
+          image_url: string | null
           sender_id: string
         }
         Insert: {
@@ -668,8 +676,10 @@ export type Database = {
           audio_url?: string | null
           body: string
           created_at?: string
+          edited_at?: string | null
           friendship_id: string
           id?: string
+          image_url?: string | null
           sender_id: string
         }
         Update: {
@@ -677,8 +687,10 @@ export type Database = {
           audio_url?: string | null
           body?: string
           created_at?: string
+          edited_at?: string | null
           friendship_id?: string
           id?: string
+          image_url?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -749,6 +761,58 @@ export type Database = {
           },
         ]
       }
+      pinned_messages: {
+        Row: {
+          community_message_id: string | null
+          created_at: string
+          dm_message_id: string | null
+          id: string
+          pinned_by: string
+          scope_id: string
+          scope_type: string
+        }
+        Insert: {
+          community_message_id?: string | null
+          created_at?: string
+          dm_message_id?: string | null
+          id?: string
+          pinned_by: string
+          scope_id: string
+          scope_type: string
+        }
+        Update: {
+          community_message_id?: string | null
+          created_at?: string
+          dm_message_id?: string | null
+          id?: string
+          pinned_by?: string
+          scope_id?: string
+          scope_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pinned_messages_community_message_id_fkey"
+            columns: ["community_message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pinned_messages_dm_message_id_fkey"
+            columns: ["dm_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pinned_messages_pinned_by_fkey"
+            columns: ["pinned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           activity_context: string | null
@@ -770,6 +834,7 @@ export type Database = {
           mute_reason: string | null
           muted_until: string | null
           sanctioned_by: string | null
+          showcase: string[]
           sparks: number
           streak: number
           surge_until: string | null
@@ -797,6 +862,7 @@ export type Database = {
           mute_reason?: string | null
           muted_until?: string | null
           sanctioned_by?: string | null
+          showcase?: string[]
           sparks?: number
           streak?: number
           surge_until?: string | null
@@ -824,6 +890,7 @@ export type Database = {
           mute_reason?: string | null
           muted_until?: string | null
           sanctioned_by?: string | null
+          showcase?: string[]
           sparks?: number
           streak?: number
           surge_until?: string | null
