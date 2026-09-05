@@ -264,7 +264,12 @@ export function useCallSession(
         setError(
           msg === "insecure"
             ? "Calls need a secure (https) connection — open the site in its own tab."
-            : name === "NotAllowedError" || msg.includes("Permission") || msg.includes("denied")
+            : name === "NotAllowedError" ||
+                name === "SecurityError" ||
+                msg.includes("Permission") ||
+                msg.includes("policy") ||
+                msg.includes("denied")
+
               ? framed
                 ? "The preview window blocks the mic — open the site in its own tab, then allow microphone access."
                 : "Allow microphone (and camera) access in your browser, then try again."
