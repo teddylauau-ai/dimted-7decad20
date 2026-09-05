@@ -68,6 +68,7 @@ import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { ChatImage, ImagePicker, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import { CallPanel } from "@/components/dimted/CallPanel";
 import { CrewFlight } from "@/components/dimted/CrewFlight";
+import { Celebration } from "@/components/dimted/Celebration";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
@@ -136,6 +137,29 @@ function CrewsPage() {
   });
 
   const chatList = useMemo(() => messages.data ?? [], [messages.data]);
+
+  // Rain confetti when a fresh "joined the crew" line lands in the open crew.
+  const [party, setParty] = useState(0);
+  const [partyLabel, setPartyLabel] = useState<string | undefined>(undefined);
+  const seenJoin = useRef<string | null>(null);
+  useEffect(() => {
+    seenJoin.current = null;
+  }, [active?.id]);
+  useEffect(() => {
+    const joins = chatList.filter((m) => m.body === "/sys:join");
+    const latest = joins[joins.length - 1];
+    if (!latest) return;
+    if (seenJoin.current === null) {
+      seenJoin.current = latest.id;
+      return;
+    }
+    if (seenJoin.current === latest.id) return;
+    seenJoin.current = latest.id;
+    if (Date.now() - Date.parse(latest.created_at) > 60_000) return;
+    const who = latest.author?.display_name || latest.author?.username || "Someone";
+    setPartyLabel(`${who} joined the crew`);
+    setParty(Date.now());
+  }, [chatList]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -286,6 +310,8 @@ function CrewsPage() {
 
   return (
     <div className="flex h-[calc(100vh-7rem)] min-h-[520px] gap-3">
+      <Celebration trigger={party} label={partyLabel} />
+
       {/* sidebar */}
       <aside className="glass flex w-64 shrink-0 flex-col rounded-2xl">
         <div className="flex items-center justify-between p-3">
@@ -707,6 +733,8 @@ function CrewsPage() {
                     const previous = chatList[i - 1];
                     const grouped =
                       !!previous &&
+                      !systemKind(previous.body) &&
+                      !systemKind(m.body) &&
                       previous.user_id === m.user_id &&
                       Date.parse(m.created_at) - Date.parse(previous.created_at) < 5 * 60 * 1000 &&
                       new Date(previous.created_at).toDateString() === new Date(m.created_at).toDateString();
@@ -724,13 +752,17 @@ function CrewsPage() {
                             <span className="bg-border h-px flex-1" />
                           </div>
                         ) : null}
-                        <CrewChatRow
-                          message={m}
-                          crew={active}
-                          grouped={grouped}
-                          list={chatList}
-                          onReply={() => setReplyTo(m)}
-                        />
+                        {systemKind(m.body) ? (
+                          <SystemLine message={m} />
+                        ) : (
+                          <CrewChatRow
+                            message={m}
+                            crew={active}
+                            grouped={grouped}
+                            list={chatList}
+                            onReply={() => setReplyTo(m)}
+                          />
+                        )}
                       </div>
                     );
                   })}
@@ -1525,6 +1557,34 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
         })}
         {list.length === 0 && <p className="text-muted-foreground text-sm">No public crews to show yet.</p>}
       </div>
+    </div>
+  );
+}
+
+/** '/sys:join' / '/sys:leave' rows are roster announcements, not chat. */
+function systemKind(body: string | null | undefined): "join" | "leave" | null {
+  if (body === "/sys:join") return "join";
+  if (body === "/sys:leave") return "leave";
+  return null;
+}
+
+/** Centred, admin-style announcement line inside crew chat. */
+function SystemLine({ message }: { message: CrewMessage }) {
+  const kind = systemKind(message.body);
+  const who = message.author?.display_name || message.author?.username || "Someone";
+  const time = new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return (
+    <div className="my-2 flex items-center justify-center gap-2 px-2 text-center">
+      <span
+        className={cn(
+          "glass-surface inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium",
+          kind === "join" ? "text-primary" : "text-muted-foreground",
+        )}
+      >
+        <span aria-hidden>{kind === "join" ? "🎉" : "👋"}</span>
+        {kind === "join" ? `${who} just joined the crew` : `${who} left the crew`}
+        <span className="text-muted-foreground/70 font-mono text-[9px]">{time}</span>
+      </span>
     </div>
   );
 }
