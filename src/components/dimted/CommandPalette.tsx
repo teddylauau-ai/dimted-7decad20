@@ -37,6 +37,8 @@ const PAGES = [
   { to: "/", label: "Home", icon: Home, hint: "Ladder, quests & leaderboard" },
   { to: "/messages", label: "Messages", icon: MessageCircle, hint: "Direct chats" },
   { to: "/communities", label: "Communities", icon: Users, hint: "Servers & channels" },
+  { to: "/crews", label: "Crews", icon: Swords, hint: "Invite-only squads" },
+  { to: "/season", label: "Season", icon: Crown, hint: "Monthly reward track" },
   { to: "/pulse", label: "Pulse Rush", icon: Zap, hint: "Rhythm platformer" },
   { to: "/activities", label: "Arcade", icon: Gamepad2, hint: "All minigames" },
   { to: "/study", label: "Study", icon: BookOpen, hint: "Tutor & Year 9 bank" },
