@@ -3,7 +3,7 @@ import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, RarityChip, EmptyState } from "@/components/dimted/primitives";
-import { DailyBonus } from "@/components/dimted/DailyBonus";
+import { AchievementBoard, DailyStreak } from "@/components/dimted/DailyBonus";
 import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
@@ -136,7 +136,7 @@ function HomePage() {
   const myIndex = rows.findIndex((r) => r.id === profile?.id);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <header className="animate-rise grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <div className="glass lift flex items-center gap-3 rounded-2xl px-3 py-2.5">
           <RankBadge level={level} size="lg" />
@@ -197,11 +197,7 @@ function HomePage() {
         </div>
       </header>
 
-      <DailyBonus />
-
-      <SeasonTeaser />
-
-      <div className="space-y-4">
+      <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           <Panel className="relative overflow-hidden p-0">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_100%_0%,var(--color-primary)/18%,transparent_55%),radial-gradient(90%_120%_at_0%_100%,var(--color-gold)/14%,transparent_55%)]" />
             <div className="aurora-drift pointer-events-none absolute -top-24 right-8 size-56 rounded-full bg-primary/20 blur-[90px]" />
@@ -355,6 +351,12 @@ function HomePage() {
             </div>
           </Panel>
 
+        <div className="grid items-start gap-3">
+          <DailyStreak />
+          <SeasonTeaser />
+        </div>
+      </div>
+
         <Panel className="p-4" delay={80}>
           <PanelHead
             eyebrow="Your circle"
@@ -414,9 +416,10 @@ function HomePage() {
             </ul>
           )}
         </Panel>
-      </div>
 
       <QuestBoard />
+
+      <AchievementBoard />
 
       <div className="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
         <Panel className="p-4" delay={60}>
