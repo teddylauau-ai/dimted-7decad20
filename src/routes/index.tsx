@@ -380,20 +380,17 @@ function HomePage() {
               Send friend requests to real signed-up accounts. Every accepted request earns XP.
             </EmptyState>
           ) : (
-            <ul className="mt-3 flex flex-wrap justify-center gap-2.5">
-              {myFriends.map((f) => {
+            <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {myFriends.slice(0, 6).map((f) => {
                 const fl = friendshipLevel(f.friendshipXp);
                 return (
-                  <li key={f.friendshipId} className="min-w-0 flex-[1_1_140px] max-w-[180px]">
+                  <li key={f.friendshipId}>
                     <ProfileHoverCard username={f.profile.username} className="w-full">
                       <Link
                         to="/u/$username"
                         params={{ username: f.profile.username }}
-                        className="glass-raised hover:border-primary/40 hover:bg-surface-raised relative flex h-full flex-col items-center gap-2 rounded-2xl p-3 text-center transition-colors"
+                        className="glass-raised hover:border-primary/40 hover:bg-surface-raised flex h-full flex-col items-center gap-2 rounded-2xl p-3 text-center transition-colors"
                       >
-                        <span className="absolute top-2 right-2 flex h-5 items-center rounded-full bg-primary/10 px-2 font-mono text-[9px] text-primary ring-1 ring-primary/20">
-                          FL {fl.level}
-                        </span>
                         <HoloCardTrigger profile={f.profile}>
                           <Avatar profile={f.profile} size={48} />
                         </HoloCardTrigger>
@@ -402,7 +399,12 @@ function HomePage() {
                           <span className="text-muted-foreground block truncate font-mono text-[10px]">
                             @{f.profile.username}
                           </span>
-                          <PresenceLabel profile={f.profile} className="mt-1 justify-center" />
+                          <div className="mt-1.5 flex flex-wrap items-center justify-center gap-1.5">
+                            <span className="flex h-5 items-center rounded-full bg-primary/10 px-2 font-mono text-[9px] text-primary ring-1 ring-primary/20">
+                              FL {fl.level}
+                            </span>
+                            <PresenceLabel profile={f.profile} className="justify-center" />
+                          </div>
                         </span>
                       </Link>
                     </ProfileHoverCard>
