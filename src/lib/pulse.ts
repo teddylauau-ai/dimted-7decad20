@@ -631,7 +631,161 @@ export const LEVELS: LevelDef[] = [
       ["spikes", 6, 4], ["coin", 3], ["flat", 10],
     ],
   },
+  {
+    n: 22,
+    name: "Overdrive",
+    brief: "Insane. The speed portal hits early and never apologises.",
+    difficulty: "insane",
+    bpm: 178,
+    palette: PAL.royal,
+    seq: [
+      ["flat", 6], ["speed", 4], ["spikes", 4, 4], ["flat", 4], ["tight", 5],
+      ["coin", 5], ["speed", 1], ["saws", 3], ["pillars", 4, 3],
+      ["speed", 4], ["tight", 6], ["coin", 4], ["speed", 1],
+      ["ship", 28, 1], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 23,
+    name: "Mini Maze",
+    brief: "Demon. Tight corridors back to back — short taps only.",
+    difficulty: "demon",
+    bpm: 180,
+    palette: PAL.toxic,
+    seq: [
+      ["flat", 6], ["tight", 6], ["coin", 5], ["tight", 6], ["pillars", 5, 3],
+      ["coin", 4], ["wave", 26, 1], ["tight", 6], ["coin", 4],
+      ["speed", 3], ["tight", 6], ["speed", 1], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 24,
+    name: "Dual Tempo",
+    brief: "Demon. Slow, double, slow, double. Your foot will learn it.",
+    difficulty: "demon",
+    bpm: 184,
+    palette: PAL.ember,
+    seq: [
+      ["flat", 6], ["spikes", 5, 4], ["speed", 5], ["tight", 5], ["speed", 1],
+      ["coin", 5], ["saws", 4], ["speed", 5], ["spikes", 5, 4], ["speed", 1],
+      ["coin", 4], ["ball", 28], ["speed", 4], ["tight", 6], ["speed", 1],
+      ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 25,
+    name: "Blackout",
+    brief: "Demon. Long flight, no floor to trust.",
+    difficulty: "demon",
+    bpm: 186,
+    palette: PAL.void,
+    seq: [
+      ["flat", 6], ["speed", 3], ["ship", 34, 1], ["coin", 5],
+      ["wave", 30, 1], ["coin", 5], ["ship", 32, 1], ["saws", 4],
+      ["wave", 28, 1], ["coin", 4], ["pillars", 5, 3], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 26,
+    name: "Ember Crown",
+    brief: "Demon. Fast ground game with blade punctuation.",
+    difficulty: "demon",
+    bpm: 188,
+    palette: PAL.blood,
+    seq: [
+      ["flat", 6], ["speed", 4], ["spikes", 6, 4], ["saws", 4], ["coin", 6],
+      ["speed", 1], ["orbs", 5], ["tight", 7], ["coin", 5],
+      ["speed", 4], ["saws", 5], ["spikes", 6, 4], ["speed", 1],
+      ["pillars", 5, 3], ["coin", 4], ["tight", 6], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 27,
+    name: "Apex Pulse",
+    brief: "Demon. The real finale — every mode at full speed.",
+    difficulty: "demon",
+    bpm: 190,
+    palette: PAL.gold,
+    seq: [
+      ["flat", 6], ["speed", 4], ["tight", 7], ["spikes", 6, 4], ["coin", 6],
+      ["ship", 32, 1], ["speed", 5], ["tight", 6], ["speed", 1], ["coin", 5],
+      ["wave", 32, 1], ["ball", 30], ["orbs", 5], ["coin", 5],
+      ["speed", 4], ["saws", 5], ["pillars", 5, 3], ["speed", 1],
+      ["spikes", 6, 4], ["tight", 8], ["coin", 3], ["flat", 10],
+    ],
+  },
 ];
+
+/* ------------------------------------------------------------------ endless */
+
+/**
+ * INFINITE RUN — a deterministic, very long gauntlet generated from a seed.
+ * Cube-only with forgiving spacing that slowly tightens; distance is the score.
+ * A fresh seed each UTC day means today's run is the same mountain for everyone.
+ */
+export function endlessLevel(seed: number): LevelDef {
+  let s = seed >>> 0;
+  const rand = () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
+  const seq: Step[] = [["flat", 8]];
+  let speed = 1;
+  let coins = 0;
+  // ~240 patterns ≈ four-plus minutes of running for a flawless player.
+  for (let i = 0; i < 240; i++) {
+    const phase = i / 240; // difficulty ramps over the run
+    const roll = rand();
+    if (roll < 0.1) {
+      // Occasional speed shift, always returning to 1x after a stretch.
+      const next = speed === 1 ? (rand() < 0.5 ? 2 : 3) : 1;
+      seq.push(["speed", next]);
+      speed = next;
+    } else if (roll < 0.28) {
+      seq.push(["spikes", 2 + Math.floor(rand() * (phase > 0.5 ? 4 : 2)), 4]);
+    } else if (roll < 0.42) {
+      seq.push(["pillars", 2 + Math.floor(rand() * 3), 1 + Math.floor(rand() * 3)]);
+    } else if (roll < 0.54) {
+      seq.push(["saws", 1 + Math.floor(rand() * 3)]);
+    } else if (roll < 0.64) {
+      seq.push(["gap", 3 + Math.floor(rand() * 3), 1 + Math.floor(rand() * 2)]);
+    } else if (roll < 0.74) {
+      seq.push(["stair", 2 + Math.floor(rand() * 3)]);
+    } else if (roll < 0.84) {
+      seq.push(["orbs", 1 + Math.floor(rand() * 3)]);
+    } else if (roll < 0.9) {
+      seq.push(["pad"]);
+    } else if (roll < 0.96 && phase > 0.35) {
+      seq.push(["tight", 2 + Math.floor(rand() * 3)]);
+    } else {
+      seq.push(["flat", 4 + Math.floor(rand() * 4)]);
+    }
+    if (coins < 3 && rand() < 0.04) {
+      seq.push(["coin", 3 + Math.floor(rand() * 4)]);
+      coins++;
+    }
+  }
+  if (speed !== 1) seq.push(["speed", 1]);
+  seq.push(["flat", 10]);
+  return {
+    n: 0,
+    name: "Infinite Run",
+    brief: "No finish line. Distance is the score.",
+    difficulty: "insane",
+    bpm: 160,
+    palette: PAL.void,
+    ease: 0.8,
+    seq,
+  };
+}
+
+/** One endless seed per UTC day — today's mountain is the same for everyone. */
+export function dailyEndlessSeed(now = new Date()): number {
+  const key = now.toISOString().slice(0, 10);
+  let h = 2166136261;
+  for (const c of key) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0;
+  return h;
+}
 
 export function levelDef(n: number): LevelDef | undefined {
   return LEVELS.find((l) => l.n === n);
