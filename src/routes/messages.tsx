@@ -10,6 +10,8 @@ import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { useDimted } from "@/lib/dimted-store";
 import { friendshipLevel } from "@/lib/dimted";
 import { useDirectMessages, useFriendships, useRefreshDimted } from "@/lib/dimted-queries";
+import { Reactions } from "@/components/dimted/Reactions";
+import { useReactions, useToggleReaction } from "@/lib/reactions";
 import {
   deleteDirectMessage,
   markConversationNotificationsRead,
@@ -143,6 +145,15 @@ function MessagesPage() {
   }
 
   const list = messages.data ?? [];
+  const ids = useMemo(() => list.map((m) => m.id), [list]);
+  const reactions = useReactions("dm", activeId, ids);
+  const toggleReaction = useToggleReaction("dm", activeId);
+  const [atBottom, setAtBottom] = useState(true);
+
+  function jumpToLatest() {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  }
 
   // Keep the chat pinned to the bottom as new messages arrive.
   useEffect(() => {
@@ -257,7 +268,14 @@ function MessagesPage() {
             </header>
 
             {/* Oldest first: the chat scrolls up like Discord/iMessage. */}
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-4">
+            <div
+              ref={scrollRef}
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+              }}
+              className="relative flex-1 overflow-y-auto px-3 py-4"
+            >
               {list.length === 0 ? (
                 <p className="text-muted-foreground py-10 text-center text-sm">
                   Say something first. The first message is worth XP to both of you.
@@ -335,6 +353,14 @@ function MessagesPage() {
                               {m.body}
                             </p>
                           )}
+                          <Reactions
+                            scope="dm"
+                            messageId={m.id}
+                            tallies={reactions.data?.[m.id] ?? []}
+                            onToggle={(emoji, mine) =>
+                              toggleReaction.mutate({ messageId: m.id, emoji, mine })
+                            }
+                          />
                         </div>
                         {mine || isModerator ? (
                           <button
