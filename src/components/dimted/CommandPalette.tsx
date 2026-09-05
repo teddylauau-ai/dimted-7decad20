@@ -36,7 +36,6 @@ import { Avatar } from "./Identity";
 const PAGES = [
   { to: "/", label: "Home", icon: Home, hint: "Ladder, quests & leaderboard" },
   { to: "/messages", label: "Messages", icon: MessageCircle, hint: "Direct chats" },
-  { to: "/communities", label: "Communities", icon: Users, hint: "Servers & channels" },
   { to: "/crews", label: "Crews", icon: Swords, hint: "Invite-only squads" },
   { to: "/season", label: "Season", icon: Crown, hint: "Monthly reward track" },
   { to: "/pulse", label: "Pulse Rush", icon: Zap, hint: "Rhythm platformer" },
@@ -45,7 +44,7 @@ const PAGES = [
   { to: "/shop", label: "Shop", icon: ShoppingBag, hint: "Cosmetics rotation" },
   { to: "/armory", label: "Armory", icon: Backpack, hint: "Your collection" },
   { to: "/friends", label: "Friends", icon: Sparkle, hint: "Requests & friend levels" },
-  { to: "/discover", label: "Discover", icon: Compass, hint: "Find communities" },
+  { to: "/discover", label: "Discover", icon: Compass, hint: "Find people" },
   { to: "/social", label: "Social", icon: Music4, hint: "Spotify picks" },
   { to: "/profile", label: "Profile", icon: UserRound, hint: "Edit your look" },
 ] as const;

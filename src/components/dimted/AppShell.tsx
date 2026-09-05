@@ -38,7 +38,6 @@ import { CommandPalette } from "./CommandPalette";
 const RAIL = [
   { to: "/", label: "Home", icon: Home },
   { to: "/messages", label: "Messages", icon: MessageCircle },
-  { to: "/communities", label: "Communities", icon: Users },
   { to: "/crews", label: "Crews", icon: Swords },
   { to: "/pulse", label: "Pulse Rush", icon: Zap },
   { to: "/activities", label: "Arcade", icon: Gamepad2 },
@@ -64,8 +63,7 @@ const GROUPS = [
     items: [
       { to: "/messages", label: "Messages", icon: MessageCircle },
       { to: "/friends", label: "Friends", icon: Sparkle },
-      { to: "/communities", label: "Communities", icon: Users },
-      { to: "/crews", label: "Crews", icon: Swords },
+          { to: "/crews", label: "Crews", icon: Swords },
     ],
   },
   {
