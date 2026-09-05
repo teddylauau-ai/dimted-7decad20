@@ -628,19 +628,38 @@ export const CREW_PERKS: CrewPerk[] = [
   { level: 7, title: "Shimmer messages", blurb: "Unlocks the animated Shimmer message effect." },
   { level: 8, title: "Gradient nametag", blurb: "Unlocks the Gradient crew nametag style." },
   { level: 9, title: "Waves background", blurb: "Unlocks the Waves chat background." },
+  {
+    level: 10,
+    title: "Chat XP boost",
+    blurb: "Every crew level adds +10% to the XP each message banks — x1.9 at level 10, x3.9 at level 30.",
+  },
   { level: 12, title: "Holo & Outline", blurb: "Unlocks the Holo badge shell and the Outline nametag style." },
   { level: 13, title: "Circuit background", blurb: "Unlocks the Circuit chat background." },
   { level: 14, title: "Wave messages", blurb: "Unlocks the animated Wave message effect." },
   { level: 16, title: "Terminal nametag", blurb: "Unlocks the Terminal crew nametag style." },
   {
     level: 18,
-    title: "Ladder spotlight",
-    blurb: "Your crew row is highlighted with a glowing accent frame on the crew ladder.",
+    title: "Pulse shell & ladder spotlight",
+    blurb:
+      "Unlocks the animated Pulse badge shell, and your crew gets a glowing accent frame on the ladder, the dashboard and the crew header.",
   },
-  { level: 20, title: "Skyward multiplier", blurb: "Skyward runs bank 1.5x XP into the crew pool." },
-  { level: 25, title: "Legend crest", blurb: "A legendary crest sits next to your crew name on the ladder." },
-  { level: 30, title: "Apex crew", blurb: "Gold ladder trim and the Apex tag on your crew row." },
+  {
+    level: 20,
+    title: "Skyward multiplier",
+    blurb: "Skyward runs bank 1.5x XP into the crew pool, and a Boosted tag shows in the crew header.",
+  },
+  {
+    level: 25,
+    title: "Legend crest",
+    blurb: "A legendary crest sits next to your crew name on the ladder and in the crew header.",
+  },
+  {
+    level: 30,
+    title: "Apex crew",
+    blurb: "Gold trim and the Apex tag on your crew row, the dashboard and the crew header.",
+  },
 ];
+
 
 export function perksUpTo(level: number) {
   return CREW_PERKS.filter((p) => p.level <= level);
