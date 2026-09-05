@@ -170,21 +170,38 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!session) return;
     let stopped = false;
-    const ping = () => {
-      if (stopped || document.visibilityState === "hidden") return;
-      void supabase.rpc("touch_presence", {
-        _context: contextFromPath(window.location.pathname),
-      });
+    let last = 0;
+    const ping = (force = false) => {
+      if (stopped) return;
+      const now = Date.now();
+      if (!force && now - last < 15_000) return;
+      last = now;
+      void supabase
+        .rpc("touch_presence", { _context: contextFromPath(window.location.pathname) })
+        .then(({ error }) => {
+          // A failed ping shouldn't leave us looking offline — try again soon.
+          if (error) last = 0;
+        });
     };
-    ping();
-    const t = window.setInterval(ping, 60_000);
-    document.addEventListener("visibilitychange", ping);
+    ping(true);
+    const t = window.setInterval(() => ping(true), 30_000);
+    const onWake = () => ping();
+    document.addEventListener("visibilitychange", onWake);
+    window.addEventListener("focus", onWake);
+    window.addEventListener("online", onWake);
+    window.addEventListener("pointerdown", onWake);
+    window.addEventListener("keydown", onWake);
     return () => {
       stopped = true;
       window.clearInterval(t);
-      document.removeEventListener("visibilitychange", ping);
+      document.removeEventListener("visibilitychange", onWake);
+      window.removeEventListener("focus", onWake);
+      window.removeEventListener("online", onWake);
+      window.removeEventListener("pointerdown", onWake);
+      window.removeEventListener("keydown", onWake);
     };
   }, [session]);
+
 
   useEffect(() => {
     const t = window.setInterval(() => setNow(Date.now()), 1000);
