@@ -207,13 +207,20 @@ function PulsePage() {
     return (
       <div className="space-y-4">
         <Panel className="p-6 text-center">
-          <p className="eyebrow">{result.cleared ? "Level complete" : "Run ended"}</p>
+          <p className="eyebrow">{result.cleared && !endless ? "Level complete" : "Run ended"}</p>
           <h1 className="font-display mt-1 text-2xl font-semibold tracking-tight">
-            {level.n}. {level.name}
+            {endless ? "Infinite Run" : `${level.n}. ${level.name}`}
           </h1>
           <p className="font-display text-primary mt-3 text-5xl font-semibold tabular-nums">
-            {Math.floor(result.pct)}%
+            {endless
+              ? `${Math.round((result.pct / 100) * buildLevel(level).length)}u`
+              : `${Math.floor(result.pct)}%`}
           </p>
+          {endless ? (
+            <p className="text-muted-foreground mt-1 font-mono text-xs">
+              personal best {endlessBest.data ?? 0}u
+            </p>
+          ) : null}
           <div className="mt-3 flex justify-center gap-2">
             {got.map((g, i) => (
               <Coins
@@ -234,10 +241,10 @@ function PulsePage() {
             </div>
           ) : null}
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <Button onClick={() => start(level, practice)}>
+            <Button onClick={() => start(level, practice, endless)}>
               <Repeat className="mr-1 size-4" /> Again
             </Button>
-            {result.cleared && LEVELS[level.n] ? (
+            {!endless && result.cleared && LEVELS[level.n] ? (
               <Button variant="outline" onClick={() => start(LEVELS[level.n]!, false)}>
                 Next level
               </Button>
