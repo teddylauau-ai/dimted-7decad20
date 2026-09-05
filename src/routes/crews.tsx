@@ -55,7 +55,7 @@ import {
 } from "@/lib/crews";
 import { useMyRole } from "@/lib/roles-queries";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
-import { ChatImage, ImagePicker, ReplyChip, ReplyQuote } from "@/components/dimted/ChatExtras";
+import { ChatImage, ImagePicker, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import { CallPanel } from "@/components/dimted/CallPanel";
 import { CrewFlight } from "@/components/dimted/CrewFlight";
 import { cn } from "@/lib/utils";
