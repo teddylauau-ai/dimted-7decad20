@@ -193,7 +193,7 @@ function WidgetContent({
         <div className="flex items-center gap-4">
           <Avatar profile={profile} size={64} />
           <div>
-            <Nametag profile={profile} as="h3" className="font-display text-lg font-semibold" />
+            <Nametag profile={profile} as="span" className="font-display text-lg font-semibold" />
             <RankPill level={level} />
             <p className="text-muted-foreground mt-1 font-mono text-[10px]">{rank}</p>
             <Meter value={progress} tone="xp" className="mt-2 h-2 w-40" />
