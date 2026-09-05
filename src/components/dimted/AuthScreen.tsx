@@ -306,9 +306,9 @@ export function AuthScreen() {
                 Newcomer
               </span>
             </div>
-            <Meter value={0.02} tone="xp" className="mt-2" />
+            <Meter value={0} tone="xp" className="mt-2" />
             <p className="text-muted-foreground mt-2 font-mono text-[10px]">
-              0 / 260 XP — where everyone starts
+              0 / {xpForLevel(1)} XP — where everyone starts
             </p>
           </div>
         </div>
