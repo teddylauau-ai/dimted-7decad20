@@ -265,6 +265,7 @@ export function useCallSession(
 
   useEffect(() => {
     if (!callId || !userId) return;
+    const me: string = userId;
     let stopped = false;
 
     async function tick() {
@@ -276,7 +277,7 @@ export function useCallSession(
         .from("call_participants")
         .select("user_id")
         .eq("call_id", call);
-      const others = (parts ?? []).map((p) => p.user_id as string).filter((id) => id !== userId);
+      const others = (parts ?? []).map((p) => p.user_id as string).filter((id) => id !== me);
       for (const other of others) {
         if (peersRef.current.has(other)) continue;
         const box = peerFor(other);
@@ -299,7 +300,7 @@ export function useCallSession(
         .from("call_signals")
         .select("id, from_user, kind, payload")
         .eq("call_id", call)
-        .eq("to_user", userId)
+        .eq("to_user", me)
         .gt("id", lastSignal.current)
         .order("id", { ascending: true })
         .limit(60);
