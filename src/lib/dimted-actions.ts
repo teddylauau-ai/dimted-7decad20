@@ -374,3 +374,14 @@ export async function ownerDeleteAccount(userId: string) {
   if (error) throw error;
   return data as unknown as { status: string };
 }
+
+/**
+ * Collection milestones — one-time rewards for owning 5/15/30 cosmetics.
+ * The database counts your inventory and records the claim, so the reward
+ * can't be farmed by re-clicking.
+ */
+export async function claimArmoryMilestone(slug: string) {
+  const { data, error } = await supabase.rpc("claim_armory_milestone", { _slug: slug });
+  if (error) throw error;
+  return data as { status?: string; reward_xp?: number; reward_sparks?: number } | null;
+}
