@@ -55,13 +55,13 @@ export const Route = createFileRoute("/pulse")({
       {
         name: "description",
         content:
-          "Pulse Rush is Lazu's flagship game: 21 hand-built rhythm levels, a daily challenge, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
+          "Pulse Rush is Lazu's flagship game: 27 hand-built rhythm levels, an endless mode, a daily challenge, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
       },
       { property: "og:title", content: "Pulse Rush — Lazu" },
       {
         property: "og:description",
         content:
-          "One tap. Fifteen levels. Memorise the beat, clear the run, collect the coins and unlock everything.",
+          "One tap. Twenty-seven levels plus an endless run. Memorise the beat, clear the run, collect the coins and unlock everything.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -263,7 +263,7 @@ function PulsePage() {
       <PageHeader
         eyebrow="Flagship"
         title="Pulse Rush"
-        blurb="One button. Fifteen levels. Memorise the beat, clear the run, take the coins."
+        blurb="One button. Twenty-seven levels and an endless mountain. Memorise the beat, clear the run, take the coins."
         aside={
           <div className="flex items-center gap-3">
             <span className="text-gold flex items-center gap-1.5 font-mono text-sm">
