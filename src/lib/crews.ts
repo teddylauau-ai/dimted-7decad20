@@ -2,12 +2,45 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type CrewRole = "owner" | "captain" | "member";
 
+export type CrewAccent = "teal" | "violet" | "amber" | "rose" | "emerald" | "sky" | "slate";
+
+export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: string; ring: string }[] = [
+  { key: "teal", label: "Aurora", dot: "bg-teal-400", glow: "from-teal-400/25", ring: "ring-teal-400/40" },
+  { key: "violet", label: "Nebula", dot: "bg-violet-400", glow: "from-violet-400/25", ring: "ring-violet-400/40" },
+  { key: "amber", label: "Ember", dot: "bg-amber-400", glow: "from-amber-400/25", ring: "ring-amber-400/40" },
+  { key: "rose", label: "Nova", dot: "bg-rose-400", glow: "from-rose-400/25", ring: "ring-rose-400/40" },
+  { key: "emerald", label: "Verdant", dot: "bg-emerald-400", glow: "from-emerald-400/25", ring: "ring-emerald-400/40" },
+  { key: "sky", label: "Cirrus", dot: "bg-sky-400", glow: "from-sky-400/25", ring: "ring-sky-400/40" },
+  { key: "slate", label: "Obsidian", dot: "bg-slate-400", glow: "from-slate-400/25", ring: "ring-slate-400/40" },
+];
+
+export const CREW_EMOJI = [
+  "🛡️","⚡","🔥","🌊","🦅","🐺","🐉","👾","🚀","🌌","💠","🎯","🎧","🧿","⚔️","🪐","🥇","🧠","🌠","☄️",
+];
+
+export function accentOf(accent: string | null | undefined) {
+  return CREW_ACCENTS.find((a) => a.key === accent) ?? CREW_ACCENTS[0];
+}
+
+/** Crew level: shared XP pool, 1500 XP per level with gentle scaling. */
+export function crewLevel(totalXp: number) {
+  const level = Math.max(1, Math.floor(Math.sqrt(Math.max(0, totalXp) / 900)) + 1);
+  const floor = 900 * (level - 1) ** 2;
+  const next = 900 * level ** 2;
+  return { level, floor, next, pct: Math.min(100, Math.round(((totalXp - floor) / (next - floor)) * 100)) };
+}
+
 export type CrewRow = {
   id: string;
   slug: string;
   name: string;
   tagline: string | null;
+  description: string | null;
   badge_emoji: string;
+  accent: CrewAccent;
+  banner_url: string | null;
+  join_policy: "open" | "invite";
+  member_limit: number;
   visibility: "public" | "private";
   total_xp: number;
   owner_id: string;
