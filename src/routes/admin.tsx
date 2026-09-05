@@ -47,6 +47,8 @@ import {
   type StaffAccount,
 } from "@/lib/roles-queries";
 import { ownerDeleteAccount } from "@/lib/dimted-actions";
+import { OwnerCrewControl } from "@/components/dimted/OwnerCrewControl";
+
 import { GAMES } from "@/lib/games";
 import { useDeleteScore, useLeaderboard } from "@/lib/games-queries";
 import { cn } from "@/lib/utils";
