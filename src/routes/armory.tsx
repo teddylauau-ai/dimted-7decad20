@@ -431,7 +431,10 @@ function Milestones({ owned, userId }: { owned: number; userId: string | null })
         toast.error("Not ready to claim yet.");
         return;
       }
-      await syncXp({ xp: res?.reward_xp ?? 0, sparks: res?.reward_sparks ?? 0 });
+      syncXp(
+        { gained: res?.reward_xp ?? 0, sparks_gained: res?.reward_sparks ?? 0 },
+        "Collection milestone",
+      );
       toast.success(`Milestone claimed: +${res?.reward_xp ?? 0} XP`);
       void qc.invalidateQueries({ queryKey: ["armory-milestones", userId] });
     } catch {
