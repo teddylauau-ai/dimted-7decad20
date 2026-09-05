@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.trim_general_messages() FROM anon, authenticated, public;

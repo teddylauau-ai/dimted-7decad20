@@ -477,8 +477,11 @@ function Milestones({ owned, userId }: { owned: number; userId: string | null })
   async function claim(slug: string) {
     try {
       const res = await claimArmoryMilestone(slug);
-      if (res?.status && res.status !== "granted" && res.status !== "awarded") {
-        toast.error("Not ready to claim yet.");
+      const ok = ["claimed_now", "granted", "awarded"];
+      if (res?.status && !ok.includes(res.status)) {
+        toast.error(
+          res.status === "claimed" ? "Already claimed." : "Not ready to claim yet.",
+        );
         return;
       }
       syncXp(

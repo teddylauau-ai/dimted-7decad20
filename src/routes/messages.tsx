@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, Check, Pencil, Pin, Reply, Search, Send, Trash2, X } from "lucide-react";
+import {
+  ArrowDown,
+  Check,
+  CheckCheck,
+  Globe2,
+  Pencil,
+  Pin,
+  Reply,
+  Search,
+  Send,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,9 +28,11 @@ import { useReactions, useToggleReaction } from "@/lib/reactions";
 import {
   deleteDirectMessage,
   markConversationNotificationsRead,
+  markDmRead,
   sendDirectMessage,
   sendDirectVoiceMessage,
 } from "@/lib/dimted-actions";
+import { GeneralChat } from "@/components/dimted/GeneralChat";
 import { useQueryClient } from "@tanstack/react-query";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
@@ -98,7 +112,10 @@ function MessagesPage() {
     );
   }, [accepted, filter]);
 
-  const active = accepted.find((f) => f.friendshipId === activeId) ?? accepted[0] ?? null;
+  const showGeneral = activeId === "general" || accepted.length === 0;
+  const active = showGeneral
+    ? null
+    : (accepted.find((f) => f.friendshipId === activeId) ?? accepted[0] ?? null);
   const messages = useDirectMessages(active?.friendshipId);
   const typingNames = useTypingUsers("dm", active?.friendshipId, profile?.id);
   const typing = useTypingSignal("dm", active?.friendshipId);
@@ -113,12 +130,19 @@ function MessagesPage() {
   // nav badge and the (n) tab-title count go away together.
   const activeProfileId = active?.profile.id;
   const messageCount = messages.data?.length ?? 0;
+  const activeFriendshipId = active?.friendshipId;
   useEffect(() => {
     if (!activeProfileId) return;
     markConversationNotificationsRead(activeProfileId)
       .then(() => qc.invalidateQueries({ queryKey: ["notifications"] }))
       .catch(() => {});
   }, [activeProfileId, qc, messageCount]);
+
+  // Being in the chat marks their messages as seen, so their side shows "Seen".
+  useEffect(() => {
+    if (!activeFriendshipId) return;
+    markDmRead(activeFriendshipId).catch(() => {});
+  }, [activeFriendshipId, messageCount]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
@@ -170,6 +194,8 @@ function MessagesPage() {
   }
 
   const list = messages.data ?? [];
+  /** Receipt shows on your newest message only, like a phone messenger. */
+  const lastMineId = [...list].reverse().find((m) => m.author?.id === profile?.id)?.id ?? null;
   const ids = useMemo(() => list.map((m) => m.id), [list]);
   const reactions = useReactions("dm", activeId, ids);
   const toggleReaction = useToggleReaction("dm", activeId);
@@ -213,20 +239,28 @@ function MessagesPage() {
         blurb="Newest message drops to the bottom like a normal chat. Chats keep their latest 100 messages, so nothing ever bogs down."
       />
 
-      {accepted.length === 0 ? (
-        <Panel className="p-8 text-center">
-          <p className="font-display text-lg font-semibold">No conversations yet</p>
-          <p className="text-muted-foreground mx-auto mt-2 max-w-sm text-sm">
-            Lazu has no pre-made friends. Find real accounts in Discover, send a request, and this
-            page opens up.
-          </p>
-          <Button asChild className="mt-5">
-            <Link to="/discover">Find people</Link>
-          </Button>
-        </Panel>
-      ) : (
-        <div className="grid gap-5 lg:grid-cols-[276px_1fr]">
+      <div className="grid gap-5 lg:grid-cols-[276px_1fr]">
           <Panel className="p-3">
+            <button
+              onClick={() => setActiveId("general")}
+              className={cn(
+                "relative mb-2 flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left transition-colors",
+                showGeneral ? "bg-secondary" : "hover:bg-secondary/60",
+              )}
+            >
+              {showGeneral ? (
+                <span className="bg-primary absolute top-1/2 left-0 h-7 w-[3px] -translate-y-1/2 rounded-r-full" />
+              ) : null}
+              <span className="bg-primary/15 text-primary flex size-8 shrink-0 items-center justify-center rounded-full">
+                <Globe2 className="size-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-semibold">General</span>
+                <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                  Everyone on Lazu
+                </span>
+              </span>
+            </button>
             <div className="relative mb-2">
               <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
               <Input
@@ -236,6 +270,14 @@ function MessagesPage() {
                 className="h-9 pl-8 text-sm"
               />
             </div>
+            {accepted.length === 0 ? (
+              <p className="text-muted-foreground px-3 py-4 text-center text-xs">
+                No direct chats yet.{" "}
+                <Link to="/discover" className="text-primary underline">
+                  Find people
+                </Link>
+              </p>
+            ) : null}
             <ul className="space-y-1">
               {visible.map((f) => {
                 const lvl = friendshipLevel(f.friendshipXp);
@@ -284,6 +326,9 @@ function MessagesPage() {
             </ul>
           </Panel>
 
+          {showGeneral ? (
+            <GeneralChat />
+          ) : (
           <Panel className="flex h-[620px] flex-col p-0" delay={60}>
             <header className="border-border bg-secondary/25 flex items-center justify-between gap-4 border-b px-5 py-4">
               <div className="flex min-w-0 items-center gap-3">
@@ -474,6 +519,21 @@ function MessagesPage() {
                               ) : null}
                             </p>
                           )}
+                          {mine && m.id === lastMineId ? (
+                            <p
+                              className={cn(
+                                "mt-1 flex items-center gap-1 font-mono text-[10px]",
+                                m.read_at ? "text-primary" : "text-muted-foreground/70",
+                              )}
+                            >
+                              {m.read_at ? (
+                                <CheckCheck className="size-3" />
+                              ) : (
+                                <Check className="size-3" />
+                              )}
+                              {m.read_at ? "Seen" : "Delivered"}
+                            </p>
+                          ) : null}
                           <Reactions
                             scope="dm"
                             messageId={m.id}
@@ -578,8 +638,8 @@ function MessagesPage() {
               </div>
             </form>
           </Panel>
+          )}
         </div>
-      )}
     </div>
   );
 }

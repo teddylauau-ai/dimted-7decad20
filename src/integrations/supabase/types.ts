@@ -771,6 +771,57 @@ export type Database = {
           },
         ]
       }
+      general_messages: {
+        Row: {
+          audio_ms: number | null
+          audio_url: string | null
+          body: string
+          created_at: string
+          edited_at: string | null
+          id: string
+          image_url: string | null
+          reply_to_id: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_ms?: number | null
+          audio_url?: string | null
+          body?: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          image_url?: string | null
+          reply_to_id?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_ms?: number | null
+          audio_url?: string | null
+          body?: string
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          image_url?: string | null
+          reply_to_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "general_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "general_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "general_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory: {
         Row: {
           acquired_at: string
@@ -866,6 +917,7 @@ export type Database = {
           friendship_id: string
           id: string
           image_url: string | null
+          read_at: string | null
           reply_to_id: string | null
           sender_id: string
         }
@@ -878,6 +930,7 @@ export type Database = {
           friendship_id: string
           id?: string
           image_url?: string | null
+          read_at?: string | null
           reply_to_id?: string | null
           sender_id: string
         }
@@ -890,6 +943,7 @@ export type Database = {
           friendship_id?: string
           id?: string
           image_url?: string | null
+          read_at?: string | null
           reply_to_id?: string | null
           sender_id?: string
         }
@@ -1815,6 +1869,7 @@ export type Database = {
       is_muted: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       level_from_xp: { Args: { _xp: number }; Returns: number }
+      mark_dm_read: { Args: { _friendship_id: string }; Returns: undefined }
       mod_delete_dm: { Args: { _message_id: string }; Returns: Json }
       mod_delete_message: { Args: { _message_id: string }; Returns: Json }
       mod_set_mute: {
