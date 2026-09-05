@@ -377,30 +377,32 @@ function HomePage() {
               Send friend requests to real signed-up accounts. Every accepted request earns XP.
             </EmptyState>
           ) : (
-            <ul className="mt-3 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+            <ul className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
               {myFriends.map((f) => {
                 const fl = friendshipLevel(f.friendshipXp);
                 return (
-                  <li key={f.friendshipId}>
-                   <ProfileHoverCard username={f.profile.username} className="w-full">
-                    <Link
-                      to="/u/$username"
-                      params={{ username: f.profile.username }}
-                      className="glass-raised hover:border-primary/40 flex items-center gap-3 rounded-xl p-2.5 transition-colors"
-                    >
-                      <HoloCardTrigger profile={f.profile}>
-                        <Avatar profile={f.profile} size={40} />
-                      </HoloCardTrigger>
-                      <span className="min-w-0 flex-1">
-                        <Nametag profile={f.profile} className="block truncate text-sm" />
-                        <span className="text-muted-foreground block truncate font-mono text-[10px]">
-                          @{f.profile.username}
+                  <li key={f.friendshipId} className="min-w-0">
+                    <ProfileHoverCard username={f.profile.username} className="w-full">
+                      <Link
+                        to="/u/$username"
+                        params={{ username: f.profile.username }}
+                        className="glass-raised hover:border-primary/40 hover:bg-surface-raised relative flex h-full flex-col items-center gap-2 rounded-2xl p-3 text-center transition-colors"
+                      >
+                        <span className="absolute top-2 right-2 flex h-5 items-center rounded-full bg-primary/10 px-2 font-mono text-[9px] text-primary ring-1 ring-primary/20">
+                          FL {fl.level}
                         </span>
-                        <PresenceLabel profile={f.profile} className="mt-0.5" />
-                      </span>
-                      <span className="text-primary shrink-0 font-mono text-[10px]">FL {fl.level}</span>
-                    </Link>
-                   </ProfileHoverCard>
+                        <HoloCardTrigger profile={f.profile}>
+                          <Avatar profile={f.profile} size={48} />
+                        </HoloCardTrigger>
+                        <span className="min-w-0 px-1">
+                          <Nametag profile={f.profile} className="block truncate text-sm" />
+                          <span className="text-muted-foreground block truncate font-mono text-[10px]">
+                            @{f.profile.username}
+                          </span>
+                          <PresenceLabel profile={f.profile} className="mt-1 justify-center" />
+                        </span>
+                      </Link>
+                    </ProfileHoverCard>
                   </li>
                 );
               })}
