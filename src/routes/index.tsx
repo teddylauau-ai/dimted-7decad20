@@ -37,6 +37,48 @@ function XpTicker() {
   );
 }
 
+function SeasonTeaser() {
+  const { profile } = useDimted();
+  const season = useQuery({
+    queryKey: ["active-season"],
+    queryFn: fetchActiveSeason,
+    staleTime: 60_000,
+  });
+  const progress = useQuery({
+    queryKey: ["my-season-progress", season.data?.id],
+    queryFn: () => fetchMySeasonProgress(season.data!.id),
+    enabled: !!season.data?.id && !!profile,
+    staleTime: 30_000,
+  });
+  if (!season.data) return null;
+  const current = progress.data?.current_tier ?? 0;
+  const xp = progress.data?.xp_in_season ?? 0;
+  const next = season.data.tiers.find((t) => t.tier === current + 1);
+  const xpToNext = next ? next.xp_required - xp : 0;
+  const pct = next ? Math.min(1, Math.max(0, xp / next.xp_required)) : 1;
+  const timeLeft = seasonTimeLeft(season.data);
+
+  return (
+    <Link to="/season" className="block">
+      <div className="glass lift group flex items-center gap-3 rounded-2xl border border-gold/20 bg-gradient-to-r from-gold/5 to-primary/5 px-3 py-2.5 transition-colors hover:border-gold/40">
+        <div className="bg-gold/15 text-gold flex size-10 shrink-0 items-center justify-center rounded-xl">
+          <Crown className="size-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="eyebrow text-gold">Season Pass</p>
+          <p className="truncate text-sm font-medium">{season.data.name}</p>
+          <p className="text-muted-foreground mt-0.5 truncate font-mono text-[10px]">
+            Tier {current} · {xpToNext > 0 ? `${xpToNext.toLocaleString()} XP to next` : "max tier"} · {timeLeft}
+          </p>
+        </div>
+        <div className="w-24 shrink-0">
+          <Meter value={pct} tone="xp" className="h-1.5" />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export const Route = createFileRoute("/")({
   head: () => ({
 
