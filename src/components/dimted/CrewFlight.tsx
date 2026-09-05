@@ -49,7 +49,7 @@ type Zone = {
 const ZONES: Zone[] = [
   { name: "Dawn Reach", sky: ["#08101c", "#12213a"], gate: "#14b8a6", cap: "#5eead4", drifting: false, rocks: false, gusts: false },
   { name: "Drift Canyon", sky: ["#0a1524", "#123047"], gate: "#0e7490", cap: "#67e8f9", drifting: true, rocks: false, gusts: false },
-  { name: "Laser Vault", sky: ["#140b1e", "#2a1236"], gate: "#7c3aed", cap: "#c4b5fd", drifting: true, rocks: false, gusts: false },
+  { name: "Violet Vault", sky: ["#140b1e", "#2a1236"], gate: "#7c3aed", cap: "#c4b5fd", drifting: true, rocks: false, gusts: false },
   { name: "Belt of Ash", sky: ["#1a1008", "#33200d"], gate: "#b45309", cap: "#fcd34d", drifting: false, rocks: true, gusts: false },
   { name: "Storm Crown", sky: ["#04121a", "#0b3040"], gate: "#0891b2", cap: "#a5f3fc", drifting: true, rocks: true, gusts: true },
 ];
