@@ -45,7 +45,7 @@ export function WidgetProfile({ userId, editable = false }: { userId: string | u
   useEffect(() => {
     if (widgetsQ.data) {
       const base = widgetsQ.data.length ? widgetsQ.data : DEFAULT_WIDGETS;
-      setLayout(base.map(({ id, user_id, ...rest }) => rest));
+      setLayout(base.map((w) => ({ ...w, id: undefined, user_id: undefined })));
     }
   }, [widgetsQ.data]);
 
