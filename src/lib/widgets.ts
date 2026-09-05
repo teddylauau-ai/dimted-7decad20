@@ -54,7 +54,7 @@ export async function fetchProfileWidgets(userId: string | undefined): Promise<P
 
 export async function saveProfileWidgets(widgets: Omit<ProfileWidget, "id" | "user_id">[]) {
   const { data, error } = await supabase.rpc("save_profile_widgets", {
-    _widgets: JSON.parse(JSON.stringify(widgets)) as unknown,
+    _widgets: widgets as unknown as Record<string, unknown>,
   });
   if (error) throw error;
   return (data ?? { ok: false }) as { ok: boolean; error?: string };
