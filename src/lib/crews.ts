@@ -14,6 +14,107 @@ export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: 
   { key: "slate", label: "Obsidian", dot: "bg-slate-400", glow: "from-slate-400/25", ring: "ring-slate-400/40" },
 ];
 
+export type CrewBadgeStyle = "plain" | "ring" | "plate" | "crest" | "holo" | "pulse";
+export type CrewNametag = "none" | "accent" | "glow" | "gradient" | "outline" | "mono";
+export type CrewTextEffect = "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave";
+export type CrewChatBg = "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass";
+
+/** Crew badge shells — how the crew emoji/picture is framed everywhere. */
+export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: number; cls: string }[] = [
+  { key: "plain", label: "Plain", unlock: 1, cls: "" },
+  { key: "ring", label: "Ring", unlock: 1, cls: "ring-2 ring-offset-2 ring-offset-background" },
+  { key: "plate", label: "Plate", unlock: 3, cls: "ring-1 shadow-lg shadow-black/30" },
+  { key: "crest", label: "Crest", unlock: 6, cls: "ring-2 rotate-3 shadow-lg shadow-black/40" },
+  { key: "holo", label: "Holo", unlock: 12, cls: "ring-2 shadow-[0_0_18px_-2px_currentColor]" },
+  { key: "pulse", label: "Pulse", unlock: 18, cls: "ring-2 animate-pulse shadow-[0_0_22px_-4px_currentColor]" },
+];
+
+/** Crew nametags — applied to member names inside crew chat. */
+export const CREW_NAMETAGS: { key: CrewNametag; label: string; unlock: number; cls: string }[] = [
+  { key: "none", label: "Default", unlock: 1, cls: "" },
+  { key: "accent", label: "Accent", unlock: 1, cls: "font-semibold" },
+  { key: "glow", label: "Glow", unlock: 4, cls: "font-semibold drop-shadow-[0_0_6px_currentColor]" },
+  { key: "gradient", label: "Gradient", unlock: 8, cls: "font-bold bg-gradient-to-r from-current to-foreground bg-clip-text text-transparent" },
+  { key: "outline", label: "Outline", unlock: 12, cls: "font-bold [-webkit-text-stroke:0.6px_currentColor]" },
+  { key: "mono", label: "Terminal", unlock: 16, cls: "font-mono text-[11px] uppercase tracking-[0.14em]" },
+];
+
+/** Crew message text effects. */
+export const CREW_TEXT_EFFECTS: { key: CrewTextEffect; label: string; unlock: number; cls: string }[] = [
+  { key: "none", label: "Clean", unlock: 1, cls: "" },
+  { key: "glow", label: "Glow", unlock: 2, cls: "drop-shadow-[0_0_8px_rgba(45,212,191,0.45)]" },
+  { key: "shimmer", label: "Shimmer", unlock: 7, cls: "crew-fx-shimmer" },
+  { key: "sharp", label: "Sharp", unlock: 5, cls: "font-medium tracking-tight" },
+  { key: "soft", label: "Soft", unlock: 5, cls: "italic opacity-90" },
+  { key: "wave", label: "Wave", unlock: 14, cls: "crew-fx-wave" },
+];
+
+/** Crew chat backgrounds. */
+export const CREW_CHAT_BGS: { key: CrewChatBg; label: string; unlock: number }[] = [
+  { key: "none", label: "None", unlock: 1 },
+  { key: "grid", label: "Grid", unlock: 1 },
+  { key: "aurora", label: "Aurora", unlock: 2 },
+  { key: "stars", label: "Starfield", unlock: 5 },
+  { key: "waves", label: "Waves", unlock: 9 },
+  { key: "circuit", label: "Circuit", unlock: 13 },
+  { key: "glass", label: "Frosted", unlock: 1 },
+];
+
+/** CSS for a chat background preset (accent-tinted, always subtle). */
+export function chatBgStyle(bg: CrewChatBg): React.CSSProperties {
+  switch (bg) {
+    case "grid":
+      return {
+        backgroundImage:
+          "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
+        backgroundSize: "38px 38px",
+        opacity: 0.07,
+      };
+    case "aurora":
+      return {
+        backgroundImage:
+          "radial-gradient(60% 45% at 20% 0%, currentColor 0%, transparent 70%), radial-gradient(50% 40% at 85% 100%, currentColor 0%, transparent 70%)",
+        opacity: 0.18,
+      };
+    case "stars":
+      return {
+        backgroundImage:
+          "radial-gradient(currentColor 1px, transparent 1.4px), radial-gradient(currentColor 1px, transparent 1.4px)",
+        backgroundSize: "70px 70px, 110px 110px",
+        backgroundPosition: "0 0, 35px 55px",
+        opacity: 0.16,
+      };
+    case "waves":
+      return {
+        backgroundImage:
+          "repeating-radial-gradient(circle at 50% 120%, currentColor 0 1px, transparent 1px 26px)",
+        opacity: 0.1,
+      };
+    case "circuit":
+      return {
+        backgroundImage:
+          "linear-gradient(45deg, currentColor 1px, transparent 1px), linear-gradient(-45deg, currentColor 1px, transparent 1px)",
+        backgroundSize: "26px 26px",
+        opacity: 0.08,
+      };
+    case "glass":
+      return { backdropFilter: "blur(2px)", backgroundImage: "linear-gradient(180deg, currentColor, transparent)", opacity: 0.08 };
+    default:
+      return { opacity: 0 };
+  }
+}
+
+/** Tailwind text-colour class for an accent, used to tint chat backgrounds/nametags. */
+export const ACCENT_TEXT: Record<CrewAccent, string> = {
+  teal: "text-teal-400",
+  violet: "text-violet-400",
+  amber: "text-amber-400",
+  rose: "text-rose-400",
+  emerald: "text-emerald-400",
+  sky: "text-sky-400",
+  slate: "text-slate-400",
+};
+
 export const CREW_EMOJI = [
   "🛡️","⚡","🔥","🌊","🦅","🐺","🐉","👾","🚀","🌌","💠","🎯","🎧","🧿","⚔️","🪐","🥇","🧠","🌠","☄️",
 ];
@@ -45,6 +146,10 @@ export type CrewRow = {
   join_policy: "open" | "invite";
   member_limit: number;
   visibility: "public" | "private";
+  badge_style: CrewBadgeStyle;
+  nametag_style: CrewNametag;
+  text_effect: CrewTextEffect;
+  chat_bg: CrewChatBg;
   total_xp: number;
   owner_id: string;
   created_at: string;
