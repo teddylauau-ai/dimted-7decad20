@@ -388,7 +388,7 @@ function CrewsPage() {
               <Sparkles className="text-primary mx-auto size-8" />
               <p className="mt-2 text-lg font-semibold">Start your crew</p>
               <p className="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">
-                Crews share one XP pool, a private chat, a custom badge, banner and colour. Up to 25 people.
+                Crews share one XP pool, a private chat, a custom badge, banner and colour. Up to 25 people (100 once the owner lifts the cap).
               </p>
               <Button className="mt-3" onClick={() => setCreating(true)}>
                 Create a crew
@@ -425,7 +425,12 @@ function CrewsPage() {
                       )}
                       {perkFlags.skywardBoost && (
                         <span className="text-primary bg-primary/10 ring-primary/30 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
-                          Skyward 1.5x
+                          Skyward {perkFlags.skywardBoost2 ? "2x" : "1.5x"}
+                        </span>
+                      )}
+                      {perkFlags.centurion && (
+                        <span className="text-gold ring-gold/50 bg-gold/15 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
+                          Centurion
                         </span>
                       )}
                     </p>
@@ -492,7 +497,7 @@ function CrewsPage() {
 
             {tab === "skyward" ? (
               <div className="flex-1 overflow-y-auto p-4">
-                <CrewFlight crewId={active.id} crewName={active.name} boosted={lvl.level >= 20} />
+                <CrewFlight crewId={active.id} crewName={active.name} boostMult={perkFlags.skywardBoost2 ? 2 : perkFlags.skywardBoost ? 1.5 : 1} />
               </div>
             ) : tab === "ladder" ? (
               <div className="flex-1 overflow-y-auto p-4">
@@ -1018,13 +1023,21 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
     { label: "Skyward 1.5x XP", on: flags.skywardBoost, at: 20 },
     { label: "Legend crest", on: flags.legendCrest, at: 25 },
     { label: "Apex gold trim", on: flags.apex, at: 30 },
+    { label: "Skyward 2x XP", on: flags.skywardBoost2, at: 50 },
+    { label: "Chat XP ceiling x8", on: flags.chatXpUnleashed, at: 70 },
+    { label: "Sovereign trim", on: flags.sovereignTrim, at: 85 },
+    { label: "Centurion crest", on: flags.centurion, at: 100 },
   ];
   return (
     <div className="space-y-3">
       <Panel>
         <PanelHead
           title={`Crew level ${level}`}
-          aside={<span className="text-muted-foreground text-xs">{Math.max(0, nextAt - xp).toLocaleString()} XP to next level</span>}
+          aside={
+            <span className="text-muted-foreground text-xs">
+              {level >= CREW_MAX_LEVEL ? "MAXED" : `${Math.max(0, nextAt - xp).toLocaleString()} XP to next level`}
+            </span>
+          }
         />
         <p className="text-muted-foreground mt-1 text-xs">
           Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool. Each

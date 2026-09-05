@@ -78,10 +78,10 @@ export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: 
   { key: "slate", label: "Obsidian", dot: "bg-slate-400", glow: "from-slate-400/25", ring: "ring-slate-400/40" },
 ];
 
-export type CrewBadgeStyle = "plain" | "ring" | "plate" | "crest" | "holo" | "pulse";
-export type CrewNametag = "none" | "accent" | "glow" | "gradient" | "outline" | "mono";
-export type CrewTextEffect = "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave";
-export type CrewChatBg = "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass";
+export type CrewBadgeStyle = "plain" | "ring" | "plate" | "crest" | "holo" | "pulse" | "aurora" | "eclipse" | "sovereign" | "centurion";
+export type CrewNametag = "none" | "accent" | "glow" | "gradient" | "outline" | "mono" | "prism" | "aurora" | "sovereign";
+export type CrewTextEffect = "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave" | "pulse" | "prism";
+export type CrewChatBg = "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass" | "nebula" | "eclipse" | "sovereign";
 
 /** Crew badge shells — how the crew emoji/picture is framed everywhere. */
 export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: number; cls: string }[] = [
@@ -91,6 +91,10 @@ export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: nu
   { key: "crest", label: "Crest", unlock: 6, cls: "ring-2 rotate-3 shadow-lg shadow-black/40" },
   { key: "holo", label: "Holo", unlock: 12, cls: "ring-2 shadow-[0_0_18px_-2px_currentColor]" },
   { key: "pulse", label: "Pulse", unlock: 18, cls: "ring-2 animate-pulse shadow-[0_0_22px_-4px_currentColor]" },
+  { key: "aurora", label: "Aurora", unlock: 35, cls: "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_26px_-4px_currentColor]" },
+  { key: "eclipse", label: "Eclipse", unlock: 55, cls: "ring-[3px] shadow-[0_0_28px_-6px_currentColor] brightness-110" },
+  { key: "sovereign", label: "Sovereign", unlock: 80, cls: "ring-[3px] ring-amber-300/70 shadow-[0_0_30px_-4px_rgba(252,211,77,0.7)]" },
+  { key: "centurion", label: "Centurion", unlock: 100, cls: "ring-[3px] ring-amber-200 animate-pulse shadow-[0_0_36px_-2px_rgba(253,230,138,0.85)]" },
 ];
 
 /** Crew nametags — applied to member names inside crew chat. */
@@ -101,6 +105,9 @@ export const CREW_NAMETAGS: { key: CrewNametag; label: string; unlock: number; c
   { key: "gradient", label: "Gradient", unlock: 8, cls: "font-bold bg-gradient-to-r from-current to-foreground bg-clip-text text-transparent" },
   { key: "outline", label: "Outline", unlock: 12, cls: "font-bold [-webkit-text-stroke:0.6px_currentColor]" },
   { key: "mono", label: "Terminal", unlock: 16, cls: "font-mono text-[11px] uppercase tracking-[0.14em]" },
+  { key: "prism", label: "Prism", unlock: 40, cls: "font-bold bg-gradient-to-r from-current via-foreground to-current bg-clip-text text-transparent" },
+  { key: "aurora", label: "Aurora", unlock: 65, cls: "font-bold drop-shadow-[0_0_10px_currentColor]" },
+  { key: "sovereign", label: "Sovereign", unlock: 90, cls: "font-bold text-amber-200 drop-shadow-[0_0_10px_rgba(252,211,77,0.75)]" },
 ];
 
 /** Crew message text effects. */
@@ -111,6 +118,8 @@ export const CREW_TEXT_EFFECTS: { key: CrewTextEffect; label: string; unlock: nu
   { key: "sharp", label: "Sharp", unlock: 5, cls: "font-medium tracking-tight" },
   { key: "soft", label: "Soft", unlock: 5, cls: "italic opacity-90" },
   { key: "wave", label: "Wave", unlock: 14, cls: "crew-fx-wave" },
+  { key: "pulse", label: "Pulse", unlock: 45, cls: "animate-pulse font-medium" },
+  { key: "prism", label: "Prism", unlock: 75, cls: "crew-fx-shimmer font-semibold tracking-tight" },
 ];
 
 /** Crew chat backgrounds. */
@@ -122,6 +131,9 @@ export const CREW_CHAT_BGS: { key: CrewChatBg; label: string; unlock: number }[]
   { key: "waves", label: "Waves", unlock: 9 },
   { key: "circuit", label: "Circuit", unlock: 13 },
   { key: "glass", label: "Frosted", unlock: 1 },
+  { key: "nebula", label: "Nebula", unlock: 30 },
+  { key: "eclipse", label: "Eclipse", unlock: 60 },
+  { key: "sovereign", label: "Sovereign", unlock: 95 },
 ];
 
 /** CSS for a chat background preset (accent-tinted, always subtle). */
@@ -161,6 +173,25 @@ export function chatBgStyle(bg: CrewChatBg): React.CSSProperties {
         backgroundSize: "26px 26px",
         opacity: 0.08,
       };
+    case "nebula":
+      return {
+        backgroundImage:
+          "radial-gradient(55% 40% at 15% 20%, currentColor 0%, transparent 65%), radial-gradient(45% 35% at 80% 70%, currentColor 0%, transparent 65%), radial-gradient(currentColor 1px, transparent 1.5px)",
+        backgroundSize: "auto, auto, 90px 90px",
+        opacity: 0.2,
+      };
+    case "eclipse":
+      return {
+        backgroundImage:
+          "radial-gradient(closest-side at 50% 45%, transparent 55%, currentColor 58%, transparent 62%), linear-gradient(180deg, currentColor, transparent)",
+        opacity: 0.16,
+      };
+    case "sovereign":
+      return {
+        backgroundImage:
+          "radial-gradient(60% 40% at 50% 0%, rgba(252,211,77,0.9) 0%, transparent 70%), repeating-linear-gradient(90deg, rgba(252,211,77,0.5) 0 1px, transparent 1px 42px)",
+        opacity: 0.14,
+      };
     case "glass":
       return { backdropFilter: "blur(2px)", backgroundImage: "linear-gradient(180deg, currentColor, transparent)", opacity: 0.08 };
     default:
@@ -192,17 +223,39 @@ export function accentOf(accent: string | null | undefined) {
 /** Crew ladder tops out here — a crew cannot go past level 100. */
 export const CREW_MAX_LEVEL = 100;
 
-/** Shared XP that lands a crew exactly on the final crew level. */
-export const CREW_MAX_XP = 900 * (CREW_MAX_LEVEL - 1) ** 2;
+/**
+ * Shared XP needed to move a crew from `level` to the next one. Same shape as
+ * the personal ladder: the first 70 crew levels come quickly off normal chat
+ * and Skyward runs, then 70 → 100 is the long haul that carries most of the
+ * total (~506k XP for the whole climb, not tens of millions).
+ */
+export function crewXpForLevel(level: number): number {
+  const l = Math.min(Math.max(level, 1), CREW_MAX_LEVEL);
+  if (l < 70) return Math.round((80 + 7 * Math.pow(l - 1, 1.35)) / 10) * 10;
+  return Math.round((2000 + 290 * Math.pow(l - 69, 1.35)) / 10) * 10;
+}
 
-/** Crew level: shared XP pool, square-scaled, capped at level 100. */
+/** Cumulative XP needed to sit exactly at the start of `level`. */
+export function crewTotalXpForLevel(level: number): number {
+  let sum = 0;
+  for (let l = 1; l < Math.min(level, CREW_MAX_LEVEL); l++) sum += crewXpForLevel(l);
+  return sum;
+}
+
+/** Shared XP that lands a crew exactly on the final crew level. */
+export const CREW_MAX_XP = crewTotalXpForLevel(CREW_MAX_LEVEL);
+
+/** Crew level from the shared pool, capped at level 100. */
 export function crewLevel(totalXp: number) {
   const xp = Math.max(0, Math.min(totalXp, CREW_MAX_XP));
-  const raw = Math.max(1, Math.floor(Math.sqrt(xp / 900)) + 1);
-  const level = Math.min(CREW_MAX_LEVEL, raw);
-  const floor = 900 * (level - 1) ** 2;
-  const next = 900 * level ** 2;
-  if (level >= CREW_MAX_LEVEL) return { level, floor, next: floor, pct: 100 };
+  let level = 1;
+  let floor = 0;
+  while (level < CREW_MAX_LEVEL && xp - floor >= crewXpForLevel(level)) {
+    floor += crewXpForLevel(level);
+    level += 1;
+  }
+  if (level >= CREW_MAX_LEVEL) return { level: CREW_MAX_LEVEL, floor, next: floor, pct: 100 };
+  const next = floor + crewXpForLevel(level);
   return { level, floor, next, pct: Math.min(100, Math.round(((xp - floor) / (next - floor)) * 100)) };
 }
 
@@ -665,10 +718,40 @@ export const CREW_PERKS: CrewPerk[] = [
   {
     level: 30,
     title: "Apex crew",
-    blurb: "Gold trim and the Apex tag on your crew row, the dashboard and the crew header.",
+    blurb: "Gold trim and the Apex tag on your crew row, the dashboard and the crew header, plus the Nebula chat background.",
+  },
+  { level: 35, title: "Aurora badge shell", blurb: "Unlocks the glowing Aurora shell for your crew badge." },
+  { level: 40, title: "Prism nametag", blurb: "Unlocks the Prism crew nametag style." },
+  { level: 45, title: "Pulse messages", blurb: "Unlocks the Pulse message effect." },
+  {
+    level: 50,
+    title: "Skyward x2",
+    blurb: "Skyward runs bank 2x XP into the crew pool, replacing the 1.5x boost.",
+  },
+  { level: 55, title: "Eclipse badge shell", blurb: "Unlocks the Eclipse shell for your crew badge." },
+  { level: 60, title: "Eclipse background", blurb: "Unlocks the Eclipse chat background." },
+  { level: 65, title: "Aurora nametag", blurb: "Unlocks the Aurora crew nametag style." },
+  {
+    level: 70,
+    title: "Chat XP unleashed",
+    blurb: "The crew chat XP multiplier ceiling rises from x5 to x8, so deep-ladder chatting keeps paying.",
+  },
+  { level: 75, title: "Prism messages", blurb: "Unlocks the Prism message effect." },
+  { level: 80, title: "Sovereign badge shell", blurb: "Unlocks the gold Sovereign shell for your crew badge." },
+  {
+    level: 85,
+    title: "Sovereign trim",
+    blurb: "A gold sovereign frame wraps your crew everywhere it appears — ladder, dashboard and header.",
+  },
+  { level: 90, title: "Sovereign nametag", blurb: "Unlocks the gold Sovereign crew nametag style." },
+  { level: 95, title: "Sovereign background", blurb: "Unlocks the gold Sovereign chat background." },
+  {
+    level: 100,
+    title: "Centurion crew",
+    blurb:
+      "The ladder is complete: the animated Centurion badge shell, a Centurion crest beside your crew name, and MAXED on your crew bar.",
   },
 ];
-
 
 export function perksUpTo(level: number) {
   return CREW_PERKS.filter((p) => p.level <= level);
@@ -680,6 +763,10 @@ export const CREW_PERK_LEVELS = {
   skywardBoost: 20,
   legendCrest: 25,
   apex: 30,
+  skywardBoost2: 50,
+  chatXpUnleashed: 70,
+  sovereignTrim: 85,
+  centurion: 100,
 } as const;
 
 export function crewPerkFlags(totalXp: number) {
@@ -690,6 +777,10 @@ export function crewPerkFlags(totalXp: number) {
     skywardBoost: level >= CREW_PERK_LEVELS.skywardBoost,
     legendCrest: level >= CREW_PERK_LEVELS.legendCrest,
     apex: level >= CREW_PERK_LEVELS.apex,
+    skywardBoost2: level >= CREW_PERK_LEVELS.skywardBoost2,
+    chatXpUnleashed: level >= CREW_PERK_LEVELS.chatXpUnleashed,
+    sovereignTrim: level >= CREW_PERK_LEVELS.sovereignTrim,
+    centurion: level >= CREW_PERK_LEVELS.centurion,
   };
 }
 
@@ -724,10 +815,10 @@ export async function ownerMaxCrew(crewId: string) {
   return ownerEditCrew(crewId, {
     total_xp: CREW_MAX_XP,
     member_limit: 100,
-    badge_style: "pulse" satisfies CrewBadgeStyle,
-    nametag_style: "gradient" satisfies CrewNametag,
-    text_effect: "wave" satisfies CrewTextEffect,
-    chat_bg: "aurora" satisfies CrewChatBg,
+    badge_style: "centurion" satisfies CrewBadgeStyle,
+    nametag_style: "sovereign" satisfies CrewNametag,
+    text_effect: "prism" satisfies CrewTextEffect,
+    chat_bg: "sovereign" satisfies CrewChatBg,
   });
 }
 
@@ -768,7 +859,8 @@ export async function staffDeleteCrewMessage(messageId: string) {
 export function crewChatXp(totalXp: number, kind: "text" | "rich" = "text"): number {
   const base = kind === "rich" ? 24 : 18;
   const level = crewLevel(totalXp).level;
-  const scale = Math.min(5, 1 + (level - 1) * 0.1);
+  const ceiling = level >= CREW_PERK_LEVELS.chatXpUnleashed ? 8 : 5;
+  const scale = Math.min(ceiling, 1 + (level - 1) * 0.1);
   return Math.round(base * scale);
 }
 
