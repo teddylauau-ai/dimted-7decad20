@@ -14,6 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievement_claims: {
+        Row: {
+          created_at: string
+          id: string
+          reward_sparks: number
+          reward_xp: number
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reward_sparks?: number
+          reward_xp?: number
+          slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reward_sparks?: number
+          reward_xp?: number
+          slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievement_claims_slug_fkey"
+            columns: ["slug"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "achievement_claims_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      achievements: {
+        Row: {
+          blurb: string
+          created_at: string
+          goal: number
+          metric: string
+          rarity: string
+          reward_sparks: number
+          reward_xp: number
+          slug: string
+          title: string
+        }
+        Insert: {
+          blurb: string
+          created_at?: string
+          goal: number
+          metric: string
+          rarity?: string
+          reward_sparks?: number
+          reward_xp?: number
+          slug: string
+          title: string
+        }
+        Update: {
+          blurb?: string
+          created_at?: string
+          goal?: number
+          metric?: string
+          rarity?: string
+          reward_sparks?: number
+          reward_xp?: number
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
       call_participants: {
         Row: {
           call_id: string
@@ -1184,6 +1262,7 @@ export type Database = {
           showcase: string[]
           sparks: number
           streak: number
+          streak_claimed_on: string | null
           surge_until: string | null
           title: string
           total_xp: number
@@ -1218,6 +1297,7 @@ export type Database = {
           showcase?: string[]
           sparks?: number
           streak?: number
+          streak_claimed_on?: string | null
           surge_until?: string | null
           title?: string
           total_xp?: number
@@ -1252,6 +1332,7 @@ export type Database = {
           showcase?: string[]
           sparks?: number
           streak?: number
+          streak_claimed_on?: string | null
           surge_until?: string | null
           title?: string
           total_xp?: number
@@ -1832,11 +1913,44 @@ export type Database = {
           },
         ]
       }
+      xp_once: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          key: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          key: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          key?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "xp_once_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      achievement_progress: { Args: { _user_id: string }; Returns: Json }
       add_crew_xp: {
         Args: { _amount: number; _crew_id: string }
         Returns: undefined
@@ -1858,6 +1972,7 @@ export type Database = {
         Args: { _game: string; _score: number }
         Returns: Json
       }
+      award_bonus_xp: { Args: { _kind: string; _ref: string }; Returns: Json }
       award_xp: { Args: { _label?: string; _source: string }; Returns: Json }
       can_join_community: {
         Args: { _community_id: string; _user_id: string }
@@ -1876,6 +1991,7 @@ export type Database = {
         Returns: boolean
       }
       claim_armory_milestone: { Args: { _slug: string }; Returns: Json }
+      claim_daily_streak: { Args: never; Returns: Json }
       claim_quest: { Args: { _slug: string }; Returns: Json }
       claim_season_tier: {
         Args: { _season_id: string; _tier: number }
@@ -2057,6 +2173,7 @@ export type Database = {
         Args: { _minutes?: number; _user_id: string }
         Returns: Json
       }
+      sync_achievements: { Args: never; Returns: Json }
       top_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
