@@ -53,8 +53,8 @@ export function parseSpotifyLink(raw: string): ParsedSpotify | null {
 
   const uri = input.match(/^spotify:(track|album|artist|playlist|episode|show):([A-Za-z0-9]+)$/i);
   if (uri) {
-    const kind = uri[1].toLowerCase() as SpotifyKind;
-    const id = uri[2];
+    const kind = uri[1]!.toLowerCase() as SpotifyKind;
+    const id = uri[2]!;
     return { kind, id, url: `https://open.spotify.com/${kind}/${id}` };
   }
 
@@ -62,8 +62,8 @@ export function parseSpotifyLink(raw: string): ParsedSpotify | null {
     /open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|artist|playlist|episode|show)\/([A-Za-z0-9]+)/i,
   );
   if (web) {
-    const kind = web[1].toLowerCase() as SpotifyKind;
-    const id = web[2];
+    const kind = web[1]!.toLowerCase() as SpotifyKind;
+    const id = web[2]!;
     return { kind, id, url: `https://open.spotify.com/${kind}/${id}` };
   }
 
