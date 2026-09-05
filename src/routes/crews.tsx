@@ -1033,7 +1033,11 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
       <Panel>
         <PanelHead
           title={`Crew level ${level}`}
-          aside={<span className="text-muted-foreground text-xs">{Math.max(0, nextAt - xp).toLocaleString()} XP to next level</span>}
+          aside={
+            <span className="text-muted-foreground text-xs">
+              {level >= CREW_MAX_LEVEL ? "MAXED" : `${Math.max(0, nextAt - xp).toLocaleString()} XP to next level`}
+            </span>
+          }
         />
         <p className="text-muted-foreground mt-1 text-xs">
           Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool. Each
