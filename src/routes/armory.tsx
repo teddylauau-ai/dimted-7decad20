@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Shield, Coins, Crown, ShoppingBag, Sparkles, Star } from "lucide-react";
+import { Shield, Coins, Crown, ShoppingBag, Sparkles, Star, Users } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
@@ -76,7 +76,7 @@ function ArmoryPage() {
   const { isOwner, isStaff } = useMyRole(profile?.id);
   const cosmetics = useCosmetics();
   const inventory = useInventory(profile?.id);
-  const [slot, setSlot] = useState<CosmeticSlot | "vault" | "admin">("nametag");
+  const [slot, setSlot] = useState<CosmeticSlot | "vault" | "admin" | "crew">("nametag");
 
   const owned = useMemo(() => new Set(inventory.data ?? []), [inventory.data]);
   const all = cosmetics.data ?? [];
@@ -98,20 +98,29 @@ function ArmoryPage() {
     () => (isStaff ? ownedItems.filter((i) => i.pool === "admin") : []),
     [ownedItems, isStaff],
   );
+  const crewItems = useMemo(
+    () => ownedItems.filter((i) => i.pool === "crew"),
+    [ownedItems],
+  );
   const isVault = slot === "vault";
   const isAdmin = slot === "admin";
-  const isExclusive = isVault || isAdmin;
+  const isCrew = slot === "crew";
+  const isExclusive = isVault || isAdmin || isCrew;
   const list = isVault
     ? vaultItems
     : isAdmin
       ? adminItems
-      : ownedItems.filter((i) => i.slot === slot);
+      : isCrew
+        ? crewItems
+        : ownedItems.filter((i) => i.slot === slot && i.pool !== "crew");
   const activeSlug = isExclusive ? null : equipped[slot as CosmeticSlot];
   const meta = isVault
     ? { label: "Owner's Vault", blurb: "One-of-a-kind pieces bound to your account only" }
     : isAdmin
       ? { label: "Admin Vault", blurb: "Staff-issue regalia, granted with your admin role" }
-      : SLOTS.find((s) => s.slot === slot);
+      : isCrew
+        ? { label: "Crew Kit", blurb: "Squad-issue gear, earned and granted through your crew" }
+        : SLOTS.find((s) => s.slot === slot);
 
   async function equip(item: Cosmetic) {
     const isOn = equipped[item.slot] === item.slug;
@@ -283,6 +292,29 @@ function ArmoryPage() {
               </button>
             ) : null}
 
+            {crewItems.length ? (
+              <button
+                onClick={() => setSlot("crew")}
+                className={cn(
+                  "mt-2 flex w-full items-center justify-between gap-2 rounded-lg border px-2.5 py-2 text-left transition-colors",
+                  isCrew
+                    ? "border-xp/60 bg-xp/10"
+                    : "border-xp/35 hover:bg-xp/5",
+                )}
+              >
+                <span className="min-w-0">
+                  <span className="text-xp block font-mono text-[10px] tracking-[0.14em] uppercase">
+                    Crew Kit
+                    <span className="ml-1.5 opacity-70">{crewItems.length}</span>
+                  </span>
+                  <span className="text-muted-foreground block truncate text-[12px]">
+                    squad-issue gear
+                  </span>
+                </span>
+                <Users className="text-xp size-3.5 shrink-0" />
+              </button>
+            ) : null}
+
             <Button asChild size="sm" variant="outline" className="mt-4 w-full">
               <Link to="/shop">
                 <ShoppingBag className="size-3.5" /> Find more in the Shop
@@ -292,7 +324,7 @@ function ArmoryPage() {
         </Panel>
 
         {/* Slot contents */}
-        <Panel className={cn("p-5", isVault && "border-gold/40", isAdmin && "border-primary/40")} delay={40}>
+        <Panel className={cn("p-5", isVault && "border-gold/40", isAdmin && "border-primary/40", isCrew && "border-xp/40")} delay={40}>
           <PanelHead
             eyebrow={meta?.label ?? "Locker"}
             title={meta?.blurb ?? "Your gear"}
@@ -313,7 +345,7 @@ function ArmoryPage() {
               >
                 {s.label}
                 <span className="ml-1.5 opacity-60">
-                  {ownedItems.filter((i) => i.slot === s.slot).length}
+                  {ownedItems.filter((i) => i.slot === s.slot && i.pool !== "crew").length}
                 </span>
               </button>
             ))}
@@ -345,6 +377,20 @@ function ArmoryPage() {
                 <span className="opacity-70">{adminItems.length}</span>
               </button>
             ) : null}
+            {crewItems.length ? (
+              <button
+                onClick={() => setSlot("crew")}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] tracking-[0.12em] uppercase transition-colors",
+                  isCrew
+                    ? "border-xp/60 bg-xp/15 text-xp"
+                    : "border-xp/35 text-xp/80 hover:text-xp",
+                )}
+              >
+                <Users className="size-3" /> Crew
+                <span className="opacity-70">{crewItems.length}</span>
+              </button>
+            ) : null}
             {activeSlug && !isExclusive ? (
               <button
                 onClick={() => void clearSlot(slot as CosmeticSlot)}
@@ -364,6 +410,8 @@ function ArmoryPage() {
                   ? "No owner-exclusive pieces on this account."
                   : isAdmin
                   ? "No admin-issue pieces on this account."
+                  : isCrew
+                  ? "No crew gear yet — crew exclusives are granted through your squad."
                   : "Nothing in this slot yet — earn Sparks by playing and pick something up."}
               </p>
               <Button asChild size="sm" className="mt-3">
