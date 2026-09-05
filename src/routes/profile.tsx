@@ -399,6 +399,7 @@ function ProfilePage() {
         </div>
       </Panel>
 
+      <WidgetProfile userId={profile?.id} editable={level >= 3} />
 
       <div className="grid gap-5 xl:grid-cols-3">
         <Panel className="p-6" delay={60}>
