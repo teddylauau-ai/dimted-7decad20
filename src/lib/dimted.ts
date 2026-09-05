@@ -66,6 +66,12 @@ export function isMaxed(level: number): boolean {
   return level >= MAX_LEVEL;
 }
 
+/** Bar caption: "MAXED" at the top of the ladder, otherwise "into / needed XP". */
+export function xpLabel(level: number, intoLevel: number, needed: number): string {
+  if (isMaxed(level)) return "MAXED";
+  return `${intoLevel.toLocaleString()} / ${needed.toLocaleString()} XP`;
+}
+
 export function levelFromTotalXp(totalXp: number): {
   level: number;
   intoLevel: number;

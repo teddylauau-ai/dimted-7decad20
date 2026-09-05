@@ -213,7 +213,7 @@ function Sidebar() {
           </div>
           <Meter value={progress} tone="xp" className="mt-1.5 h-1.5" animate />
           <p className="text-muted-foreground mt-1.5 font-mono text-[10px]">
-            {intoLevel.toLocaleString()} / {needed.toLocaleString()} XP
+            {xpLabel(level, intoLevel, needed)}
           </p>
           {upcoming ? (
             <p className="text-muted-foreground/80 mt-1 text-[11px] leading-snug">
