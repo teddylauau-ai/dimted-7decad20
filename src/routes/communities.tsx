@@ -530,7 +530,8 @@ function CommunitiesPage() {
                   return (
                     <div
                       key={m.id}
-                      className={`chat-row group flex gap-3 ${grouped ? "mt-0" : "mt-3"} ${fx ?? ""}`}
+                      id={`msg-${m.id}`}
+                      className={`chat-row group flex gap-3 rounded-lg px-2 py-1 transition-colors duration-500 hover:bg-secondary/35 ${grouped ? "mt-0" : "mt-3"} ${fx ?? ""}`}
                     >
                       {grouped ? (
                         <span className="text-muted-foreground/0 group-hover:text-muted-foreground/70 w-9 shrink-0 pt-0.5 text-right font-mono text-[9px]">
@@ -603,16 +604,47 @@ function CommunitiesPage() {
                           }
                         />
                       </div>
-                      {m.author?.id === profile?.id || canManage ? (
+                      <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
                         <button
                           type="button"
-                          aria-label="Delete message"
-                          onClick={() => void removeMessage(m.id)}
-                          className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive shrink-0 self-start pt-1"
+                          aria-label="Pin message"
+                          title="Pin message"
+                          onClick={() =>
+                            profile && pinMut.mutate({ messageId: m.id, userId: profile.id })
+                          }
+                          className={cn(
+                            "text-muted-foreground/0 group-hover:text-muted-foreground rounded p-0.5 transition hover:!text-amber-400",
+                            pinnedId === m.id && "!text-amber-400 opacity-100",
+                          )}
                         >
-                          <Trash2 className="size-3.5" />
+                          <Pin className="size-3.5" />
                         </button>
-                      ) : null}
+                        {m.author?.id === profile?.id && !m.audio_url && !m.image_url ? (
+                          <button
+                            type="button"
+                            aria-label="Edit message"
+                            title="Edit message"
+                            onClick={() => {
+                              setEditingId(m.id);
+                              setEditDraft(m.body);
+                            }}
+                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-foreground rounded p-0.5"
+                          >
+                            <Pencil className="size-3.5" />
+                          </button>
+                        ) : null}
+                        {m.author?.id === profile?.id || canManage ? (
+                          <button
+                            type="button"
+                            aria-label="Delete message"
+                            title="Delete message"
+                            onClick={() => void removeMessage(m.id)}
+                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive rounded p-0.5"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
                   );
                 })
@@ -622,6 +654,7 @@ function CommunitiesPage() {
             <form onSubmit={post} className="border-border overflow-hidden border-t">
               <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-4">
+                <ImagePicker onPick={postImage} disabled={!activeChannel} />
                 <VoiceRecorder onSend={postVoice} disabled={!activeChannel} />
                 <Input
                   value={draft}
