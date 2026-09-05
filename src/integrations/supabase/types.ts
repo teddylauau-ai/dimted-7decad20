@@ -1172,6 +1172,7 @@ export type Database = {
           equipped_nametag: string | null
           id: string
           last_active_at: string
+          maxed_at: string | null
           mute_reason: string | null
           muted_until: string | null
           now_playing_at: string | null
@@ -1205,6 +1206,7 @@ export type Database = {
           equipped_nametag?: string | null
           id: string
           last_active_at?: string
+          maxed_at?: string | null
           mute_reason?: string | null
           muted_until?: string | null
           now_playing_at?: string | null
@@ -1238,6 +1240,7 @@ export type Database = {
           equipped_nametag?: string | null
           id?: string
           last_active_at?: string
+          maxed_at?: string | null
           mute_reason?: string | null
           muted_until?: string | null
           now_playing_at?: string | null
