@@ -329,6 +329,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       </div>
 
+      <XpFlash />
+
+
       {/* Mobile bar */}
       <nav className="glass-raised fixed inset-x-3 bottom-3 z-30 flex justify-between rounded-2xl px-2 py-2 lg:hidden">
         {[...RAIL, { to: "/profile", label: "Profile", icon: UserRound } as const].map(
