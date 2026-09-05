@@ -112,7 +112,10 @@ function MessagesPage() {
     );
   }, [accepted, filter]);
 
-  const active = accepted.find((f) => f.friendshipId === activeId) ?? accepted[0] ?? null;
+  const showGeneral = activeId === "general" || accepted.length === 0;
+  const active = showGeneral
+    ? null
+    : (accepted.find((f) => f.friendshipId === activeId) ?? accepted[0] ?? null);
   const messages = useDirectMessages(active?.friendshipId);
   const typingNames = useTypingUsers("dm", active?.friendshipId, profile?.id);
   const typing = useTypingSignal("dm", active?.friendshipId);
