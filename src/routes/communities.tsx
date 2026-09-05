@@ -548,7 +548,7 @@ function CommunitiesPage() {
                             <ReplyQuote
                               target={findReplyTarget(list, m)}
                               onJump={(id) => {
-                                const el = document.getElementById(`cmsg-${id}`);
+                                const el = document.getElementById(`msg-${id}`);
                                 el?.scrollIntoView({ behavior: "smooth", block: "center" });
                                 el?.classList.add("bg-amber-500/10");
                                 setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
