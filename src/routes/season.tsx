@@ -17,7 +17,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { rarityBorder, rarityText, rarityBg } from "@/components/dimted/rarity";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
-import { bannerFor } from "@/lib/cosmetics";
+import { bannerFor, EFFECT_CLASS } from "@/lib/cosmetics";
 import type { Cosmetic } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 
