@@ -168,6 +168,7 @@ export type ChatMessage = {
   image_url?: string | null;
   edited_at?: string | null;
   reply_to_id?: string | null;
+  read_at?: string | null;
   author: ChatAuthor | null;
 };
 
