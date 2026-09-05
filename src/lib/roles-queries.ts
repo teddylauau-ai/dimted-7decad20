@@ -332,19 +332,23 @@ export function useEditProfile() {
 /** What each rank is allowed to do — shown in the panel and mirrored in the database. */
 export const ROLE_POWERS: Record<AppRole, string[]> = {
   owner: [
-    "Edit any account's every field at will",
-    "Grant and revoke admin, moderator and member",
-    "Hand out titles, uncapped XP and sparks",
-    "Unlock the entire cosmetic collection",
-    "Permanent bans and unlimited mutes",
+    "Edit any account's fields and delete accounts",
+    "Grant or remove admin, moderator and member",
+    "Set titles, uncapped XP and sparks, unlock everything",
+    "Full crew console: edit, restyle, max out or delete any crew",
+    "Permanent bans and mutes of any length",
   ],
   admin: [
-    "Ban and unban members and moderators",
-    "Mute anyone below them, any duration",
-    "Grant XP and sparks (±25,000 per grant)",
-    "Unlock individual cosmetics, force surges",
-    "Grant moderator, delete arcade scores",
+    "Ban and unban anyone below admin",
+    "Mute anyone below admin, any length",
+    "Grant or remove XP and sparks, up to 25,000 per action",
+    "Unlock single cosmetics, Pulse Rush coins and locker items, force surges",
+    "Grant moderator and member, delete any chat message or arcade score",
   ],
-  moderator: ["Mute members for up to 24 hours", "Remove community messages", "Read the staff audit log"],
+  moderator: [
+    "Mute members for up to 24 hours",
+    "Delete direct messages",
+    "Read the staff audit log",
+  ],
   member: ["Play, chat and progress — no staff powers"],
 };

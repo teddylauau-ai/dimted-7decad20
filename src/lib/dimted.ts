@@ -175,8 +175,8 @@ export const UNLOCKS: Unlock[] = [
   },
   {
     level: 30,
-    name: "Advanced community tools",
-    detail: "Deep customisation for communities you run.",
+    name: "Advanced crew tools",
+    detail: "Deep customisation for the crews you captain.",
     kind: "social",
     rarity: "epic",
   },
@@ -426,7 +426,7 @@ export type PlayerStats = {
   totalXp: number;
   friends: number;
   messagesSent: number;
-  communities: number;
+  crews: number;
   activities: number;
   discoveries: number;
   bestFriendshipLevel: number;
@@ -437,7 +437,7 @@ export const EMPTY_STATS: PlayerStats = {
   totalXp: 0,
   friends: 0,
   messagesSent: 0,
-  communities: 0,
+  crews: 0,
   activities: 0,
   discoveries: 0,
   bestFriendshipLevel: 0,
@@ -481,9 +481,9 @@ export const ACHIEVEMENTS: Achievement[] = [
     id: "a4",
     category: "Community",
     name: "Founder",
-    detail: "Create a community.",
+    detail: "Create or join a crew.",
     rarity: "rare",
-    earned: (s) => s.communities >= 1,
+    earned: (s) => s.crews >= 1,
   },
   {
     id: "a5",

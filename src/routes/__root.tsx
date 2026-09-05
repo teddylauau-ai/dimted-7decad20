@@ -86,7 +86,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Lazu is a communication platform where chatting, friendships and communities feed one connected progression system.",
+          "Lazu is a communication platform where chatting, friendships and crews feed one connected progression system.",
       },
       { property: "og:title", content: "Lazu" },
       { property: "og:description", content: "Chat. Level up. Unlock. Explore." },
@@ -126,7 +126,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           name: "Lazu",
           url: "https://dimted.com/",
           description:
-            "Lazu is a social platform where chatting, friendships, communities and arcade games feed one connected progression system.",
+            "Lazu is a social platform where chatting, friendships, crews and arcade games feed one connected progression system.",
         }),
       },
     ],

@@ -330,7 +330,7 @@ function HomePage() {
               <div className="grid grid-cols-2 sm:grid-cols-4">
                 {[
                   { label: "Friends", value: stats.friends },
-                  { label: "Communities", value: stats.communities },
+                  { label: "Crews", value: stats.crews },
                   { label: "Arcade runs", value: stats.activities },
                   { label: "Discoveries", value: stats.discoveries },
                 ].map((s, i) => (
