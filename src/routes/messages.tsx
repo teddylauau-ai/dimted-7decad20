@@ -130,12 +130,19 @@ function MessagesPage() {
   // nav badge and the (n) tab-title count go away together.
   const activeProfileId = active?.profile.id;
   const messageCount = messages.data?.length ?? 0;
+  const activeFriendshipId = active?.friendshipId;
   useEffect(() => {
     if (!activeProfileId) return;
     markConversationNotificationsRead(activeProfileId)
       .then(() => qc.invalidateQueries({ queryKey: ["notifications"] }))
       .catch(() => {});
   }, [activeProfileId, qc, messageCount]);
+
+  // Being in the chat marks their messages as seen, so their side shows "Seen".
+  useEffect(() => {
+    if (!activeFriendshipId) return;
+    markDmRead(activeFriendshipId).catch(() => {});
+  }, [activeFriendshipId, messageCount]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
