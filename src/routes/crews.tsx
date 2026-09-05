@@ -515,13 +515,48 @@ function CrewsPage() {
                 )}
               </div>
             ) : tab === "settings" && canManage ? (
-              <CrewSettings
-                crew={active}
-                userId={profile?.id ?? undefined}
-                onSaved={async () => {
-                  await crews.refetch();
-                }}
-              />
+              <div className="flex-1 overflow-y-auto">
+                <CrewSettings
+                  crew={active}
+                  userId={profile?.id ?? undefined}
+                  onSaved={async () => {
+                    await crews.refetch();
+                  }}
+                />
+                {isOwner ? (
+                  <div className="border-destructive/40 bg-destructive/5 m-3 rounded-xl border p-3.5">
+                    <p className="font-mono text-[10px] tracking-[0.14em] uppercase text-destructive">
+                      Owner · danger zone
+                    </p>
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      Deletes this crew, its chat, invites and roster for everyone. This cannot be undone.
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="mt-2.5"
+                      onClick={async () => {
+                        if (!window.confirm(`Delete ${active.name} for good?`)) return;
+                        try {
+                          const res = await ownerDeleteCrew(active.id);
+                          if (res.status !== "ok") {
+                            toast.error("Owner only.");
+                            return;
+                          }
+                          toast.success("Crew deleted.");
+                          setActiveId(null);
+                          await crews.refetch();
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "That did not go through.");
+                        }
+                      }}
+                    >
+                      Delete this crew
+                    </Button>
+                  </div>
+                ) : null}
+              </div>
+
             ) : (
               <>
                 <div className="relative flex-1 overflow-y-auto p-3">
