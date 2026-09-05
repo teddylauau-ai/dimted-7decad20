@@ -868,6 +868,109 @@ function CrewLadder({ crews, activeId }: { crews: CrewRow[]; activeId: string })
   );
 }
 
+function CrewDashboard({ crews, activeId }: { crews: CrewRow[]; activeId: string }) {
+  const rows = [...crews]
+    .map((c) => {
+      const cl = crewLevel(c.total_xp);
+      const max = crewMaxProgress(c.total_xp);
+      const members = Math.max(1, c.memberCount);
+      return {
+        crew: c,
+        level: cl.level,
+        pctOfLevel: cl.pct,
+        toNextLevel: Math.max(0, cl.next - c.total_xp),
+        avgPerMember: Math.round(c.total_xp / members),
+        remainingToMax: max.remaining,
+        pctOfMax: max.pct,
+      };
+    })
+    .sort((a, b) => b.crew.total_xp - a.crew.total_xp);
+
+  const totalXp = rows.reduce((n, r) => n + r.crew.total_xp, 0);
+  const totalMembers = rows.reduce((n, r) => n + r.crew.memberCount, 0);
+
+  return (
+    <div className="space-y-3">
+      <div className="grid gap-2 sm:grid-cols-3">
+        <Panel>
+          <p className="eyebrow">Crews tracked</p>
+          <p className="font-display mt-0.5 text-2xl font-bold">{rows.length}</p>
+        </Panel>
+        <Panel>
+          <p className="eyebrow">Shared XP banked</p>
+          <p className="font-display mt-0.5 text-2xl font-bold">{totalXp.toLocaleString()}</p>
+        </Panel>
+        <Panel>
+          <p className="eyebrow">Average per member</p>
+          <p className="font-display mt-0.5 text-2xl font-bold">
+            {totalMembers ? Math.round(totalXp / totalMembers).toLocaleString() : 0}
+          </p>
+        </Panel>
+      </div>
+
+      <Panel>
+        <PanelHead
+          title="Crew XP dashboard"
+          aside={
+            <span className="text-muted-foreground text-xs">Max ladder = {CREW_MAX_XP.toLocaleString()} XP</span>
+          }
+        />
+        <div className="mt-2 space-y-2">
+          {rows.map((r) => {
+            const a = accentOf(r.crew.accent);
+            return (
+              <div
+                key={r.crew.id}
+                className={cn(
+                  "rounded-xl p-2.5",
+                  r.crew.id === activeId ? "bg-primary/10 ring-1 ring-primary/30" : "bg-secondary/20",
+                )}
+              >
+                <div className="flex items-center gap-2.5">
+                  <CrewMark crew={r.crew} size={28} />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{r.crew.name}</p>
+                    <p className="text-muted-foreground text-[10px]">
+                      Lv {r.level} · {r.crew.memberCount} member{r.crew.memberCount === 1 ? "" : "s"}
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold">{r.crew.total_xp.toLocaleString()} XP</p>
+                </div>
+
+                <div className="mt-2 grid gap-1.5 text-[11px] sm:grid-cols-3">
+                  <div className="glass-surface rounded-lg px-2 py-1.5">
+                    <p className="text-muted-foreground">Average per member</p>
+                    <p className="font-semibold">{r.avgPerMember.toLocaleString()} XP</p>
+                  </div>
+                  <div className="glass-surface rounded-lg px-2 py-1.5">
+                    <p className="text-muted-foreground">To level {r.level + 1}</p>
+                    <p className="font-semibold">{r.toNextLevel.toLocaleString()} XP</p>
+                  </div>
+                  <div className="glass-surface rounded-lg px-2 py-1.5">
+                    <p className="text-muted-foreground">To max ladder</p>
+                    <p className="font-semibold">{r.remainingToMax.toLocaleString()} XP</p>
+                  </div>
+                </div>
+
+                <div className="bg-secondary mt-2 h-1.5 w-full overflow-hidden rounded-full">
+                  <div
+                    className={cn("h-full rounded-full", a.dot)}
+                    style={{ width: `${Math.max(1.5, r.pctOfMax)}%` }}
+                  />
+                </div>
+                <p className="text-muted-foreground mt-1 text-[10px]">
+                  {r.pctOfMax}% of the way to the maximum crew level · {r.pctOfLevel}% through level {r.level}
+                </p>
+              </div>
+            );
+          })}
+          {rows.length === 0 && <p className="text-muted-foreground text-sm">No crews to chart yet.</p>}
+        </div>
+      </Panel>
+    </div>
+  );
+}
+
 function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt: number }) {
   return (
     <div className="space-y-3">
