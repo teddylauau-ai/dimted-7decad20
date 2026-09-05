@@ -49,7 +49,6 @@ import {
   removeCrewMember,
   revokeCrewInvite,
   ownerDeleteCrew,
-  CREW_MAX_LEVEL,
   updateCrew,
   uploadCrewAvatar,
   uploadCrewBanner,
