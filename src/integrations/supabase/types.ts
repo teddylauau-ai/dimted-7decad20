@@ -560,6 +560,7 @@ export type Database = {
       crews: {
         Row: {
           accent: string
+          avatar_url: string | null
           badge_emoji: string
           banner_url: string | null
           created_at: string
@@ -577,6 +578,7 @@ export type Database = {
         }
         Insert: {
           accent?: string
+          avatar_url?: string | null
           badge_emoji?: string
           banner_url?: string | null
           created_at?: string
@@ -594,6 +596,7 @@ export type Database = {
         }
         Update: {
           accent?: string
+          avatar_url?: string | null
           badge_emoji?: string
           banner_url?: string | null
           created_at?: string

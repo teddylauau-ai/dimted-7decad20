@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type CallScope = "dm" | "channel";
+export type CallScope = "dm" | "channel" | "crew";
 
 export type CallRow = {
   id: string;
