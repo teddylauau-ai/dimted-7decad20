@@ -316,6 +316,12 @@ export async function deleteDirectMessage(id: string) {
   if (error) throw error;
 }
 
+/** Marks every message the other person sent in this chat as seen. */
+export async function markDmRead(friendshipId: string) {
+  const { error } = await supabase.rpc("mark_dm_read", { _friendship_id: friendshipId });
+  if (error) throw error;
+}
+
 export async function deleteCommunityMessage(id: string) {
   const { error } = await supabase.from("community_messages").delete().eq("id", id);
   if (error) throw error;
