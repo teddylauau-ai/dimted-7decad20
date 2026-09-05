@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Compass, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
+import { BarChart3, Check, Compass, Gamepad2, Gift, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,10 @@ import { Avatar, ProfileLink } from "@/components/dimted/Identity";
 import {
   CREW_ACCENTS,
   CREW_EMOJI,
+  CREW_PERKS,
   accentOf,
   acceptCrewInvite,
+  contributeCrewXp,
   createCrew,
   crewLevel,
   fetchCrewInvites,
@@ -34,6 +36,7 @@ import {
   uploadCrewAvatar,
   uploadCrewBanner,
   type CrewAccent,
+  type CrewPerk,
   type CrewInvite,
   type CrewMember,
   type CrewMessage,
@@ -43,6 +46,7 @@ import { useMyRole } from "@/lib/roles-queries";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { ChatImage, ImagePicker, ReplyChip, ReplyQuote } from "@/components/dimted/ChatExtras";
 import { CallPanel } from "@/components/dimted/CallPanel";
+import { CrewFlight } from "@/components/dimted/CrewFlight";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
@@ -63,7 +67,7 @@ export const Route = createFileRoute("/crews")({
   component: CrewsPage,
 });
 
-type Tab = "chat" | "roster" | "settings" | "discover";
+type Tab = "chat" | "roster" | "settings" | "discover" | "ladder" | "perks" | "skyward";
 
 function CrewsPage() {
   const { profile, award } = useDimted();
@@ -158,6 +162,17 @@ function CrewsPage() {
     }
   }
 
+  /** Chatting feeds the crew's shared XP pool. */
+  async function bankCrewXp(amount: number) {
+    if (!active) return;
+    try {
+      await contributeCrewXp(active.id, amount);
+      await crews.refetch();
+    } catch {
+      /* crew pool is a bonus — never block the message */
+    }
+  }
+
   async function post(e: React.FormEvent) {
     e.preventDefault();
     const body = draft.trim();
@@ -169,6 +184,7 @@ function CrewsPage() {
       await postCrewMessage(active.id, profile.id, body, replyingTo?.id ?? null);
       await messages.refetch();
       await award("message", "Crew chat");
+      await bankCrewXp(18);
     } catch {
       toast.error("Message didn't post");
     }
@@ -179,6 +195,7 @@ function CrewsPage() {
     await postCrewVoiceMessage(active.id, profile.id, blob, ms);
     await messages.refetch();
     await award("message", "Crew voice");
+    await bankCrewXp(24);
   }
 
   async function postImage(file: File) {
@@ -187,6 +204,7 @@ function CrewsPage() {
       await postCrewImageMessage(active.id, profile.id, file);
       await messages.refetch();
       await award("message", "Crew image");
+      await bankCrewXp(24);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Image didn't post");
     }
@@ -396,6 +414,15 @@ function CrewsPage() {
                 <TabBtn active={tab === "roster"} onClick={() => setTab("roster")}>
                   Roster
                 </TabBtn>
+                <TabBtn active={tab === "skyward"} onClick={() => setTab("skyward")}>
+                  <Gamepad2 className="mr-1 inline size-3.5" /> Skyward
+                </TabBtn>
+                <TabBtn active={tab === "ladder"} onClick={() => setTab("ladder")}>
+                  <BarChart3 className="mr-1 inline size-3.5" /> Ladder
+                </TabBtn>
+                <TabBtn active={tab === "perks"} onClick={() => setTab("perks")}>
+                  <Gift className="mr-1 inline size-3.5" /> Rewards
+                </TabBtn>
                 {canManage && (
                   <TabBtn active={tab === "settings"} onClick={() => setTab("settings")}>
                     <Settings2 className="mr-1 inline size-3.5" /> Customise
@@ -409,7 +436,19 @@ function CrewsPage() {
               </div>
             </div>
 
-            {tab === "roster" ? (
+            {tab === "skyward" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <CrewFlight crewId={active.id} crewName={active.name} boosted={lvl.level >= 20} />
+              </div>
+            ) : tab === "ladder" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <CrewLadder crews={rows} activeId={active.id} />
+              </div>
+            ) : tab === "perks" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <CrewRewards level={lvl.level} xp={active.total_xp} nextAt={lvl.next} />
+              </div>
+            ) : tab === "roster" ? (
               <div className="flex-1 overflow-y-auto p-4">
                 <Panel>
                   <PanelHead title={`Members · ${active.memberCount}/${active.member_limit}`} />
@@ -508,6 +547,94 @@ function CrewsPage() {
           </>
         )}
       </main>
+    </div>
+  );
+}
+
+function CrewLadder({ crews, activeId }: { crews: CrewRow[]; activeId: string }) {
+  const ranked = [...crews].sort((a, b) => b.total_xp - a.total_xp);
+  return (
+    <Panel>
+      <PanelHead title="Crew ladder" hint="Ranked by shared XP pool" />
+      <div className="mt-2 space-y-1.5">
+        {ranked.map((c, i) => {
+          const cl = crewLevel(c.total_xp);
+          const a = accentOf(c.accent);
+          return (
+            <div
+              key={c.id}
+              className={cn(
+                "flex items-center gap-3 rounded-xl px-2 py-2",
+                c.id === activeId ? "bg-primary/10 ring-1 ring-primary/30" : "bg-secondary/20",
+              )}
+            >
+              <span
+                className={cn(
+                  "font-display w-7 text-center text-sm font-bold",
+                  i === 0 ? "text-gold" : i < 3 ? "text-primary" : "text-muted-foreground",
+                )}
+              >
+                {i + 1}
+              </span>
+              <CrewMark crew={c} size={30} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{c.name}</p>
+                <div className="bg-secondary mt-1 h-1.5 w-full max-w-40 overflow-hidden rounded-full">
+                  <div className={cn("h-full rounded-full", a.dot)} style={{ width: `${cl.pct}%` }} />
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold">Lv {cl.level}</p>
+                <p className="text-muted-foreground text-[10px]">{c.total_xp.toLocaleString()} XP</p>
+              </div>
+              <div className="text-muted-foreground hidden w-16 items-center justify-end gap-1 text-xs sm:flex">
+                <Users className="size-3" /> {c.memberCount}
+              </div>
+            </div>
+          );
+        })}
+        {ranked.length === 0 && <p className="text-muted-foreground text-sm">No crews on the ladder yet.</p>}
+      </div>
+    </Panel>
+  );
+}
+
+function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt: number }) {
+  return (
+    <div className="space-y-3">
+      <Panel>
+        <PanelHead title={`Crew level ${level}`} hint={`${Math.max(0, nextAt - xp).toLocaleString()} XP to next level`} />
+        <p className="text-muted-foreground mt-1 text-xs">
+          Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool.
+        </p>
+      </Panel>
+      <div className="grid gap-2 sm:grid-cols-2">
+        {CREW_PERKS.map((p: CrewPerk) => {
+          const unlocked = level >= p.level;
+          return (
+            <div
+              key={p.level}
+              className={cn(
+                "glass rounded-xl p-3",
+                unlocked ? "ring-1 ring-primary/25" : "opacity-70",
+              )}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold">{p.title}</p>
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                    unlocked ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground",
+                  )}
+                >
+                  {unlocked ? "Unlocked" : `Lv ${p.level}`}
+                </span>
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs">{p.blurb}</p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
