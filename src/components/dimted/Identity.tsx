@@ -52,6 +52,7 @@ export function PresenceDot({
   size?: number;
   className?: string;
 }) {
+  usePresenceTick();
   const p = presenceFor(profile?.last_active_at, profile?.activity_context);
   const offline = p.state === "offline";
   return (
@@ -87,6 +88,7 @@ export function PresenceLabel({
   profile: IdentityProfile | null | undefined;
   className?: string;
 }) {
+  usePresenceTick();
   const p = presenceFor(profile?.last_active_at, profile?.activity_context);
   return (
     <span className={cn("inline-flex items-center gap-1.5 font-mono text-[10px]", p.textClass, className)}>
