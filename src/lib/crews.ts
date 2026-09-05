@@ -554,3 +554,49 @@ export const CREW_PERKS: CrewPerk[] = [
 export function perksUpTo(level: number) {
   return CREW_PERKS.filter((p) => p.level <= level);
 }
+
+/* --------------------------------------------------------- owner overrides */
+
+/** Owner-only: wipe a crew completely (chat, invites, roster, crew row). */
+export async function ownerDeleteCrew(crewId: string) {
+  const { data, error } = await supabase.rpc("owner_delete_crew", { _crew_id: crewId });
+  if (error) throw error;
+  return data as unknown as { status: string; crew?: string };
+}
+
+/** Owner-only: change any field on any crew, including its shared XP pool. */
+export async function ownerEditCrew(crewId: string, patch: Record<string, unknown>) {
+  const { data, error } = await supabase.rpc("owner_edit_crew", {
+    _crew_id: crewId,
+    _patch: patch as never,
+  });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}
+
+/** Owner-only: pull anyone out of any crew. */
+export async function ownerRemoveCrewMember(crewId: string, userId: string) {
+  const { data, error } = await supabase.rpc("owner_remove_crew_member", {
+    _crew_id: crewId,
+    _user_id: userId,
+  });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}
+
+/** Owner-only: hand a crew's leadership to someone else. */
+export async function ownerTransferCrew(crewId: string, userId: string) {
+  const { data, error } = await supabase.rpc("owner_transfer_crew", {
+    _crew_id: crewId,
+    _user_id: userId,
+  });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}
+
+/** Staff: delete any crew message. */
+export async function staffDeleteCrewMessage(messageId: string) {
+  const { data, error } = await supabase.rpc("mod_delete_crew_message", { _message_id: messageId });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}

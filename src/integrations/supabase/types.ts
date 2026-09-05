@@ -1921,7 +1921,12 @@ export type Database = {
       join_crew: { Args: { _crew_id: string }; Returns: Json }
       level_from_xp: { Args: { _xp: number }; Returns: number }
       mark_dm_read: { Args: { _friendship_id: string }; Returns: undefined }
+      mod_delete_crew_message: { Args: { _message_id: string }; Returns: Json }
       mod_delete_dm: { Args: { _message_id: string }; Returns: Json }
+      mod_delete_general_message: {
+        Args: { _message_id: string }
+        Returns: Json
+      }
       mod_delete_message: { Args: { _message_id: string }; Returns: Json }
       mod_set_mute: {
         Args: { _minutes: number; _reason?: string; _user_id: string }
@@ -1930,12 +1935,29 @@ export type Database = {
       my_rank: { Args: never; Returns: number }
       owner_delete_account: { Args: { _user_id: string }; Returns: Json }
       owner_delete_community: { Args: { _community_id: string }; Returns: Json }
+      owner_delete_crew: { Args: { _crew_id: string }; Returns: Json }
+      owner_edit_crew: {
+        Args: { _crew_id: string; _patch: Json }
+        Returns: Json
+      }
       owner_edit_profile: {
         Args: { _patch: Json; _user_id: string }
         Returns: Json
       }
+      owner_remove_crew_member: {
+        Args: { _crew_id: string; _user_id: string }
+        Returns: Json
+      }
+      owner_set_season_xp: {
+        Args: { _user_id: string; _xp: number }
+        Returns: Json
+      }
       owner_set_title: {
         Args: { _title: string; _user_id: string }
+        Returns: Json
+      }
+      owner_transfer_crew: {
+        Args: { _crew_id: string; _user_id: string }
         Returns: Json
       }
       pulse_account_level: { Args: { _user_id: string }; Returns: number }

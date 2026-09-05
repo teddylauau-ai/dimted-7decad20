@@ -403,3 +403,17 @@ export async function claimArmoryMilestone(slug: string) {
   if (error) throw error;
   return data as { status?: string; reward_xp?: number; reward_sparks?: number } | null;
 }
+
+/** Staff: delete any general-chat message. */
+export async function staffDeleteGeneralMessage(messageId: string) {
+  const { data, error } = await supabase.rpc("mod_delete_general_message", { _message_id: messageId });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}
+
+/** Owner: set someone's season progress outright. */
+export async function ownerSetSeasonXp(userId: string, xp: number) {
+  const { data, error } = await supabase.rpc("owner_set_season_xp", { _user_id: userId, _xp: xp });
+  if (error) throw error;
+  return data as unknown as { status: string };
+}

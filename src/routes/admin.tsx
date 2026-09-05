@@ -47,6 +47,8 @@ import {
   type StaffAccount,
 } from "@/lib/roles-queries";
 import { ownerDeleteAccount } from "@/lib/dimted-actions";
+import { OwnerCrewControl } from "@/components/dimted/OwnerCrewControl";
+
 import { GAMES } from "@/lib/games";
 import { useDeleteScore, useLeaderboard } from "@/lib/games-queries";
 import { cn } from "@/lib/utils";
@@ -851,7 +853,11 @@ function AdminPage() {
         </ul>
       </Panel>
 
+      {/* ---- Owner: crews ---- */}
+      {me.isOwner && profile?.id ? <OwnerCrewControl userId={profile.id} /> : null}
+
       {/* ---- Audit ---- */}
+
       <Panel className="p-5">
         <PanelHead eyebrow="Audit" title="Recent staff actions" />
         <ul className="mt-4 space-y-1.5">
