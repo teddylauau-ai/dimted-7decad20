@@ -114,6 +114,9 @@ function CommunitiesPage() {
     }
   }
 
+  const reactionIds = useMemo(() => (messages.data ?? []).map((m) => m.id), [messages.data]);
+  const reactions = useReactions("community", activeChannel?.id ?? null, reactionIds);
+  const toggleReaction = useToggleReaction("community", activeChannel?.id ?? null);
   const typingNames = useTypingUsers("channel", activeChannel?.id, profile?.id);
   const typing = useTypingSignal("channel", activeChannel?.id);
 
