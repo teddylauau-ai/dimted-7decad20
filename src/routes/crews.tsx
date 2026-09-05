@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDown, BarChart3, Check, Compass, Crown, Gamepad2, Gift, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
+import { ArrowDown, BarChart3, Gauge, Check, Compass, Crown, Gamepad2, Gift, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,9 @@ import {
   contributeCrewXp,
   createCrew,
   crewLevel,
+  crewChatXp,
+  crewMaxProgress,
+  CREW_MAX_XP,
   fetchCrewInvites,
   fetchCrewMembers,
   fetchCrewMessages,
@@ -84,7 +87,7 @@ export const Route = createFileRoute("/crews")({
   component: CrewsPage,
 });
 
-type Tab = "chat" | "roster" | "settings" | "discover" | "ladder" | "perks" | "skyward";
+type Tab = "chat" | "roster" | "settings" | "discover" | "ladder" | "perks" | "skyward" | "stats";
 
 function CrewsPage() {
   const { profile, award } = useDimted();
@@ -210,7 +213,7 @@ function CrewsPage() {
       await postCrewMessage(active.id, profile.id, body, replyingTo?.id ?? null);
       await messages.refetch();
       await award("message", "Crew chat");
-      await bankCrewXp(18);
+      await bankCrewXp(crewChatXp(active.total_xp, "text"));
     } catch {
       toast.error("Message didn't post");
     }
@@ -221,7 +224,7 @@ function CrewsPage() {
     await postCrewVoiceMessage(active.id, profile.id, blob, ms);
     await messages.refetch();
     await award("message", "Crew voice");
-    await bankCrewXp(24);
+    await bankCrewXp(crewChatXp(active.total_xp, "rich"));
   }
 
   async function postImage(file: File) {
@@ -230,7 +233,7 @@ function CrewsPage() {
       await postCrewImageMessage(active.id, profile.id, file);
       await messages.refetch();
       await award("message", "Crew image");
-      await bankCrewXp(24);
+      await bankCrewXp(crewChatXp(active.total_xp, "rich"));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Image didn't post");
     }
@@ -446,6 +449,9 @@ function CrewsPage() {
                 <TabBtn active={tab === "ladder"} onClick={() => setTab("ladder")}>
                   <BarChart3 className="mr-1 inline size-3.5" /> Ladder
                 </TabBtn>
+                <TabBtn active={tab === "stats"} onClick={() => setTab("stats")}>
+                  <Gauge className="mr-1 inline size-3.5" /> Dashboard
+                </TabBtn>
                 <TabBtn active={tab === "perks"} onClick={() => setTab("perks")}>
                   <Gift className="mr-1 inline size-3.5" /> Rewards
                 </TabBtn>
@@ -469,6 +475,10 @@ function CrewsPage() {
             ) : tab === "ladder" ? (
               <div className="flex-1 overflow-y-auto p-4">
                 <CrewLadder crews={rows} activeId={active.id} />
+              </div>
+            ) : tab === "stats" ? (
+              <div className="flex-1 overflow-y-auto p-4">
+                <CrewDashboard crews={rows} activeId={active.id} />
               </div>
             ) : tab === "perks" ? (
               <div className="flex-1 overflow-y-auto p-4">
