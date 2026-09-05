@@ -18,8 +18,10 @@ export const CREW_EMOJI = [
   "🛡️","⚡","🔥","🌊","🦅","🐺","🐉","👾","🚀","🌌","💠","🎯","🎧","🧿","⚔️","🪐","🥇","🧠","🌠","☄️",
 ];
 
+const DEFAULT_ACCENT = CREW_ACCENTS[0] as { key: CrewAccent; label: string; dot: string; glow: string; ring: string };
+
 export function accentOf(accent: string | null | undefined) {
-  return CREW_ACCENTS.find((a) => a.key === accent) ?? CREW_ACCENTS[0];
+  return CREW_ACCENTS.find((a) => a.key === accent) ?? DEFAULT_ACCENT;
 }
 
 /** Crew level: shared XP pool, 1500 XP per level with gentle scaling. */

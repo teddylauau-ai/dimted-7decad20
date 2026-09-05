@@ -448,7 +448,7 @@ function CrewsPage() {
 
                 {canManage && (
                   <Panel className="mt-3">
-                    <PanelHead title="Invites" subtitle="Invite by username" />
+                    <PanelHead title="Invites" />
                     <form onSubmit={invite} className="mt-2 flex gap-2">
                       <Input value={inviteName} onChange={(e) => setInviteName(e.target.value)} placeholder="username" className="h-8 text-sm" />
                       <Button type="submit" size="sm">
@@ -475,7 +475,7 @@ function CrewsPage() {
             ) : tab === "settings" && canManage ? (
               <CrewSettings
                 crew={active}
-                userId={profile?.id}
+                userId={profile?.id ?? undefined}
                 onSaved={async () => {
                   await crews.refetch();
                 }}
@@ -630,7 +630,7 @@ function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => vo
   );
 }
 
-function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId?: string; onSaved: () => Promise<void> }) {
+function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string | undefined; onSaved: () => Promise<void> }) {
   const [name, setName] = useState(crew.name);
   const [tagline, setTagline] = useState(crew.tagline ?? "");
   const [description, setDescription] = useState(crew.description ?? "");
@@ -677,7 +677,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId?: strin
   return (
     <div className="flex-1 space-y-3 overflow-y-auto p-4">
       <Panel>
-        <PanelHead title="Identity" subtitle="Name, tagline and story" />
+        <PanelHead title="Identity" />
         <div className="mt-2 space-y-2">
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Crew name" maxLength={40} />
           <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Tagline" maxLength={90} />
@@ -692,7 +692,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId?: strin
       </Panel>
 
       <Panel>
-        <PanelHead title="Badge & colour" subtitle="Shows on the crew card and chat" />
+        <PanelHead title="Badge & colour" />
         <div className="mt-2 flex flex-wrap gap-1">
           {CREW_EMOJI.map((e) => (
             <button
@@ -723,7 +723,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId?: strin
       </Panel>
 
       <Panel>
-        <PanelHead title="Banner" subtitle="Wide image at the top of the crew" />
+        <PanelHead title="Banner" />
         <div className="mt-2 flex items-center gap-3">
           <div className="bg-secondary/40 h-16 w-40 shrink-0 overflow-hidden rounded-xl">
             {crew.banner_url ? (
@@ -751,7 +751,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId?: strin
       </Panel>
 
       <Panel>
-        <PanelHead title="Privacy" subtitle="Who can find and join" />
+        <PanelHead title="Privacy" />
         <div className="mt-2 flex gap-2">
           <button
             onClick={() => setVisibility("public")}
@@ -786,7 +786,7 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
   const list = crews.filter((c) => `${c.name} ${c.tagline ?? ""}`.toLowerCase().includes(q.trim().toLowerCase()));
   return (
     <div className="flex-1 overflow-y-auto p-4">
-      <PanelHead title="Discover crews" subtitle="Public crews ranked by shared XP" />
+      <PanelHead title="Discover crews" />
       <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search crews..." className="mt-2 h-9 text-sm" />
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {list.map((c) => {
