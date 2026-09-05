@@ -407,12 +407,30 @@ function CrewsPage() {
                 <div className="flex min-w-0 items-center gap-3">
                   <CrewMark crew={active} size={52} rounded="rounded-2xl" />
                   <div className="min-w-0">
-                    <p className="truncate text-lg font-semibold leading-tight">{active.name}</p>
+                    <p className="flex min-w-0 items-center gap-1.5 truncate text-lg font-semibold leading-tight">
+                      <span className="truncate">{active.name}</span>
+                      {perkFlags.legendCrest && (
+                        <span className="shrink-0 rounded-md bg-violet-400/15 px-1.5 py-0.5 text-[10px] font-semibold text-violet-200 ring-1 ring-violet-400/30">
+                          ✦ Legend
+                        </span>
+                      )}
+                      {perkFlags.apex && (
+                        <span className="text-gold ring-gold/40 bg-gold/10 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
+                          Apex
+                        </span>
+                      )}
+                      {perkFlags.skywardBoost && (
+                        <span className="text-primary bg-primary/10 ring-primary/30 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
+                          Skyward 1.5x
+                        </span>
+                      )}
+                    </p>
                     <p className="text-muted-foreground truncate text-xs">
                       {active.tagline || "No tagline yet"} · {active.visibility === "private" ? "Private" : "Public"}
                     </p>
                   </div>
                 </div>
+
                 <div className="flex shrink-0 items-center gap-4">
                   <div className="hidden text-right sm:block">
                     <p className="eyebrow">Crew level</p>
