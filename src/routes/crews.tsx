@@ -947,22 +947,30 @@ function CrewDashboard({ crews, activeId }: { crews: CrewRow[]; activeId: string
         <div className="mt-2 space-y-2">
           {rows.map((r) => {
             const a = accentOf(r.crew.accent);
+            const f = crewPerkFlags(r.crew.total_xp);
             return (
               <div
                 key={r.crew.id}
                 className={cn(
                   "rounded-xl p-2.5",
                   r.crew.id === activeId ? "bg-primary/10 ring-1 ring-primary/30" : "bg-secondary/20",
+                  f.spotlight && cn("ring-1", a.ring),
+                  f.apex && "ring-gold/50 ring-1",
                 )}
               >
                 <div className="flex items-center gap-2.5">
                   <CrewMark crew={r.crew} size={28} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{r.crew.name}</p>
+                    <p className="flex items-center gap-1.5 truncate text-sm font-medium">
+                      <span className="truncate">{r.crew.name}</span>
+                      {f.legendCrest && <span className="shrink-0 text-[11px] text-violet-200">✦</span>}
+                      {f.apex && <span className="text-gold shrink-0 text-[10px] font-semibold">Apex</span>}
+                    </p>
                     <p className="text-muted-foreground text-[10px]">
                       Lv {r.level} · {r.crew.memberCount} member{r.crew.memberCount === 1 ? "" : "s"}
                     </p>
                   </div>
+
                   <p className="text-sm font-semibold">{r.crew.total_xp.toLocaleString()} XP</p>
                 </div>
 
