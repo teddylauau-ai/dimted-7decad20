@@ -279,6 +279,9 @@ function CrewsPage() {
 
   const accent = accentOf(active?.accent);
   const lvl = crewLevel(active?.total_xp ?? 0);
+  const perkFlags = crewPerkFlags(active?.total_xp ?? 0);
+  const jointTaken = (members.data ?? []).some((m) => m.role === "captain");
+
 
   return (
     <div className="flex h-[calc(100vh-7rem)] min-h-[520px] gap-3">
