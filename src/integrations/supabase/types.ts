@@ -1810,6 +1810,10 @@ export type Database = {
         Returns: Json
       }
       add_season_xp: { Args: { _amount: number }; Returns: undefined }
+      add_season_xp_for: {
+        Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
       admin_set_ban: {
         Args: { _minutes: number; _reason?: string; _user_id: string }
         Returns: Json
