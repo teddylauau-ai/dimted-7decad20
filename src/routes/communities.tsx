@@ -411,6 +411,19 @@ function CommunitiesPage() {
               </div>
             ) : null}
 
+            {activeChannel && pin.data ? (
+              <PinBanner
+                body={pinnedMsg?.body ?? "Pinned message"}
+                onJump={() => {
+                  const el = pinnedId ? document.getElementById(`msg-${pinnedId}`) : null;
+                  el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  el?.classList.add("bg-amber-500/10");
+                  setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
+                }}
+                onUnpin={() => unpinMut.mutate()}
+              />
+            ) : null}
+
             {managing && canManage && active ? (
               <div className="border-border bg-background/40 space-y-4 border-b px-5 py-4">
                 <div className="flex flex-wrap items-center gap-2">
@@ -533,13 +546,54 @@ function CommunitiesPage() {
                             <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
                           </p>
                         )}
-                        {m.audio_url ? (
-                          <VoicePlayer url={m.audio_url} ms={m.audio_ms} />
-                        ) : (
-                          <p className="text-foreground/95 text-sm leading-relaxed break-words">
-                            {m.body}
-                          </p>
-                        )}
+                         {m.audio_url ? (
+                           <VoicePlayer url={m.audio_url} ms={m.audio_ms} />
+                         ) : m.image_url ? (
+                           <div className="space-y-1.5">
+                             <ChatImage src={m.image_url} alt={`Image from ${m.author?.display_name ?? "chat"}`} />
+                             {m.body && !m.body.startsWith("\u{1F5BC}") ? (
+                               <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                                 {m.body}
+                               </p>
+                             ) : null}
+                           </div>
+                         ) : editingId === m.id ? (
+                           <form
+                             className="mt-1 flex gap-2"
+                             onSubmit={(e) => {
+                               e.preventDefault();
+                               void saveEdit(m.id);
+                             }}
+                           >
+                             <Input
+                               value={editDraft}
+                               onChange={(e) => setEditDraft(e.target.value)}
+                               className="h-8 text-sm"
+                               autoFocus
+                             />
+                             <Button type="submit" size="icon" variant="ghost" className="h-8 w-8">
+                               <Check className="size-4" />
+                             </Button>
+                             <Button
+                               type="button"
+                               size="icon"
+                               variant="ghost"
+                               className="h-8 w-8"
+                               onClick={() => setEditingId(null)}
+                             >
+                               <X className="size-4" />
+                             </Button>
+                           </form>
+                         ) : (
+                           <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                             {m.body}
+                             {m.edited_at ? (
+                               <span className="text-muted-foreground/60 ml-1.5 font-mono text-[10px]">
+                                 (edited)
+                               </span>
+                             ) : null}
+                           </p>
+                         )}
                         <Reactions
                           scope="community"
                           messageId={m.id}
