@@ -27,10 +27,25 @@ import { rarityBorder, rarityText } from "./rarity";
 
 const GRID_COLS = 2;
 
-export function WidgetProfile({ userId, editable = false }: { userId: string | undefined; editable?: boolean }) {
-  const { profile: me, level, rank, intoLevel, needed, progress, totalXp } = useDimted();
+export function WidgetProfile({
+  userId,
+  editable = false,
+  publicProfile,
+}: {
+  userId: string | undefined;
+  editable?: boolean;
+  publicProfile?: { id: string; username: string; display_name: string; avatar_url: string | null; total_xp: number; bio: string | null; title: string; showcase: string[] } | null;
+}) {
+  const { profile: me, level: myLevel, rank: myRank, intoLevel: myInto, needed: myNeeded, progress: myProgress, totalXp: myTotalXp } = useDimted();
   const isMe = me?.id === userId;
-  const profile = isMe ? me : null; // public profile fetched separately for others
+  const profile = isMe ? me : publicProfile;
+  const derived = profile ? levelFromTotalXp(profile.total_xp) : null;
+  const level = isMe ? myLevel : derived?.level ?? 1;
+  const rank = isMe ? myRank : (derived ? rankForLevel(derived.level) : "Newcomer");
+  const intoLevel = isMe ? myInto : derived?.intoLevel ?? 0;
+  const needed = isMe ? myNeeded : derived?.needed ?? 100;
+  const progress = isMe ? myProgress : (derived ? Math.min(1, derived.intoLevel / derived.needed) : 0);
+  const totalXp = isMe ? myTotalXp : (profile?.total_xp ?? 0);
 
   const widgetsQ = useQuery({
     queryKey: ["profile-widgets", userId],
