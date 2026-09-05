@@ -559,11 +559,13 @@ function AdminPage() {
             <Panel className="p-4">
               <PanelHead
                 eyebrow="Economy"
-                title="XP and sparks"
-                aside={me.isOwner ? `max ${MAX_TOTAL_XP.toLocaleString()} XP` : "±25,000 each"}
+                title={me.isOwner ? "XP and sparks" : "Sparks"}
+                aside={me.isOwner ? `max ${MAX_TOTAL_XP.toLocaleString()} XP` : "±25,000 sparks"}
               />
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                <Input className="h-9" value={xp} inputMode="numeric" onChange={(e) => setXp(e.target.value)} />
+              <div className={cn("mt-3 grid gap-2", me.isOwner ? "sm:grid-cols-2" : "")}>
+                {me.isOwner ? (
+                  <Input className="h-9" value={xp} inputMode="numeric" onChange={(e) => setXp(e.target.value)} />
+                ) : null}
                 <Input
                   className="h-9"
                   value={sparks}
@@ -571,11 +573,13 @@ function AdminPage() {
                   onChange={(e) => setSparks(e.target.value)}
                 />
               </div>
-              <p className="text-muted-foreground mt-1 font-mono text-[10px] uppercase">XP · sparks</p>
+              <p className="text-muted-foreground mt-1 font-mono text-[10px] uppercase">
+                {me.isOwner ? "XP · sparks" : "sparks — levels are owner-only"}
+              </p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <Button
                   size="sm"
-                  onClick={() => void payOut(Number(xp) || 0, Number(sparks) || 0)}
+                  onClick={() => void payOut(me.isOwner ? Number(xp) || 0 : 0, Number(sparks) || 0)}
                   disabled={grantCurrency.isPending}
                 >
                   <Sparkles className="size-4" /> Grant
@@ -583,7 +587,7 @@ function AdminPage() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => void payOut(-(Number(xp) || 0), -(Number(sparks) || 0))}
+                  onClick={() => void payOut(me.isOwner ? -(Number(xp) || 0) : 0, -(Number(sparks) || 0))}
                 >
                   Take back
                 </Button>

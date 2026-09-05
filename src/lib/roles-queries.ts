@@ -126,10 +126,11 @@ function unwrap(data: unknown): RpcResult {
   if (result.status === "forbidden") throw new Error("forbidden");
   if (result.status === "no_target") throw new Error("no_target");
   if (result.status === "unknown_item") throw new Error("unknown_item");
+  if (result.status === "owner_only") throw new Error("Only the Owner can do that");
   return result;
 }
 
-/** Owner (uncapped) or admin (capped) hands out XP and sparks. */
+/** Owner hands out XP and sparks; admins are limited to sparks — levels are owner-only. */
 export function useGrantCurrency() {
   return useStaffMutation(async ({ userId, xp, sparks }: { userId: string; xp: number; sparks: number }) => {
     const { data, error } = await supabase.rpc("staff_grant_currency", {

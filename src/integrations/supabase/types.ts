@@ -2162,7 +2162,7 @@ export type Database = {
         Returns: Json
       }
       staff_grant_currency: {
-        Args: { _sparks?: number; _user_id: string; _xp?: number }
+        Args: { _sparks: number; _user_id: string; _xp: number }
         Returns: Json
       }
       staff_grant_pulse: {
