@@ -214,13 +214,11 @@ function ShopPage() {
   // The permanent shelf: core stock plus anything you already own.
   const stock = useMemo(
     () =>
+      // Vault pieces never appear here — they live only in the restricted tab.
       all.filter(
-        (i) =>
-          (i.pool !== "owner" && i.pool !== "admin" && (i.pool === "core" || owned.has(i.slug))) ||
-          (i.pool === "admin" && isStaff && owned.has(i.slug)) ||
-          (i.pool === "owner" && isOwner && owned.has(i.slug)),
+        (i) => i.pool !== "owner" && i.pool !== "admin" && (i.pool === "core" || owned.has(i.slug)),
       ),
-    [all, owned, isStaff, isOwner],
+    [all, owned],
   );
   const items = stock.filter((i) => slot === "all" || i.slot === slot);
 
