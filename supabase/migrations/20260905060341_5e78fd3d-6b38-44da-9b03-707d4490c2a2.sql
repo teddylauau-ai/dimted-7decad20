@@ -1,0 +1,17 @@
+CREATE INDEX IF NOT EXISTS idx_xp_events_created_at ON public.xp_events (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_xp_events_user_created ON public.xp_events (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_created ON public.notifications (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON public.notifications (user_id, kind) WHERE read_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_staff_actions_created_at ON public.staff_actions (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_crew_messages_crew_created ON public.crew_messages (crew_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_friendship_created ON public.messages (friendship_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_general_messages_created ON public.general_messages (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_community_messages_channel_created ON public.community_messages (channel_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_typing_signals_scope ON public.typing_signals (scope_type, scope_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_crew_members_user ON public.crew_members (user_id);
+CREATE INDEX IF NOT EXISTS idx_crew_members_crew ON public.crew_members (crew_id);
+CREATE INDEX IF NOT EXISTS idx_game_scores_game_score ON public.game_scores (game, score DESC);
+CREATE INDEX IF NOT EXISTS idx_profiles_total_xp ON public.profiles (total_xp DESC);
+CREATE INDEX IF NOT EXISTS idx_call_signals_call_created ON public.call_signals (call_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_message_reactions_community ON public.message_reactions (community_message_id);
+CREATE INDEX IF NOT EXISTS idx_message_reactions_dm ON public.message_reactions (dm_message_id);

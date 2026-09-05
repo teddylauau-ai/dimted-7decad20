@@ -22,7 +22,7 @@ export function useGeneralMessages(enabled: boolean) {
           `id, body, audio_url, audio_ms, image_url, edited_at, reply_to_id, created_at, author:profiles!general_messages_user_id_fkey (${AUTHOR_FIELDS})`,
         )
         .order("created_at", { ascending: true })
-        .limit(200);
+        .limit(120);
       if (error) throw error;
       return (data ?? []) as unknown as ChatMessage[];
     },
