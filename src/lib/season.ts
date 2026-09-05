@@ -22,6 +22,7 @@ export type SeasonTier = {
   title_slug: string | null;
   description: string | null;
   cosmetic: Cosmetic | null;
+  title: { slug: string; label: string; tier: number } | null;
 };
 
 export type SeasonProgress = {
@@ -47,14 +48,16 @@ export async function fetchSeasonTiers(seasonId: string): Promise<SeasonTier[]> 
     .from("season_tiers")
     .select(
       `id, season_id, tier, reward_type, reward_value, cosmetic_slug, title_slug, description,
-       cosmetic:cosmetics (slug, name, slot, rarity, description, price_sparks, required_level, featured, pool, available_until)`,
+       cosmetic:cosmetics (slug, name, slot, rarity, description, price_sparks, required_level, featured, pool, available_until),
+       title:titles (slug, label, tier)`,
     )
     .eq("season_id", seasonId)
     .order("tier");
   if (error) throw error;
   return (data ?? []).map((t) => ({
-    ...(t as unknown as Omit<SeasonTier, "cosmetic">),
+    ...(t as unknown as Omit<SeasonTier, "cosmetic" | "title">),
     cosmetic: (t as unknown as { cosmetic: Cosmetic | null }).cosmetic,
+    title: (t as unknown as { title: { slug: string; label: string; tier: number } | null }).title,
   }));
 }
 
