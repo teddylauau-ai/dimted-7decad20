@@ -124,3 +124,24 @@ export function useSyncAchievements(onDone?: (r: SyncResult) => void) {
     },
   });
 }
+
+/** Skyward gate milestones that pay a one-time bonus, matching award_bonus_xp. */
+export const SKYWARD_GATE_MILESTONES = [25, 50, 100, 150, 200] as const;
+
+/**
+ * Tries every gate milestone the run reached. The server rejects anything you
+ * haven't actually done and anything already paid, so this is safe to fire off.
+ */
+export async function claimSkywardMilestones(gates: number) {
+  let total = 0;
+  for (const m of SKYWARD_GATE_MILESTONES) {
+    if (gates < m) break;
+    try {
+      const r = await awardBonusXp("skyward_gates", String(m));
+      if (r.status === "awarded") total += r.gained ?? 0;
+    } catch {
+      /* a failed bonus must never break the run summary */
+    }
+  }
+  return total;
+}
