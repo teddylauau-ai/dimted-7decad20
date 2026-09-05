@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, Check, Compass, Gamepad2, Gift, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
+import { ArrowDown, BarChart3, Check, Compass, Gamepad2, Gift, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +55,7 @@ import {
 } from "@/lib/crews";
 import { useMyRole } from "@/lib/roles-queries";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
-import { ChatImage, ImagePicker, ReplyChip, ReplyQuote } from "@/components/dimted/ChatExtras";
+import { ChatImage, ImagePicker, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import { CallPanel } from "@/components/dimted/CallPanel";
 import { CrewFlight } from "@/components/dimted/CrewFlight";
 import { cn } from "@/lib/utils";
@@ -103,6 +103,8 @@ function CrewsPage() {
   const [tab, setTab] = useState<Tab>("chat");
   const [draft, setDraft] = useState("");
   const [replyTo, setReplyTo] = useState<CrewMessage | null>(null);
+  const [atBottom, setAtBottom] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const rows = crews.data ?? [];
   const mine = rows.filter((c) => c.isMember);
@@ -122,6 +124,13 @@ function CrewsPage() {
     queryFn: () => fetchCrewMessages(active!.id),
     refetchInterval: 4000,
   });
+
+  const chatList = useMemo(() => messages.data ?? [], [messages.data]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [chatList.length, active?.id, tab]);
 
   const invites = useQuery({
     queryKey: ["crew-invites", active?.id],
@@ -560,27 +569,67 @@ function CrewsPage() {
 
             ) : (
               <>
-                <div className="relative flex-1 overflow-y-auto p-3">
+                <div
+                  ref={scrollRef}
+                  onScroll={(e) => {
+                    const el = e.currentTarget;
+                    setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+                  }}
+                  className="relative flex-1 overflow-y-auto px-3 py-4"
+                >
                   <div
                     aria-hidden
                     className={cn("pointer-events-none absolute inset-0", ACCENT_TEXT[active.accent])}
                     style={chatBgStyle(active.chat_bg)}
                   />
-                  <div className="relative space-y-3">
-                  {(messages.data ?? []).map((m) => (
-                    <CrewChatRow
-                      key={m.id}
-                      message={m}
-                      crew={active}
-                      isMe={m.user_id === profile?.id}
-                      onReply={() => setReplyTo(m)}
-                    />
-                  ))}
-                  {(messages.data ?? []).length === 0 && (
+                  <div className="relative">
+                  {chatList.map((m, i) => {
+                    const previous = chatList[i - 1];
+                    const grouped =
+                      !!previous &&
+                      previous.user_id === m.user_id &&
+                      Date.parse(m.created_at) - Date.parse(previous.created_at) < 5 * 60 * 1000 &&
+                      new Date(previous.created_at).toDateString() === new Date(m.created_at).toDateString();
+                    const dayStarts =
+                      !previous ||
+                      new Date(previous.created_at).toDateString() !== new Date(m.created_at).toDateString();
+                    return (
+                      <div key={m.id} id={`msg-${m.id}`} className="rounded-lg transition-colors duration-500">
+                        {dayStarts ? (
+                          <div className="my-4 flex items-center gap-3">
+                            <span className="bg-border h-px flex-1" />
+                            <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
+                              {new Date(m.created_at).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}
+                            </span>
+                            <span className="bg-border h-px flex-1" />
+                          </div>
+                        ) : null}
+                        <CrewChatRow
+                          message={m}
+                          crew={active}
+                          grouped={grouped}
+                          list={chatList}
+                          onReply={() => setReplyTo(m)}
+                        />
+                      </div>
+                    );
+                  })}
+                  {chatList.length === 0 && (
                     <p className="text-muted-foreground py-8 text-center text-sm">No messages yet — say hi to your crew.</p>
                   )}
                   </div>
                 </div>
+
+                {atBottom ? null : (
+                  <button
+                    type="button"
+                    onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })}
+                    className="glass-raised text-foreground mx-auto -mt-9 mb-1 flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] shadow-lg"
+                  >
+                    <ArrowDown className="size-3.5" /> Jump to latest
+                  </button>
+                )}
+
 
                 {replyTo && (
                   <div className="border-t border-border/40 px-3 pt-2">
@@ -1190,42 +1239,62 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
 function CrewChatRow({
   message,
   crew,
-  isMe,
+  grouped,
+  list,
   onReply,
 }: {
   message: CrewMessage;
   crew: CrewRow;
-  isMe: boolean;
+  grouped: boolean;
+  list: CrewMessage[];
   onReply: () => void;
 }) {
   const a = message.author;
   const tag = CREW_NAMETAGS.find((n) => n.key === crew.nametag_style) ?? CREW_NAMETAGS[0]!;
   const fx = CREW_TEXT_EFFECTS.find((f) => f.key === crew.text_effect) ?? CREW_TEXT_EFFECTS[0]!;
   const accentText = ACCENT_TEXT[crew.accent];
+  const time = new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return (
-    <div className={cn("flex gap-2", isMe && "flex-row-reverse")}>
-      <Avatar profile={a as any} size={34} />
-      <div className={cn("max-w-[80%] rounded-2xl px-3 py-2", isMe ? "bg-primary text-primary-foreground" : "bg-secondary")}>
-        <div className="flex items-center gap-1.5">
-          <CrewBadgeChip crew={crew} />
-          <span className={cn("text-xs font-semibold opacity-90", tag.cls, tag.key !== "none" && !isMe && accentText)}>
-            {a?.display_name || a?.username}
-          </span>
-          <span className="text-[10px] opacity-60">
-            {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </div>
-        {message.reply_to_id && <ReplyQuote target={message as any} />}
+    <div className={cn("chat-row group hover:bg-secondary/35 flex gap-3 rounded-lg px-2 py-1 transition-colors", grouped ? "mt-0" : "mt-3")}>
+      {grouped ? (
+        <span className="text-muted-foreground/0 group-hover:text-muted-foreground/70 w-9 shrink-0 pt-0.5 text-right font-mono text-[9px]">
+          {time}
+        </span>
+      ) : (
+        <Avatar profile={a as any} size={36} className="mt-0.5" />
+      )}
+      <div className="min-w-0 flex-1">
+        {message.reply_to_id ? (
+          <ReplyQuote
+            target={findReplyTarget(list as never, message as never)}
+            onJump={(id) => {
+              const el = document.getElementById(`msg-${id}`);
+              el?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+          />
+        ) : null}
+        {grouped ? null : (
+          <p className="flex items-baseline gap-2">
+            <CrewBadgeChip crew={crew} />
+            <span className={cn("text-sm font-semibold", tag.cls, tag.key !== "none" && accentText)}>
+              {a?.display_name || a?.username}
+            </span>
+            <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
+          </p>
+        )}
         {message.image_url ? (
           <ChatImage src={message.image_url} />
-        ) : (
+        ) : message.body ? (
           <p className={cn("whitespace-pre-wrap text-sm", fx.cls)}>{message.body}</p>
-        )}
+        ) : null}
         {message.audio_url && <VoicePlayer url={message.audio_url} ms={message.audio_ms ?? 0} />}
-        <button onClick={onReply} className="mt-1 text-[10px] opacity-60 hover:opacity-100">
-          Reply
-        </button>
       </div>
+      <button
+        onClick={onReply}
+        className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-foreground self-start rounded p-0.5 text-[10px]"
+      >
+        Reply
+      </button>
     </div>
   );
 }
