@@ -802,12 +802,15 @@ function CrewLadder({ crews, activeId }: { crews: CrewRow[]; activeId: string })
         {ranked.map((c, i) => {
           const cl = crewLevel(c.total_xp);
           const a = accentOf(c.accent);
+          const perks = crewPerkFlags(c.total_xp);
           return (
             <div
               key={c.id}
               className={cn(
                 "flex items-center gap-3 rounded-xl px-2 py-2",
                 c.id === activeId ? "bg-primary/10 ring-1 ring-primary/30" : "bg-secondary/20",
+                perks.spotlight && cn("ring-1", a.ring, "shadow-[0_0_18px_-8px_currentColor]", ACCENT_TEXT[c.accent]),
+                perks.apex && "ring-gold/50 shadow-[0_0_22px_-8px_hsl(var(--gold))] ring-1",
               )}
             >
               <span
@@ -820,11 +823,24 @@ function CrewLadder({ crews, activeId }: { crews: CrewRow[]; activeId: string })
               </span>
               <CrewMark crew={c} size={30} />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{c.name}</p>
+                <p className="flex items-center gap-1.5 truncate text-sm font-medium">
+                  <span className="truncate">{c.name}</span>
+                  {perks.legendCrest && (
+                    <span title="Legend crest — crew level 25" className="text-gold shrink-0">
+                      <Crown className="size-3.5" />
+                    </span>
+                  )}
+                  {perks.apex && (
+                    <span className="bg-gold/15 text-gold shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">
+                      Apex
+                    </span>
+                  )}
+                </p>
                 <div className="bg-secondary mt-1 h-1.5 w-full max-w-40 overflow-hidden rounded-full">
                   <div className={cn("h-full rounded-full", a.dot)} style={{ width: `${cl.pct}%` }} />
                 </div>
               </div>
+
               <div className="text-right">
                 <p className="text-sm font-semibold">Lv {cl.level}</p>
                 <p className="text-muted-foreground text-[10px]">{c.total_xp.toLocaleString()} XP</p>
