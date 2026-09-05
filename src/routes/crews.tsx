@@ -1239,42 +1239,62 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
 function CrewChatRow({
   message,
   crew,
-  isMe,
+  grouped,
+  list,
   onReply,
 }: {
   message: CrewMessage;
   crew: CrewRow;
-  isMe: boolean;
+  grouped: boolean;
+  list: CrewMessage[];
   onReply: () => void;
 }) {
   const a = message.author;
   const tag = CREW_NAMETAGS.find((n) => n.key === crew.nametag_style) ?? CREW_NAMETAGS[0]!;
   const fx = CREW_TEXT_EFFECTS.find((f) => f.key === crew.text_effect) ?? CREW_TEXT_EFFECTS[0]!;
   const accentText = ACCENT_TEXT[crew.accent];
+  const time = new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   return (
-    <div className={cn("flex gap-2", isMe && "flex-row-reverse")}>
-      <Avatar profile={a as any} size={34} />
-      <div className={cn("max-w-[80%] rounded-2xl px-3 py-2", isMe ? "bg-primary text-primary-foreground" : "bg-secondary")}>
-        <div className="flex items-center gap-1.5">
-          <CrewBadgeChip crew={crew} />
-          <span className={cn("text-xs font-semibold opacity-90", tag.cls, tag.key !== "none" && !isMe && accentText)}>
-            {a?.display_name || a?.username}
-          </span>
-          <span className="text-[10px] opacity-60">
-            {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-          </span>
-        </div>
-        {message.reply_to_id && <ReplyQuote target={message as any} />}
+    <div className={cn("chat-row group hover:bg-secondary/35 flex gap-3 rounded-lg px-2 py-1 transition-colors", grouped ? "mt-0" : "mt-3")}>
+      {grouped ? (
+        <span className="text-muted-foreground/0 group-hover:text-muted-foreground/70 w-9 shrink-0 pt-0.5 text-right font-mono text-[9px]">
+          {time}
+        </span>
+      ) : (
+        <Avatar profile={a as any} size={36} className="mt-0.5" />
+      )}
+      <div className="min-w-0 flex-1">
+        {message.reply_to_id ? (
+          <ReplyQuote
+            target={findReplyTarget(list as never, message as never)}
+            onJump={(id) => {
+              const el = document.getElementById(`msg-${id}`);
+              el?.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+          />
+        ) : null}
+        {grouped ? null : (
+          <p className="flex items-baseline gap-2">
+            <CrewBadgeChip crew={crew} />
+            <span className={cn("text-sm font-semibold", tag.cls, tag.key !== "none" && accentText)}>
+              {a?.display_name || a?.username}
+            </span>
+            <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
+          </p>
+        )}
         {message.image_url ? (
           <ChatImage src={message.image_url} />
-        ) : (
+        ) : message.body ? (
           <p className={cn("whitespace-pre-wrap text-sm", fx.cls)}>{message.body}</p>
-        )}
+        ) : null}
         {message.audio_url && <VoicePlayer url={message.audio_url} ms={message.audio_ms ?? 0} />}
-        <button onClick={onReply} className="mt-1 text-[10px] opacity-60 hover:opacity-100">
-          Reply
-        </button>
       </div>
+      <button
+        onClick={onReply}
+        className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-foreground self-start rounded p-0.5 text-[10px]"
+      >
+        Reply
+      </button>
     </div>
   );
 }
