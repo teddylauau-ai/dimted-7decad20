@@ -34,6 +34,7 @@ import {
 import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
 import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { Showcase } from "@/components/dimted/Showcase";
+import { SpotifyPicks } from "@/components/dimted/SpotifyPicks";
 import { rarityBorder, rarityDot, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -310,6 +311,17 @@ function ProfilePage() {
 
           <div className="border-border mt-5 border-t pt-4">
             <Showcase slugs={profile?.showcase} cosmetics={cosmetics.data ?? []} editable />
+          </div>
+
+          <div className="border-border mt-5 border-t pt-4">
+            <p className="eyebrow">On repeat</p>
+            <div className="mt-3">
+              <SpotifyPicks
+                userId={profile?.id}
+                editable
+                emptyHint="Paste a Spotify link to show your music on your profile."
+              />
+            </div>
           </div>
 
           <div className="border-border mt-5 border-t pt-4">
