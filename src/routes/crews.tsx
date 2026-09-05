@@ -49,6 +49,7 @@ import {
   removeCrewMember,
   revokeCrewInvite,
   ownerDeleteCrew,
+  CREW_MAX_LEVEL,
   updateCrew,
   uploadCrewAvatar,
   uploadCrewBanner,
@@ -388,7 +389,7 @@ function CrewsPage() {
               <Sparkles className="text-primary mx-auto size-8" />
               <p className="mt-2 text-lg font-semibold">Start your crew</p>
               <p className="text-muted-foreground mx-auto mt-1 max-w-sm text-sm">
-                Crews share one XP pool, a private chat, a custom badge, banner and colour. Up to 25 people.
+                Crews share one XP pool, a private chat, a custom badge, banner and colour. Up to 25 people (100 once the owner lifts the cap).
               </p>
               <Button className="mt-3" onClick={() => setCreating(true)}>
                 Create a crew
