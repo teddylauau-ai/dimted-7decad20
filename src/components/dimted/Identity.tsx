@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   BADGE_CLASS,
@@ -9,6 +10,16 @@ import {
 import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
 import { presenceFor } from "@/lib/presence";
 import { cn } from "@/lib/utils";
+
+/** Presence is time-based, so re-render every 20s or dots go stale on screen. */
+function usePresenceTick() {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => tick((n) => n + 1), 20_000);
+    return () => window.clearInterval(t);
+  }, []);
+}
+
 
 export type IdentityProfile = {
   username: string;
@@ -41,6 +52,7 @@ export function PresenceDot({
   size?: number;
   className?: string;
 }) {
+  usePresenceTick();
   const p = presenceFor(profile?.last_active_at, profile?.activity_context);
   const offline = p.state === "offline";
   return (
@@ -76,6 +88,7 @@ export function PresenceLabel({
   profile: IdentityProfile | null | undefined;
   className?: string;
 }) {
+  usePresenceTick();
   const p = presenceFor(profile?.last_active_at, profile?.activity_context);
   return (
     <span className={cn("inline-flex items-center gap-1.5 font-mono text-[10px]", p.textClass, className)}>

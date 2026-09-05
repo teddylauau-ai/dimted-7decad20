@@ -13,8 +13,9 @@ export type PresenceInfo = {
   textClass: string;
 };
 
-const ONLINE_MS = 2 * 60 * 1000;
-const IDLE_MS = 10 * 60 * 1000;
+/** Generous windows so a throttled tab or one dropped ping never flips you offline. */
+const ONLINE_MS = 5 * 60 * 1000;
+const IDLE_MS = 15 * 60 * 1000;
 const AWAY_MS = 45 * 60 * 1000;
 
 /** Nice label for what someone is doing right now. */
