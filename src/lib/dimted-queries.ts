@@ -165,6 +165,8 @@ export type ChatMessage = {
   created_at: string;
   audio_url?: string | null;
   audio_ms?: number | null;
+  image_url?: string | null;
+  edited_at?: string | null;
   author: ChatAuthor | null;
 };
 
@@ -180,7 +182,7 @@ export function useDirectMessages(friendshipId: string | undefined) {
     queryFn: async (): Promise<ChatMessage[]> => {
       const { data, error } = await supabase
         .from("messages")
-        .select(`id, body, audio_url, audio_ms, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
+.select(`id, body, audio_url, audio_ms, image_url, edited_at, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
         .eq("friendship_id", friendshipId!)
         .order("created_at", { ascending: true })
         .limit(100);
@@ -200,7 +202,7 @@ export function useChannelMessages(channelId: string | undefined) {
       const { data, error } = await supabase
         .from("community_messages")
         .select(
-          `id, body, audio_url, audio_ms, created_at, author:profiles!community_messages_user_id_fkey (${AUTHOR_FIELDS})`,
+          `id, body, audio_url, audio_ms, image_url, edited_at, created_at, author:profiles!community_messages_user_id_fkey (${AUTHOR_FIELDS})`,
         )
         .eq("channel_id", channelId!)
         .order("created_at")
