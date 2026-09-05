@@ -157,10 +157,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <DimtedProvider>
-        <AppShell>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </AppShell>
+        {/* Music lives above the routes so playback survives tab changes. */}
+        <MusicProvider>
+          <AppShell>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </AppShell>
+        </MusicProvider>
       </DimtedProvider>
       <CursorGlow />
       <Toaster position="top-center" />
