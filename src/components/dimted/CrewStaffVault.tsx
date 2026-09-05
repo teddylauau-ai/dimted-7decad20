@@ -45,6 +45,7 @@ export function CrewStaffVault({
   const setTitle = useSetTitle();
   const [target, setTarget] = useState<string | null>(members[0]?.user_id ?? null);
   const [customTitle, setCustomTitle] = useState("");
+  const [bulk, setBulk] = useState<"one" | "crew" | null>(null);
 
   const lvl = crewLevel(crewXp);
   const earned = crestsFor(crewXp);
