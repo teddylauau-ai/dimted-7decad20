@@ -295,6 +295,50 @@ export function drawCube(slug: string, s: SkinCtx) {
       ctx.restore();
       break;
     }
+    case "cube-tide": {
+      roundRect(ctx, size, 6);
+      fillStroke(ctx, grad(ctx, half, "#164e63", p), "#a5f3fc", 2);
+      ctx.strokeStyle = "#e0f2fe";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const wob = Math.sin(now / 260) * 2;
+      ctx.moveTo(-half * 0.75, wob);
+      ctx.quadraticCurveTo(-half * 0.25, -half * 0.3 + wob, half * 0.25, wob);
+      ctx.quadraticCurveTo(half * 0.6, half * 0.25 + wob, half * 0.8, wob);
+      ctx.stroke();
+      break;
+    }
+    case "cube-rose": {
+      roundRect(ctx, size, 5);
+      fillStroke(ctx, grad(ctx, half, "#881337", "#fb7185"), "#fecdd3", 2);
+      ctx.fillStyle = "#fff1f2";
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2 + now / 2400;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * half * 0.32, Math.sin(a) * half * 0.32, half * 0.16, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, half * 0.16, 0, Math.PI * 2);
+      ctx.fillStyle = "#fda4af";
+      ctx.fill();
+      break;
+    }
+    case "cube-storm": {
+      roundRect(ctx, size, 3);
+      fillStroke(ctx, grad(ctx, half, "#1e293b", "#475569"), p, 3);
+      poly(ctx, [
+        [half * 0.15, -half * 0.75],
+        [-half * 0.35, half * 0.1],
+        [0, half * 0.1],
+        [-half * 0.15, half * 0.75],
+        [half * 0.35, -half * 0.1],
+        [0, -half * 0.1],
+      ]);
+      ctx.fillStyle = Math.sin(now / 120) > 0 ? "#fde68a" : "#fbbf24";
+      ctx.fill();
+      break;
+    }
     default: {
       // cube-origin and any future default
       roundRect(ctx, size, 4);
@@ -366,6 +410,35 @@ export function drawShip(slug: string, s: SkinCtx) {
       ctx.fillStyle = q;
       ctx.fill();
       break;
+    case "ship-comet":
+      poly(ctx, [
+        [-half * 0.9, -half * 0.7],
+        [half * 1.3, 0],
+        [-half * 0.9, half * 0.7],
+      ]);
+      fillStroke(ctx, grad(ctx, half, "#e0f2fe", p), "#ffffff", 2);
+      ctx.beginPath();
+      ctx.arc(half * 0.25, 0, half * 0.32, 0, Math.PI * 2);
+      ctx.fillStyle = "#f8fafc";
+      ctx.fill();
+      break;
+    case "ship-aurora": {
+      poly(ctx, [
+        [-half, -half * 1.05],
+        [half * 1.35, 0],
+        [-half, half * 1.05],
+        [-half * 0.3, 0],
+      ]);
+      const g = ctx.createLinearGradient(0, -half, 0, half);
+      g.addColorStop(0, "#22d3ee");
+      g.addColorStop(0.5, p);
+      g.addColorStop(1, "#a78bfa");
+      ctx.shadowColor = p;
+      ctx.shadowBlur = 12 + 6 * Math.sin(now / 300);
+      fillStroke(ctx, g, "#e0f2fe", 2);
+      ctx.shadowBlur = 0;
+      break;
+    }
     default:
       poly(ctx, [
         [-half, -half * 0.7],
