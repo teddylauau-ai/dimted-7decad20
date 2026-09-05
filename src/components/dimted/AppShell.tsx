@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useDimted } from "@/lib/dimted-store";
-import { nextUnlock } from "@/lib/dimted";
+import { nextUnlock, xpLabel } from "@/lib/dimted";
 import { formatSparks } from "@/lib/cosmetics";
 import { Backpack } from "lucide-react";
 import { useMyRole } from "@/lib/roles-queries";

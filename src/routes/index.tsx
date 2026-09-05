@@ -20,7 +20,7 @@ import {
 } from "@/lib/dimted";
 import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
-import { friendshipLevel } from "@/lib/dimted";
+import { friendshipLevel, MAX_LEVEL, xpLabel } from "@/lib/dimted";
 import {
   fetchActiveSeason,
   fetchMySeasonProgress,
