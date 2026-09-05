@@ -392,7 +392,39 @@ function ArmoryPage() {
                           {item.description}
                         </p>
                       </div>
-                      <RarityChip rarity={item.rarity} />
+                      <span className="flex shrink-0 items-start gap-1.5">
+                        <RarityChip rarity={item.rarity} />
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          title={
+                            showcase.includes(item.slug)
+                              ? "Remove from profile showcase"
+                              : "Star on your profile showcase (max 3)"
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void toggleShow(item.slug);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.stopPropagation();
+                              void toggleShow(item.slug);
+                            }
+                          }}
+                          className={cn(
+                            "rounded-full p-1 transition-colors",
+                            showcase.includes(item.slug)
+                              ? "text-gold"
+                              : "text-muted-foreground/50 hover:text-gold",
+                          )}
+                        >
+                          <Star
+                            className="size-3.5"
+                            fill={showcase.includes(item.slug) ? "currentColor" : "none"}
+                          />
+                        </span>
+                      </span>
                     </div>
                     <SlotPreview slug={item.slug} slot={item.slot} />
                     <span

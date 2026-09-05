@@ -308,6 +308,10 @@ function ProfilePage() {
           </div>
 
           <div className="border-border mt-5 border-t pt-4">
+            <Showcase slugs={profile?.showcase} cosmetics={cosmetics.data ?? []} editable />
+          </div>
+
+          <div className="border-border mt-5 border-t pt-4">
             <div className="flex items-end justify-between gap-4">
               <p className="eyebrow">Worn right now</p>
               <Link to="/shop" className="text-primary font-mono text-[11px] hover:underline">
