@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Shield, Coins, Crown, ShoppingBag, Sparkles } from "lucide-react";
+import { Shield, Coins, Crown, ShoppingBag, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
@@ -8,6 +8,7 @@ import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics, useInventory } from "@/lib/dimted-queries";
 import { useMyRole } from "@/lib/roles-queries";
 import { claimArmoryMilestone, equipCosmetic } from "@/lib/dimted-actions";
+import { toggleShowcase } from "@/lib/chat-extras";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
