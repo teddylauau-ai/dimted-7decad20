@@ -39,6 +39,7 @@ export type Profile = {
   equipped_effect: string | null;
   avatar_url: string | null;
   banner_url: string | null;
+  showcase: string[];
   activity_context?: string | null;
   banned_until?: string | null;
   ban_reason?: string | null;

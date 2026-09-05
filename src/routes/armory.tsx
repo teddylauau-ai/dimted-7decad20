@@ -124,6 +124,21 @@ function ArmoryPage() {
     }
   }
 
+  const showcase = profile?.showcase ?? [];
+
+  async function toggleShow(slug: string) {
+    if (!profile) return;
+    try {
+      const next = await toggleShowcase(profile.id, slug, showcase);
+      await refreshProfile();
+      toast.success(
+        next.includes(slug) ? "Starred on your profile." : "Removed from your showcase.",
+      );
+    } catch {
+      toast.error("Couldn't update your showcase.");
+    }
+  }
+
   async function clearSlot(s: CosmeticSlot) {
     try {
       await equipCosmetic(null, s);
