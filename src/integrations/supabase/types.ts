@@ -315,6 +315,7 @@ export type Database = {
           edited_at: string | null
           id: string
           image_url: string | null
+          reply_to_id: string | null
           user_id: string
         }
         Insert: {
@@ -327,6 +328,7 @@ export type Database = {
           edited_at?: string | null
           id?: string
           image_url?: string | null
+          reply_to_id?: string | null
           user_id: string
         }
         Update: {
@@ -339,6 +341,7 @@ export type Database = {
           edited_at?: string | null
           id?: string
           image_url?: string | null
+          reply_to_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -354,6 +357,13 @@ export type Database = {
             columns: ["community_id"]
             isOneToOne: false
             referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
             referencedColumns: ["id"]
           },
           {
@@ -669,6 +679,7 @@ export type Database = {
           friendship_id: string
           id: string
           image_url: string | null
+          reply_to_id: string | null
           sender_id: string
         }
         Insert: {
@@ -680,6 +691,7 @@ export type Database = {
           friendship_id: string
           id?: string
           image_url?: string | null
+          reply_to_id?: string | null
           sender_id: string
         }
         Update: {
@@ -691,6 +703,7 @@ export type Database = {
           friendship_id?: string
           id?: string
           image_url?: string | null
+          reply_to_id?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -699,6 +712,13 @@ export type Database = {
             columns: ["friendship_id"]
             isOneToOne: false
             referencedRelation: "friendships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
           {
