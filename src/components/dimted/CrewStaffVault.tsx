@@ -51,7 +51,7 @@ export function CrewStaffVault({
   const crestGates = useMemo(() => CREW_CRESTS.map((c) => c.unlock), []);
 
   const vault = (cosmetics.data ?? []).filter(
-    (c) => c.pool === "admin" || c.pool === "owner" || c.pool === "founder",
+    (c) => c.pool === "crew",
   );
   const picked = members.find((m) => m.user_id === target) ?? null;
 
@@ -135,7 +135,7 @@ export function CrewStaffVault({
       <Panel className="p-4">
         <PanelHead eyebrow="Staff vault" title="Squad grants" aside={`${members.length} member${members.length === 1 ? "" : "s"}`} />
         <p className="text-muted-foreground mt-2 text-xs">
-          Pick a crew member, then hand them a vault cosmetic or a crew title. These items never appear in the shop.
+          Pick a crew member, then hand them a crew-only cosmetic or a crew title. These are exclusive to crews — they never appear in the shop, and they are not the Owner or Admin vault items.
         </p>
 
         <div className="mt-3 flex flex-wrap gap-2">
@@ -157,7 +157,7 @@ export function CrewStaffVault({
         {picked ? (
           <>
             <div className="mt-4">
-              <p className="eyebrow">Vault cosmetics</p>
+              <p className="eyebrow">Crew-only cosmetics</p>
               <div className="mt-2 grid max-h-56 gap-1.5 overflow-y-auto pr-1">
                 {vault.length ? (
                   vault.map((c) => (
