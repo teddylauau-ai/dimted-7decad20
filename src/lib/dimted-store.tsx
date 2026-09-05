@@ -29,6 +29,9 @@ export type Profile = {
   energy: number;
   surge_until: string | null;
   streak: number;
+  /** UTC date of the last claimed daily streak bonus, or null if never claimed. */
+  streak_claimed_on?: string | null;
+
   last_active_at: string;
   created_at: string;
   sparks: number;
