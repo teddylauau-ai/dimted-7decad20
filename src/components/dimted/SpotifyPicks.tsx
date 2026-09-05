@@ -96,7 +96,23 @@ export function SpotifyPicks({
               <div className="mb-2 flex items-center justify-between gap-2">
                 <SpotifyKindChip kind={pick.kind} />
                 <div className="flex items-center gap-1">
-                  <a
+                  <button
+                    type="button"
+                    onClick={() =>
+                      music.play({
+                        kind: pick.kind,
+                        spotifyId: pick.spotify_id,
+                        url: pick.url,
+                        note: pick.note,
+                      })
+                    }
+                    className="text-muted-foreground hover:text-primary flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px]"
+                    aria-label="Keep playing across Lazu"
+                  >
+                    <Play className="h-3.5 w-3.5" />
+                    {music.isPlaying(pick.spotify_id) ? "In player" : "Play anywhere"}
+                  </button>
+                  <
                     href={pick.url}
                     target="_blank"
                     rel="noreferrer noopener"
