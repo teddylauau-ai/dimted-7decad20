@@ -206,24 +206,69 @@ export async function fetchCrewMessages(crewId: string): Promise<CrewMessage[]> 
   return (data ?? []) as unknown as CrewMessage[];
 }
 
-export async function createCrew(ownerId: string, name: string, tagline: string, visibility: "public" | "private") {
-  const slugBase = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 30);
-  const slug = `${slugBase || "crew"}-${Math.random().toString(36).slice(2, 6)}`;
-
-  const { data, error } = await supabase
-    .from("crews")
-    .insert({ owner_id: ownerId, name, tagline: tagline || null, slug, visibility })
-    .select("id")
-    .single();
+export async function createCrew(input: {
+  name: string;
+  tagline: string;
+  description: string;
+  badge_emoji: string;
+  accent: CrewAccent;
+  visibility: "public" | "private";
+  join_policy: "open" | "invite";
+}): Promise<string> {
+  const { data, error } = await supabase.rpc("create_crew", {
+    _name: input.name,
+    _tagline: input.tagline,
+    _description: input.description,
+    _badge_emoji: input.badge_emoji,
+    _accent: input.accent,
+    _visibility: input.visibility,
+    _join_policy: input.join_policy,
+  });
   if (error) throw error;
+  const res = (data ?? {}) as { ok?: boolean; id?: string; error?: string };
+  if (!res.ok || !res.id) throw new Error(res.error ?? "Couldn't create that crew");
+  return res.id;
+}
 
-  const crewId = (data as { id: string }).id;
-  await supabase.from("crew_members").insert({ crew_id: crewId, user_id: ownerId, role: "owner" });
-  return crewId;
+export async function joinCrew(crewId: string) {
+  const { data, error } = await supabase.rpc("join_crew", { _crew_id: crewId });
+  if (error) throw error;
+  const res = (data ?? {}) as { ok?: boolean; error?: string };
+  if (!res.ok) throw new Error(res.error ?? "Couldn't join that crew");
+}
+
+export async function updateCrew(
+  crewId: string,
+  patch: Partial<{
+    name: string;
+    tagline: string;
+    description: string;
+    badge_emoji: string;
+    banner_url: string;
+    accent: CrewAccent;
+    visibility: "public" | "private";
+    join_policy: "open" | "invite";
+  }>,
+) {
+  const { data, error } = await supabase.rpc("update_crew", { _crew_id: crewId, _patch: patch });
+  if (error) throw error;
+  const res = (data ?? {}) as { ok?: boolean; error?: string };
+  if (!res.ok) throw new Error(res.error ?? "Couldn't save those changes");
+}
+
+export async function uploadCrewBanner(crewId: string, userId: string, file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("That file isn't an image");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Images must be under 8MB");
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `${userId}/crew-banner-${crewId}-${Date.now()}.${ext}`;
+  const { error: upErr } = await supabase.storage
+    .from("voice")
+    .upload(path, file, { cacheControl: "31536000", contentType: file.type, upsert: true });
+  if (upErr) throw upErr;
+  const { data, error } = await supabase.storage.from("voice").createSignedUrl(path, 60 * 60 * 24 * 365);
+  if (error || !data?.signedUrl) throw error ?? new Error("Couldn't read that image back");
+  await updateCrew(crewId, { banner_url: data.signedUrl });
+  return data.signedUrl;
 }
 
 export async function inviteToCrew(crewId: string, userId: string, invitedBy: string) {
