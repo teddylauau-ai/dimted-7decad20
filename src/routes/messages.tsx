@@ -28,9 +28,11 @@ import { useReactions, useToggleReaction } from "@/lib/reactions";
 import {
   deleteDirectMessage,
   markConversationNotificationsRead,
+  markDmRead,
   sendDirectMessage,
   sendDirectVoiceMessage,
 } from "@/lib/dimted-actions";
+import { GeneralChat } from "@/components/dimted/GeneralChat";
 import { useQueryClient } from "@tanstack/react-query";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
