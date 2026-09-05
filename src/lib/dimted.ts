@@ -134,89 +134,122 @@ export type Unlock = {
   rarity: Rarity;
 };
 
+/**
+ * The real level ladder. Every entry below MUST describe something the app
+ * actually does at that level — no teasers, no "coming soon", no free items
+ * that are really Sparks purchases.
+ */
 export const UNLOCKS: Unlock[] = [
   {
     level: 2,
-    name: "Profile customisation",
-    detail: "Rearrange your profile and pick an accent.",
+    name: "Profile editing",
+    detail: "The Edit profile button turns on: display name, bio, avatar, banner.",
     kind: "cosmetic",
     rarity: "common",
   },
   {
     level: 3,
-    name: "Custom status effects",
-    detail: "Animated status states beside your name.",
+    name: "Profile widgets",
+    detail: "Rearrange the widget grid on your profile and pick what it shows.",
     kind: "cosmetic",
     rarity: "common",
   },
   {
     level: 5,
-    name: "Profile banner",
-    detail: "A wide banner across the top of your profile.",
-    kind: "cosmetic",
-    rarity: "uncommon",
-  },
-  {
-    level: 7,
-    name: "Animated decorations",
-    detail: "Orbiting avatar decorations.",
+    name: "Uncommon shop stock",
+    detail: "Uncommon frames and banners become buyable in the shop with Sparks.",
     kind: "cosmetic",
     rarity: "uncommon",
   },
   {
     level: 10,
-    name: "Personal profile theme",
-    detail: "Recolour your whole profile surface.",
+    name: "Rank: Veteran",
+    detail: "New rank pill beside your name, plus rare shop stock unlocks (bought with Sparks).",
+    kind: "social",
+    rarity: "rare",
+  },
+  {
+    level: 11,
+    name: "Title: Night Owl",
+    detail: "A free title you can equip under your name from your profile.",
     kind: "cosmetic",
     rarity: "rare",
   },
   {
-    level: 12,
-    name: "Special chat effects",
-    detail: "Subtle message entrances in DMs.",
-    kind: "chat",
+    level: 16,
+    name: "Title: Arcade Regular + rank Vanguard",
+    detail: "Free title, new rank pill. Rare shop items up to Level 16 are all buyable.",
+    kind: "social",
     rarity: "rare",
   },
   {
-    level: 15,
-    name: "Entrance animation",
-    detail: "Your arrival in a channel gets a signature.",
-    kind: "chat",
-    rarity: "rare",
+    level: 18,
+    name: "Epic shop stock",
+    detail: "Epic frames, nametags and banners appear in the shop — Sparks price, not free.",
+    kind: "cosmetic",
+    rarity: "epic",
   },
   {
     level: 20,
-    name: "Arcade high-score frame",
-    detail: "Your leaderboard rows get a signature glow.",
-    kind: "cosmetic",
-    rarity: "epic",
-  },
-  {
-    level: 25,
-    name: "Rare profile cosmetics",
-    detail: "Frames and titles reserved for Legends.",
-    kind: "cosmetic",
-    rarity: "epic",
-  },
-  {
-    level: 30,
-    name: "Advanced crew tools",
-    detail: "Deep customisation for the crews you captain.",
+    name: "Rank: Elite + title World Explorer",
+    detail: "Free title, Elite rank pill, and Elite styling on leaderboard rows.",
     kind: "social",
     rarity: "epic",
   },
   {
-    level: 40,
-    name: "Legendary cosmetics",
-    detail: "Aurora frames, living banners.",
+    level: 25,
+    name: "Rank: Luminary + legendary shop stock",
+    detail: "Free title Social Architect, and legendary shop items become buyable with Sparks.",
     kind: "cosmetic",
     rarity: "legendary",
   },
   {
-    level: 50,
-    name: "Mythic profile status",
-    detail: "Your name renders differently everywhere.",
+    level: 30,
+    name: "Rank: Ascendant + title Conversation Master",
+    detail: "Free title and rank pill. Weekly legendary rotation is fully available to you.",
+    kind: "social",
+    rarity: "legendary",
+  },
+  {
+    level: 40,
+    name: "Rank: Legend + mythic shop stock",
+    detail: "Free Legend title, Legend rank, and the first mythic items unlock in the shop (Sparks).",
     kind: "cosmetic",
+    rarity: "mythic",
+  },
+  {
+    level: 50,
+    name: "Rank: Mythic",
+    detail: "Mythic rank styling everywhere, and every mythic shop item is level-unlocked.",
+    kind: "cosmetic",
+    rarity: "mythic",
+  },
+  {
+    level: 60,
+    name: "Rank: Astral",
+    detail: "Astral rank pill and ladder styling.",
+    kind: "social",
+    rarity: "mythic",
+  },
+  {
+    level: 75,
+    name: "Rank: Voidwalker",
+    detail: "Voidwalker rank pill and ladder styling.",
+    kind: "social",
+    rarity: "mythic",
+  },
+  {
+    level: 90,
+    name: "Rank: Sovereign",
+    detail: "Sovereign rank pill and ladder styling.",
+    kind: "social",
+    rarity: "mythic",
+  },
+  {
+    level: 100,
+    name: "Rank: Apex Prime (max)",
+    detail: "Your bar reads MAXED and your ladder row shows how early you got there.",
+    kind: "social",
     rarity: "mythic",
   },
 ];
@@ -228,6 +261,24 @@ export function nextUnlock(level: number): Unlock | undefined {
 export function unlockAt(level: number): Unlock | undefined {
   return UNLOCKS.find((u) => u.level === level);
 }
+
+/**
+ * Exactly what a player receives on reaching `level`, derived from the same
+ * data the app enforces. Used so the ladder never promises anything extra.
+ */
+export function rewardsAtLevel(level: number): string[] {
+  const out: string[] = [];
+  const rank = RANKS.find((r) => r.from === level);
+  if (rank) out.push(`Rank: ${rank.name}`);
+  for (const t of TITLES) if (t.requiredLevel === level) out.push(`Free title: ${t.name}`);
+  for (const i of ITEMS) if (i.requiredLevel === level) out.push(`Free ${i.type.toLowerCase()}: ${i.name}`);
+  const u = unlockAt(level);
+  if (u && !u.name.startsWith("Rank:")) out.push(u.name);
+  if (level === 2) out.push("Profile editing turns on");
+  if (level === 3) out.push("Profile widget layout editing");
+  return out;
+}
+
 
 /** XP sources. Awarded server-side every time, with no cooldowns or caps. */
 export type XpSourceId =
