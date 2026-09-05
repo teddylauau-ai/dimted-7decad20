@@ -557,7 +557,7 @@ export const LEVELS: LevelDef[] = [
     seq: [
       ["flat", 6], ["speed", 2], ["spikes", 4, 4], ["orbs", 3], ["coin", 5],
       ["saws", 3], ["tight", 5], ["ship", 26, 1], ["coin", 4],
-      ["flat", 4], ["pillars", 3, 3], ["spikes", 4, 4], ["saws", 2],
+      ["flat", 4], ["pillars", 3, 2], ["spikes", 4, 4], ["saws", 2],
       ["coin", 3], ["flat", 8],
     ],
   },
