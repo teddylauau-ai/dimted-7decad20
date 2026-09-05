@@ -465,18 +465,21 @@ export type Database = {
       }
       crew_members: {
         Row: {
+          contributed_xp: number
           crew_id: string
           joined_at: string
           role: Database["public"]["Enums"]["crew_role"]
           user_id: string
         }
         Insert: {
+          contributed_xp?: number
           crew_id: string
           joined_at?: string
           role?: Database["public"]["Enums"]["crew_role"]
           user_id: string
         }
         Update: {
+          contributed_xp?: number
           crew_id?: string
           joined_at?: string
           role?: Database["public"]["Enums"]["crew_role"]
