@@ -190,10 +190,11 @@ function ShopPage() {
       rotate(
         all.filter((i) => i.pool === "limited" && !isExpired(i)),
         `limited-${weekKey()}`,
-        2,
+        3,
       ),
     [all],
   );
+
 
   // The vaults are a secret shelf: normal accounts never learn they exist.
   // Owner sees both, admins see the staff vault only, everyone else sees neither.
