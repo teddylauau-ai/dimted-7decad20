@@ -28,6 +28,7 @@ export function SpotifyPicks({
   emptyHint?: string | undefined;
 }) {
   const picks = useSpotifyPicks(userId);
+  const music = useMusic();
   const add = useAddSpotifyPick(userId);
   const remove = useRemoveSpotifyPick();
   const [link, setLink] = useState("");
