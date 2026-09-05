@@ -41,6 +41,7 @@ export type CrewRow = {
   badge_emoji: string;
   accent: CrewAccent;
   banner_url: string | null;
+  avatar_url: string | null;
   join_policy: "open" | "invite";
   member_limit: number;
   visibility: "public" | "private";
@@ -247,6 +248,7 @@ export async function updateCrew(
     description: string;
     badge_emoji: string;
     banner_url: string;
+    avatar_url: string;
     accent: CrewAccent;
     visibility: "public" | "private";
     join_policy: "open" | "invite";
@@ -368,4 +370,43 @@ async function uploadCrewImage(userId: string, file: File): Promise<string> {
   const { data, error } = await supabase.storage.from("voice").createSignedUrl(path, 60 * 60 * 24 * 365);
   if (error || !data?.signedUrl) throw error ?? new Error("Couldn't read that image back");
   return data.signedUrl;
+}
+
+/** Upload a crew picture (avatar) and save it on the crew. */
+export async function uploadCrewAvatar(crewId: string, userId: string, file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("That file isn't an image");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Images must be under 8MB");
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `${userId}/crew-avatar-${crewId}-${Date.now()}.${ext}`;
+  const { error: upErr } = await supabase.storage
+    .from("voice")
+    .upload(path, file, { cacheControl: "31536000", contentType: file.type, upsert: true });
+  if (upErr) throw upErr;
+  const { data, error } = await supabase.storage.from("voice").createSignedUrl(path, 60 * 60 * 24 * 365);
+  if (error || !data?.signedUrl) throw error ?? new Error("Couldn't read that image back");
+  await updateCrew(crewId, { avatar_url: data.signedUrl });
+  return data.signedUrl;
+}
+
+export type InvitablePerson = {
+  id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  equipped_frame: string | null;
+  equipped_badge: string | null;
+  last_active_at: string;
+  activity_context: string | null;
+  total_xp: number;
+};
+
+/** Everyone on the server, so invites can be picked from a list instead of typed. */
+export async function fetchInvitablePeople(): Promise<InvitablePerson[]> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(`${PROFILE_FIELDS}, total_xp`)
+    .order("total_xp", { ascending: false })
+    .limit(500);
+  if (error) throw error;
+  return (data ?? []) as unknown as InvitablePerson[];
 }
