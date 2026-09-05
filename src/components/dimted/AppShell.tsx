@@ -29,6 +29,7 @@ import { StatusClock } from "./StatusClock";
 import { BrandMark, Wordmark } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
 import { LevelUpOverlay } from "./LevelUpOverlay";
+import { CommandPalette } from "./CommandPalette";
 
 /** Left icon rail — the places you jump between. */
 const RAIL = [
@@ -283,6 +284,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="mx-auto mb-2 flex w-full max-w-[1680px] items-center justify-between gap-2">
         <StatusClock />
         <div className="flex items-center gap-2">
+          <CommandPalette />
           <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
             Theme
           </span>
