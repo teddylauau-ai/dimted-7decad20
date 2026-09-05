@@ -58,6 +58,14 @@ export function rankLevel(role: CrewRole | null | undefined) {
   return rankOf(role).level;
 }
 
+/** A crew may have the Captain plus exactly one Joint Captain. */
+export const JOINT_CAPTAIN_LIMIT = 1;
+
+export function jointCaptainTaken(roles: (CrewRole | null | undefined)[]) {
+  return roles.filter((r) => r === "captain").length >= JOINT_CAPTAIN_LIMIT;
+}
+
+
 export type CrewAccent = "teal" | "violet" | "amber" | "rose" | "emerald" | "sky" | "slate";
 
 export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: string; ring: string }[] = [
