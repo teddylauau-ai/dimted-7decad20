@@ -246,13 +246,22 @@ export function useCallSession(
         teardown();
         callRef.current = null;
         setCallId(null);
-        const msg = (e as Error).message;
+        const err = e as { name?: string; message?: string };
+        const msg = err.message ?? "";
+        const name = err.name ?? "";
+        const framed = typeof window !== "undefined" && window.self !== window.top;
         setError(
           msg === "insecure"
-            ? "Calls need a secure (https) connection."
-            : msg.includes("Permission") || msg.includes("denied")
-              ? "Allow microphone (and camera) access to call."
-              : "Couldn't start the call on this device.",
+            ? "Calls need a secure (https) connection — open the site in its own tab."
+            : name === "NotAllowedError" || msg.includes("Permission") || msg.includes("denied")
+              ? framed
+                ? "The preview window blocks the mic — open the site in its own tab, then allow microphone access."
+                : "Allow microphone (and camera) access in your browser, then try again."
+              : name === "NotFoundError" || name === "OverconstrainedError"
+                ? "No microphone found on this device."
+                : name === "NotReadableError"
+                  ? "Your mic is busy in another app — close it and try again."
+                  : msg || "Couldn't start the call on this device.",
         );
       } finally {
         setJoining(false);
