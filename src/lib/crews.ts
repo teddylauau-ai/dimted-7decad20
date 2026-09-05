@@ -15,16 +15,18 @@ export const CREW_RANKS: {
     key: "owner",
     label: "Captain",
     level: 5,
-    blurb: "Leads the crew. Full control of settings, ranks and members.",
+    blurb: "Leads the crew. Full control of settings, ranks and members, and picks the Joint Captain.",
     cls: "bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/30",
   },
   {
     key: "captain",
-    label: "First Mate",
+    label: "Joint Captain",
     level: 4,
-    blurb: "Second in command. Can customise the crew, invite and set lower ranks.",
-    cls: "bg-teal-400/15 text-teal-300 ring-1 ring-teal-400/30",
+    blurb:
+      "Shares command with the Captain — customise the crew, invite people and set every lower rank. Only one per crew.",
+    cls: "bg-amber-300/10 text-amber-200 ring-1 ring-amber-300/25",
   },
+
   {
     key: "lieutenant",
     label: "Lieutenant",
