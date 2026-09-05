@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Magnet, Play, Shield, Sparkles, Star, Timer, Trophy, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { claimSkywardMilestones } from "@/lib/achievements";
 import { Button } from "@/components/ui/button";
 import { useDimted } from "@/lib/dimted-store";
 import { awardArcadeXp, submitSkywardRun, useSkywardLeaderboard } from "@/lib/games-queries";
@@ -194,6 +195,11 @@ export function CrewFlight({ crewId, crewName, boostMult = 1 }: { crewId: string
               }).then(() => board.refetch())
             : Promise.resolve(),
         ]);
+        // One-time gate milestones, verified server-side against saved runs.
+        void claimSkywardMilestones(totals.gates).then((bonus) => {
+          if (bonus > 0) toast.success(`+${bonus.toLocaleString()} XP gate milestone bonus`);
+        });
+
         if (reward.status === "awarded" || reward.status === "granted") {
           syncXp(reward, "Skyward run");
           const crewAdded = contrib.added ?? crewGain;

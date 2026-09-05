@@ -289,7 +289,11 @@ export type XpSourceId =
   | "activity"
   | "arcade"
   | "challenge"
-  | "discovery";
+  | "discovery"
+  | "streak"
+  | "achievement"
+  | "bonus";
+
 
 export type XpSource = {
   id: XpSourceId;
@@ -363,6 +367,27 @@ export const XP_SOURCES: XpSource[] = [
     xp: 140,
     cooldownLabel: "no limit",
     note: "Finding a new crew or secret.",
+  },
+  {
+    id: "streak",
+    label: "Daily login streak",
+    xp: 120,
+    cooldownLabel: "once a day",
+    note: "120 XP on day one, +40 for each day in a row, up to 600 XP on day 14. Miss a day and it restarts.",
+  },
+  {
+    id: "achievement",
+    label: "Achievement unlocked",
+    xp: 150,
+    cooldownLabel: "once each",
+    note: "14 one-time milestones paying 150 to 6,000 XP for chatting, friends, crew XP, Pulse Rush, Skyward and study.",
+  },
+  {
+    id: "bonus",
+    label: "First-time game and study bonus",
+    xp: 200,
+    cooldownLabel: "once each",
+    note: "200 XP the first time a study deck hits 80% (350 at 100%), 100-360 XP per first Pulse Rush level clear, and 150-1,200 XP for Skyward gate milestones.",
   },
 ];
 

@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Panel, PanelHead } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, ProfileLink } from "@/components/dimted/Identity";
+import { CrestLadder, CrewCrestRow } from "@/components/dimted/CrewCrest";
 import {
   CREW_ACCENTS,
   CREW_EMOJI,
@@ -439,24 +440,10 @@ function CrewsPage() {
                   <div className="min-w-0">
                     <p className="flex min-w-0 items-center gap-1.5 truncate text-lg font-semibold leading-tight">
                       <span className="truncate">{active.name}</span>
-                      {perkFlags.legendCrest && (
-                        <span className="shrink-0 rounded-md bg-violet-400/15 px-1.5 py-0.5 text-[10px] font-semibold text-violet-200 ring-1 ring-violet-400/30">
-                          ✦ Legend
-                        </span>
-                      )}
-                      {perkFlags.apex && (
-                        <span className="text-gold ring-gold/40 bg-gold/10 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
-                          Apex
-                        </span>
-                      )}
+                      <CrewCrestRow xp={active.total_xp} size="sm" max={4} />
                       {perkFlags.skywardBoost && (
                         <span className="text-primary bg-primary/10 ring-primary/30 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
                           Skyward {perkFlags.skywardBoost2 ? "2x" : "1.5x"}
-                        </span>
-                      )}
-                      {perkFlags.centurion && (
-                        <span className="text-gold ring-gold/50 bg-gold/15 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
-                          Centurion
                         </span>
                       )}
                     </p>
@@ -903,16 +890,7 @@ function CrewLadder({ crews, activeId }: { crews: CrewRow[]; activeId: string })
               <div className="min-w-0 flex-1">
                 <p className="flex items-center gap-1.5 truncate text-sm font-medium">
                   <span className="truncate">{c.name}</span>
-                  {perks.legendCrest && (
-                    <span title="Legend crest — crew level 25" className="text-gold shrink-0">
-                      <Crown className="size-3.5" />
-                    </span>
-                  )}
-                  {perks.apex && (
-                    <span className="bg-gold/15 text-gold shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide">
-                      Apex
-                    </span>
-                  )}
+                  <CrewCrestRow xp={c.total_xp} size="xs" max={3} />
                 </p>
                 <div className="bg-secondary mt-1 h-1.5 w-full max-w-40 overflow-hidden rounded-full">
                   <div className={cn("h-full rounded-full", a.dot)} style={{ width: `${cl.pct}%` }} />
@@ -1003,8 +981,7 @@ function CrewDashboard({ crews, activeId }: { crews: CrewRow[]; activeId: string
                   <div className="min-w-0 flex-1">
                     <p className="flex items-center gap-1.5 truncate text-sm font-medium">
                       <span className="truncate">{r.crew.name}</span>
-                      {f.legendCrest && <span className="shrink-0 text-[11px] text-violet-200">✦</span>}
-                      {f.apex && <span className="text-gold shrink-0 text-[10px] font-semibold">Apex</span>}
+                      <CrewCrestRow xp={r.crew.total_xp} size="xs" max={3} />
                     </p>
                     <p className="text-muted-foreground text-[10px]">
                       Lv {r.level} · {r.crew.memberCount} member{r.crew.memberCount === 1 ? "" : "s"}
@@ -1053,12 +1030,12 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
   const live = [
     { label: "Ladder spotlight", on: flags.spotlight, at: 18 },
     { label: "Skyward 1.5x XP", on: flags.skywardBoost, at: 20 },
-    { label: "Legend crest", on: flags.legendCrest, at: 25 },
-    { label: "Apex gold trim", on: flags.apex, at: 30 },
+    { label: "Legend crest badge", on: flags.legendCrest, at: 25 },
+    { label: "Apex crest + gold trim", on: flags.apex, at: 30 },
     { label: "Skyward 2x XP", on: flags.skywardBoost2, at: 50 },
     { label: "Chat XP ceiling x8", on: flags.chatXpUnleashed, at: 70 },
     { label: "Sovereign trim", on: flags.sovereignTrim, at: 85 },
-    { label: "Centurion crest", on: flags.centurion, at: 100 },
+    { label: "Centurion crest badge", on: flags.centurion, at: 100 },
   ];
   return (
     <div className="space-y-3">
@@ -1092,6 +1069,21 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
           ))}
         </div>
       </Panel>
+
+      <Panel>
+        <PanelHead
+          title="Crew crests"
+          aside={<span className="text-muted-foreground text-xs">Earned on the crew ladder</span>}
+        />
+        <p className="text-muted-foreground mt-1 text-xs">
+          Crests are crew-only badges. They sit next to your crew name in chat, the ladder and the dashboard — nobody
+          can buy them in the shop.
+        </p>
+        <div className="mt-2">
+          <CrestLadder level={level} />
+        </div>
+      </Panel>
+
 
       <div className="grid gap-2 sm:grid-cols-2">
         {CREW_PERKS.map((p: CrewPerk) => {

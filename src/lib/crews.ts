@@ -769,6 +769,44 @@ export const CREW_PERK_LEVELS = {
   centurion: 100,
 } as const;
 
+/**
+ * Crew crests — real badge art earned on the crew ladder. These are drawn only
+ * for crews (see `.crew-crest-*` in styles.css) and share nothing with the
+ * personal shop badges, so a crest always means "this crew earned it".
+ */
+export type CrewCrest = {
+  key: string;
+  label: string;
+  unlock: number;
+  glyph: string;
+  cls: string;
+  blurb: string;
+};
+
+export const CREW_CRESTS: CrewCrest[] = [
+  { key: "ember", label: "Ember", unlock: 6, glyph: "\u25c8", cls: "crew-crest-ember", blurb: "The first crest — a warm ember plate beside your crew name." },
+  { key: "tide", label: "Tide", unlock: 12, glyph: "\u224b", cls: "crew-crest-tide", blurb: "A tidal crest with a cool steel shell." },
+  { key: "pulse", label: "Pulse", unlock: 18, glyph: "\u2726", cls: "crew-crest-pulse", blurb: "A living crest that beats on its own." },
+  { key: "legend", label: "Legend", unlock: 25, glyph: "\u269c", cls: "crew-crest-legend", blurb: "The legend crest: a gilded fleur shell." },
+  { key: "apex", label: "Apex", unlock: 30, glyph: "\u25b2", cls: "crew-crest-apex", blurb: "Apex rays behind a gold summit mark." },
+  { key: "aurora", label: "Aurora", unlock: 35, glyph: "\u2735", cls: "crew-crest-aurora", blurb: "A crest that drifts through aurora colours." },
+  { key: "eclipse", label: "Eclipse", unlock: 55, glyph: "\u25cf", cls: "crew-crest-eclipse", blurb: "A black disc ringed in gold light." },
+  { key: "sovereign", label: "Sovereign", unlock: 80, glyph: "\u2655", cls: "crew-crest-sovereign", blurb: "Liquid gold crest with a flowing sheen." },
+  { key: "centurion", label: "Centurion", unlock: 100, glyph: "\u2739", cls: "crew-crest-centurion", blurb: "The final crest — a spinning prism-gold seal." },
+];
+
+/** Every crest this crew has earned, lowest first. */
+export function crestsFor(totalXp: number): CrewCrest[] {
+  const level = crewLevel(totalXp).level;
+  return CREW_CRESTS.filter((c) => level >= c.unlock);
+}
+
+/** The best crest a crew wears next to its name. */
+export function topCrest(totalXp: number): CrewCrest | null {
+  const earned = crestsFor(totalXp);
+  return earned.length ? earned[earned.length - 1]! : null;
+}
+
 export function crewPerkFlags(totalXp: number) {
   const level = crewLevel(totalXp).level;
   return {

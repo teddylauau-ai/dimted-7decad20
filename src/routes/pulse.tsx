@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { CalendarClock, Check, Coins, Crown, Flame, Infinity as InfinityIcon, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
 import { toast } from "sonner";
+import { awardBonusXp } from "@/lib/achievements";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { PulseSkinPreview } from "@/components/games/PulseSkinPreview";
@@ -165,6 +166,17 @@ function PulsePage() {
         if (reward.status === "granted" || reward.status === "awarded") {
           syncXp(reward, `Pulse Rush level ${level.n}`);
           toast.success(`+${reward.gained} XP · +${reward.sparks_gained} sparks`);
+        }
+        // First clear of a level pays a one-time bonus, verified against saved progress.
+        if (run.pct >= 100) {
+          try {
+            const bonus = await awardBonusXp("pulse_first_clear", String(level.n));
+            if (bonus.status === "awarded") {
+              toast.success(`First clear bonus: +${(bonus.gained ?? 0).toLocaleString()} XP`);
+            }
+          } catch {
+            /* bonus is best-effort */
+          }
         }
         refresh();
       } catch (e) {

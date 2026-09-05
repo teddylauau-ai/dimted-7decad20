@@ -3,6 +3,7 @@ import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, RarityChip, EmptyState } from "@/components/dimted/primitives";
+import { DailyBonus } from "@/components/dimted/DailyBonus";
 import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
@@ -195,6 +196,8 @@ function HomePage() {
           </ol>
         </div>
       </header>
+
+      <DailyBonus />
 
       <SeasonTeaser />
 

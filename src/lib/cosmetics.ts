@@ -33,14 +33,14 @@ export type Cosmetic = {
 
 /** Nametag → classes applied to the name text. */
 export const NAMETAG_CLASS: Record<string, string> = {
-  "tag-s1-signal": "cos-gradient cos-gradient-glacier",
-  "tag-s1-vector": "cos-gradient cos-gradient-neon cos-shimmer",
-  "tag-s1-apex": "cos-gradient cos-gradient-solar cos-shimmer",
-  "tag-season": "cos-gradient cos-gradient-glacier",
-  "tag-crew": "text-uncommon",
-  "tag-comet-tail": "cos-gradient cos-gradient-sunset",
-  "tag-neon-pulse": "cos-gradient cos-gradient-neon cos-shimmer",
-  "tag-holo-drift": "cos-gradient cos-gradient-holo cos-shimmer",
+  "tag-s1-signal": "cos-gradient cos-gradient-s1-signal",
+  "tag-s1-vector": "cos-gradient cos-gradient-s1-vector cos-shimmer",
+  "tag-s1-apex": "cos-gradient cos-gradient-s1-apex cos-shimmer",
+  "tag-season": "cos-gradient cos-gradient-s1-runner",
+  "tag-crew": "text-[oklch(0.86_0.13_162)]",
+  "tag-comet-tail": "cos-gradient cos-gradient-sunset cos-glow-ember",
+  "tag-neon-pulse": "cos-gradient cos-gradient-neon cos-shimmer cos-glow-primary",
+  "tag-holo-drift": "cos-gradient cos-gradient-holo cos-shimmer cos-glow-violet",
   "tag-frost": "text-rare",
   "tag-mint": "text-uncommon",
   "tag-sky": "text-[oklch(0.84_0.11_222)]",
@@ -82,14 +82,14 @@ export const NAMETAG_CLASS: Record<string, string> = {
 
 /** Badge → the glyph drawn after the name. */
 export const BADGE_GLYPH: Record<string, string> = {
-  "badge-s1-comet": "☄",
-  "badge-s1-crest": "❖",
-  "badge-season-legend": "❂",
+  "badge-s1-comet": "✺",
+  "badge-s1-crest": "⬗",
+  "badge-season-legend": "✷",
   "badge-nova-core": "◎",
   "badge-moon-orbit": "☽",
   "badge-crew-anchor": "⚓",
   "badge-crew-skull": "☠",
-  "badge-spark": "✦",
+  "badge-spark": "✧",
   "badge-bolt": "⚡",
   "badge-star": "★",
   "badge-owl": "◗",
@@ -107,7 +107,7 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-sigil": "✜",
   "badge-founder-crest": "⟡",
   "badge-founder-key": "⚿",
-  "badge-sov-crown": "♛",
+  "badge-sov-crown": "♕",
   "badge-sov-sun": "☀",
   "badge-sov-star": "✦",
   "badge-sov-seal": "❂",
@@ -119,9 +119,9 @@ export const BADGE_GLYPH: Record<string, string> = {
 };
 
 export const BADGE_CLASS: Record<string, string> = {
-  "badge-s1-comet": "text-epic",
-  "badge-s1-crest": "text-legendary",
-  "badge-season-legend": "cos-gradient cos-gradient-mythos cos-shimmer cos-glow-mythos",
+  "badge-s1-comet": "cos-gradient cos-gradient-s1-vector cos-shimmer",
+  "badge-s1-crest": "cos-gradient cos-gradient-s1-apex cos-shimmer",
+  "badge-season-legend": "cos-gradient cos-gradient-s1-legend cos-shimmer cos-glow-mythic",
   "badge-nova-core": "text-legendary cos-glow-epic",
   "badge-moon-orbit": "text-rare",
   "badge-crew-anchor": "text-epic",
@@ -163,12 +163,12 @@ export const BADGE_CLASS: Record<string, string> = {
  * spinning frames animate their ring layer only.
  */
 export const FRAME_CLASS: Record<string, string> = {
-  "frame-s1-halo": "cos-ring border-epic/80 cos-glow-epic animate-breathe",
-  "frame-s1-corona": "cos-frame cos-frame-prismatic",
-  "frame-season-gold": "cos-ring border-legendary/80 cos-glow-epic animate-breathe",
+  "frame-s1-halo": "cos-frame cos-frame-s1-halo",
+  "frame-s1-corona": "cos-frame cos-frame-s1-corona",
+  "frame-season-gold": "cos-frame cos-frame-s1-goldring",
   "frame-aurora-ring": "cos-ring border-primary/70 cos-glow-primary animate-breathe",
   "frame-void-glass": "cos-ring border-secret/70 cos-glow-violet",
-  "frame-crew-band": "cos-ring border-rare/70 cos-glow-rare",
+  "frame-crew-band": "cos-ring border-rare/70 cos-glow-primary",
   "frame-hairline": "cos-ring border-common/50",
   "frame-pulse": "cos-ring border-uncommon/60 animate-breathe",
   "frame-tide": "cos-ring border-primary/60 cos-glow-primary",
@@ -265,10 +265,10 @@ export const DEFAULT_BANNER =
 
 /** Message effect → animation classes on a chat row. */
 export const EFFECT_CLASS: Record<string, string> = {
-  "fx-s1-surge": "animate-pop-in cos-wave-row",
-  "fx-ember-trail": "animate-rise cos-comet-row",
-  "fx-prism-shimmer": "animate-pop-in cos-aurora-row",
-  "fx-static-spark": "animate-rise cos-static-row",
+  "fx-s1-surge": "cos-s1-surge-row",
+  "fx-ember-trail": "cos-ember-trail-row",
+  "fx-prism-shimmer": "cos-prism-row",
+  "fx-static-spark": "cos-static-spark-row",
   "fx-fade": "animate-pop-in",
   "fx-slide": "animate-rise",
   "fx-spark": "animate-pop-in cos-spark-row",
@@ -284,9 +284,9 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-sov-decree": "cos-sov-decree-row",
   "fx-sov-goldwave": "cos-sov-goldwave-row",
   "fx-admin-dispatch": "animate-rise cos-admin-dispatch-row",
-  "fx-bounce": "animate-rise",
-  "fx-glimmer": "animate-pop-in cos-glow-row",
-  "fx-drift": "animate-rise",
+  "fx-bounce": "cos-bounce-row",
+  "fx-glimmer": "cos-glimmer-row",
+  "fx-drift": "cos-drift-row",
 };
 
 export type WornCosmetics = {

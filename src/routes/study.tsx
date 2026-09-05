@@ -12,6 +12,7 @@ import { useRefreshDimted } from "@/lib/dimted-queries";
 import { askTutor } from "@/lib/study.functions";
 import { DECKS, SUBJECT_LIST, type Deck } from "@/lib/study-bank";
 import { bestFor, masteredCount, useSaveAttempt, useStudyProgress } from "@/lib/study-queries";
+import { awardBonusXp } from "@/lib/achievements";
 import { awardArcadeXp } from "@/lib/games-queries";
 import { cn } from "@/lib/utils";
 
@@ -114,6 +115,15 @@ function RevisionSection() {
         await save.mutateAsync({ deck: active!.id, percent });
       } catch {
         /* progress save is best-effort */
+      }
+      try {
+        // One-time mastery bonus: 80% pays once per deck, 100% pays once more.
+        const bonus = await awardBonusXp("study_mastery", active!.id);
+        if (bonus.status === "awarded") {
+          toast.success(`+${(bonus.gained ?? 0).toLocaleString()} XP mastery bonus for this deck`);
+        }
+      } catch {
+        /* bonus is best-effort */
       }
       try {
         // Score scales with accuracy so a real effort pays more than a guess-spam.
