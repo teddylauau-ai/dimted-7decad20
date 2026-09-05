@@ -21,7 +21,7 @@ import { nextUnlock } from "@/lib/dimted";
 import { formatSparks } from "@/lib/cosmetics";
 import { Backpack } from "lucide-react";
 import { useMyRole } from "@/lib/roles-queries";
-import { useUnreadMessages, useMessageTabBadge } from "@/lib/unread";
+import { useUnreadMessages, useUnreadCrew, useMessageTabBadge } from "@/lib/unread";
 import { cn } from "@/lib/utils";
 import { Meter } from "./primitives";
 import { Avatar, Nametag, PresenceLabel } from "./Identity";
@@ -102,6 +102,7 @@ function UnreadDot({ count, className }: { count: number; className?: string }) 
 function Rail() {
   const { profile } = useDimted();
   const unread = useUnreadMessages(profile?.id);
+  const crewUnread = useUnreadCrew(profile?.id);
   return (
     <aside className="glass hidden w-[68px] shrink-0 flex-col items-center gap-1.5 rounded-2xl py-3 lg:flex">
       <Link to="/" aria-label="Lazu home" className="mb-1.5">
@@ -123,6 +124,7 @@ function Rail() {
         >
           <Icon className="size-[18px]" strokeWidth={1.9} />
           {to === "/messages" ? <UnreadDot count={unread} className="top-1 right-1" /> : null}
+          {to === "/crews" ? <UnreadDot count={crewUnread} className="top-1 right-1" /> : null}
         </Link>
       ))}
     </aside>
@@ -147,6 +149,7 @@ function Sidebar() {
   const upcoming = nextUnlock(level);
   const { isModerator: isStaff } = useMyRole(profile?.id);
   const unread = useUnreadMessages(profile?.id);
+  const crewUnread = useUnreadCrew(profile?.id);
 
   return (
     <aside className="glass hidden w-[236px] shrink-0 flex-col rounded-2xl lg:flex">
@@ -175,6 +178,8 @@ function Sidebar() {
                 <span className="truncate">{label}</span>
                 {to === "/messages" ? (
                   <UnreadDot count={unread} className="relative ml-auto" />
+                ) : to === "/crews" ? (
+                  <UnreadDot count={crewUnread} className="relative ml-auto" />
                 ) : null}
               </Link>
             ))}
@@ -270,6 +275,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { loading, session, profile } = useDimted();
   const location = useLocation();
   const unread = useUnreadMessages(profile?.id);
+  const crewUnread = useUnreadCrew(profile?.id);
   useMessageTabBadge(unread);
 
   if (loading) {
@@ -337,6 +343,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <Icon className="size-4" strokeWidth={1.85} />
               {to === "/messages" ? <UnreadDot count={unread} className="top-1 right-1" /> : null}
+              {to === "/crews" ? <UnreadDot count={crewUnread} className="top-1 right-1" /> : null}
             </Link>
           ),
         )}
