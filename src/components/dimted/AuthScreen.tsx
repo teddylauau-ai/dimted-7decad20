@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Meter } from "./primitives";
-import { UNLOCKS, XP_SOURCES } from "@/lib/dimted";
+import { UNLOCKS, XP_SOURCES, xpForLevel } from "@/lib/dimted";
+import { LEVELS as PULSE_LEVELS } from "@/lib/pulse";
 
 const ROTATING = ["talk", "play", "climb", "unlock", "win"];
 
