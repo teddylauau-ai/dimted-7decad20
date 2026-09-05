@@ -369,16 +369,36 @@ function AdminPage() {
         }
       />
 
+      {/* ---- Section tabs ---- */}
+      <div className="border-border bg-background/40 flex flex-wrap gap-1 rounded-2xl border p-1">
+        {TABS.filter((t) => (t.ownerOnly ? me.isOwner : t.staffOnly ? me.isStaff : true)).map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={cn(
+              "rounded-xl px-3 py-1.5 font-mono text-[11px] tracking-[0.14em] uppercase transition-colors",
+              tab === t.key
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50",
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {/* ---- Target picker ---- */}
-      <Panel className="p-5">
-        <PanelHead eyebrow="Grant desk" title="Pick an account" aside={`${everyone.length} real accounts`} />
-        <Input
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          placeholder="Search accounts…"
-          className="mt-4"
-        />
-        <div className="mt-3 flex flex-wrap gap-2">
+      <Panel className="p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <PanelHead eyebrow="Target" title={target ? target.display_name : "Pick an account"} />
+          <Input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Search accounts…"
+            className="ml-auto h-9 w-full sm:w-56"
+          />
+        </div>
+        <div className="mt-3 flex max-h-32 flex-wrap gap-2 overflow-y-auto">
           {shown.map((p) => {
             const active = p.id === target?.id;
             const banned = sanctionLabel(p.banned_until);
