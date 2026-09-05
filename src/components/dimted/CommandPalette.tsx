@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import {
   BookOpen,
   Compass,
+  Crown,
   Music4,
   Gamepad2,
   Home,
@@ -10,6 +11,7 @@ import {
   Search,
   ShoppingBag,
   Sparkle,
+  Swords,
   UserRound,
   Users,
   Zap,
