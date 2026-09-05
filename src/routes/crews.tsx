@@ -569,27 +569,67 @@ function CrewsPage() {
 
             ) : (
               <>
-                <div className="relative flex-1 overflow-y-auto p-3">
+                <div
+                  ref={scrollRef}
+                  onScroll={(e) => {
+                    const el = e.currentTarget;
+                    setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+                  }}
+                  className="relative flex-1 overflow-y-auto px-3 py-4"
+                >
                   <div
                     aria-hidden
                     className={cn("pointer-events-none absolute inset-0", ACCENT_TEXT[active.accent])}
                     style={chatBgStyle(active.chat_bg)}
                   />
-                  <div className="relative space-y-3">
-                  {(messages.data ?? []).map((m) => (
-                    <CrewChatRow
-                      key={m.id}
-                      message={m}
-                      crew={active}
-                      isMe={m.user_id === profile?.id}
-                      onReply={() => setReplyTo(m)}
-                    />
-                  ))}
-                  {(messages.data ?? []).length === 0 && (
+                  <div className="relative">
+                  {chatList.map((m, i) => {
+                    const previous = chatList[i - 1];
+                    const grouped =
+                      !!previous &&
+                      previous.user_id === m.user_id &&
+                      Date.parse(m.created_at) - Date.parse(previous.created_at) < 5 * 60 * 1000 &&
+                      new Date(previous.created_at).toDateString() === new Date(m.created_at).toDateString();
+                    const dayStarts =
+                      !previous ||
+                      new Date(previous.created_at).toDateString() !== new Date(m.created_at).toDateString();
+                    return (
+                      <div key={m.id} id={`msg-${m.id}`} className="rounded-lg transition-colors duration-500">
+                        {dayStarts ? (
+                          <div className="my-4 flex items-center gap-3">
+                            <span className="bg-border h-px flex-1" />
+                            <span className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
+                              {new Date(m.created_at).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}
+                            </span>
+                            <span className="bg-border h-px flex-1" />
+                          </div>
+                        ) : null}
+                        <CrewChatRow
+                          message={m}
+                          crew={active}
+                          grouped={grouped}
+                          list={chatList}
+                          onReply={() => setReplyTo(m)}
+                        />
+                      </div>
+                    );
+                  })}
+                  {chatList.length === 0 && (
                     <p className="text-muted-foreground py-8 text-center text-sm">No messages yet — say hi to your crew.</p>
                   )}
                   </div>
                 </div>
+
+                {atBottom ? null : (
+                  <button
+                    type="button"
+                    onClick={() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" })}
+                    className="glass-raised text-foreground mx-auto -mt-9 mb-1 flex w-fit items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] shadow-lg"
+                  >
+                    <ArrowDown className="size-3.5" /> Jump to latest
+                  </button>
+                )}
+
 
                 {replyTo && (
                   <div className="border-t border-border/40 px-3 pt-2">
