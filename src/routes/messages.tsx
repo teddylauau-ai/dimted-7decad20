@@ -1,6 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, Check, Pencil, Pin, Reply, Search, Send, Trash2, X } from "lucide-react";
+import {
+  ArrowDown,
+  Check,
+  CheckCheck,
+  Globe2,
+  Pencil,
+  Pin,
+  Reply,
+  Search,
+  Send,
+  Trash2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
