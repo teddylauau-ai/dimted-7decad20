@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   BADGE_CLASS,
@@ -9,6 +10,16 @@ import {
 import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
 import { presenceFor } from "@/lib/presence";
 import { cn } from "@/lib/utils";
+
+/** Presence is time-based, so re-render every 20s or dots go stale on screen. */
+function usePresenceTick() {
+  const [, tick] = useState(0);
+  useEffect(() => {
+    const t = window.setInterval(() => tick((n) => n + 1), 20_000);
+    return () => window.clearInterval(t);
+  }, []);
+}
+
 
 export type IdentityProfile = {
   username: string;
