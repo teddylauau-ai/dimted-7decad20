@@ -103,6 +103,8 @@ function CrewsPage() {
   const [tab, setTab] = useState<Tab>("chat");
   const [draft, setDraft] = useState("");
   const [replyTo, setReplyTo] = useState<CrewMessage | null>(null);
+  const [atBottom, setAtBottom] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const rows = crews.data ?? [];
   const mine = rows.filter((c) => c.isMember);
