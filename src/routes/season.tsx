@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Check, Lock } from "lucide-react";
+import { Check, Gift, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
@@ -16,6 +16,9 @@ import {
 } from "@/lib/season";
 import { useEffect, useMemo, useState } from "react";
 import { rarityBorder, rarityText, rarityBg } from "@/components/dimted/rarity";
+import { Avatar, Nametag } from "@/components/dimted/Identity";
+import { bannerFor } from "@/lib/cosmetics";
+import type { Cosmetic } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/season")({
@@ -38,6 +41,37 @@ function fmtTime(totalSeconds: number) {
   const h = Math.floor((totalSeconds % 86400) / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   return `${d}d ${h}h ${m}m`;
+}
+
+function RewardPreview({ cosmetic }: { cosmetic: Cosmetic }) {
+  const { profile } = useDimted();
+  const base = {
+    username: undefined,
+    display_name: profile?.display_name ?? "You",
+    equipped_nametag: cosmetic.slot === "nametag" ? cosmetic.slug : null,
+    equipped_badge: cosmetic.slot === "badge" ? cosmetic.slug : null,
+    equipped_frame: cosmetic.slot === "frame" ? cosmetic.slug : null,
+  };
+
+  if (cosmetic.slot === "banner") {
+    return (
+      <div
+        className="h-14 w-full rounded-lg border border-border/60"
+        style={{ background: bannerFor(cosmetic.slug) }}
+        aria-label={`${cosmetic.name} banner preview`}
+      />
+    );
+  }
+
+  return (
+    <div className="bg-background/50 flex items-center gap-2 rounded-lg px-2 py-2">
+      <Avatar profile={base} size={30} presence={false} />
+      <Nametag profile={base} className="text-sm" />
+      {cosmetic.slot === "effect" ? (
+        <span className="text-muted-foreground ml-auto text-[10px]">message effect</span>
+      ) : null}
+    </div>
+  );
 }
 
 function SeasonPage() {
@@ -78,6 +112,34 @@ function SeasonPage() {
     return seasonTimeLeft(season.data.ends_at);
   }, [season.data?.ends_at, now]);
 
+  const claimable = useMemo(
+    () => (tiers.data ?? []).filter((t) => tier >= t.tier && !claimed.includes(t.tier)).map((t) => t.tier),
+    [tiers.data, tier, claimed],
+  );
+  const [claimingAll, setClaimingAll] = useState(false);
+
+  async function claimAll() {
+    if (!season.data || claimable.length === 0) return;
+    setClaimingAll(true);
+    let ok = 0;
+    try {
+      for (const t of claimable) {
+        try {
+          const res = await claimTier(season.data.id, t);
+          if (res.ok) ok += 1;
+        } catch {
+          /* keep going through the rest */
+        }
+      }
+      await progress.refetch();
+      await tiers.refetch();
+      if (ok > 0) toast.success(`Claimed ${ok} tier${ok === 1 ? "" : "s"}`);
+      else toast.error("Nothing could be claimed right now");
+    } finally {
+      setClaimingAll(false);
+    }
+  }
+
   async function claim(tierNum: number) {
     if (!season.data) return;
     try {
@@ -110,9 +172,24 @@ function SeasonPage() {
             <p className="font-display mt-1 text-3xl font-bold">Tier {tier}</p>
             <p className="text-muted-foreground text-sm">{xp.toLocaleString()} season XP</p>
           </div>
-          <div className="text-right">
-            <p className="text-muted-foreground font-mono text-xs">Next tier</p>
-            <p className="font-display text-lg font-semibold">{tierXpNeeded(tier + 1).toLocaleString()} XP</p>
+          <div className="flex flex-col items-end gap-2">
+            <div className="text-right">
+              <p className="text-muted-foreground font-mono text-xs">Next tier</p>
+              <p className="font-display text-lg font-semibold">{tierXpNeeded(tier + 1).toLocaleString()} XP</p>
+            </div>
+            <Button
+              size="sm"
+              onClick={claimAll}
+              disabled={claimable.length === 0 || claimingAll}
+              className="gap-1.5"
+            >
+              <Gift className="size-4" />
+              {claimingAll
+                ? "Claiming…"
+                : claimable.length > 0
+                  ? `Claim all (${claimable.length})`
+                  : "Nothing to claim"}
+            </Button>
           </div>
         </div>
         <div className="bg-secondary mt-3 h-3 overflow-hidden rounded-full">
@@ -155,9 +232,13 @@ function SeasonPage() {
 
               <div className="mt-3">
                 {t.reward_type === "cosmetic" && t.cosmetic ? (
-                  <div className={cn("rounded-xl border p-3", rarityBorder[t.cosmetic.rarity], rarityBg[t.cosmetic.rarity])}>
-                    <p className={cn("font-semibold", rarityText[t.cosmetic.rarity])}>{t.cosmetic.name}</p>
-                    <p className="text-muted-foreground text-[10px] capitalize">{t.cosmetic.slot}</p>
+                  <div className={cn("space-y-2 rounded-xl border p-3", rarityBorder[t.cosmetic.rarity], rarityBg[t.cosmetic.rarity])}>
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={cn("font-semibold", rarityText[t.cosmetic.rarity])}>{t.cosmetic.name}</p>
+                      <p className={cn("text-[10px] capitalize", rarityText[t.cosmetic.rarity])}>{t.cosmetic.rarity}</p>
+                    </div>
+                    <RewardPreview cosmetic={t.cosmetic} />
+                    <p className="text-muted-foreground text-[10px] capitalize">{t.cosmetic.slot} slot</p>
                   </div>
                 ) : t.reward_type === "title" ? (
                   <div className="rounded-xl border border-gold/30 bg-gold/10 p-3">
