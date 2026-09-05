@@ -402,6 +402,8 @@ const MILESTONES = [
   { slug: "m-collector-5", goal: 5, label: "Collector I", xp: 200, sparks: 150 },
   { slug: "m-collector-15", goal: 15, label: "Collector II", xp: 500, sparks: 350 },
   { slug: "m-collector-30", goal: 30, label: "Collector III", xp: 1200, sparks: 800 },
+  { slug: "armory-collector-4", goal: 50, label: "Curator", xp: 1500, sparks: 700 },
+  { slug: "armory-collector-5", goal: 75, label: "Vault Master", xp: 2500, sparks: 1200 },
 ];
 
 /** Collection milestones: one-time rewards for growing your locker. */
@@ -449,7 +451,7 @@ function Milestones({ owned, userId }: { owned: number; userId: string | null })
         title="Rewards for building your locker"
         aside={`${owned} owned`}
       />
-      <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {MILESTONES.map((m) => {
           const done = owned >= m.goal;
           const claimed = claims.data?.has(m.slug) ?? false;
