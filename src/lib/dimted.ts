@@ -289,7 +289,11 @@ export type XpSourceId =
   | "activity"
   | "arcade"
   | "challenge"
-  | "discovery";
+  | "discovery"
+  | "streak"
+  | "achievement"
+  | "bonus";
+
 
 export type XpSource = {
   id: XpSourceId;
