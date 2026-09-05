@@ -8,7 +8,7 @@ import type { Rarity } from "./dimted";
 export type CosmeticSlot = "nametag" | "badge" | "frame" | "banner" | "effect";
 
 /** Which shelf of the shop an item lives on. */
-export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "admin" | "founder" | "owner";
+export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "admin" | "founder" | "owner" | "crew";
 
 export const SLOTS: { slot: CosmeticSlot; label: string; blurb: string }[] = [
   { slot: "nametag", label: "Nametags", blurb: "How your name reads everywhere you speak." },
@@ -38,6 +38,9 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-s1-apex": "cos-gradient cos-gradient-s1-apex cos-shimmer",
   "tag-season": "cos-gradient cos-gradient-s1-runner",
   "tag-crew": "text-[oklch(0.86_0.13_162)]",
+  "tag-crew-signal": "cos-gradient cos-gradient-crew-signal cos-shimmer",
+  "tag-crew-warcry": "cos-gradient cos-gradient-crew-warcry cos-shimmer cos-glow-crew",
+  "tag-crew-formation": "cos-gradient cos-gradient-crew-formation",
   "tag-comet-tail": "cos-gradient cos-gradient-sunset cos-glow-ember",
   "tag-neon-pulse": "cos-gradient cos-gradient-neon cos-shimmer cos-glow-primary",
   "tag-holo-drift": "cos-gradient cos-gradient-holo cos-shimmer cos-glow-violet",
@@ -88,6 +91,9 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-nova-core": "◎",
   "badge-moon-orbit": "☽",
   "badge-crew-anchor": "⚓",
+  "badge-crew-standard": "⛊",
+  "badge-crew-vanguard": "⧗",
+  "badge-crew-wing": "⩓",
   "badge-crew-skull": "☠",
   "badge-spark": "✧",
   "badge-bolt": "⚡",
@@ -125,6 +131,9 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-nova-core": "text-legendary cos-glow-epic",
   "badge-moon-orbit": "text-rare",
   "badge-crew-anchor": "text-epic",
+  "badge-crew-standard": "cos-gradient cos-gradient-crew-signal cos-shimmer",
+  "badge-crew-vanguard": "cos-gradient cos-gradient-crew-warcry cos-shimmer cos-glow-crew",
+  "badge-crew-wing": "text-[oklch(0.88_0.14_168)] cos-glow-crew",
   "badge-crew-skull": "text-rare",
   "badge-spark": "text-common",
   "badge-bolt": "text-common",
@@ -169,6 +178,8 @@ export const FRAME_CLASS: Record<string, string> = {
   "frame-aurora-ring": "cos-ring border-primary/70 cos-glow-primary animate-breathe",
   "frame-void-glass": "cos-ring border-secret/70 cos-glow-violet",
   "frame-crew-band": "cos-ring border-rare/70 cos-glow-primary",
+  "frame-crew-halo": "cos-frame cos-frame-crew-halo",
+  "frame-crew-chevron": "cos-frame cos-frame-crew-chevron",
   "frame-hairline": "cos-ring border-common/50",
   "frame-pulse": "cos-ring border-uncommon/60 animate-breathe",
   "frame-tide": "cos-ring border-primary/60 cos-glow-primary",
@@ -196,6 +207,10 @@ export const FRAME_CLASS: Record<string, string> = {
 
 /** Banner → background style for the profile header. */
 export const BANNER_STYLE: Record<string, string> = {
+  "banner-crew-formation":
+    "repeating-linear-gradient(115deg, oklch(0.86 0.13 168 / 0.12) 0 2px, transparent 2px 16px), radial-gradient(80% 120% at 22% 120%, oklch(0.62 0.14 168 / 0.7), transparent 68%), linear-gradient(120deg, oklch(0.2 0.05 190), oklch(0.13 0.03 250))",
+  "banner-crew-warroom":
+    "repeating-linear-gradient(90deg, oklch(0.8 0.13 330 / 0.1) 0 1px, transparent 1px 20px), radial-gradient(70% 120% at 78% 0%, oklch(0.6 0.16 330 / 0.55), transparent 70%), radial-gradient(70% 120% at 12% 120%, oklch(0.55 0.13 200 / 0.6), transparent 70%), linear-gradient(140deg, oklch(0.19 0.05 300), oklch(0.12 0.03 258))",
   "banner-s1-horizon":
     "radial-gradient(80% 130% at 50% 130%, oklch(0.6 0.13 200 / 0.7), transparent 70%), linear-gradient(120deg, oklch(0.22 0.05 250), oklch(0.14 0.03 258))",
   "banner-s1-zenith":
@@ -265,6 +280,8 @@ export const DEFAULT_BANNER =
 
 /** Message effect → animation classes on a chat row. */
 export const EFFECT_CLASS: Record<string, string> = {
+  "fx-crew-rally": "cos-crew-rally-row",
+  "fx-crew-formation": "cos-crew-formation-row",
   "fx-s1-surge": "cos-s1-surge-row",
   "fx-ember-trail": "cos-ember-trail-row",
   "fx-prism-shimmer": "cos-prism-row",

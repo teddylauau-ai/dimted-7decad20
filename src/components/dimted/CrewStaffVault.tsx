@@ -51,7 +51,7 @@ export function CrewStaffVault({
   const crestGates = useMemo(() => CREW_CRESTS.map((c) => c.unlock), []);
 
   const vault = (cosmetics.data ?? []).filter(
-    (c) => c.pool === "admin" || c.pool === "owner" || c.pool === "founder",
+    (c) => c.pool === "crew",
   );
   const picked = members.find((m) => m.user_id === target) ?? null;
 
