@@ -192,17 +192,39 @@ export function accentOf(accent: string | null | undefined) {
 /** Crew ladder tops out here — a crew cannot go past level 100. */
 export const CREW_MAX_LEVEL = 100;
 
-/** Shared XP that lands a crew exactly on the final crew level. */
-export const CREW_MAX_XP = 900 * (CREW_MAX_LEVEL - 1) ** 2;
+/**
+ * Shared XP needed to move a crew from `level` to the next one. Same shape as
+ * the personal ladder: the first 70 crew levels come quickly off normal chat
+ * and Skyward runs, then 70 → 100 is the long haul that carries most of the
+ * total (~506k XP for the whole climb, not tens of millions).
+ */
+export function crewXpForLevel(level: number): number {
+  const l = Math.min(Math.max(level, 1), CREW_MAX_LEVEL);
+  if (l < 70) return Math.round((80 + 7 * Math.pow(l - 1, 1.35)) / 10) * 10;
+  return Math.round((2000 + 290 * Math.pow(l - 69, 1.35)) / 10) * 10;
+}
 
-/** Crew level: shared XP pool, square-scaled, capped at level 100. */
+/** Cumulative XP needed to sit exactly at the start of `level`. */
+export function crewTotalXpForLevel(level: number): number {
+  let sum = 0;
+  for (let l = 1; l < Math.min(level, CREW_MAX_LEVEL); l++) sum += crewXpForLevel(l);
+  return sum;
+}
+
+/** Shared XP that lands a crew exactly on the final crew level. */
+export const CREW_MAX_XP = crewTotalXpForLevel(CREW_MAX_LEVEL);
+
+/** Crew level from the shared pool, capped at level 100. */
 export function crewLevel(totalXp: number) {
   const xp = Math.max(0, Math.min(totalXp, CREW_MAX_XP));
-  const raw = Math.max(1, Math.floor(Math.sqrt(xp / 900)) + 1);
-  const level = Math.min(CREW_MAX_LEVEL, raw);
-  const floor = 900 * (level - 1) ** 2;
-  const next = 900 * level ** 2;
-  if (level >= CREW_MAX_LEVEL) return { level, floor, next: floor, pct: 100 };
+  let level = 1;
+  let floor = 0;
+  while (level < CREW_MAX_LEVEL && xp - floor >= crewXpForLevel(level)) {
+    floor += crewXpForLevel(level);
+    level += 1;
+  }
+  if (level >= CREW_MAX_LEVEL) return { level: CREW_MAX_LEVEL, floor, next: floor, pct: 100 };
+  const next = floor + crewXpForLevel(level);
   return { level, floor, next, pct: Math.min(100, Math.round(((xp - floor) / (next - floor)) * 100)) };
 }
 
