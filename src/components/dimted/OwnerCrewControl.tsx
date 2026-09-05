@@ -89,7 +89,7 @@ export function OwnerCrewControl({ userId }: { userId: string }) {
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium">{crew.name}</span>
                 <span className="text-muted-foreground block truncate font-mono text-[10px]">
-                  lvl {crewLevel(crew.total_xp)} · {crew.memberCount} members · {crew.visibility}
+                  lvl {crewLevel(crew.total_xp).level} · {crew.memberCount} members · {crew.visibility}
                 </span>
               </span>
             </button>
