@@ -713,8 +713,7 @@ export async function ownerEditCrew(crewId: string, patch: Record<string, unknow
   return data as unknown as { status: string };
 }
 
-/** XP that puts a crew past the top perk level (30) with headroom. */
-export const CREW_MAX_XP = 900 * 31 ** 2;
+/* CREW_MAX_XP lives with crewLevel above — level 100 is the ceiling. */
 
 /**
  * Owner-only: hand a crew every unlock at once — max shared XP (past level 30,
