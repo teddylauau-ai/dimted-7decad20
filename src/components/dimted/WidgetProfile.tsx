@@ -99,7 +99,7 @@ export function WidgetProfile({ userId, editable = false }: { userId: string | u
           <div className="flex gap-2">
             {editing ? (
               <>
-                <Button size="sm" variant="outline" onClick={() => { setEditing(false); setLayout((widgetsQ.data?.length ? widgetsQ.data : DEFAULT_WIDGETS).map(({ id, user_id, ...rest }) => rest)); }}>Cancel</Button>
+                <Button size="sm" variant="outline" onClick={() => { setEditing(false); setLayout((widgetsQ.data?.length ? widgetsQ.data : DEFAULT_WIDGETS).map((w) => ({ ...w, id: undefined, user_id: undefined }))); }}>Cancel</Button>
                 <Button size="sm" onClick={() => void save()}>Save</Button>
               </>
             ) : (
