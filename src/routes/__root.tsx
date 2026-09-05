@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { DimtedProvider } from "@/lib/dimted-store";
 import { AppShell } from "@/components/dimted/AppShell";
 import { CursorGlow } from "@/components/dimted/CursorGlow";
+import { MusicProvider } from "@/lib/music";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
