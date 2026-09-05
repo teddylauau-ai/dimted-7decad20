@@ -37,11 +37,25 @@ function XpTicker() {
   );
 }
 
+function fmtTime(totalSeconds: number) {
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  if (days > 0) return `${days}d ${hours}h`;
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+}
+
 function SeasonTeaser() {
   const { profile } = useDimted();
   const season = useQuery({
     queryKey: ["active-season"],
     queryFn: fetchActiveSeason,
+    staleTime: 60_000,
+  });
+  const tiers = useQuery({
+    queryKey: ["season-tiers", season.data?.id],
+    queryFn: () => fetchSeasonTiers(season.data!.id),
+    enabled: !!season.data?.id,
     staleTime: 60_000,
   });
   const progress = useQuery({
@@ -51,12 +65,12 @@ function SeasonTeaser() {
     staleTime: 30_000,
   });
   if (!season.data) return null;
-  const current = progress.data?.current_tier ?? 0;
-  const xp = progress.data?.xp_in_season ?? 0;
-  const next = season.data.tiers.find((t) => t.tier === current + 1);
-  const xpToNext = next ? next.xp_required - xp : 0;
-  const pct = next ? Math.min(1, Math.max(0, xp / next.xp_required)) : 1;
-  const timeLeft = seasonTimeLeft(season.data);
+  const xp = progress.data?.xp ?? 0;
+  const current = currentTier(xp);
+  const next = (tiers.data ?? []).find((t) => t.tier === current + 1);
+  const xpToNext = next ? tierXpNeeded(current + 1) - xp : 0;
+  const pct = next ? Math.min(1, Math.max(0, xp / tierXpNeeded(current + 1))) : 1;
+  const timeLeft = fmtTime(seasonTimeLeft(season.data.ends_at));
 
   return (
     <Link to="/season" className="block">
@@ -68,7 +82,7 @@ function SeasonTeaser() {
           <p className="eyebrow text-gold">Season Pass</p>
           <p className="truncate text-sm font-medium">{season.data.name}</p>
           <p className="text-muted-foreground mt-0.5 truncate font-mono text-[10px]">
-            Tier {current} · {xpToNext > 0 ? `${xpToNext.toLocaleString()} XP to next` : "max tier"} · {timeLeft}
+            Tier {current} · {xpToNext > 0 ? `${xpToNext.toLocaleString()} XP to next` : "max tier"} · {timeLeft} left
           </p>
         </div>
         <div className="w-24 shrink-0">
