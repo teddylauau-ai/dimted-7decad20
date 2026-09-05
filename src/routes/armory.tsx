@@ -98,20 +98,29 @@ function ArmoryPage() {
     () => (isStaff ? ownedItems.filter((i) => i.pool === "admin") : []),
     [ownedItems, isStaff],
   );
+  const crewItems = useMemo(
+    () => ownedItems.filter((i) => i.pool === "crew"),
+    [ownedItems],
+  );
   const isVault = slot === "vault";
   const isAdmin = slot === "admin";
-  const isExclusive = isVault || isAdmin;
+  const isCrew = slot === "crew";
+  const isExclusive = isVault || isAdmin || isCrew;
   const list = isVault
     ? vaultItems
     : isAdmin
       ? adminItems
-      : ownedItems.filter((i) => i.slot === slot);
+      : isCrew
+        ? crewItems
+        : ownedItems.filter((i) => i.slot === slot && i.pool !== "crew");
   const activeSlug = isExclusive ? null : equipped[slot as CosmeticSlot];
   const meta = isVault
     ? { label: "Owner's Vault", blurb: "One-of-a-kind pieces bound to your account only" }
     : isAdmin
       ? { label: "Admin Vault", blurb: "Staff-issue regalia, granted with your admin role" }
-      : SLOTS.find((s) => s.slot === slot);
+      : isCrew
+        ? { label: "Crew Kit", blurb: "Squad-issue gear, earned and granted through your crew" }
+        : SLOTS.find((s) => s.slot === slot);
 
   async function equip(item: Cosmetic) {
     const isOn = equipped[item.slot] === item.slug;
