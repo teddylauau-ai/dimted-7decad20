@@ -214,7 +214,7 @@ function PublicProfilePage() {
         </div>
       </Panel>
 
-      <WidgetProfile userId={person.id} editable={false} />
+      <WidgetProfile userId={person.id} editable={false} publicProfile={person} />
 
       <Panel className="p-6" delay={40}>
         <PanelHead eyebrow="On repeat" title="Their music" />
