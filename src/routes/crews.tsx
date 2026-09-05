@@ -1001,6 +1001,13 @@ function CrewDashboard({ crews, activeId }: { crews: CrewRow[]; activeId: string
 }
 
 function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt: number }) {
+  const flags = crewPerkFlags(xp);
+  const live = [
+    { label: "Ladder spotlight", on: flags.spotlight, at: 18 },
+    { label: "Skyward 1.5x XP", on: flags.skywardBoost, at: 20 },
+    { label: "Legend crest", on: flags.legendCrest, at: 25 },
+    { label: "Apex gold trim", on: flags.apex, at: 30 },
+  ];
   return (
     <div className="space-y-3">
       <Panel>
@@ -1009,9 +1016,27 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
           aside={<span className="text-muted-foreground text-xs">{Math.max(0, nextAt - xp).toLocaleString()} XP to next level</span>}
         />
         <p className="text-muted-foreground mt-1 text-xs">
-          Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool.
+          Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool. Each
+          message currently banks <span className="text-primary font-semibold">{crewChatXp(xp, "text")} XP</span> (
+          {crewChatXp(xp, "rich")} XP for voice notes and images).
         </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {live.map((l) => (
+            <span
+              key={l.label}
+              className={cn(
+                "rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1",
+                l.on
+                  ? "bg-primary/15 text-primary ring-primary/30"
+                  : "bg-secondary text-muted-foreground ring-border/50",
+              )}
+            >
+              {l.label} · {l.on ? "live" : `Lv ${l.at}`}
+            </span>
+          ))}
+        </div>
       </Panel>
+
       <div className="grid gap-2 sm:grid-cols-2">
         {CREW_PERKS.map((p: CrewPerk) => {
           const unlocked = level >= p.level;
