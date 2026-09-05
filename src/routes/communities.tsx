@@ -75,6 +75,7 @@ function CommunitiesPage() {
   const [tagline, setTagline] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [draft, setDraft] = useState("");
+  const [replyTo, setReplyTo] = useState<import("@/lib/dimted-queries").ChatMessage | null>(null);
   const [managing, setManaging] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const { isStaff: isAdmin } = useMyRole(profile?.id);
