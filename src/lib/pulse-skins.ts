@@ -513,6 +513,34 @@ export function drawBall(slug: string, s: SkinCtx) {
       ctx.restore();
       break;
     }
+    case "ball-orbit": {
+      ctx.beginPath();
+      ctx.arc(0, 0, half, 0, Math.PI * 2);
+      fillStroke(ctx, "#18181b", p, 3);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, half * 1.4, half * 0.5, 0.5, 0, Math.PI * 2);
+      ctx.strokeStyle = q;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      const sa = spin * 2 + now / 700;
+      ctx.beginPath();
+      ctx.arc(Math.cos(sa) * half * 1.4, Math.sin(sa) * half * 0.7, 3, 0, Math.PI * 2);
+      ctx.fillStyle = q;
+      ctx.fill();
+      break;
+    }
+    case "ball-comet": {
+      ctx.beginPath();
+      ctx.arc(0, 0, half, 0, Math.PI * 2);
+      fillStroke(ctx, grad(ctx, half, "#fde68a", "#f97316"), "#7c2d12", 2);
+      for (let i = 1; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.arc(-half * 0.5 * i, half * 0.1 * i, half * 0.34 / i, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(251,146,60,${0.55 - i * 0.14})`;
+        ctx.fill();
+      }
+      break;
+    }
     default: {
       fillStroke(ctx, p, q, 3);
       ctx.save();
@@ -563,6 +591,23 @@ export function drawWave(slug: string, s: SkinCtx) {
       fillStroke(ctx, p, "#ffffff", 2);
       ctx.globalAlpha = 1;
       break;
+    case "wave-razor": {
+      poly(ctx, [
+        [-half * 1.4, half * 0.9],
+        [-half * 0.2, half * 0.25],
+        [half * 1.5, 0],
+        [-half * 0.2, -half * 0.25],
+        [-half * 1.4, -half * 0.9],
+      ]);
+      fillStroke(ctx, grad(ctx, half, "#0c0a09", "#57534e"), "#f43f5e", 2.5);
+      ctx.beginPath();
+      ctx.moveTo(-half * 0.9, 0);
+      ctx.lineTo(half * 1.1, 0);
+      ctx.strokeStyle = "#fda4af";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      break;
+    }
     default:
       poly(ctx, [
         [-half, 0],
@@ -604,6 +649,10 @@ export function trailStyle(slug: string): TrailStyle {
       return { density: 1, life: 380, size: 5, shape: "spark", dual: true, glow: 0 };
     case "trail-pulse":
       return { density: 1, life: 620, size: 10, shape: "ring", dual: false, glow: 12 };
+    case "trail-lumen":
+      return { density: 2, life: 700, size: 4, shape: "dot", dual: true, glow: 10 };
+    case "trail-comet":
+      return { density: 3, life: 600, size: 4, shape: "spark", dual: true, glow: 8 };
     default: // trail-plasma
       return { density: 1, life: 460, size: 5, shape: "dot", dual: false, glow: 12 };
   }
@@ -675,6 +724,8 @@ export function deathStyle(slug: string): DeathStyle {
       return { count: 30, speed: 0.18, inward: true, size: 7, life: 620, shape: "shard", shockwave: true, flash: 0.3, shake: 14 };
     case "death-static":
       return { count: 60, speed: 0.3, inward: false, size: 3, life: 340, shape: "square", shockwave: false, flash: 0.4, shake: 16 };
+    case "death-bloom":
+      return { count: 36, speed: 0.22, inward: false, size: 5, life: 640, shape: "dot", shockwave: true, flash: 0.25, shake: 10 };
     default: // death-shatter
       return { count: 24, speed: 0.28, inward: false, size: 7, life: 560, shape: "shard", shockwave: false, flash: 0.3, shake: 14 };
   }
