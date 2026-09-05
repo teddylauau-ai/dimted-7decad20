@@ -2,12 +2,47 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type CrewRole = "owner" | "captain" | "member";
 
+export type CrewAccent = "teal" | "violet" | "amber" | "rose" | "emerald" | "sky" | "slate";
+
+export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: string; ring: string }[] = [
+  { key: "teal", label: "Aurora", dot: "bg-teal-400", glow: "from-teal-400/25", ring: "ring-teal-400/40" },
+  { key: "violet", label: "Nebula", dot: "bg-violet-400", glow: "from-violet-400/25", ring: "ring-violet-400/40" },
+  { key: "amber", label: "Ember", dot: "bg-amber-400", glow: "from-amber-400/25", ring: "ring-amber-400/40" },
+  { key: "rose", label: "Nova", dot: "bg-rose-400", glow: "from-rose-400/25", ring: "ring-rose-400/40" },
+  { key: "emerald", label: "Verdant", dot: "bg-emerald-400", glow: "from-emerald-400/25", ring: "ring-emerald-400/40" },
+  { key: "sky", label: "Cirrus", dot: "bg-sky-400", glow: "from-sky-400/25", ring: "ring-sky-400/40" },
+  { key: "slate", label: "Obsidian", dot: "bg-slate-400", glow: "from-slate-400/25", ring: "ring-slate-400/40" },
+];
+
+export const CREW_EMOJI = [
+  "🛡️","⚡","🔥","🌊","🦅","🐺","🐉","👾","🚀","🌌","💠","🎯","🎧","🧿","⚔️","🪐","🥇","🧠","🌠","☄️",
+];
+
+const DEFAULT_ACCENT = CREW_ACCENTS[0] as { key: CrewAccent; label: string; dot: string; glow: string; ring: string };
+
+export function accentOf(accent: string | null | undefined) {
+  return CREW_ACCENTS.find((a) => a.key === accent) ?? DEFAULT_ACCENT;
+}
+
+/** Crew level: shared XP pool, 1500 XP per level with gentle scaling. */
+export function crewLevel(totalXp: number) {
+  const level = Math.max(1, Math.floor(Math.sqrt(Math.max(0, totalXp) / 900)) + 1);
+  const floor = 900 * (level - 1) ** 2;
+  const next = 900 * level ** 2;
+  return { level, floor, next, pct: Math.min(100, Math.round(((totalXp - floor) / (next - floor)) * 100)) };
+}
+
 export type CrewRow = {
   id: string;
   slug: string;
   name: string;
   tagline: string | null;
+  description: string | null;
   badge_emoji: string;
+  accent: CrewAccent;
+  banner_url: string | null;
+  join_policy: "open" | "invite";
+  member_limit: number;
   visibility: "public" | "private";
   total_xp: number;
   owner_id: string;
@@ -173,24 +208,69 @@ export async function fetchCrewMessages(crewId: string): Promise<CrewMessage[]> 
   return (data ?? []) as unknown as CrewMessage[];
 }
 
-export async function createCrew(ownerId: string, name: string, tagline: string, visibility: "public" | "private") {
-  const slugBase = name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 30);
-  const slug = `${slugBase || "crew"}-${Math.random().toString(36).slice(2, 6)}`;
-
-  const { data, error } = await supabase
-    .from("crews")
-    .insert({ owner_id: ownerId, name, tagline: tagline || null, slug, visibility })
-    .select("id")
-    .single();
+export async function createCrew(input: {
+  name: string;
+  tagline: string;
+  description: string;
+  badge_emoji: string;
+  accent: CrewAccent;
+  visibility: "public" | "private";
+  join_policy: "open" | "invite";
+}): Promise<string> {
+  const { data, error } = await supabase.rpc("create_crew", {
+    _name: input.name,
+    _tagline: input.tagline,
+    _description: input.description,
+    _badge_emoji: input.badge_emoji,
+    _accent: input.accent,
+    _visibility: input.visibility,
+    _join_policy: input.join_policy,
+  });
   if (error) throw error;
+  const res = (data ?? {}) as { ok?: boolean; id?: string; error?: string };
+  if (!res.ok || !res.id) throw new Error(res.error ?? "Couldn't create that crew");
+  return res.id;
+}
 
-  const crewId = (data as { id: string }).id;
-  await supabase.from("crew_members").insert({ crew_id: crewId, user_id: ownerId, role: "owner" });
-  return crewId;
+export async function joinCrew(crewId: string) {
+  const { data, error } = await supabase.rpc("join_crew", { _crew_id: crewId });
+  if (error) throw error;
+  const res = (data ?? {}) as { ok?: boolean; error?: string };
+  if (!res.ok) throw new Error(res.error ?? "Couldn't join that crew");
+}
+
+export async function updateCrew(
+  crewId: string,
+  patch: Partial<{
+    name: string;
+    tagline: string;
+    description: string;
+    badge_emoji: string;
+    banner_url: string;
+    accent: CrewAccent;
+    visibility: "public" | "private";
+    join_policy: "open" | "invite";
+  }>,
+) {
+  const { data, error } = await supabase.rpc("update_crew", { _crew_id: crewId, _patch: patch });
+  if (error) throw error;
+  const res = (data ?? {}) as { ok?: boolean; error?: string };
+  if (!res.ok) throw new Error(res.error ?? "Couldn't save those changes");
+}
+
+export async function uploadCrewBanner(crewId: string, userId: string, file: File): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("That file isn't an image");
+  if (file.size > 8 * 1024 * 1024) throw new Error("Images must be under 8MB");
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `${userId}/crew-banner-${crewId}-${Date.now()}.${ext}`;
+  const { error: upErr } = await supabase.storage
+    .from("voice")
+    .upload(path, file, { cacheControl: "31536000", contentType: file.type, upsert: true });
+  if (upErr) throw upErr;
+  const { data, error } = await supabase.storage.from("voice").createSignedUrl(path, 60 * 60 * 24 * 365);
+  if (error || !data?.signedUrl) throw error ?? new Error("Couldn't read that image back");
+  await updateCrew(crewId, { banner_url: data.signedUrl });
+  return data.signedUrl;
 }
 
 export async function inviteToCrew(crewId: string, userId: string, invitedBy: string) {
@@ -206,15 +286,8 @@ export async function revokeCrewInvite(crewId: string, userId: string) {
 }
 
 export async function acceptCrewInvite(crewId: string) {
-  const userId = (await supabase.auth.getUser()).data.user?.id;
-  if (!userId) throw new Error("Not signed in");
-  const { data, error } = await supabase.rpc("add_member_to_crew", {
-    _crew_id: crewId,
-    _user_id: userId,
-    _role: "member",
-  });
-  if (error) throw error;
-  return (data ?? { ok: false }) as { ok: boolean; error?: string };
+  await joinCrew(crewId);
+  return { ok: true } as { ok: boolean; error?: string };
 }
 
 export async function leaveCrew(crewId: string, userId: string) {

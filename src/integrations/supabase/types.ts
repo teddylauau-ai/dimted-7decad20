@@ -559,9 +559,14 @@ export type Database = {
       }
       crews: {
         Row: {
+          accent: string
           badge_emoji: string
+          banner_url: string | null
           created_at: string
+          description: string | null
           id: string
+          join_policy: string
+          member_limit: number
           name: string
           owner_id: string
           slug: string
@@ -571,9 +576,14 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          accent?: string
           badge_emoji?: string
+          banner_url?: string | null
           created_at?: string
+          description?: string | null
           id?: string
+          join_policy?: string
+          member_limit?: number
           name: string
           owner_id: string
           slug: string
@@ -583,9 +593,14 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          accent?: string
           badge_emoji?: string
+          banner_url?: string | null
           created_at?: string
+          description?: string | null
           id?: string
+          join_policy?: string
+          member_limit?: number
           name?: string
           owner_id?: string
           slug?: string
@@ -1830,6 +1845,18 @@ export type Database = {
         Args: { _scope_id: string; _scope_type: string }
         Returns: undefined
       }
+      create_crew: {
+        Args: {
+          _accent: string
+          _badge_emoji: string
+          _description: string
+          _join_policy: string
+          _name: string
+          _tagline: string
+          _visibility: string
+        }
+        Returns: Json
+      }
       create_season: { Args: { _days: number; _name: string }; Returns: Json }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       grant_admin_cosmetics: { Args: { _user_id: string }; Returns: undefined }
@@ -1868,6 +1895,7 @@ export type Database = {
       }
       is_muted: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      join_crew: { Args: { _crew_id: string }; Returns: Json }
       level_from_xp: { Args: { _xp: number }; Returns: number }
       mark_dm_read: { Args: { _friendship_id: string }; Returns: undefined }
       mod_delete_dm: { Args: { _message_id: string }; Returns: Json }
@@ -1959,6 +1987,7 @@ export type Database = {
         Args: { _scope_id: string; _scope_type: string }
         Returns: undefined
       }
+      update_crew: { Args: { _crew_id: string; _patch: Json }; Returns: Json }
       vanguard_equip: {
         Args: { _gear: string; _weapon: string }
         Returns: Json
