@@ -675,6 +675,25 @@ export async function ownerEditCrew(crewId: string, patch: Record<string, unknow
   return data as unknown as { status: string };
 }
 
+/** XP that puts a crew past the top perk level (30) with headroom. */
+export const CREW_MAX_XP = 900 * 31 ** 2;
+
+/**
+ * Owner-only: hand a crew every unlock at once — max shared XP (past level 30,
+ * so every badge, nametag, text effect, chat background and perk is live),
+ * the top badge/nametag/effect/background styles and a big member limit.
+ */
+export async function ownerMaxCrew(crewId: string) {
+  return ownerEditCrew(crewId, {
+    total_xp: CREW_MAX_XP,
+    member_limit: 100,
+    badge_style: "pulse" satisfies CrewBadgeStyle,
+    nametag_style: "gradient" satisfies CrewNametag,
+    text_effect: "wave" satisfies CrewTextEffect,
+    chat_bg: "aurora" satisfies CrewChatBg,
+  });
+}
+
 /** Owner-only: pull anyone out of any crew. */
 export async function ownerRemoveCrewMember(crewId: string, userId: string) {
   const { data, error } = await supabase.rpc("owner_remove_crew_member", {

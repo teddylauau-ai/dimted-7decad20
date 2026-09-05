@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Crown, Trash2, UserMinus } from "lucide-react";
+import { Crown, Sparkles, Trash2, UserMinus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,8 @@ import {
   fetchCrews,
   ownerDeleteCrew,
   ownerEditCrew,
+  ownerMaxCrew,
+  CREW_MAX_XP,
   ownerRemoveCrewMember,
   ownerTransferCrew,
 } from "@/lib/crews";
@@ -132,6 +134,20 @@ export function OwnerCrewControl({ userId }: { userId: string }) {
               }
             >
               Save changes
+            </Button>
+            <Button
+              size="sm"
+              className="bg-gold/15 text-gold hover:bg-gold/25 border-gold/40 border"
+              onClick={() =>
+                void guard(async () => {
+                  const res = await ownerMaxCrew(active.id);
+                  setXp(String(CREW_MAX_XP));
+                  setLimit("100");
+                  return res;
+                }, `${active.name} maxed out — every crew unlock is live.`)
+              }
+            >
+              <Sparkles className="mr-1 size-3.5" /> Give everything
             </Button>
             <Button
               size="sm"
