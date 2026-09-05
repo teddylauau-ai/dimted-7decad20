@@ -520,6 +520,45 @@ function CrewsPage() {
                 </Panel>
 
                 <Panel className="mt-3">
+                  <PanelHead
+                    title="Top contributors"
+                    aside={<span className="text-muted-foreground text-xs">XP banked for this crew</span>}
+                  />
+                  <div className="mt-2 space-y-1.5">
+                    {[...(members.data ?? [])]
+                      .sort((a, b) => (b.contributed_xp ?? 0) - (a.contributed_xp ?? 0))
+                      .map((m, i) => (
+                        <div key={m.user_id} className="bg-secondary/20 flex items-center gap-2 rounded-xl p-2">
+                          <span
+                            className={cn(
+                              "w-6 shrink-0 text-center text-xs font-bold",
+                              i === 0 && "text-amber-300",
+                              i === 1 && "text-slate-300",
+                              i === 2 && "text-orange-300",
+                              i > 2 && "text-muted-foreground",
+                            )}
+                          >
+                            {i + 1}
+                          </span>
+                          <Avatar profile={m.profile as any} size={28} />
+                          <ProfileLink
+                            profile={m.profile as any}
+                            className="min-w-0 flex-1 truncate text-sm font-medium hover:underline"
+                          />
+                          <span className="text-primary shrink-0 text-xs font-bold tabular-nums">
+                            {(m.contributed_xp ?? 0).toLocaleString()} XP
+                          </span>
+                        </div>
+                      ))}
+                    {(members.data ?? []).every((m) => !(m.contributed_xp > 0)) && (
+                      <p className="text-muted-foreground px-1 text-xs">
+                        Nobody has banked crew XP yet — chat and play Skyward to climb this ladder.
+                      </p>
+                    )}
+                  </div>
+                </Panel>
+
+                <Panel className="mt-3">
                   <PanelHead title="Rank ladder" />
                   <div className="mt-2 space-y-1.5">
                     {CREW_RANKS.map((r) => (

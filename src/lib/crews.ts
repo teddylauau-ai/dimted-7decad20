@@ -217,6 +217,7 @@ export type CrewMember = {
   user_id: string;
   role: CrewRole;
   joined_at: string;
+  contributed_xp: number;
   profile: {
     id: string;
     username: string;
@@ -318,7 +319,7 @@ export async function fetchCrewBySlug(slug: string): Promise<CrewRow | null> {
 export async function fetchCrewMembers(crewId: string): Promise<CrewMember[]> {
   const { data, error } = await supabase
     .from("crew_members")
-    .select(`crew_id, user_id, role, joined_at, profile:profiles!crew_members_user_id_fkey (${PROFILE_FIELDS})`)
+    .select(`crew_id, user_id, role, joined_at, contributed_xp, profile:profiles!crew_members_user_id_fkey (${PROFILE_FIELDS})`)
     .eq("crew_id", crewId)
     .order("joined_at", { ascending: true });
   if (error) throw error;
