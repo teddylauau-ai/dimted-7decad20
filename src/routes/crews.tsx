@@ -555,7 +555,7 @@ function CrewLadder({ crews, activeId }: { crews: CrewRow[]; activeId: string })
   const ranked = [...crews].sort((a, b) => b.total_xp - a.total_xp);
   return (
     <Panel>
-      <PanelHead title="Crew ladder" hint="Ranked by shared XP pool" />
+      <PanelHead title="Crew ladder" aside={<span className="text-muted-foreground text-xs">Ranked by shared XP</span>} />
       <div className="mt-2 space-y-1.5">
         {ranked.map((c, i) => {
           const cl = crewLevel(c.total_xp);
@@ -603,7 +603,10 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
   return (
     <div className="space-y-3">
       <Panel>
-        <PanelHead title={`Crew level ${level}`} hint={`${Math.max(0, nextAt - xp).toLocaleString()} XP to next level`} />
+        <PanelHead
+          title={`Crew level ${level}`}
+          aside={<span className="text-muted-foreground text-xs">{Math.max(0, nextAt - xp).toLocaleString()} XP to next level</span>}
+        />
         <p className="text-muted-foreground mt-1 text-xs">
           Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool.
         </p>
