@@ -9,6 +9,7 @@ import {
   TITLES,
   UNLOCKS,
   friendshipLevel,
+  xpLabel,
   type Achievement,
 } from "@/lib/dimted";
 import { useDimted } from "@/lib/dimted-store";
