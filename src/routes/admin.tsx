@@ -851,7 +851,11 @@ function AdminPage() {
         </ul>
       </Panel>
 
+      {/* ---- Owner: crews ---- */}
+      {me.isOwner && profile?.id ? <OwnerCrewControl userId={profile.id} /> : null}
+
       {/* ---- Audit ---- */}
+
       <Panel className="p-5">
         <PanelHead eyebrow="Audit" title="Recent staff actions" />
         <ul className="mt-4 space-y-1.5">
