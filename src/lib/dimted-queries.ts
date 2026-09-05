@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchMyCrews } from "@/lib/crews";
 import { friendshipLevel, levelFromTotalXp, type PlayerStats, type Rarity } from "./dimted";
 import type { Cosmetic } from "./cosmetics";
 
@@ -282,7 +283,11 @@ export function countEvents(
 
 export function usePlayerStats(userId: string | undefined, totalXp: number): PlayerStats {
   const friends = useFriendships(userId);
-  const crews = useMyCrews(userId);
+  const crews = useQuery({
+    queryKey: ["my-crews", userId],
+    enabled: !!userId,
+    queryFn: () => fetchMyCrews(userId),
+  });
   const events = useMyXpEvents(userId);
 
   const accepted = (friends.data ?? []).filter((f) => f.status === "accepted");
