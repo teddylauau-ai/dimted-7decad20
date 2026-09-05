@@ -179,6 +179,36 @@ export function Avatar({
 }
 
 /** The name itself, wearing its nametag + badge. */
+/**
+ * A real, visible badge chip — glyph inside a tinted ring — so an equipped badge
+ * reads as a badge next to any name instead of a stray coloured character.
+ */
+export function BadgeMark({
+  slug,
+  size = "sm",
+  className,
+}: {
+  slug?: string | null;
+  size?: "sm" | "md";
+  className?: string;
+}) {
+  if (!slug || !BADGE_GLYPH[slug]) return null;
+  return (
+    <span
+      title="Equipped badge"
+      className={cn(
+        "inline-grid shrink-0 place-items-center rounded-md bg-current/10 ring-1 ring-current/30 leading-none",
+        size === "sm" ? "size-[18px] text-[11px]" : "size-6 text-[13px]",
+        BADGE_CLASS[slug],
+        className,
+      )}
+      aria-hidden
+    >
+      {BADGE_GLYPH[slug]}
+    </span>
+  );
+}
+
 export function Nametag({
   profile,
   className,
@@ -194,11 +224,7 @@ export function Nametag({
   const body = (
     <Tag className={cn("inline-flex items-center gap-1.5 font-medium", className)}>
       <span className={cn(tag)}>{profile?.display_name ?? "Unknown"}</span>
-      {badge && BADGE_GLYPH[badge] ? (
-        <span className={cn("text-xs", BADGE_CLASS[badge])} aria-hidden>
-          {BADGE_GLYPH[badge]}
-        </span>
-      ) : null}
+      <BadgeMark slug={badge} />
     </Tag>
   );
   if (!profile?.username) return body;
