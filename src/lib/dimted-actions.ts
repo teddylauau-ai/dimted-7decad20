@@ -141,10 +141,17 @@ export async function postChannelMessage(
   channelId: string,
   userId: string,
   body: string,
+  replyToId?: string | null,
 ) {
   const { error } = await supabase
     .from("community_messages")
-    .insert({ community_id: communityId, channel_id: channelId, user_id: userId, body });
+    .insert({
+      community_id: communityId,
+      channel_id: channelId,
+      user_id: userId,
+      body,
+      reply_to_id: replyToId ?? null,
+    });
   if (error) throw error;
 }
 
