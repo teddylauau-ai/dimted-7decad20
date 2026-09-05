@@ -184,7 +184,7 @@ export function useDirectMessages(friendshipId: string | undefined) {
     queryFn: async (): Promise<ChatMessage[]> => {
       const { data, error } = await supabase
         .from("messages")
-.select(`id, body, audio_url, audio_ms, image_url, edited_at, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
+.select(`id, body, audio_url, audio_ms, image_url, edited_at, reply_to_id, read_at, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
         .eq("friendship_id", friendshipId!)
         .order("created_at", { ascending: true })
         .limit(100);
