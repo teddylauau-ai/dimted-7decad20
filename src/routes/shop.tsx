@@ -399,8 +399,9 @@ function ShopPage() {
           <PanelHead
             eyebrow="Limited time"
             title="Gone when the clock runs out"
-            aside="never restocked"
+            aside={`swaps in ${formatCountdown(secondsUntilWeeklyReset())}`}
           />
+
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {limited.map((item) => (
               <ItemCard
