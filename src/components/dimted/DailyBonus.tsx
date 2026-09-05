@@ -18,6 +18,15 @@ import {
 
 /** Daily streak claim + achievement tracker. Every number here is the real server payout. */
 export function DailyBonus() {
+  return (
+    <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <DailyStreak />
+      <AchievementBoard />
+    </div>
+  );
+}
+
+export function DailyStreak() {
   const { profile, totalXp, refreshProfile } = useDimted();
   const [claiming, setClaiming] = useState(false);
 
@@ -69,8 +78,7 @@ export function DailyBonus() {
   }
 
   return (
-    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-      <Panel className="p-4">
+      <Panel className="p-3.5">
         <PanelHead
           eyebrow="Every day"
           title="Login streak"
@@ -110,8 +118,33 @@ export function DailyBonus() {
           </span>
         </div>
       </Panel>
+  );
+}
 
-      <Panel className="p-4">
+export function AchievementBoard() {
+  const { profile, totalXp, refreshProfile } = useDimted();
+  const all = useAchievements().data ?? [];
+  const claims = useMyAchievements(profile?.id).data ?? [];
+  const progress = useAchievementProgress(profile?.id, totalXp).data ?? {};
+  const claimed = useMemo(() => new Set(claims.map((c) => c.slug)), [claims]);
+
+  const sync = useSyncAchievements((r) => {
+    const earned = r.earned ?? [];
+    if (!earned.length) {
+      toast.info("No new achievements yet", { description: "Keep going — progress is tracked live." });
+      return;
+    }
+    toast.success(`${earned.length} achievement${earned.length === 1 ? "" : "s"} unlocked`, {
+      description: `${earned.map((e) => e.title).join(", ")} · +${(r.gained ?? 0).toLocaleString()} XP`,
+    });
+    void refreshProfile();
+  });
+
+  const ready = all.filter((a) => !claimed.has(a.slug) && (progress[a.metric] ?? 0) >= a.goal);
+  const pending = all.filter((a) => !claimed.has(a.slug) && (progress[a.metric] ?? 0) < a.goal);
+
+  return (
+      <Panel className="p-3.5">
         <PanelHead
           eyebrow="One-time rewards"
           title="Achievements"
@@ -143,7 +176,7 @@ export function DailyBonus() {
           )}
         </div>
 
-        <div className="mt-3 space-y-1.5">
+        <div className="mt-3 grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
           {[...ready, ...pending].slice(0, 6).map((a) => {
             const have = progress[a.metric] ?? 0;
             const pct = Math.min(100, Math.round((have / a.goal) * 100));
@@ -168,11 +201,10 @@ export function DailyBonus() {
             );
           })}
           {claims.length === all.length && all.length > 0 && (
-            <p className="text-muted-foreground text-xs">Every achievement claimed. Nothing left to farm here.</p>
+            <p className="text-muted-foreground text-xs sm:col-span-2 xl:col-span-3">Every achievement claimed. Nothing left to farm here.</p>
           )}
         </div>
       </Panel>
-    </div>
   );
 }
 
