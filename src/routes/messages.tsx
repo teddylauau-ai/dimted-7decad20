@@ -145,6 +145,18 @@ function MessagesPage() {
 
   const fl = active ? friendshipLevel(active.friendshipXp) : null;
 
+  async function sendImage(file: File) {
+    if (!active || !profile) return;
+    try {
+      await sendDirectImageMessage(active.friendshipId, profile.id, file, "");
+      await messages.refetch();
+      await award("message", `Image to ${active.profile.display_name}`);
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Image didn't send");
+    }
+  }
+
   async function removeMessage(id: string) {
     try {
       await deleteDirectMessage(id);
@@ -158,7 +170,26 @@ function MessagesPage() {
   const ids = useMemo(() => list.map((m) => m.id), [list]);
   const reactions = useReactions("dm", activeId, ids);
   const toggleReaction = useToggleReaction("dm", activeId);
+  const pin = usePinnedMessage("dm", active?.friendshipId);
+  const pinMut = usePinMessage("dm", active?.friendshipId);
+  const unpinMut = useUnpinMessage("dm", active?.friendshipId);
+  const pinnedId = pinnedMessageId(pin.data);
+  const pinnedMsg = pinnedId ? list.find((m) => m.id === pinnedId) : undefined;
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
   const [atBottom, setAtBottom] = useState(true);
+
+  async function saveEdit(id: string) {
+    const body = editDraft.trim();
+    if (!body) return;
+    try {
+      await editDirectMessage(id, body);
+      setEditingId(null);
+      await messages.refetch();
+    } catch {
+      toast.error("Couldn't edit that message");
+    }
+  }
 
   function jumpToLatest() {
     const el = scrollRef.current;
