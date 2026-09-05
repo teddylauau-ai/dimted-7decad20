@@ -34,10 +34,11 @@ export type SpotifyPickWithAuthor = SpotifyPick & {
     username: string;
     display_name: string;
     avatar_url: string | null;
-    level: number;
     equipped_nametag: string | null;
     equipped_badge: string | null;
     equipped_frame: string | null;
+    last_active_at: string | null;
+    activity_context: string | null;
   } | null;
 };
 
@@ -92,7 +93,7 @@ export const KIND_LABEL: Record<SpotifyKind, string> = {
 };
 
 const AUTHOR_FIELDS =
-  "id, username, display_name, avatar_url, level, equipped_nametag, equipped_badge, equipped_frame";
+  "id, username, display_name, avatar_url, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame";
 
 /** Newest picks across every member — powers the Social tab feed. */
 export function useSpotifyFeed(limit = 40) {
