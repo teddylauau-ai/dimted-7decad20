@@ -120,3 +120,76 @@ export async function awardArcadeXp(game: GameId, score: number): Promise<Arcade
   if (error) throw error;
   return data as unknown as ArcadeReward;
 }
+
+/* ------------------------------------------------------------------ skyward */
+
+export type SkywardRow = {
+  userId: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  bestScore: number;
+  gates: number;
+  runs: number;
+};
+
+/** Save a Skyward run so it shows on the crew leaderboard. */
+export async function submitSkywardRun(
+  userId: string,
+  score: number,
+  detail: { gates: number; orbs: number; powers: number },
+) {
+  const { error } = await supabase.from("game_scores").insert({
+    user_id: userId,
+    game: "crew-flight",
+    score: Math.max(0, Math.round(score)),
+    detail,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Top Skyward pilots: best single run plus every gate they've ever cleared.
+ * Gates come from the run detail we store with each score.
+ */
+export function useSkywardLeaderboard() {
+  return useQuery({
+    queryKey: ["skyward-leaderboard"],
+    staleTime: 30_000,
+    queryFn: async (): Promise<SkywardRow[]> => {
+      const { data, error } = await supabase
+        .from("game_scores")
+        .select(`score, detail, profile:profiles!game_scores_user_id_fkey (${AUTHOR})`)
+        .eq("game", "crew-flight")
+        .order("created_at", { ascending: false })
+        .limit(600);
+      if (error) throw error;
+
+      const byUser = new Map<string, SkywardRow>();
+      for (const raw of (data ?? []) as unknown as {
+        score: number;
+        detail: { gates?: number } | null;
+        profile: { id: string; username: string; display_name: string; avatar_url: string | null } | null;
+      }[]) {
+        const p = raw.profile;
+        if (!p) continue;
+        const row =
+          byUser.get(p.id) ??
+          {
+            userId: p.id,
+            username: p.username,
+            displayName: p.display_name,
+            avatarUrl: p.avatar_url,
+            bestScore: 0,
+            gates: 0,
+            runs: 0,
+          };
+        row.bestScore = Math.max(row.bestScore, raw.score ?? 0);
+        row.gates += Math.max(0, Number(raw.detail?.gates ?? 0));
+        row.runs += 1;
+        byUser.set(p.id, row);
+      }
+      return [...byUser.values()].sort((a, b) => b.bestScore - a.bestScore).slice(0, 25);
+    },
+  });
+}
