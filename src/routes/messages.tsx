@@ -622,8 +622,8 @@ function MessagesPage() {
               </div>
             </form>
           </Panel>
+          )}
         </div>
-      )}
     </div>
   );
 }
