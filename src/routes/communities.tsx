@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Globe, Lock, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
+import { Check, Globe, Lock, Pencil, Pin, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,15 @@ import { Reactions } from "@/components/dimted/Reactions";
 import { useReactions, useToggleReaction } from "@/lib/reactions";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
+import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import {
+  editCommunityMessage,
+  pinnedMessageId,
+  postChannelImageMessage,
+  usePinMessage,
+  usePinnedMessage,
+  useUnpinMessage,
+} from "@/lib/chat-extras";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -120,6 +129,37 @@ function CommunitiesPage() {
   const toggleReaction = useToggleReaction("community", activeChannel?.id ?? null);
   const typingNames = useTypingUsers("channel", activeChannel?.id, profile?.id);
   const typing = useTypingSignal("channel", activeChannel?.id);
+  const pin = usePinnedMessage("community", activeChannel?.id);
+  const pinMut = usePinMessage("community", activeChannel?.id);
+  const unpinMut = useUnpinMessage("community", activeChannel?.id);
+  const pinnedId = pinnedMessageId(pin.data);
+  const pinnedMsg = pinnedId ? (messages.data ?? []).find((m) => m.id === pinnedId) : undefined;
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+
+  async function saveEdit(id: string) {
+    const body = editDraft.trim();
+    if (!body) return;
+    try {
+      await editCommunityMessage(id, body);
+      setEditingId(null);
+      await messages.refetch();
+    } catch {
+      toast.error("Couldn't edit that message");
+    }
+  }
+
+  async function postImage(file: File) {
+    if (!profile || !active || !activeChannel) return;
+    try {
+      await postChannelImageMessage(active.id, activeChannel.id, profile.id, file, "");
+      await messages.refetch();
+      await award("community", `Image in #${activeChannel.name}`);
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Image didn't post");
+    }
+  }
 
   async function post(e: React.FormEvent) {
     e.preventDefault();
