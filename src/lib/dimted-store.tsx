@@ -260,10 +260,7 @@ export function DimtedProvider({ children }: { children: ReactNode }) {
 
       if (result.status === "granted" || result.status === "awarded") {
         syncXp(result, label ?? source);
-        // Push the same XP into the current season track in the background.
-        if (result.gained) {
-          void supabase.rpc("add_season_xp", { _amount: result.gained });
-        }
+        // Season XP is credited server-side by the xp_events trigger.
         return "granted";
       }
       if (result.status === "capped") return "capped";
