@@ -478,26 +478,56 @@ function CrewsPage() {
                 <Panel>
                   <PanelHead title={`Members · ${active.memberCount}/${active.member_limit}`} />
                   <div className="mt-2 space-y-2">
-                    {(members.data ?? []).map((m) => (
-                      <div key={m.user_id} className="bg-secondary/20 flex items-center gap-2 rounded-xl p-2">
-                        <Avatar profile={m.profile as any} size={34} />
-                        <div className="min-w-0 flex-1">
-                          <ProfileLink profile={m.profile as any} className="truncate text-sm font-medium hover:underline" />
-                          <p className="text-muted-foreground text-[10px] capitalize">{m.role}</p>
-                        </div>
-                        {myRole === "owner" && m.user_id !== profile?.id && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => promote(m, m.role === "captain" ? "member" : "captain")}
-                              className="text-primary text-[10px] hover:underline"
-                            >
-                              {m.role === "captain" ? "Demote" : "Make captain"}
-                            </button>
-                            <button onClick={() => kick(m)} className="text-destructive text-[10px] hover:underline">
-                              Remove
-                            </button>
+                    {[...(members.data ?? [])]
+                      .sort((a, b) => rankLevel(b.role) - rankLevel(a.role) || a.joined_at.localeCompare(b.joined_at))
+                      .map((m) => {
+                        const rank = rankOf(m.role);
+                        const myLevel = isStaff ? 5 : rankLevel(myRole);
+                        const canRank =
+                          (isStaff || myLevel >= 4) && m.user_id !== profile?.id && rankLevel(m.role) < myLevel;
+                        return (
+                          <div key={m.user_id} className="bg-secondary/20 flex items-center gap-2 rounded-xl p-2">
+                            <Avatar profile={m.profile as any} size={34} />
+                            <div className="min-w-0 flex-1">
+                              <ProfileLink profile={m.profile as any} className="truncate text-sm font-medium hover:underline" />
+                              <span className={cn("mt-0.5 inline-block rounded-md px-1.5 py-0.5 text-[10px] font-semibold", rank.cls)}>
+                                {rank.label}
+                              </span>
+                            </div>
+                            {canRank && (
+                              <div className="flex items-center gap-2">
+                                <select
+                                  aria-label={`Rank for ${m.profile.display_name || m.profile.username}`}
+                                  value={m.role}
+                                  onChange={(e) => setRank(m, e.target.value as CrewRole)}
+                                  className="bg-secondary/60 rounded-lg px-1.5 py-1 text-[10px] outline-none"
+                                >
+                                  {CREW_RANKS.filter((r) => r.level < myLevel).map((r) => (
+                                    <option key={r.key} value={r.key}>
+                                      {r.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                <button onClick={() => kick(m)} className="text-destructive text-[10px] hover:underline">
+                                  Remove
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
+                        );
+                      })}
+                  </div>
+                </Panel>
+
+                <Panel className="mt-3">
+                  <PanelHead title="Rank ladder" />
+                  <div className="mt-2 space-y-1.5">
+                    {CREW_RANKS.map((r) => (
+                      <div key={r.key} className="flex items-start gap-2">
+                        <span className={cn("w-20 shrink-0 rounded-md px-1.5 py-0.5 text-center text-[10px] font-semibold", r.cls)}>
+                          {r.label}
+                        </span>
+                        <p className="text-muted-foreground text-[11px] leading-snug">{r.blurb}</p>
                       </div>
                     ))}
                   </div>
