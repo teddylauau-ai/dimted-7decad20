@@ -172,7 +172,10 @@ export function useSkywardLeaderboard() {
         profile: { id: string; username: string; display_name: string; avatar_url: string | null } | null;
       }[]) {
         const p = raw.profile;
-        if (!p) continue;
+        // Only real run records count. The XP award writes its own row for the
+        // same run (no gate count), which would double runs and show a score
+        // that never matches the run you just flew.
+        if (!p || raw.detail?.gates === undefined || raw.detail?.gates === null) continue;
         const row =
           byUser.get(p.id) ??
           {
