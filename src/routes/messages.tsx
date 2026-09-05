@@ -363,8 +363,8 @@ function MessagesPage() {
                     new Date(previous.created_at).toDateString() !==
                       new Date(m.created_at).toDateString();
                   const mine = m.author?.id === profile?.id;
-                  return (
-                    <div key={m.id}>
+                   return (
+                     <div key={m.id} id={`msg-${m.id}`} className="rounded-lg transition-colors duration-500">
                       {dayStarts ? (
                         <div className="my-4 flex items-center gap-3">
                           <span className="bg-border h-px flex-1" />
@@ -469,16 +469,47 @@ function MessagesPage() {
                             }
                           />
                         </div>
-                        {mine || isModerator ? (
+                        <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
                           <button
                             type="button"
-                            aria-label="Delete message"
-                            onClick={() => void removeMessage(m.id)}
-                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive shrink-0 self-start pt-1"
+                            aria-label="Pin message"
+                            title="Pin message"
+                            onClick={() =>
+                              profile && pinMut.mutate({ messageId: m.id, userId: profile.id })
+                            }
+                            className={cn(
+                              "text-muted-foreground/0 group-hover:text-muted-foreground rounded p-0.5 transition hover:!text-amber-400",
+                              pinnedId === m.id && "!text-amber-400 opacity-100",
+                            )}
                           >
-                            <Trash2 className="size-3.5" />
+                            <Pin className="size-3.5" />
                           </button>
-                        ) : null}
+                          {mine && !m.audio_url && !m.image_url ? (
+                            <button
+                              type="button"
+                              aria-label="Edit message"
+                              title="Edit message"
+                              onClick={() => {
+                                setEditingId(m.id);
+                                setEditDraft(m.body);
+                              }}
+                              className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-foreground rounded p-0.5"
+                            >
+                              <Pencil className="size-3.5" />
+                            </button>
+                          ) : null}
+                          {mine || isModerator ? (
+                            <button
+                              type="button"
+                              aria-label="Delete message"
+                              title="Delete message"
+                              onClick={() => void removeMessage(m.id)}
+                              className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive rounded p-0.5"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   );
