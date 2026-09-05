@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Meter, Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
+import { CallPanel } from "@/components/dimted/CallPanel";
 import { Avatar, ProfileLink } from "@/components/dimted/Identity";
 import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { COMMUNITY_UNLOCKS, communityLevel, nextCommunityUnlock } from "@/lib/dimted";
@@ -355,6 +356,20 @@ function CommunitiesPage() {
                 ) : null}
               </span>
             </header>
+
+            {activeChannel ? (
+              <div className="border-border bg-background/30 border-b px-5 py-2">
+                <CallPanel
+                  scope="channel"
+                  scopeId={activeChannel.id}
+                  meId={profile?.id}
+                  meProfile={profile as never}
+                  lookup={(id) =>
+                    ((messages.data ?? []).find((m) => m.author?.id === id)?.author as never) ?? null
+                  }
+                />
+              </div>
+            ) : null}
 
             {managing && canManage && active ? (
               <div className="border-border bg-background/40 space-y-4 border-b px-5 py-4">
