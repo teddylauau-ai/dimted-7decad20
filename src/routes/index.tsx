@@ -21,7 +21,14 @@ import {
 import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
 import { friendshipLevel } from "@/lib/dimted";
-import { fetchActiveSeason, fetchMySeasonProgress, seasonTimeLeft } from "@/lib/season";
+import {
+  fetchActiveSeason,
+  fetchMySeasonProgress,
+  fetchSeasonTiers,
+  seasonTimeLeft,
+  currentTier,
+  tierXpNeeded,
+} from "@/lib/season";
 
 
 function XpTicker() {
