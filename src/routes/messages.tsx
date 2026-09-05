@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, Check, Pencil, Pin, Search, Send, Trash2, X } from "lucide-react";
+import { ArrowDown, Check, Pencil, Pin, Reply, Search, Send, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +24,7 @@ import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
 import { useMyRole } from "@/lib/roles-queries";
-import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import { ChatImage, ImagePicker, PinBanner, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import {
   editDirectMessage,
   pinnedMessageId,
@@ -72,6 +72,7 @@ function MessagesPage() {
   const [filter, setFilter] = useState("");
   const { isModerator } = useMyRole(profile?.id);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [replyTo, setReplyTo] = useState<import("@/lib/dimted-queries").ChatMessage | null>(null);
 
   /** Most recently active conversation first — that's the one you land in. */
   const accepted = useMemo(
@@ -123,10 +124,12 @@ function MessagesPage() {
     e.preventDefault();
     const body = draft.trim();
     if (!body || !active || !profile) return;
+    const replyingTo = replyTo;
     setDraft("");
+    setReplyTo(null);
     typing.clear();
     try {
-      await sendDirectMessage(active.friendshipId, profile.id, body);
+      await sendDirectMessage(active.friendshipId, profile.id, body, replyingTo?.id ?? null);
       await messages.refetch();
       await award("message", `Message to ${active.profile.display_name}`);
       refresh();
@@ -396,6 +399,17 @@ function MessagesPage() {
                           <Avatar profile={m.author} size={36} className="mt-0.5" />
                         )}
                         <div className="min-w-0 flex-1">
+                          {m.reply_to_id ? (
+                            <ReplyQuote
+                              target={findReplyTarget(list, m)}
+                              onJump={(id) => {
+                                const el = document.getElementById(`msg-${id}`);
+                                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                el?.classList.add("bg-amber-500/10");
+                                setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
+                              }}
+                            />
+                          ) : null}
                           {grouped ? null : (
                             <p className="flex items-baseline gap-2">
                               <ProfileLink profile={m.author} className="text-sm" />
@@ -472,6 +486,15 @@ function MessagesPage() {
                         <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
                           <button
                             type="button"
+                            aria-label="Reply to message"
+                            title="Reply"
+                            onClick={() => setReplyTo(m)}
+                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-primary rounded p-0.5"
+                          >
+                            <Reply className="size-3.5" />
+                          </button>
+                          <button
+                            type="button"
                             aria-label="Pin message"
                             title="Pin message"
                             onClick={() =>
@@ -536,6 +559,7 @@ function MessagesPage() {
               onSubmit={send}
               className="border-border bg-secondary/15 overflow-hidden border-t"
             >
+              {replyTo ? <ReplyChip target={replyTo} onCancel={() => setReplyTo(null)} /> : null}
               <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-3">
                 <ImagePicker onPick={sendImage} disabled={!active} />

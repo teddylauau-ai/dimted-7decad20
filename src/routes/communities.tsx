@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Globe, Lock, Pencil, Pin, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
+import { Check, Globe, Lock, Pencil, Pin, Plus, Reply, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ import { Reactions } from "@/components/dimted/Reactions";
 import { useReactions, useToggleReaction } from "@/lib/reactions";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
-import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import { ChatImage, ImagePicker, PinBanner, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import {
   editCommunityMessage,
   pinnedMessageId,
@@ -75,6 +75,7 @@ function CommunitiesPage() {
   const [tagline, setTagline] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [draft, setDraft] = useState("");
+  const [replyTo, setReplyTo] = useState<import("@/lib/dimted-queries").ChatMessage | null>(null);
   const [managing, setManaging] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const { isStaff: isAdmin } = useMyRole(profile?.id);
@@ -165,10 +166,12 @@ function CommunitiesPage() {
     e.preventDefault();
     const body = draft.trim();
     if (!body || !profile || !active || !activeChannel) return;
+    const replyingTo = replyTo;
     setDraft("");
+    setReplyTo(null);
     typing.clear();
     try {
-      await postChannelMessage(active.id, activeChannel.id, profile.id, body);
+      await postChannelMessage(active.id, activeChannel.id, profile.id, body, replyingTo?.id ?? null);
       await messages.refetch();
       await award("community", `Posted in #${activeChannel.name}`);
       refresh();
@@ -540,8 +543,19 @@ function CommunitiesPage() {
                       ) : (
                         <Avatar profile={m.author} size={36} className="mt-0.5" />
                       )}
-                      <div className="min-w-0 flex-1">
-                        {grouped ? null : (
+                        <div className="min-w-0 flex-1">
+                          {m.reply_to_id ? (
+                            <ReplyQuote
+                              target={findReplyTarget(list, m)}
+                              onJump={(id) => {
+                                const el = document.getElementById(`msg-${id}`);
+                                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                                el?.classList.add("bg-amber-500/10");
+                                setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
+                              }}
+                            />
+                          ) : null}
+                          {grouped ? null : (
                           <p className="flex items-baseline gap-2">
                             <ProfileLink profile={m.author} className="text-sm" />
                             <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
@@ -604,11 +618,20 @@ function CommunitiesPage() {
                           }
                         />
                       </div>
-                      <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
-                        <button
-                          type="button"
-                          aria-label="Pin message"
-                          title="Pin message"
+                       <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
+                         <button
+                           type="button"
+                           aria-label="Reply to message"
+                           title="Reply"
+                           onClick={() => setReplyTo(m)}
+                           className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-primary rounded p-0.5"
+                         >
+                           <Reply className="size-3.5" />
+                         </button>
+                         <button
+                           type="button"
+                           aria-label="Pin message"
+                           title="Pin message"
                           onClick={() =>
                             profile && pinMut.mutate({ messageId: m.id, userId: profile.id })
                           }
@@ -652,6 +675,7 @@ function CommunitiesPage() {
             </div>
 
             <form onSubmit={post} className="border-border overflow-hidden border-t">
+              {replyTo ? <ReplyChip target={replyTo} onCancel={() => setReplyTo(null)} /> : null}
               <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-4">
                 <ImagePicker onPick={postImage} disabled={!activeChannel} />

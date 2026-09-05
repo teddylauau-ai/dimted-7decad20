@@ -22,10 +22,15 @@ export async function respondToFriendRequest(friendshipId: string, accept: boole
   if (error) throw error;
 }
 
-export async function sendDirectMessage(friendshipId: string, senderId: string, body: string) {
+export async function sendDirectMessage(
+  friendshipId: string,
+  senderId: string,
+  body: string,
+  replyToId?: string | null,
+) {
   const { error } = await supabase
     .from("messages")
-    .insert({ friendship_id: friendshipId, sender_id: senderId, body });
+    .insert({ friendship_id: friendshipId, sender_id: senderId, body, reply_to_id: replyToId ?? null });
   if (error) throw error;
 }
 
@@ -136,10 +141,17 @@ export async function postChannelMessage(
   channelId: string,
   userId: string,
   body: string,
+  replyToId?: string | null,
 ) {
   const { error } = await supabase
     .from("community_messages")
-    .insert({ community_id: communityId, channel_id: channelId, user_id: userId, body });
+    .insert({
+      community_id: communityId,
+      channel_id: channelId,
+      user_id: userId,
+      body,
+      reply_to_id: replyToId ?? null,
+    });
   if (error) throw error;
 }
 
