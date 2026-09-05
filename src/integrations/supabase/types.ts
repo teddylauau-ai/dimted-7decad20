@@ -1865,6 +1865,10 @@ export type Database = {
         Returns: Json
       }
       create_season: { Args: { _days: number; _name: string }; Returns: Json }
+      crew_contribute_xp: {
+        Args: { _amount: number; _crew_id: string }
+        Returns: Json
+      }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       grant_admin_cosmetics: { Args: { _user_id: string }; Returns: undefined }
       grant_founder_cosmetics: {
