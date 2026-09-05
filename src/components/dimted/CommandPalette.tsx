@@ -13,7 +13,6 @@ import {
   Sparkle,
   Swords,
   UserRound,
-  Users,
   Zap,
   Backpack,
   ShieldCheck,

@@ -13,7 +13,6 @@ import {
   Sparkle,
   Swords,
   UserRound,
-  Users,
   Zap,
 } from "lucide-react";
 import type { ReactNode } from "react";

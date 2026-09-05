@@ -11,13 +11,12 @@ import { SECRETS, communityLevel, levelFromTotalXp } from "@/lib/dimted";
 import {
   isRecentlyActive,
   searchProfiles,
-  useCommunities,
   useFriendships,
   useNewestProfiles,
   useRefreshDimted,
   type PublicProfile,
 } from "@/lib/dimted-queries";
-import { joinCommunity, sendFriendRequest } from "@/lib/dimted-actions";
+import { sendFriendRequest } from "@/lib/dimted-actions";
 
 export const Route = createFileRoute("/discover")({
   head: () => ({
@@ -26,7 +25,7 @@ export const Route = createFileRoute("/discover")({
       {
         name: "description",
         content:
-          "Find real Lazu accounts, open communities and the secrets still hidden at your level.",
+          "Find real Lazu accounts, and the secrets still hidden at your level.",
       },
       { property: "og:title", content: "Discover — Lazu" },
       { property: "og:description", content: "Everything you find here is real." },
@@ -38,7 +37,6 @@ export const Route = createFileRoute("/discover")({
 function DiscoverPage() {
   const { profile, level, award } = useDimted();
   const friends = useFriendships(profile?.id);
-  const communities = useCommunities(profile?.id);
   const newest = useNewestProfiles(profile?.id);
   const refresh = useRefreshDimted();
 
@@ -94,7 +92,7 @@ function DiscoverPage() {
       <PageHeader
         eyebrow="Explore"
         title="Discover"
-        blurb="Real accounts and real communities. Nothing on this page is generated."
+        blurb="Real accounts only. Nothing on this page is generated."
       />
 
       <Panel className="p-5">
@@ -145,34 +143,6 @@ function DiscoverPage() {
       </Panel>
 
       <div className="grid gap-5 xl:grid-cols-2">
-        <Panel className="p-5" delay={60}>
-          <PanelHead eyebrow="Communities" title="Open to join" />
-          {openCommunities.length === 0 ? (
-            <p className="text-muted-foreground mt-4 text-sm">
-              No open communities right now. Create the first one.
-            </p>
-          ) : (
-            <ul className="mt-4 space-y-2">
-              {openCommunities.map((c) => (
-                <li
-                  key={c.id}
-                  className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-3"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium">{c.name}</span>
-                    <span className="text-muted-foreground block truncate text-xs">
-                      Lv {communityLevel(c.total_xp).level} · {c.memberCount} member
-                      {c.memberCount === 1 ? "" : "s"}
-                    </span>
-                  </span>
-                  <Button size="sm" variant="outline" onClick={() => void join(c.id)}>
-                    Join
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
 
       </div>
 
