@@ -21,7 +21,7 @@ import {
 } from "@/lib/dimted";
 import { useCosmetics, useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
-import { friendshipLevel, MAX_LEVEL, xpLabel } from "@/lib/dimted";
+import { friendshipLevel, MAX_LEVEL, rungSources, xpLabel } from "@/lib/dimted";
 import {
   fetchActiveSeason,
   fetchMySeasonProgress,
