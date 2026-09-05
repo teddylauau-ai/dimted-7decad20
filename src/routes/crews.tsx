@@ -32,6 +32,7 @@ import {
   crewChatXp,
   crewMaxProgress,
   CREW_MAX_XP,
+  CREW_MAX_LEVEL,
   fetchCrewInvites,
   fetchCrewMembers,
   fetchCrewMessages,
