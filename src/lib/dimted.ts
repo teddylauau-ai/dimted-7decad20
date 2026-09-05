@@ -223,62 +223,70 @@ export type XpSource = {
   note: string;
 };
 
+/**
+ * These numbers are the real server-side base amounts used by the `award_xp`
+ * and `award_arcade_xp` database functions. Keep them in sync — the login page
+ * and Home ladder advertise them directly.
+ *
+ * Every award is scaled by +4% per level you already have, and doubled while a
+ * Surge is active.
+ */
 export const XP_SOURCES: XpSource[] = [
   {
     id: "message",
-    label: "Meaningful message",
-    xp: 4,
+    label: "Message sent",
+    xp: 12,
     cooldownLabel: "no limit",
-    note: "Every message you send earns XP.",
+    note: "Every message in a DM, General or crew chat. Voice notes and images count too.",
   },
   {
     id: "conversation",
     label: "Two-way conversation",
-    xp: 40,
+    xp: 90,
     cooldownLabel: "no limit",
     note: "Both people have to actually reply.",
   },
   {
     id: "community",
-    label: "Community participation",
-    xp: 60,
+    label: "General chat post",
+    xp: 110,
     cooldownLabel: "no limit",
-    note: "Posting in a channel you haven't touched recently.",
+    note: "Posting in the shared General chat.",
   },
   {
     id: "friend",
     label: "New friend",
-    xp: 120,
+    xp: 220,
     cooldownLabel: "no limit",
     note: "Awarded when a friend request is accepted.",
   },
   {
     id: "arcade",
-    label: "Arcade run",
-    xp: 200,
+    label: "Arcade or Pulse Rush run",
+    xp: 55,
     cooldownLabel: "no limit",
-    note: "Scales with your score. Beat your personal best for a bonus — no other players needed.",
+    note: "55 base plus 4.4 per √score, up to 650. A new personal best adds 90.",
   },
   {
     id: "activity",
     label: "Social activity",
-    xp: 100,
+    xp: 180,
     cooldownLabel: "no limit",
     note: "Doing something with another real account.",
   },
   {
     id: "challenge",
-    label: "Challenge complete",
-    xp: 150,
+    label: "Quest complete",
+    xp: 260,
     cooldownLabel: "no limit",
-    note: "Daily and weekly challenge rewards.",
+    note: "Daily and weekly quest rewards.",
   },
   {
     id: "discovery",
     label: "Discovery",
-    xp: 80,
+    xp: 140,
     cooldownLabel: "no limit",
-    note: "Finding a new community or secret.",
+    note: "Finding a new crew or secret.",
   },
 ];
 

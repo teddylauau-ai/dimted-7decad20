@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Meter } from "./primitives";
-import { UNLOCKS, XP_SOURCES } from "@/lib/dimted";
+import { UNLOCKS, XP_SOURCES, xpForLevel } from "@/lib/dimted";
+import { LEVELS as PULSE_LEVELS } from "@/lib/pulse";
 
 const ROTATING = ["talk", "play", "climb", "unlock", "win"];
 
@@ -44,7 +45,10 @@ const SHAPES: Shape[] = [
 
 const PILLARS = [
   { title: "Chat that counts", body: "Every message, voice note and reply feeds your XP bar." },
-  { title: "Pulse Rush", body: "15 hand-built rhythm levels, leaderboards and secret coins." },
+  {
+    title: "Pulse Rush",
+    body: `${PULSE_LEVELS.length} hand-built rhythm levels plus Infinite Run, leaderboards and secret coins.`,
+  },
   { title: "Earned, never bought", body: "Cosmetics, ranks and vaults come from playing — not paying." },
 ];
 
@@ -302,9 +306,9 @@ export function AuthScreen() {
                 Newcomer
               </span>
             </div>
-            <Meter value={0.02} tone="xp" className="mt-2" />
+            <Meter value={0} tone="xp" className="mt-2" />
             <p className="text-muted-foreground mt-2 font-mono text-[10px]">
-              0 / 260 XP — where everyone starts
+              0 / {xpForLevel(1)} XP — where everyone starts
             </p>
           </div>
         </div>
