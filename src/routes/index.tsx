@@ -602,12 +602,24 @@ function HomePage() {
                             ? u.detail
                             : "No new unlock at this level — XP only."}
                       </span>
+                      <span className="mt-1 flex flex-wrap gap-1">
+                        {rungSources(level).map((s) => (
+                          <span
+                            key={s.id}
+                            title={s.note}
+                            className="border-border bg-secondary/30 text-muted-foreground rounded-md border px-1.5 py-0.5 font-mono text-[10px]"
+                          >
+                            {s.label} +{s.amount.toLocaleString()}
+                          </span>
+                        ))}
+                      </span>
                     </span>
                     {u ? <RarityChip rarity={u.rarity} /> : null}
                   </li>
                 );
               })}
           </ul>
+
 
           <p className="text-muted-foreground mt-3 flex items-start gap-2 text-xs">
             <Sparkles className="text-gold mt-0.5 size-3.5 shrink-0" />
