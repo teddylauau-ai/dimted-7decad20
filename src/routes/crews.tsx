@@ -310,6 +310,8 @@ function CrewsPage() {
 
   return (
     <div className="flex h-[calc(100vh-7rem)] min-h-[520px] gap-3">
+      <Celebration trigger={party} label={partyLabel} />
+
       {/* sidebar */}
       <aside className="glass flex w-64 shrink-0 flex-col rounded-2xl">
         <div className="flex items-center justify-between p-3">
