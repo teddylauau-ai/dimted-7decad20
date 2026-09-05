@@ -188,9 +188,9 @@ export function BadgeMark({
   size = "sm",
   className,
 }: {
-  slug?: string | null;
-  size?: "sm" | "md";
-  className?: string;
+  slug?: string | null | undefined;
+  size?: "sm" | "md" | undefined;
+  className?: string | undefined;
 }) {
   if (!slug || !BADGE_GLYPH[slug]) return null;
   return (
