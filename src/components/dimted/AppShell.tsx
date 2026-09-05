@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpen,
   Compass,
+  Crown,
   Gamepad2,
   Home,
   LogOut,
@@ -10,6 +11,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkle,
+  Swords,
   UserRound,
   Users,
   Zap,
