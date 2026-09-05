@@ -15,16 +15,18 @@ export const CREW_RANKS: {
     key: "owner",
     label: "Captain",
     level: 5,
-    blurb: "Leads the crew. Full control of settings, ranks and members.",
+    blurb: "Leads the crew. Full control of settings, ranks and members, and picks the Joint Captain.",
     cls: "bg-amber-400/15 text-amber-300 ring-1 ring-amber-400/30",
   },
   {
     key: "captain",
-    label: "First Mate",
+    label: "Joint Captain",
     level: 4,
-    blurb: "Second in command. Can customise the crew, invite and set lower ranks.",
-    cls: "bg-teal-400/15 text-teal-300 ring-1 ring-teal-400/30",
+    blurb:
+      "Shares command with the Captain — customise the crew, invite people and set every lower rank. Only one per crew.",
+    cls: "bg-amber-300/10 text-amber-200 ring-1 ring-amber-300/25",
   },
+
   {
     key: "lieutenant",
     label: "Lieutenant",
@@ -55,6 +57,14 @@ export function rankOf(role: CrewRole | null | undefined) {
 export function rankLevel(role: CrewRole | null | undefined) {
   return rankOf(role).level;
 }
+
+/** A crew may have the Captain plus exactly one Joint Captain. */
+export const JOINT_CAPTAIN_LIMIT = 1;
+
+export function jointCaptainTaken(roles: (CrewRole | null | undefined)[]) {
+  return roles.filter((r) => r === "captain").length >= JOINT_CAPTAIN_LIMIT;
+}
+
 
 export type CrewAccent = "teal" | "violet" | "amber" | "rose" | "emerald" | "sky" | "slate";
 
@@ -618,19 +628,38 @@ export const CREW_PERKS: CrewPerk[] = [
   { level: 7, title: "Shimmer messages", blurb: "Unlocks the animated Shimmer message effect." },
   { level: 8, title: "Gradient nametag", blurb: "Unlocks the Gradient crew nametag style." },
   { level: 9, title: "Waves background", blurb: "Unlocks the Waves chat background." },
+  {
+    level: 10,
+    title: "Chat XP boost",
+    blurb: "Every crew level adds +10% to the XP each message banks — x1.9 at level 10, x3.9 at level 30.",
+  },
   { level: 12, title: "Holo & Outline", blurb: "Unlocks the Holo badge shell and the Outline nametag style." },
   { level: 13, title: "Circuit background", blurb: "Unlocks the Circuit chat background." },
   { level: 14, title: "Wave messages", blurb: "Unlocks the animated Wave message effect." },
   { level: 16, title: "Terminal nametag", blurb: "Unlocks the Terminal crew nametag style." },
   {
     level: 18,
-    title: "Ladder spotlight",
-    blurb: "Your crew row is highlighted with a glowing accent frame on the crew ladder.",
+    title: "Pulse shell & ladder spotlight",
+    blurb:
+      "Unlocks the animated Pulse badge shell, and your crew gets a glowing accent frame on the ladder, the dashboard and the crew header.",
   },
-  { level: 20, title: "Skyward multiplier", blurb: "Skyward runs bank 1.5x XP into the crew pool." },
-  { level: 25, title: "Legend crest", blurb: "A legendary crest sits next to your crew name on the ladder." },
-  { level: 30, title: "Apex crew", blurb: "Gold ladder trim and the Apex tag on your crew row." },
+  {
+    level: 20,
+    title: "Skyward multiplier",
+    blurb: "Skyward runs bank 1.5x XP into the crew pool, and a Boosted tag shows in the crew header.",
+  },
+  {
+    level: 25,
+    title: "Legend crest",
+    blurb: "A legendary crest sits next to your crew name on the ladder and in the crew header.",
+  },
+  {
+    level: 30,
+    title: "Apex crew",
+    blurb: "Gold trim and the Apex tag on your crew row, the dashboard and the crew header.",
+  },
 ];
+
 
 export function perksUpTo(level: number) {
   return CREW_PERKS.filter((p) => p.level <= level);

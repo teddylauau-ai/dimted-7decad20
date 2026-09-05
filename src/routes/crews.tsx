@@ -279,6 +279,9 @@ function CrewsPage() {
 
   const accent = accentOf(active?.accent);
   const lvl = crewLevel(active?.total_xp ?? 0);
+  const perkFlags = crewPerkFlags(active?.total_xp ?? 0);
+  const jointTaken = (members.data ?? []).some((m) => m.role === "captain");
+
 
   return (
     <div className="flex h-[calc(100vh-7rem)] min-h-[520px] gap-3">
@@ -407,12 +410,30 @@ function CrewsPage() {
                 <div className="flex min-w-0 items-center gap-3">
                   <CrewMark crew={active} size={52} rounded="rounded-2xl" />
                   <div className="min-w-0">
-                    <p className="truncate text-lg font-semibold leading-tight">{active.name}</p>
+                    <p className="flex min-w-0 items-center gap-1.5 truncate text-lg font-semibold leading-tight">
+                      <span className="truncate">{active.name}</span>
+                      {perkFlags.legendCrest && (
+                        <span className="shrink-0 rounded-md bg-violet-400/15 px-1.5 py-0.5 text-[10px] font-semibold text-violet-200 ring-1 ring-violet-400/30">
+                          ✦ Legend
+                        </span>
+                      )}
+                      {perkFlags.apex && (
+                        <span className="text-gold ring-gold/40 bg-gold/10 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
+                          Apex
+                        </span>
+                      )}
+                      {perkFlags.skywardBoost && (
+                        <span className="text-primary bg-primary/10 ring-primary/30 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1">
+                          Skyward 1.5x
+                        </span>
+                      )}
+                    </p>
                     <p className="text-muted-foreground truncate text-xs">
                       {active.tagline || "No tagline yet"} · {active.visibility === "private" ? "Private" : "Public"}
                     </p>
                   </div>
                 </div>
+
                 <div className="flex shrink-0 items-center gap-4">
                   <div className="hidden text-right sm:block">
                     <p className="eyebrow">Crew level</p>
@@ -513,11 +534,19 @@ function CrewsPage() {
                                   onChange={(e) => setRank(m, e.target.value as CrewRole)}
                                   className="bg-secondary/60 rounded-lg px-1.5 py-1 text-[10px] outline-none"
                                 >
-                                  {CREW_RANKS.filter((r) => r.level < myLevel).map((r) => (
+                                  {CREW_RANKS.filter((r) => {
+                                    if (r.level >= 5) return false;
+                                    if (r.key === "captain")
+                                      return (
+                                        (isStaff || myLevel >= 5) && (!jointTaken || m.role === "captain")
+                                      );
+                                    return r.level < myLevel;
+                                  }).map((r) => (
                                     <option key={r.key} value={r.key}>
                                       {r.label}
                                     </option>
                                   ))}
+
                                 </select>
                                 <button onClick={() => kick(m)} className="text-destructive text-[10px] hover:underline">
                                   Remove
@@ -918,22 +947,30 @@ function CrewDashboard({ crews, activeId }: { crews: CrewRow[]; activeId: string
         <div className="mt-2 space-y-2">
           {rows.map((r) => {
             const a = accentOf(r.crew.accent);
+            const f = crewPerkFlags(r.crew.total_xp);
             return (
               <div
                 key={r.crew.id}
                 className={cn(
                   "rounded-xl p-2.5",
                   r.crew.id === activeId ? "bg-primary/10 ring-1 ring-primary/30" : "bg-secondary/20",
+                  f.spotlight && cn("ring-1", a.ring),
+                  f.apex && "ring-gold/50 ring-1",
                 )}
               >
                 <div className="flex items-center gap-2.5">
                   <CrewMark crew={r.crew} size={28} />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{r.crew.name}</p>
+                    <p className="flex items-center gap-1.5 truncate text-sm font-medium">
+                      <span className="truncate">{r.crew.name}</span>
+                      {f.legendCrest && <span className="shrink-0 text-[11px] text-violet-200">✦</span>}
+                      {f.apex && <span className="text-gold shrink-0 text-[10px] font-semibold">Apex</span>}
+                    </p>
                     <p className="text-muted-foreground text-[10px]">
                       Lv {r.level} · {r.crew.memberCount} member{r.crew.memberCount === 1 ? "" : "s"}
                     </p>
                   </div>
+
                   <p className="text-sm font-semibold">{r.crew.total_xp.toLocaleString()} XP</p>
                 </div>
 
@@ -972,6 +1009,13 @@ function CrewDashboard({ crews, activeId }: { crews: CrewRow[]; activeId: string
 }
 
 function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt: number }) {
+  const flags = crewPerkFlags(xp);
+  const live = [
+    { label: "Ladder spotlight", on: flags.spotlight, at: 18 },
+    { label: "Skyward 1.5x XP", on: flags.skywardBoost, at: 20 },
+    { label: "Legend crest", on: flags.legendCrest, at: 25 },
+    { label: "Apex gold trim", on: flags.apex, at: 30 },
+  ];
   return (
     <div className="space-y-3">
       <Panel>
@@ -980,9 +1024,27 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
           aside={<span className="text-muted-foreground text-xs">{Math.max(0, nextAt - xp).toLocaleString()} XP to next level</span>}
         />
         <p className="text-muted-foreground mt-1 text-xs">
-          Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool.
+          Everything your crew does — chat, voice notes, images and Skyward runs — pours into one shared pool. Each
+          message currently banks <span className="text-primary font-semibold">{crewChatXp(xp, "text")} XP</span> (
+          {crewChatXp(xp, "rich")} XP for voice notes and images).
         </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {live.map((l) => (
+            <span
+              key={l.label}
+              className={cn(
+                "rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1",
+                l.on
+                  ? "bg-primary/15 text-primary ring-primary/30"
+                  : "bg-secondary text-muted-foreground ring-border/50",
+              )}
+            >
+              {l.label} · {l.on ? "live" : `Lv ${l.at}`}
+            </span>
+          ))}
+        </div>
       </Panel>
+
       <div className="grid gap-2 sm:grid-cols-2">
         {CREW_PERKS.map((p: CrewPerk) => {
           const unlocked = level >= p.level;
