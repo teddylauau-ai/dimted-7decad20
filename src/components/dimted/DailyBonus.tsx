@@ -69,7 +69,7 @@ export function DailyBonus() {
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+    <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
       <Panel className="p-4">
         <PanelHead
           eyebrow="Every day"
