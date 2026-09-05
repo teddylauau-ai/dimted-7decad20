@@ -78,10 +78,10 @@ export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: 
   { key: "slate", label: "Obsidian", dot: "bg-slate-400", glow: "from-slate-400/25", ring: "ring-slate-400/40" },
 ];
 
-export type CrewBadgeStyle = "plain" | "ring" | "plate" | "crest" | "holo" | "pulse";
-export type CrewNametag = "none" | "accent" | "glow" | "gradient" | "outline" | "mono";
-export type CrewTextEffect = "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave";
-export type CrewChatBg = "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass";
+export type CrewBadgeStyle = "plain" | "ring" | "plate" | "crest" | "holo" | "pulse" | "aurora" | "eclipse" | "sovereign" | "centurion";
+export type CrewNametag = "none" | "accent" | "glow" | "gradient" | "outline" | "mono" | "prism" | "aurora" | "sovereign";
+export type CrewTextEffect = "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave" | "pulse" | "prism";
+export type CrewChatBg = "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass" | "nebula" | "eclipse" | "sovereign";
 
 /** Crew badge shells — how the crew emoji/picture is framed everywhere. */
 export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: number; cls: string }[] = [
@@ -91,6 +91,10 @@ export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: nu
   { key: "crest", label: "Crest", unlock: 6, cls: "ring-2 rotate-3 shadow-lg shadow-black/40" },
   { key: "holo", label: "Holo", unlock: 12, cls: "ring-2 shadow-[0_0_18px_-2px_currentColor]" },
   { key: "pulse", label: "Pulse", unlock: 18, cls: "ring-2 animate-pulse shadow-[0_0_22px_-4px_currentColor]" },
+  { key: "aurora", label: "Aurora", unlock: 35, cls: "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_26px_-4px_currentColor]" },
+  { key: "eclipse", label: "Eclipse", unlock: 55, cls: "ring-[3px] shadow-[0_0_28px_-6px_currentColor] brightness-110" },
+  { key: "sovereign", label: "Sovereign", unlock: 80, cls: "ring-[3px] ring-amber-300/70 shadow-[0_0_30px_-4px_rgba(252,211,77,0.7)]" },
+  { key: "centurion", label: "Centurion", unlock: 100, cls: "ring-[3px] ring-amber-200 animate-pulse shadow-[0_0_36px_-2px_rgba(253,230,138,0.85)]" },
 ];
 
 /** Crew nametags — applied to member names inside crew chat. */
@@ -101,6 +105,9 @@ export const CREW_NAMETAGS: { key: CrewNametag; label: string; unlock: number; c
   { key: "gradient", label: "Gradient", unlock: 8, cls: "font-bold bg-gradient-to-r from-current to-foreground bg-clip-text text-transparent" },
   { key: "outline", label: "Outline", unlock: 12, cls: "font-bold [-webkit-text-stroke:0.6px_currentColor]" },
   { key: "mono", label: "Terminal", unlock: 16, cls: "font-mono text-[11px] uppercase tracking-[0.14em]" },
+  { key: "prism", label: "Prism", unlock: 40, cls: "font-bold bg-gradient-to-r from-current via-foreground to-current bg-clip-text text-transparent" },
+  { key: "aurora", label: "Aurora", unlock: 65, cls: "font-bold drop-shadow-[0_0_10px_currentColor]" },
+  { key: "sovereign", label: "Sovereign", unlock: 90, cls: "font-bold text-amber-200 drop-shadow-[0_0_10px_rgba(252,211,77,0.75)]" },
 ];
 
 /** Crew message text effects. */
@@ -111,6 +118,8 @@ export const CREW_TEXT_EFFECTS: { key: CrewTextEffect; label: string; unlock: nu
   { key: "sharp", label: "Sharp", unlock: 5, cls: "font-medium tracking-tight" },
   { key: "soft", label: "Soft", unlock: 5, cls: "italic opacity-90" },
   { key: "wave", label: "Wave", unlock: 14, cls: "crew-fx-wave" },
+  { key: "pulse", label: "Pulse", unlock: 45, cls: "animate-pulse font-medium" },
+  { key: "prism", label: "Prism", unlock: 75, cls: "crew-fx-shimmer font-semibold tracking-tight" },
 ];
 
 /** Crew chat backgrounds. */
