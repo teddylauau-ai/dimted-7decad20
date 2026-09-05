@@ -208,7 +208,7 @@ export function useChannelMessages(channelId: string | undefined) {
         )
         .eq("channel_id", channelId!)
         .order("created_at")
-        .limit(200);
+        .limit(120);
       if (error) throw error;
       return (data ?? []) as unknown as ChatMessage[];
     },
@@ -262,7 +262,8 @@ export function useMyXpEvents(userId: string | undefined) {
         .from("xp_events")
         .select("source, created_at")
         .eq("user_id", userId!)
-        .gte("created_at", since);
+        .gte("created_at", since)
+        .limit(500);
       if (error) throw error;
       return (data ?? []) as { source: string; created_at: string }[];
     },
@@ -485,7 +486,8 @@ export function useQuestClaims(userId: string | undefined) {
       const { data, error } = await supabase
         .from("quest_claims")
         .select("quest_slug, period_key, created_at")
-        .gte("created_at", since);
+        .gte("created_at", since)
+        .limit(500);
       if (error) throw error;
       return (data ?? []) as QuestClaim[];
     },

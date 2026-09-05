@@ -310,7 +310,7 @@ export async function fetchCrewMessages(crewId: string): Promise<CrewMessage[]> 
     )
     .eq("crew_id", crewId)
     .order("created_at", { ascending: true })
-    .limit(200);
+    .limit(120);
   if (error) throw error;
   return (data ?? []) as unknown as CrewMessage[];
 }
@@ -516,7 +516,7 @@ export async function fetchInvitablePeople(): Promise<InvitablePerson[]> {
     .from("profiles")
     .select(`${PROFILE_FIELDS}, total_xp`)
     .order("total_xp", { ascending: false })
-    .limit(500);
+    .limit(200);
   if (error) throw error;
   return (data ?? []) as unknown as InvitablePerson[];
 }
