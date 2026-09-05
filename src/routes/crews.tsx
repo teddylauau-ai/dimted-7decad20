@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { Globe, Lock, Plus, Send, Settings2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { Panel, PanelHead } from "@/components/dimted/primitives";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, ProfileLink } from "@/components/dimted/Identity";
 import {
@@ -16,7 +16,6 @@ import {
   fetchCrews,
   fetchMyCrewInvites,
   inviteToCrew,
-  leaveCrew,
   postCrewImageMessage,
   postCrewMessage,
   postCrewVoiceMessage,
@@ -26,13 +25,13 @@ import {
   type CrewInvite,
   type CrewMember,
   type CrewMessage,
-  type CrewRow,
 } from "@/lib/crews";
 import { useMyRole } from "@/lib/roles-queries";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
-import { ChatImage, ImagePicker, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
+import { ChatImage, ImagePicker, ReplyChip, ReplyQuote } from "@/components/dimted/ChatExtras";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/crews")({
   head: () => ({
@@ -221,7 +220,7 @@ function CrewsPage() {
       {/* sidebar */}
       <aside className="glass flex w-64 shrink-0 flex-col rounded-2xl">
         <div className="flex items-center justify-between p-3">
-          <PageHeader title="Crews" subtitle="Your squads" />
+          <PanelHead title="Crews" />
           <button onClick={() => setCreating(true)} className="text-primary hover:bg-secondary/60 grid size-8 place-items-center rounded-xl">
             <Plus className="size-4" />
           </button>
@@ -319,7 +318,7 @@ function CrewsPage() {
                       <div key={m.user_id} className="flex items-center gap-2 rounded-xl bg-secondary/20 p-2">
                         <Avatar profile={m.profile as any} size={32} />
                         <div className="min-w-0 flex-1">
-                          <ProfileLink username={m.profile.username} className="truncate text-sm font-medium hover:underline" />
+                          <ProfileLink profile={m.profile as any} className="truncate text-sm font-medium hover:underline" />
                           <p className="text-muted-foreground text-[10px] capitalize">{m.role}</p>
                         </div>
                         {myRole === "owner" && m.user_id !== profile?.id && (
@@ -366,13 +365,13 @@ function CrewsPage() {
 
                 {replyTo && (
                   <div className="border-t border-border/40 px-3 pt-2">
-                    <ReplyChip reply={replyTo} onClear={() => setReplyTo(null)} />
+                    <ReplyChip target={replyTo as any} onCancel={() => setReplyTo(null)} />
                   </div>
                 )}
 
                 <form onSubmit={post} className="flex items-end gap-2 p-3 pt-2">
-                  <ImagePicker onImage={postImage} />
-                  <VoiceRecorder onRecording={postVoice} />
+                  <ImagePicker onPick={postImage} />
+                  <VoiceRecorder onSend={postVoice} />
                   <Input
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
@@ -410,9 +409,9 @@ function CrewChatRow({
           <span className="text-xs font-semibold opacity-90">{a?.display_name || a?.username}</span>
           <span className="text-[10px] opacity-60">{new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
         </div>
-        {message.reply_to_id && <ReplyQuote message={message as any} />}
-        {message.image_url ? <ChatImage url={message.image_url} /> : <p className="whitespace-pre-wrap text-sm">{message.body}</p>}
-        {message.audio_url && <VoicePlayer url={message.audio_url} durationMs={message.audio_ms ?? 0} />}
+        {message.reply_to_id && <ReplyQuote target={message as any} />}
+        {message.image_url ? <ChatImage src={message.image_url} /> : <p className="whitespace-pre-wrap text-sm">{message.body}</p>}
+        {message.audio_url && <VoicePlayer url={message.audio_url} ms={message.audio_ms ?? 0} />}
         <button onClick={onReply} className="mt-1 text-[10px] opacity-60 hover:opacity-100">Reply</button>
       </div>
     </div>
