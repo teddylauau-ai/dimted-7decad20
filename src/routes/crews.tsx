@@ -941,7 +941,9 @@ function CrewDashboard({ crews, activeId }: { crews: CrewRow[]; activeId: string
         <PanelHead
           title="Crew XP dashboard"
           aside={
-            <span className="text-muted-foreground text-xs">Max ladder = {CREW_MAX_XP.toLocaleString()} XP</span>
+            <span className="text-muted-foreground text-xs">
+              Cap = Level {CREW_MAX_LEVEL} · {CREW_MAX_XP.toLocaleString()} XP
+            </span>
           }
         />
         <div className="mt-2 space-y-2">
