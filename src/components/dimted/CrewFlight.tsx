@@ -780,6 +780,51 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
           ? "Crew Lv 20+ boost active: 1.5x crew XP from gates, orbs, power-ups and missions."
           : "Gates 22 · orbs 14 · power-ups 18 crew XP each, plus mission bonuses into the shared pool."}
       </p>
+
+      <div className="glass w-full max-w-[560px] rounded-2xl p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="flex items-center gap-1.5 text-sm font-semibold">
+            <Trophy className="size-4 text-gold" /> Skyward leaderboard
+          </p>
+          <span className="text-muted-foreground text-[10px] uppercase tracking-wide">Best run · gates cleared</span>
+        </div>
+        <div className="space-y-1">
+          {(board.data ?? []).map((row, i) => (
+            <div
+              key={row.userId}
+              className={cn(
+                "flex items-center gap-2.5 rounded-xl px-2 py-1.5",
+                row.userId === profile?.id ? "bg-primary/10 ring-1 ring-primary/30" : "bg-secondary/20",
+              )}
+            >
+              <span
+                className={cn(
+                  "font-display w-6 text-center text-sm font-bold",
+                  i === 0 ? "text-gold" : i < 3 ? "text-primary" : "text-muted-foreground",
+                )}
+              >
+                {i + 1}
+              </span>
+              <span className="bg-secondary size-7 shrink-0 overflow-hidden rounded-full">
+                {row.avatarUrl && <img src={row.avatarUrl} alt="" className="size-full object-cover" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{row.displayName}</p>
+                <p className="text-muted-foreground truncate text-[10px]">
+                  @{row.username} · {row.runs} run{row.runs === 1 ? "" : "s"}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold">{row.bestScore.toLocaleString()}</p>
+                <p className="text-muted-foreground text-[10px]">{row.gates.toLocaleString()} gates</p>
+              </div>
+            </div>
+          ))}
+          {(board.data ?? []).length === 0 && (
+            <p className="text-muted-foreground text-xs">No runs banked yet — fly one and claim the top spot.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
