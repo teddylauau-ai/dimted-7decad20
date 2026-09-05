@@ -171,7 +171,7 @@ function PulsePage() {
         toast.error(e instanceof Error ? e.message : "Couldn't save that attempt");
       }
     },
-    [level, practice, finish, refresh, syncXp],
+    [level, practice, endless, profile, finish, refresh, syncXp, dailyN],
   );
 
   if (!profile) return null;
@@ -182,7 +182,7 @@ function PulsePage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">
-              Level {level.n} · {DIFFICULTY_LABEL[level.difficulty]}
+              {endless ? "Infinite Run · today's mountain" : `Level ${level.n} · ${DIFFICULTY_LABEL[level.difficulty]}`}
               {practice ? " · practice" : ""}
             </p>
             <h1 className="font-display text-xl font-semibold tracking-tight">{level.name}</h1>
