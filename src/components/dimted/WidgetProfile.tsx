@@ -21,7 +21,7 @@ import { Meter } from "./primitives";
 import { SpotifyPicks } from "./SpotifyPicks";
 import { Showcase } from "./Showcase";
 import { useCosmetics, useFriendships, usePlayerStats } from "@/lib/dimted-queries";
-import { ACHIEVEMENTS, friendshipLevel, TITLES, UNLOCKS } from "@/lib/dimted";
+import { ACHIEVEMENTS, friendshipLevel, levelFromTotalXp, TITLES, UNLOCKS } from "@/lib/dimted";
 import { SLOTS } from "@/lib/cosmetics";
 import { rarityBorder, rarityText } from "./rarity";
 
