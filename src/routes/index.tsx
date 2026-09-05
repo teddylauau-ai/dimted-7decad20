@@ -566,36 +566,46 @@ function HomePage() {
         </Panel>
 
         <Panel className="p-4" delay={140}>
-          <PanelHead eyebrow="Ahead of you" title="Still hidden" />
-          <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-            {nextSecret ? (
-              <LockedTile hint={nextSecret.hint} requirement={`Level ${nextSecret.requiredLevel}`} />
-            ) : null}
-          </div>
+          <PanelHead eyebrow="Ahead of you" title="Exactly what each level gives" />
 
           <ul className="mt-3 space-y-1.5">
-            {UNLOCKS.filter((u) => u.level > level)
-              .slice(0, 5)
-              .map((u) => (
-                <li
-                  key={u.level}
-                  className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-2.5"
-                >
-                  <span className="numeral text-muted-foreground w-8 shrink-0 text-lg">{u.level}</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm">{u.name}</span>
-                    <span className="text-muted-foreground block text-xs">{u.detail}</span>
-                  </span>
-                  <RarityChip rarity={u.rarity} />
-                </li>
-              ))}
+            {Array.from({ length: 6 }, (_, i) => level + 1 + i)
+              .filter((lv) => lv <= MAX_LEVEL)
+              .map((lv) => {
+                const rewards = rewardsAtLevel(lv);
+                const shopCount = cosmetics.filter((c) => c.required_level === lv).length;
+                const u = UNLOCKS.find((x) => x.level === lv);
+                return (
+                  <li
+                    key={lv}
+                    className="border-border bg-background/40 flex items-center gap-3 rounded-xl border p-2.5"
+                  >
+                    <span className="numeral text-muted-foreground w-8 shrink-0 text-lg">{lv}</span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm">
+                        {rewards.length ? rewards.join(" · ") : `Rank stays ${rankForLevel(lv)}`}
+                      </span>
+                      <span className="text-muted-foreground block text-xs">
+                        {shopCount > 0
+                          ? `${shopCount} shop item${shopCount === 1 ? "" : "s"} become buyable with Sparks${u ? ` · ${u.detail}` : ""}`
+                          : u
+                            ? u.detail
+                            : "No new unlock at this level — XP only."}
+                      </span>
+                    </span>
+                    {u ? <RarityChip rarity={u.rarity} /> : null}
+                  </li>
+                );
+              })}
           </ul>
 
           <p className="text-muted-foreground mt-3 flex items-start gap-2 text-xs">
             <Sparkles className="text-gold mt-0.5 size-3.5 shrink-0" />
-            At Level {level + 1} you'll be a {rankForLevel(level + 1)}. Nothing here can be bought.
+            At Level {level + 1} you'll be a {rankForLevel(level + 1)}. Ranks and titles are free; shop cosmetics still
+            cost Sparks you earn in the app — never real money.
           </p>
         </Panel>
+
       </div>
     </div>
   );
