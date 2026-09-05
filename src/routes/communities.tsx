@@ -618,11 +618,20 @@ function CommunitiesPage() {
                           }
                         />
                       </div>
-                      <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
-                        <button
-                          type="button"
-                          aria-label="Pin message"
-                          title="Pin message"
+                       <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
+                         <button
+                           type="button"
+                           aria-label="Reply to message"
+                           title="Reply"
+                           onClick={() => setReplyTo(m)}
+                           className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-primary rounded p-0.5"
+                         >
+                           <Reply className="size-3.5" />
+                         </button>
+                         <button
+                           type="button"
+                           aria-label="Pin message"
+                           title="Pin message"
                           onClick={() =>
                             profile && pinMut.mutate({ messageId: m.id, userId: profile.id })
                           }
@@ -666,6 +675,7 @@ function CommunitiesPage() {
             </div>
 
             <form onSubmit={post} className="border-border overflow-hidden border-t">
+              {replyTo ? <ReplyChip target={replyTo} onCancel={() => setReplyTo(null)} /> : null}
               <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-4">
                 <ImagePicker onPick={postImage} disabled={!activeChannel} />
