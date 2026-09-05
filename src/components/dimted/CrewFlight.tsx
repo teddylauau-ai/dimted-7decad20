@@ -32,7 +32,7 @@ const ZONE_LENGTH = 12; // gates per zone
 
 type PowerKind = "shield" | "magnet" | "slow" | "double";
 type Orb = { y: number; taken: boolean; power: PowerKind | null };
-type Gate = { x: number; gapY: number; passed: boolean; drift: number; orb: Orb | null; laser: boolean };
+type Gate = { x: number; gapY: number; passed: boolean; drift: number; orb: Orb | null };
 type Rock = { x: number; y: number; r: number; vy: number; spin: number };
 type Particle = { x: number; y: number; vx: number; vy: number; life: number; hue: string };
 
@@ -42,17 +42,16 @@ type Zone = {
   gate: string;
   cap: string;
   drifting: boolean;
-  lasers: boolean;
   rocks: boolean;
   gusts: boolean;
 };
 
 const ZONES: Zone[] = [
-  { name: "Dawn Reach", sky: ["#08101c", "#12213a"], gate: "#14b8a6", cap: "#5eead4", drifting: false, lasers: false, rocks: false, gusts: false },
-  { name: "Drift Canyon", sky: ["#0a1524", "#123047"], gate: "#0e7490", cap: "#67e8f9", drifting: true, lasers: false, rocks: false, gusts: false },
-  { name: "Laser Vault", sky: ["#140b1e", "#2a1236"], gate: "#7c3aed", cap: "#c4b5fd", drifting: true, lasers: true, rocks: false, gusts: false },
-  { name: "Belt of Ash", sky: ["#1a1008", "#33200d"], gate: "#b45309", cap: "#fcd34d", drifting: false, lasers: false, rocks: true, gusts: false },
-  { name: "Storm Crown", sky: ["#04121a", "#0b3040"], gate: "#0891b2", cap: "#a5f3fc", drifting: true, lasers: true, rocks: true, gusts: true },
+  { name: "Dawn Reach", sky: ["#08101c", "#12213a"], gate: "#14b8a6", cap: "#5eead4", drifting: false, rocks: false, gusts: false },
+  { name: "Drift Canyon", sky: ["#0a1524", "#123047"], gate: "#0e7490", cap: "#67e8f9", drifting: true, rocks: false, gusts: false },
+  { name: "Violet Vault", sky: ["#140b1e", "#2a1236"], gate: "#7c3aed", cap: "#c4b5fd", drifting: true, rocks: false, gusts: false },
+  { name: "Belt of Ash", sky: ["#1a1008", "#33200d"], gate: "#b45309", cap: "#fcd34d", drifting: false, rocks: true, gusts: false },
+  { name: "Storm Crown", sky: ["#04121a", "#0b3040"], gate: "#0891b2", cap: "#a5f3fc", drifting: true, rocks: true, gusts: true },
 ];
 
 const POWER_META: Record<PowerKind, { label: string; color: string; blurb: string }> = {
@@ -224,7 +223,6 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
       passed: false,
       drift: z.drifting && Math.random() < 0.4 ? (Math.random() < 0.5 ? -1 : 1) * (9 + Math.random() * 9) : 0,
       orb: power || Math.random() < 0.6 ? { y: gapY, taken: false, power } : null,
-      laser: z.lasers && Math.random() < 0.4,
     };
   }, []);
 
@@ -364,21 +362,8 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
         ctx.fillRect(gate.x, top - 6, GATE_W, 6);
         ctx.fillRect(gate.x, bottom, GATE_W, 6);
 
-        // laser sweeping the gap (blinks on/off)
-        if (gate.laser) {
-          const on = Math.sin(s.t * 3 + gate.x * 0.03) > -0.2;
-          ctx.globalAlpha = on ? 0.85 : 0.18;
-          ctx.strokeStyle = "#f472b6";
-          ctx.lineWidth = on ? 4 : 2;
-          ctx.beginPath();
-          ctx.moveTo(gate.x + GATE_W / 2, top);
-          ctx.lineTo(gate.x + GATE_W / 2, bottom);
-          ctx.stroke();
-          ctx.globalAlpha = 1;
-        }
-
         if (gate.orb && !gate.orb.taken) {
-          const ox = gate.x + GATE_W / 2 + (gate.laser ? 26 : 0);
+          const ox = gate.x + GATE_W / 2;
           const oy = gate.orb.y + Math.sin(s.t * 4 + gate.x * 0.02) * 6;
           const color = gate.orb.power ? POWER_META[gate.orb.power].color : "#fbbf24";
           ctx.beginPath();
@@ -561,7 +546,7 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
         // orbs (magnet pulls them in)
         for (const gate of s.gates) {
           if (!gate.orb || gate.orb.taken) continue;
-          const ox = gate.x + GATE_W / 2 + (gate.laser ? 26 : 0);
+          const ox = gate.x + GATE_W / 2;
           const oy = gate.orb.y;
           const dist = Math.hypot(ox - BIRD_X, oy - s.y);
           const reach = s.magnet > 0 ? 74 : ORB_R + BIRD_R;
@@ -601,11 +586,6 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
         for (const gate of s.gates) {
           const withinX = BIRD_X + BIRD_R > gate.x && BIRD_X - BIRD_R < gate.x + GATE_W;
           if (withinX && (s.y - BIRD_R < gate.gapY - gap / 2 || s.y + BIRD_R > gate.gapY + gap / 2)) hit = true;
-          if (gate.laser) {
-            const on = Math.sin(s.t * 3 + gate.x * 0.03) > -0.2;
-            const beamX = gate.x + GATE_W / 2;
-            if (on && Math.abs(beamX - BIRD_X) < BIRD_R + 2) hit = true;
-          }
         }
         for (const rock of s.rocks) {
           if (Math.hypot(rock.x - BIRD_X, rock.y - s.y) < rock.r + BIRD_R - 2) hit = true;
@@ -730,7 +710,7 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
               </p>
               {phase === "idle" ? (
                 <p className="text-muted-foreground mx-auto mt-1 max-w-[400px] text-xs">
-                  Tap or press Space to flap. Five zones rotate every {ZONE_LENGTH} gates — drifting gates, lasers,
+                  Tap or press Space to flap. Five zones rotate every {ZONE_LENGTH} gates — drifting gates,
                   asteroids and storm gusts. Gold orbs build your combo; coloured orbs are power-ups. Every point banks
                   XP for you and {crewName}.
                 </p>
