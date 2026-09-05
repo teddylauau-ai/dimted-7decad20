@@ -417,6 +417,193 @@ export type Database = {
         }
         Relationships: []
       }
+      crew_invites: {
+        Row: {
+          created_at: string
+          crew_id: string
+          id: string
+          invited_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          crew_id: string
+          id?: string
+          invited_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          crew_id?: string
+          id?: string
+          invited_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_invites_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "crews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_invites_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_invites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crew_members: {
+        Row: {
+          crew_id: string
+          joined_at: string
+          role: Database["public"]["Enums"]["crew_role"]
+          user_id: string
+        }
+        Insert: {
+          crew_id: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["crew_role"]
+          user_id: string
+        }
+        Update: {
+          crew_id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["crew_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_members_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "crews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crew_messages: {
+        Row: {
+          audio_ms: number | null
+          audio_url: string | null
+          body: string
+          created_at: string
+          crew_id: string
+          id: string
+          image_url: string | null
+          reply_to_id: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_ms?: number | null
+          audio_url?: string | null
+          body: string
+          created_at?: string
+          crew_id: string
+          id?: string
+          image_url?: string | null
+          reply_to_id?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_ms?: number | null
+          audio_url?: string | null
+          body?: string
+          created_at?: string
+          crew_id?: string
+          id?: string
+          image_url?: string | null
+          reply_to_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crew_messages_crew_id_fkey"
+            columns: ["crew_id"]
+            isOneToOne: false
+            referencedRelation: "crews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "crew_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crew_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crews: {
+        Row: {
+          badge_emoji: string
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          slug: string
+          tagline: string | null
+          total_xp: number
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          badge_emoji?: string
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          slug: string
+          tagline?: string | null
+          total_xp?: number
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          badge_emoji?: string
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          slug?: string
+          tagline?: string | null
+          total_xp?: number
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crews_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friendships: {
         Row: {
           created_at: string
@@ -833,6 +1020,53 @@ export type Database = {
           },
         ]
       }
+      profile_widgets: {
+        Row: {
+          config: Json
+          created_at: string
+          height: number
+          id: string
+          position_x: number
+          position_y: number
+          updated_at: string
+          user_id: string
+          widget_type: string
+          width: number
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          height?: number
+          id?: string
+          position_x?: number
+          position_y?: number
+          updated_at?: string
+          user_id: string
+          widget_type: string
+          width?: number
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          height?: number
+          id?: string
+          position_x?: number
+          position_y?: number
+          updated_at?: string
+          user_id?: string
+          widget_type?: string
+          width?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_widgets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           activity_context: string | null
@@ -1084,6 +1318,133 @@ export type Database = {
           slug?: string
           source?: string
           title?: string
+        }
+        Relationships: []
+      }
+      season_progress: {
+        Row: {
+          claimed_tiers: number[]
+          created_at: string
+          season_id: string
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          claimed_tiers?: number[]
+          created_at?: string
+          season_id: string
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          claimed_tiers?: number[]
+          created_at?: string
+          season_id?: string
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_progress_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "season_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      season_tiers: {
+        Row: {
+          cosmetic_slug: string | null
+          created_at: string
+          description: string | null
+          id: string
+          reward_type: string
+          reward_value: number
+          season_id: string
+          tier: number
+          title_slug: string | null
+        }
+        Insert: {
+          cosmetic_slug?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reward_type: string
+          reward_value?: number
+          season_id: string
+          tier: number
+          title_slug?: string | null
+        }
+        Update: {
+          cosmetic_slug?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reward_type?: string
+          reward_value?: number
+          season_id?: string
+          tier?: number
+          title_slug?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "season_tiers_cosmetic_slug_fkey"
+            columns: ["cosmetic_slug"]
+            isOneToOne: false
+            referencedRelation: "cosmetics"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "season_tiers_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "seasons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "season_tiers_title_slug_fkey"
+            columns: ["title_slug"]
+            isOneToOne: false
+            referencedRelation: "titles"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      seasons: {
+        Row: {
+          active: boolean
+          created_at: string
+          ends_at: string
+          id: string
+          name: string
+          starts_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          ends_at: string
+          id?: string
+          name: string
+          starts_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          ends_at?: string
+          id?: string
+          name?: string
+          starts_at?: string
         }
         Relationships: []
       }
@@ -1371,6 +1732,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_crew_xp: {
+        Args: { _amount: number; _crew_id: string }
+        Returns: undefined
+      }
+      add_member_to_crew: {
+        Args: { _crew_id: string; _role?: string; _user_id: string }
+        Returns: Json
+      }
+      add_season_xp: { Args: { _amount: number }; Returns: undefined }
       admin_set_ban: {
         Args: { _minutes: number; _reason?: string; _user_id: string }
         Returns: Json
@@ -1398,10 +1768,15 @@ export type Database = {
       }
       claim_armory_milestone: { Args: { _slug: string }; Returns: Json }
       claim_quest: { Args: { _slug: string }; Returns: Json }
+      claim_season_tier: {
+        Args: { _season_id: string; _tier: number }
+        Returns: Json
+      }
       clear_typing: {
         Args: { _scope_id: string; _scope_type: string }
         Returns: undefined
       }
+      create_season: { Args: { _days: number; _name: string }; Returns: Json }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       grant_admin_cosmetics: { Args: { _user_id: string }; Returns: undefined }
       grant_founder_cosmetics: {
@@ -1423,6 +1798,14 @@ export type Database = {
       }
       is_community_member: {
         Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_crew_manager: {
+        Args: { _crew_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_crew_member: {
+        Args: { _crew_id: string; _user_id: string }
         Returns: boolean
       }
       is_friendship_member: {
@@ -1486,10 +1869,12 @@ export type Database = {
       }
       pulse_unlock: { Args: { _slug: string }; Returns: Json }
       purchase_cosmetic: { Args: { _slug: string }; Returns: Json }
+      reset_profile_widgets: { Args: never; Returns: Json }
       role_rank: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: number
       }
+      save_profile_widgets: { Args: { _widgets: Json }; Returns: Json }
       staff_complete_pulse: {
         Args: { _levels?: number; _user_id: string }
         Returns: Json
@@ -1553,6 +1938,7 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "admin" | "moderator" | "member"
+      crew_role: "owner" | "captain" | "member"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1681,6 +2067,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["owner", "admin", "moderator", "member"],
+      crew_role: ["owner", "captain", "member"],
     },
   },
 } as const
