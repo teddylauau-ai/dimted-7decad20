@@ -157,7 +157,28 @@ export function CrewStaffVault({
         {picked ? (
           <>
             <div className="mt-4">
-              <p className="eyebrow">Crew-only cosmetics</p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="eyebrow">Crew-only cosmetics</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={bulk !== null || !vault.length}
+                    onClick={() => grantAllTo([picked.user_id], picked.profile.display_name || picked.profile.username)}
+                  >
+                    <Sparkles className="mr-1 size-3.5" />
+                    {bulk === "one" ? "Granting..." : "Grant all"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={bulk !== null || !vault.length}
+                    onClick={() => grantAllTo(members.map((m) => m.user_id), `the whole crew`)}
+                  >
+                    <Gift className="mr-1 size-3.5" />
+                    {bulk === "crew" ? "Granting..." : "Grant all to crew"}
+                  </Button>
+                </div>
+              </div>
               <div className="mt-2 grid max-h-56 gap-1.5 overflow-y-auto pr-1">
                 {vault.length ? (
                   vault.map((c) => (
