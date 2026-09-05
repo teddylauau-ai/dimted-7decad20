@@ -214,7 +214,7 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
       x,
       gapY,
       passed: false,
-      drift: z.drifting && Math.random() < 0.6 ? (Math.random() < 0.5 ? -1 : 1) * (20 + Math.random() * 26) : 0,
+      drift: z.drifting && Math.random() < 0.4 ? (Math.random() < 0.5 ? -1 : 1) * (9 + Math.random() * 9) : 0,
       orb: power || Math.random() < 0.6 ? { y: gapY, taken: false, power } : null,
       laser: z.lasers && Math.random() < 0.4,
     };
@@ -501,8 +501,8 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
           gate.x -= speed * dt;
           if (gate.drift !== 0) {
             gate.gapY += gate.drift * dt;
-            const lo = gap / 2 + 24;
-            const hi = H - gap / 2 - 24;
+            const lo = gap / 2 + 46;
+            const hi = H - gap / 2 - 46;
             if (gate.gapY < lo || gate.gapY > hi) {
               gate.gapY = Math.max(lo, Math.min(hi, gate.gapY));
               gate.drift *= -1;
