@@ -101,7 +101,7 @@ function SeasonPage() {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={season.data.name} subtitle={`Resets in ${fmtTime(timeLeft)}`} />
+      <PageHeader eyebrow="Season Pass" title={season.data.name} blurb={`Resets in ${fmtTime(timeLeft)}`} />
 
       <Panel className="p-4">
         <div className="flex items-end justify-between">
