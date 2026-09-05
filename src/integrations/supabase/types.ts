@@ -472,6 +472,55 @@ export type Database = {
           },
         ]
       }
+      message_reactions: {
+        Row: {
+          community_message_id: string | null
+          created_at: string
+          dm_message_id: string | null
+          emoji: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          community_message_id?: string | null
+          created_at?: string
+          dm_message_id?: string | null
+          emoji: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          community_message_id?: string | null
+          created_at?: string
+          dm_message_id?: string | null
+          emoji?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reactions_community_message_id_fkey"
+            columns: ["community_message_id"]
+            isOneToOne: false
+            referencedRelation: "community_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_reactions_dm_message_id_fkey"
+            columns: ["dm_message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           audio_ms: number | null
@@ -1082,6 +1131,7 @@ export type Database = {
         Args: { _community_id: string; _user_id: string }
         Returns: boolean
       }
+      claim_armory_milestone: { Args: { _slug: string }; Returns: Json }
       claim_quest: { Args: { _slug: string }; Returns: Json }
       clear_typing: {
         Args: { _scope_id: string; _scope_type: string }
@@ -1139,6 +1189,7 @@ export type Database = {
       pulse_finish: {
         Args: {
           _coins: number
+          _daily?: boolean
           _level: number
           _pct: number
           _practice?: boolean
