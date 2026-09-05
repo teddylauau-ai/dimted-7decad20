@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Meter, Panel, PanelHead, RarityChip, LockedTile, EmptyState } from "@/components/dimted/primitives";
+import { Meter, Panel, PanelHead, RarityChip, EmptyState } from "@/components/dimted/primitives";
 import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
 import { useDimted } from "@/lib/dimted-store";
 import { Avatar, Nametag, PresenceLabel, ProfileLink } from "@/components/dimted/Identity";
@@ -11,14 +11,14 @@ import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
 import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import {
   RANKS,
-  SECRETS,
   UNLOCKS,
   XP_SOURCES,
   levelFromTotalXp,
   nextUnlock,
   rankForLevel,
+  rewardsAtLevel,
 } from "@/lib/dimted";
-import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
+import { useCosmetics, useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
 import { friendshipLevel, MAX_LEVEL, xpLabel } from "@/lib/dimted";
 import {
@@ -129,7 +129,7 @@ function HomePage() {
   const myFriends = (friends.data ?? []).filter((f) => f.status === "accepted");
 
   const upcoming = nextUnlock(level);
-  const nextSecret = SECRETS.find((s) => s.requiredLevel > level);
+  const cosmetics = useCosmetics().data ?? [];
   const board = useXpLeaderboard(50);
   const rows = board.data ?? [];
   const myIndex = rows.findIndex((r) => r.id === profile?.id);
