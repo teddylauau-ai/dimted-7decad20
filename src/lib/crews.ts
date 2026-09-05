@@ -136,12 +136,18 @@ export const CREW_CHAT_BGS: { key: CrewChatBg; label: string; unlock: number }[]
   { key: "none", label: "None", unlock: 1 },
   { key: "grid", label: "Grid", unlock: 1 },
   { key: "aurora", label: "Aurora", unlock: 2 },
+  { key: "ember", label: "Ember", unlock: 3 },
   { key: "stars", label: "Starfield", unlock: 5 },
+  { key: "hex", label: "Hex Deck", unlock: 7 },
   { key: "waves", label: "Waves", unlock: 9 },
+  { key: "matrix", label: "Datastream", unlock: 11 },
   { key: "circuit", label: "Circuit", unlock: 13 },
   { key: "glass", label: "Frosted", unlock: 1 },
+  { key: "bloom", label: "Bloom", unlock: 20 },
   { key: "nebula", label: "Nebula", unlock: 30 },
+  { key: "void", label: "Void", unlock: 45 },
   { key: "eclipse", label: "Eclipse", unlock: 60 },
+  { key: "prism", label: "Prism", unlock: 78 },
   { key: "sovereign", label: "Sovereign", unlock: 95 },
 ];
 
