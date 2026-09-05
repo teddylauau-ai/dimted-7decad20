@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Compass, Globe, ImagePlus, Lock, LogOut, Plus, Send, Settings2, Sparkles, Users } from "lucide-react";
+import { Check, Compass, Globe, ImagePlus, Lock, LogOut, Plus, Search, Send, Settings2, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import {
   fetchCrewMembers,
   fetchCrewMessages,
   fetchCrews,
+  fetchInvitablePeople,
   fetchMyCrewInvites,
   inviteToCrew,
   joinCrew,
@@ -30,6 +31,7 @@ import {
   removeCrewMember,
   revokeCrewInvite,
   updateCrew,
+  uploadCrewAvatar,
   uploadCrewBanner,
   type CrewAccent,
   type CrewInvite,
@@ -40,9 +42,9 @@ import {
 import { useMyRole } from "@/lib/roles-queries";
 import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { ChatImage, ImagePicker, ReplyChip, ReplyQuote } from "@/components/dimted/ChatExtras";
+import { CallPanel } from "@/components/dimted/CallPanel";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/crews")({
   head: () => ({
@@ -86,7 +88,6 @@ function CrewsPage() {
   const [tab, setTab] = useState<Tab>("chat");
   const [draft, setDraft] = useState("");
   const [replyTo, setReplyTo] = useState<CrewMessage | null>(null);
-  const [inviteName, setInviteName] = useState("");
 
   const rows = crews.data ?? [];
   const mine = rows.filter((c) => c.isMember);
@@ -134,25 +135,14 @@ function CrewsPage() {
     }
   }
 
-  async function invite(e: React.FormEvent) {
-    e.preventDefault();
-    if (!active || !profile || !inviteName.trim()) return;
+  async function inviteUser(userId: string) {
+    if (!active || !profile) return;
     try {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("username", inviteName.trim().toLowerCase().replace(/^@/, ""))
-        .maybeSingle();
-      if (!data) {
-        toast.error("No user with that name");
-        return;
-      }
-      await inviteToCrew(active.id, (data as { id: string }).id, profile.id);
-      setInviteName("");
+      await inviteToCrew(active.id, userId, profile.id);
       await invites.refetch();
       toast.success("Invite sent");
     } catch {
-      toast.error("Couldn't invite");
+      toast.error("Couldn't invite — they may already be invited");
     }
   }
 
@@ -291,9 +281,7 @@ function CrewsPage() {
                     active?.id === c.id ? "bg-secondary text-foreground" : "hover:bg-secondary/50 text-muted-foreground",
                   )}
                 >
-                  <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg ring-1", a.ring, "bg-secondary/50")}>
-                    <span className="text-base">{c.badge_emoji}</span>
-                  </span>
+                  <CrewMark crew={c} size={32} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">{c.name}</p>
                     <p className="text-muted-foreground truncate text-[10px]">
@@ -360,19 +348,17 @@ function CrewsPage() {
           <>
             {/* header / banner */}
             <div className="relative border-b border-border/40">
-              <div className="relative h-24 w-full overflow-hidden">
+              <div className="relative h-20 w-full overflow-hidden">
                 {active.banner_url ? (
                   <img src={active.banner_url} alt={`${active.name} banner`} className="size-full object-cover" />
                 ) : (
                   <div className={cn("size-full bg-gradient-to-br to-transparent", accent.glow)} />
                 )}
-                <div className="from-background/90 absolute inset-0 bg-gradient-to-t via-transparent to-transparent" />
+                <div className="from-background absolute inset-0 bg-gradient-to-t via-background/30 to-transparent" />
               </div>
-              <div className="flex items-end justify-between gap-3 px-4 pb-3 -mt-7">
-                <div className="flex items-end gap-3">
-                  <span className={cn("bg-card grid size-14 place-items-center rounded-2xl text-2xl ring-2", accent.ring)}>
-                    {active.badge_emoji}
-                  </span>
+              <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-3 pt-2">
+                <div className="flex min-w-0 items-center gap-3">
+                  <CrewMark crew={active} size={52} rounded="rounded-2xl" />
                   <div className="min-w-0">
                     <p className="truncate text-lg font-semibold leading-tight">{active.name}</p>
                     <p className="text-muted-foreground truncate text-xs">
@@ -380,19 +366,26 @@ function CrewsPage() {
                     </p>
                   </div>
                 </div>
-                <div className="hidden shrink-0 items-center gap-4 sm:flex">
-                  <div className="text-right">
+                <div className="flex shrink-0 items-center gap-4">
+                  <div className="hidden text-right sm:block">
                     <p className="eyebrow">Crew level</p>
                     <p className="text-sm font-semibold">
                       Lv {lvl.level} · {active.total_xp.toLocaleString()} XP
                     </p>
                     <div className="bg-secondary mt-1 h-1.5 w-32 overflow-hidden rounded-full">
-                      <div className={cn("h-full rounded-full", accentOf(active.accent).dot)} style={{ width: `${lvl.pct}%` }} />
+                      <div className={cn("h-full rounded-full", accent.dot)} style={{ width: `${lvl.pct}%` }} />
                     </div>
                   </div>
-                  <div className="text-muted-foreground flex items-center gap-1 text-xs">
+                  <div className="text-muted-foreground hidden items-center gap-1 text-xs sm:flex">
                     <Users className="size-3.5" /> {active.memberCount}/{active.member_limit}
                   </div>
+                  <CallPanel
+                    scope="crew"
+                    scopeId={active.id}
+                    meId={profile?.id}
+                    meProfile={profile as never}
+                    lookup={(id) => (members.data ?? []).find((m) => m.user_id === id)?.profile ?? null}
+                  />
                 </div>
               </div>
 
@@ -449,12 +442,12 @@ function CrewsPage() {
                 {canManage && (
                   <Panel className="mt-3">
                     <PanelHead title="Invites" />
-                    <form onSubmit={invite} className="mt-2 flex gap-2">
-                      <Input value={inviteName} onChange={(e) => setInviteName(e.target.value)} placeholder="username" className="h-8 text-sm" />
-                      <Button type="submit" size="sm">
-                        Invite
-                      </Button>
-                    </form>
+                    <InvitePicker
+                      crew={active}
+                      memberIds={(members.data ?? []).map((m) => m.user_id)}
+                      invitedIds={(invites.data ?? []).map((i) => i.user_id)}
+                      onInvite={inviteUser}
+                    />
                     <div className="mt-2 space-y-1">
                       {(invites.data ?? []).map((i) => (
                         <div key={i.id} className="bg-secondary/20 flex items-center justify-between rounded-lg px-2 py-1 text-xs">
@@ -516,6 +509,22 @@ function CrewsPage() {
         )}
       </main>
     </div>
+  );
+}
+
+function CrewMark({ crew, size = 32, rounded = "rounded-lg" }: { crew: CrewRow; size?: number; rounded?: string }) {
+  const a = accentOf(crew.accent);
+  return (
+    <span
+      className={cn("grid shrink-0 place-items-center overflow-hidden ring-1", rounded, a.ring, "bg-secondary/50")}
+      style={{ width: size, height: size }}
+    >
+      {crew.avatar_url ? (
+        <img src={crew.avatar_url} alt={`${crew.name} picture`} className="size-full object-cover" />
+      ) : (
+        <span style={{ fontSize: Math.round(size * 0.5) }}>{crew.badge_emoji}</span>
+      )}
+    </span>
   );
 }
 
@@ -661,6 +670,19 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
     }
   }
 
+  async function pickAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !userId) return;
+    try {
+      await uploadCrewAvatar(crew.id, userId, file);
+      await onSaved();
+      toast.success("Crew picture updated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't upload that image");
+    }
+  }
+
   async function pickBanner(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -720,6 +742,35 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
             </button>
           ))}
         </div>
+      </Panel>
+
+      <Panel>
+        <PanelHead title="Crew picture" />
+        <div className="mt-2 flex items-center gap-3">
+          <div className={cn("bg-secondary/40 grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl ring-1", accentOf(accent).ring)}>
+            {crew.avatar_url ? (
+              <img src={crew.avatar_url} alt="Crew picture" className="size-full object-cover" />
+            ) : (
+              <span className="text-2xl">{emoji}</span>
+            )}
+          </div>
+          <label className="bg-secondary/60 hover:bg-secondary flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium">
+            <ImagePlus className="size-4" /> Upload picture
+            <input type="file" accept="image/*" className="hidden" onChange={pickAvatar} />
+          </label>
+          {crew.avatar_url && (
+            <button
+              onClick={async () => {
+                await updateCrew(crew.id, { avatar_url: "" });
+                await onSaved();
+              }}
+              className="text-muted-foreground hover:text-destructive text-xs"
+            >
+              Use emoji instead
+            </button>
+          )}
+        </div>
+        <p className="text-muted-foreground mt-2 text-[11px]">A picture replaces the emoji badge everywhere.</p>
       </Panel>
 
       <Panel>
@@ -802,7 +853,7 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
                 )}
               </div>
               <div className="flex items-center gap-2 p-3">
-                <span className="text-xl">{c.badge_emoji}</span>
+                <CrewMark crew={c} size={34} rounded="rounded-xl" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold">{c.name}</p>
                   <p className="text-muted-foreground truncate text-[11px]">
@@ -841,6 +892,77 @@ function CrewChatRow({ message, isMe, onReply }: { message: CrewMessage; isMe: b
         <button onClick={onReply} className="mt-1 text-[10px] opacity-60 hover:opacity-100">
           Reply
         </button>
+      </div>
+    </div>
+  );
+}
+
+function InvitePicker({
+  crew,
+  memberIds,
+  invitedIds,
+  onInvite,
+}: {
+  crew: CrewRow;
+  memberIds: string[];
+  invitedIds: string[];
+  onInvite: (userId: string) => Promise<void>;
+}) {
+  const [q, setQ] = useState("");
+  const people = useQuery({
+    queryKey: ["invitable-people"],
+    queryFn: fetchInvitablePeople,
+    staleTime: 30_000,
+  });
+
+  const list = (people.data ?? [])
+    .filter((p) => !memberIds.includes(p.id))
+    .filter((p) => `${p.display_name} ${p.username}`.toLowerCase().includes(q.trim().toLowerCase()));
+
+  return (
+    <div className="mt-2">
+      <div className="relative">
+        <Search className="text-muted-foreground pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2" />
+        <Input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search people..."
+          className="h-9 pl-8 text-sm"
+        />
+      </div>
+      <div className="mt-2 max-h-64 space-y-1 overflow-y-auto pr-1">
+        {list.map((p) => {
+          const invited = invitedIds.includes(p.id);
+          return (
+            <div key={p.id} className="bg-secondary/20 flex items-center gap-2 rounded-xl px-2 py-1.5">
+              <Avatar profile={p as never} size={30} />
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-xs font-medium">{p.display_name}</p>
+                <p className="text-muted-foreground truncate text-[10px]">@{p.username}</p>
+              </div>
+              <Button
+                size="sm"
+                variant={invited ? "secondary" : "default"}
+                disabled={invited}
+                onClick={() => void onInvite(p.id)}
+                className="h-7 px-2 text-[11px]"
+              >
+                {invited ? (
+                  <>
+                    <Check className="mr-1 size-3" /> Invited
+                  </>
+                ) : (
+                  "Invite"
+                )}
+              </Button>
+            </div>
+          );
+        })}
+        {list.length === 0 && (
+          <p className="text-muted-foreground py-3 text-center text-xs">
+            {people.isLoading ? "Loading people..." : `Nobody else to invite to ${crew.name} yet.`}
+          </p>
+        )}
       </div>
     </div>
   );
