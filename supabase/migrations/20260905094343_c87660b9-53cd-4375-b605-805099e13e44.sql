@@ -1,0 +1,2 @@
+ALTER TABLE public.calls DROP CONSTRAINT IF EXISTS calls_scope_type_check;
+ALTER TABLE public.calls ADD CONSTRAINT calls_scope_type_check CHECK (scope_type = ANY (ARRAY['dm'::text, 'channel'::text, 'crew'::text]));
