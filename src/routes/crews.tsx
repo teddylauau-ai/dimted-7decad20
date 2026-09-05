@@ -11,8 +11,14 @@ import { Avatar, ProfileLink } from "@/components/dimted/Identity";
 import {
   CREW_ACCENTS,
   CREW_EMOJI,
+  ACCENT_TEXT,
+  CREW_BADGE_STYLES,
+  CREW_CHAT_BGS,
+  CREW_NAMETAGS,
   CREW_PERKS,
+  CREW_TEXT_EFFECTS,
   accentOf,
+  chatBgStyle,
   acceptCrewInvite,
   contributeCrewXp,
   createCrew,
@@ -36,7 +42,11 @@ import {
   uploadCrewAvatar,
   uploadCrewBanner,
   type CrewAccent,
+  type CrewBadgeStyle,
+  type CrewChatBg,
+  type CrewNametag,
   type CrewPerk,
+  type CrewTextEffect,
   type CrewInvite,
   type CrewMember,
   type CrewMessage,
@@ -514,13 +524,26 @@ function CrewsPage() {
               />
             ) : (
               <>
-                <div className="flex-1 space-y-3 overflow-y-auto p-3">
+                <div className="relative flex-1 overflow-y-auto p-3">
+                  <div
+                    aria-hidden
+                    className={cn("pointer-events-none absolute inset-0", ACCENT_TEXT[active.accent])}
+                    style={chatBgStyle(active.chat_bg)}
+                  />
+                  <div className="relative space-y-3">
                   {(messages.data ?? []).map((m) => (
-                    <CrewChatRow key={m.id} message={m} isMe={m.user_id === profile?.id} onReply={() => setReplyTo(m)} />
+                    <CrewChatRow
+                      key={m.id}
+                      message={m}
+                      crew={active}
+                      isMe={m.user_id === profile?.id}
+                      onReply={() => setReplyTo(m)}
+                    />
                   ))}
                   {(messages.data ?? []).length === 0 && (
                     <p className="text-muted-foreground py-8 text-center text-sm">No messages yet — say hi to your crew.</p>
                   )}
+                  </div>
                 </div>
 
                 {replyTo && (
@@ -548,6 +571,66 @@ function CrewsPage() {
         )}
       </main>
     </div>
+  );
+}
+
+/** Small crew badge next to names in crew chat — shell style is customisable. */
+function StyleRow({
+  label,
+  options,
+  value,
+  level,
+  onPick,
+}: {
+  label: string;
+  options: { key: string; label: string; unlock: number }[];
+  value: string;
+  level: number;
+  onPick: (key: string) => void;
+}) {
+  return (
+    <div>
+      <p className="text-muted-foreground mb-1 text-[11px] font-medium uppercase tracking-wide">{label}</p>
+      <div className="flex flex-wrap gap-1.5">
+        {options.map((o) => {
+          const locked = level < o.unlock;
+          return (
+            <button
+              key={o.key}
+              type="button"
+              disabled={locked}
+              onClick={() => onPick(o.key)}
+              className={cn(
+                "rounded-full px-2.5 py-1 text-xs transition-colors",
+                value === o.key ? "bg-secondary text-foreground ring-1 ring-primary/40" : "text-muted-foreground hover:bg-secondary/50",
+                locked && "cursor-not-allowed opacity-40",
+              )}
+            >
+              {o.label}
+              {locked ? ` · Lv ${o.unlock}` : ""}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CrewBadgeChip({ crew }: { crew: CrewRow }) {
+  const a = accentOf(crew.accent);
+  const shell = CREW_BADGE_STYLES.find((b) => b.key === crew.badge_style) ?? CREW_BADGE_STYLES[0]!;
+  return (
+    <span
+      title={crew.name}
+      className={cn(
+        "grid size-4 shrink-0 place-items-center overflow-hidden rounded text-[9px] leading-none",
+        ACCENT_TEXT[crew.accent],
+        a.ring,
+        shell.cls,
+      )}
+    >
+      {crew.avatar_url ? <img src={crew.avatar_url} alt="" className="size-full object-cover" /> : crew.badge_emoji}
+    </span>
   );
 }
 
@@ -777,7 +860,12 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
   const [accent, setAccent] = useState<CrewAccent>(crew.accent);
   const [visibility, setVisibility] = useState<"public" | "private">(crew.visibility);
   const [joinPolicy, setJoinPolicy] = useState<"open" | "invite">(crew.join_policy);
+  const [badgeStyle, setBadgeStyle] = useState<CrewBadgeStyle>(crew.badge_style ?? "plain");
+  const [nametag, setNametag] = useState<CrewNametag>(crew.nametag_style ?? "none");
+  const [textEffect, setTextEffect] = useState<CrewTextEffect>(crew.text_effect ?? "none");
+  const [chatBg, setChatBg] = useState<CrewChatBg>(crew.chat_bg ?? "none");
   const [busy, setBusy] = useState(false);
+  const level = crewLevel(crew.total_xp).level;
 
   async function save() {
     setBusy(true);
@@ -790,6 +878,10 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
         accent,
         visibility,
         join_policy: visibility === "private" ? "invite" : joinPolicy,
+        badge_style: badgeStyle,
+        nametag_style: nametag,
+        text_effect: textEffect,
+        chat_bg: chatBg,
       });
       await onSaved();
       toast.success("Crew updated");
@@ -932,6 +1024,61 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
       </Panel>
 
       <Panel>
+        <PanelHead
+          title="Crew style"
+          aside={<span className="text-muted-foreground text-xs">Crew level {level}</span>}
+        />
+        <div className="mt-2 space-y-3">
+          <StyleRow
+            label="Badge shell"
+            options={CREW_BADGE_STYLES}
+            value={badgeStyle}
+            level={level}
+            onPick={(k) => setBadgeStyle(k as CrewBadgeStyle)}
+          />
+          <StyleRow
+            label="Crew nametag"
+            options={CREW_NAMETAGS}
+            value={nametag}
+            level={level}
+            onPick={(k) => setNametag(k as CrewNametag)}
+          />
+          <StyleRow
+            label="Message effect"
+            options={CREW_TEXT_EFFECTS}
+            value={textEffect}
+            level={level}
+            onPick={(k) => setTextEffect(k as CrewTextEffect)}
+          />
+          <StyleRow
+            label="Chat background"
+            options={CREW_CHAT_BGS}
+            value={chatBg}
+            level={level}
+            onPick={(k) => setChatBg(k as CrewChatBg)}
+          />
+          <div className="bg-secondary/30 relative overflow-hidden rounded-xl p-3">
+            <div
+              aria-hidden
+              className={cn("pointer-events-none absolute inset-0", ACCENT_TEXT[accent])}
+              style={chatBgStyle(chatBg)}
+            />
+            <div className="relative flex items-center gap-1.5">
+              <span className={cn("grid size-4 place-items-center rounded text-[9px]", ACCENT_TEXT[accent], accentOf(accent).ring, (CREW_BADGE_STYLES.find((b) => b.key === badgeStyle) ?? CREW_BADGE_STYLES[0]!).cls)}>
+                {emoji}
+              </span>
+              <span className={cn("text-xs", ACCENT_TEXT[accent], (CREW_NAMETAGS.find((n) => n.key === nametag) ?? CREW_NAMETAGS[0]!).cls)}>
+                {name || "Crew name"}
+              </span>
+            </div>
+            <p className={cn("relative mt-1 text-sm", (CREW_TEXT_EFFECTS.find((f) => f.key === textEffect) ?? CREW_TEXT_EFFECTS[0]!).cls)}>
+              This is how your crew messages will look.
+            </p>
+          </div>
+        </div>
+      </Panel>
+
+      <Panel>
         <PanelHead title="Privacy" />
         <div className="mt-2 flex gap-2">
           <button
@@ -1004,20 +1151,40 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
   );
 }
 
-function CrewChatRow({ message, isMe, onReply }: { message: CrewMessage; isMe: boolean; onReply: () => void }) {
+function CrewChatRow({
+  message,
+  crew,
+  isMe,
+  onReply,
+}: {
+  message: CrewMessage;
+  crew: CrewRow;
+  isMe: boolean;
+  onReply: () => void;
+}) {
   const a = message.author;
+  const tag = CREW_NAMETAGS.find((n) => n.key === crew.nametag_style) ?? CREW_NAMETAGS[0]!;
+  const fx = CREW_TEXT_EFFECTS.find((f) => f.key === crew.text_effect) ?? CREW_TEXT_EFFECTS[0]!;
+  const accentText = ACCENT_TEXT[crew.accent];
   return (
     <div className={cn("flex gap-2", isMe && "flex-row-reverse")}>
       <Avatar profile={a as any} size={34} />
       <div className={cn("max-w-[80%] rounded-2xl px-3 py-2", isMe ? "bg-primary text-primary-foreground" : "bg-secondary")}>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs font-semibold opacity-90">{a?.display_name || a?.username}</span>
+          <CrewBadgeChip crew={crew} />
+          <span className={cn("text-xs font-semibold opacity-90", tag.cls, tag.key !== "none" && !isMe && accentText)}>
+            {a?.display_name || a?.username}
+          </span>
           <span className="text-[10px] opacity-60">
             {new Date(message.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
           </span>
         </div>
         {message.reply_to_id && <ReplyQuote target={message as any} />}
-        {message.image_url ? <ChatImage src={message.image_url} /> : <p className="whitespace-pre-wrap text-sm">{message.body}</p>}
+        {message.image_url ? (
+          <ChatImage src={message.image_url} />
+        ) : (
+          <p className={cn("whitespace-pre-wrap text-sm", fx.cls)}>{message.body}</p>
+        )}
         {message.audio_url && <VoicePlayer url={message.audio_url} ms={message.audio_ms ?? 0} />}
         <button onClick={onReply} className="mt-1 text-[10px] opacity-60 hover:opacity-100">
           Reply

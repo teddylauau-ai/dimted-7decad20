@@ -22,3 +22,9 @@ export function useMessageTabBadge(count: number) {
     };
   }, [count]);
 }
+
+/** How many unread crew notifications you have right now. */
+export function useUnreadCrew(userId: string | undefined): number {
+  const { data: items = [] } = useNotifications(userId);
+  return items.filter((n) => !n.read_at && n.kind === "crew").length;
+}

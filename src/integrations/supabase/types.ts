@@ -562,16 +562,20 @@ export type Database = {
           accent: string
           avatar_url: string | null
           badge_emoji: string
+          badge_style: string
           banner_url: string | null
+          chat_bg: string
           created_at: string
           description: string | null
           id: string
           join_policy: string
           member_limit: number
           name: string
+          nametag_style: string
           owner_id: string
           slug: string
           tagline: string | null
+          text_effect: string
           total_xp: number
           updated_at: string
           visibility: string
@@ -580,16 +584,20 @@ export type Database = {
           accent?: string
           avatar_url?: string | null
           badge_emoji?: string
+          badge_style?: string
           banner_url?: string | null
+          chat_bg?: string
           created_at?: string
           description?: string | null
           id?: string
           join_policy?: string
           member_limit?: number
           name: string
+          nametag_style?: string
           owner_id: string
           slug: string
           tagline?: string | null
+          text_effect?: string
           total_xp?: number
           updated_at?: string
           visibility?: string
@@ -598,16 +606,20 @@ export type Database = {
           accent?: string
           avatar_url?: string | null
           badge_emoji?: string
+          badge_style?: string
           banner_url?: string | null
+          chat_bg?: string
           created_at?: string
           description?: string | null
           id?: string
           join_policy?: string
           member_limit?: number
           name?: string
+          nametag_style?: string
           owner_id?: string
           slug?: string
           tagline?: string | null
+          text_effect?: string
           total_xp?: number
           updated_at?: string
           visibility?: string
