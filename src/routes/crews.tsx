@@ -246,14 +246,14 @@ function CrewsPage() {
     }
   }
 
-  async function promote(member: CrewMember, role: "captain" | "member") {
+  async function setRank(member: CrewMember, role: CrewRole) {
     if (!active) return;
     try {
-      await promoteCrewMember(active.id, member.user_id, role);
+      await setCrewRank(active.id, member.user_id, role);
       await members.refetch();
-      toast.success("Role updated");
-    } catch {
-      toast.error("Couldn't update role");
+      toast.success(`${member.profile.display_name || member.profile.username} is now ${rankOf(role).label}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't update rank");
     }
   }
 
