@@ -46,7 +46,7 @@ function fmtTime(totalSeconds: number) {
 function RewardPreview({ cosmetic }: { cosmetic: Cosmetic }) {
   const { profile } = useDimted();
   const base = {
-    username: undefined,
+    username: "",
     display_name: profile?.display_name ?? "You",
     equipped_nametag: cosmetic.slot === "nametag" ? cosmetic.slug : null,
     equipped_badge: cosmetic.slot === "badge" ? cosmetic.slug : null,
