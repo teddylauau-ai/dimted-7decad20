@@ -122,3 +122,84 @@ export function PinBanner({
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ replies */
+
+import type { ChatMessage } from "@/lib/dimted-queries";
+import { Reply, CornerUpLeft } from "lucide-react";
+
+/** Resolve a message's reply target from the currently loaded list. */
+export function findReplyTarget(
+  list: ChatMessage[],
+  m: ChatMessage,
+): ChatMessage | null {
+  if (!m.reply_to_id) return null;
+  return list.find((x) => x.id === m.reply_to_id) ?? null;
+}
+
+/** Small quoted line rendered above a message that replies to another. */
+export function ReplyQuote({
+  target,
+  onJump,
+}: {
+  target: ChatMessage | null;
+  onJump?: (id: string) => void;
+}) {
+  if (!target) {
+    return (
+      <p className="text-muted-foreground/60 mb-0.5 flex items-center gap-1.5 font-mono text-[10px] italic">
+        <CornerUpLeft className="size-3" /> Original message was removed
+      </p>
+    );
+  }
+  const snippet = target.audio_url
+    ? "Voice message"
+    : target.image_url
+      ? "Image"
+      : target.body;
+  return (
+    <button
+      type="button"
+      onClick={() => onJump?.(target.id)}
+      className="border-primary/40 bg-secondary/30 hover:bg-secondary/50 mb-1 flex max-w-full items-center gap-1.5 rounded-md border-l-2 py-0.5 pr-2 pl-2 text-left transition-colors"
+    >
+      <CornerUpLeft className="text-primary size-3 shrink-0" />
+      <span className="text-primary shrink-0 font-mono text-[10px]">
+        {target.author?.display_name ?? "Unknown"}
+      </span>
+      <span className="text-muted-foreground truncate text-[11px]">{snippet}</span>
+    </button>
+  );
+}
+
+/** Chip shown above the composer while you're replying to a message. */
+export function ReplyChip({
+  target,
+  onCancel,
+}: {
+  target: ChatMessage;
+  onCancel: () => void;
+}) {
+  return (
+    <div className="border-border bg-secondary/20 flex items-center gap-2 border-b px-4 py-1.5 text-xs">
+      <Reply className="text-primary size-3.5 shrink-0" />
+      <span className="text-muted-foreground min-w-0 flex-1 truncate">
+        Replying to{" "}
+        <span className="text-foreground font-medium">
+          {target.author?.display_name ?? "Unknown"}
+        </span>
+        {" · "}
+        {target.audio_url ? "Voice message" : target.image_url ? "Image" : target.body}
+      </span>
+      <button
+        type="button"
+        onClick={onCancel}
+        aria-label="Cancel reply"
+        title="Cancel reply"
+        className="text-muted-foreground hover:text-foreground rounded p-0.5"
+      >
+        <X className="size-3.5" />
+      </button>
+    </div>
+  );
+}
