@@ -45,6 +45,7 @@ export function CrewStaffVault({
   const setTitle = useSetTitle();
   const [target, setTarget] = useState<string | null>(members[0]?.user_id ?? null);
   const [customTitle, setCustomTitle] = useState("");
+  const [bulk, setBulk] = useState<"one" | "crew" | null>(null);
 
   const lvl = crewLevel(crewXp);
   const earned = crestsFor(crewXp);
@@ -63,6 +64,27 @@ export function CrewStaffVault({
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not set the crew level");
     }
+  }
+
+  async function grantAllTo(userIds: string[], who: string) {
+    if (!vault.length || !userIds.length) return;
+    setBulk(userIds.length > 1 ? "crew" : "one");
+    let done = 0;
+    let failed = 0;
+    for (const userId of userIds) {
+      for (const c of vault) {
+        try {
+          await grantCosmetic.mutateAsync({ userId, slug: c.slug });
+          done += 1;
+        } catch {
+          failed += 1;
+        }
+      }
+    }
+    setBulk(null);
+    if (done) toast.success(`${done} crew cosmetic${done === 1 ? "" : "s"} granted to ${who}`);
+    if (!done) toast.error("None of those grants went through.");
+    else if (failed) toast.message(`${failed} were already owned or blocked.`);
   }
 
   async function grantAll() {
@@ -157,7 +179,28 @@ export function CrewStaffVault({
         {picked ? (
           <>
             <div className="mt-4">
-              <p className="eyebrow">Crew-only cosmetics</p>
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="eyebrow">Crew-only cosmetics</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={bulk !== null || !vault.length}
+                    onClick={() => grantAllTo([picked.user_id], picked.profile.display_name || picked.profile.username)}
+                  >
+                    <Sparkles className="mr-1 size-3.5" />
+                    {bulk === "one" ? "Granting..." : "Grant all"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    disabled={bulk !== null || !vault.length}
+                    onClick={() => grantAllTo(members.map((m) => m.user_id), `the whole crew`)}
+                  >
+                    <Gift className="mr-1 size-3.5" />
+                    {bulk === "crew" ? "Granting..." : "Grant all to crew"}
+                  </Button>
+                </div>
+              </div>
               <div className="mt-2 grid max-h-56 gap-1.5 overflow-y-auto pr-1">
                 {vault.length ? (
                   vault.map((c) => (

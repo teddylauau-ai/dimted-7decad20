@@ -80,8 +80,12 @@ export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: 
 
 export type CrewBadgeStyle = "plain" | "ring" | "plate" | "crest" | "holo" | "pulse" | "aurora" | "eclipse" | "sovereign" | "centurion";
 export type CrewNametag = "none" | "accent" | "glow" | "gradient" | "outline" | "mono" | "prism" | "aurora" | "sovereign";
-export type CrewTextEffect = "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave" | "pulse" | "prism";
-export type CrewChatBg = "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass" | "nebula" | "eclipse" | "sovereign";
+export type CrewTextEffect =
+  | "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave" | "pulse" | "prism"
+  | "neon" | "chrome" | "gradient" | "glitch" | "flare";
+export type CrewChatBg =
+  | "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass" | "nebula" | "eclipse" | "sovereign"
+  | "ember" | "hex" | "matrix" | "bloom" | "void" | "prism";
 
 /** Crew badge shells — how the crew emoji/picture is framed everywhere. */
 export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: number; cls: string }[] = [
@@ -118,8 +122,13 @@ export const CREW_TEXT_EFFECTS: { key: CrewTextEffect; label: string; unlock: nu
   { key: "sharp", label: "Sharp", unlock: 5, cls: "font-medium tracking-tight" },
   { key: "soft", label: "Soft", unlock: 5, cls: "italic opacity-90" },
   { key: "wave", label: "Wave", unlock: 14, cls: "crew-fx-wave" },
+  { key: "neon", label: "Neon", unlock: 10, cls: "crew-fx-neon font-semibold" },
+  { key: "gradient", label: "Fade", unlock: 20, cls: "crew-fx-gradient font-semibold" },
+  { key: "chrome", label: "Chrome", unlock: 28, cls: "crew-fx-chrome font-semibold tracking-tight" },
   { key: "pulse", label: "Pulse", unlock: 45, cls: "animate-pulse font-medium" },
+  { key: "glitch", label: "Glitch", unlock: 55, cls: "crew-fx-glitch font-semibold" },
   { key: "prism", label: "Prism", unlock: 75, cls: "crew-fx-shimmer font-semibold tracking-tight" },
+  { key: "flare", label: "Flare", unlock: 88, cls: "crew-fx-flare font-bold" },
 ];
 
 /** Crew chat backgrounds. */
@@ -127,73 +136,121 @@ export const CREW_CHAT_BGS: { key: CrewChatBg; label: string; unlock: number }[]
   { key: "none", label: "None", unlock: 1 },
   { key: "grid", label: "Grid", unlock: 1 },
   { key: "aurora", label: "Aurora", unlock: 2 },
+  { key: "ember", label: "Ember", unlock: 3 },
   { key: "stars", label: "Starfield", unlock: 5 },
+  { key: "hex", label: "Hex Deck", unlock: 7 },
   { key: "waves", label: "Waves", unlock: 9 },
+  { key: "matrix", label: "Datastream", unlock: 11 },
   { key: "circuit", label: "Circuit", unlock: 13 },
   { key: "glass", label: "Frosted", unlock: 1 },
+  { key: "bloom", label: "Bloom", unlock: 20 },
   { key: "nebula", label: "Nebula", unlock: 30 },
+  { key: "void", label: "Void", unlock: 45 },
   { key: "eclipse", label: "Eclipse", unlock: 60 },
+  { key: "prism", label: "Prism", unlock: 78 },
   { key: "sovereign", label: "Sovereign", unlock: 95 },
 ];
 
-/** CSS for a chat background preset (accent-tinted, always subtle). */
+/** CSS for a chat background preset. Accent-tinted and clearly visible, but
+ *  always kept behind the text so messages stay easy to read. */
 export function chatBgStyle(bg: CrewChatBg): React.CSSProperties {
   switch (bg) {
     case "grid":
       return {
         backgroundImage:
           "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
-        backgroundSize: "38px 38px",
-        opacity: 0.07,
+        backgroundSize: "34px 34px",
+        opacity: 0.16,
       };
     case "aurora":
       return {
         backgroundImage:
-          "radial-gradient(60% 45% at 20% 0%, currentColor 0%, transparent 70%), radial-gradient(50% 40% at 85% 100%, currentColor 0%, transparent 70%)",
-        opacity: 0.18,
+          "radial-gradient(65% 50% at 18% -5%, currentColor 0%, transparent 68%), radial-gradient(55% 45% at 88% 105%, currentColor 0%, transparent 68%)",
+        opacity: 0.34,
+      };
+    case "ember":
+      return {
+        backgroundImage:
+          "radial-gradient(70% 45% at 50% 108%, currentColor 0%, transparent 70%), repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 30px)",
+        opacity: 0.26,
       };
     case "stars":
       return {
         backgroundImage:
-          "radial-gradient(currentColor 1px, transparent 1.4px), radial-gradient(currentColor 1px, transparent 1.4px)",
-        backgroundSize: "70px 70px, 110px 110px",
-        backgroundPosition: "0 0, 35px 55px",
+          "radial-gradient(currentColor 1.2px, transparent 1.6px), radial-gradient(currentColor 1px, transparent 1.4px), radial-gradient(60% 50% at 70% 10%, currentColor 0%, transparent 70%)",
+        backgroundSize: "64px 64px, 104px 104px, auto",
+        backgroundPosition: "0 0, 32px 50px, 0 0",
+        opacity: 0.3,
+      };
+    case "hex":
+      return {
+        backgroundImage:
+          "repeating-linear-gradient(60deg, currentColor 0 1px, transparent 1px 26px), repeating-linear-gradient(-60deg, currentColor 0 1px, transparent 1px 26px), repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 26px)",
         opacity: 0.16,
       };
     case "waves":
       return {
         backgroundImage:
-          "repeating-radial-gradient(circle at 50% 120%, currentColor 0 1px, transparent 1px 26px)",
-        opacity: 0.1,
+          "repeating-radial-gradient(circle at 50% 125%, currentColor 0 1.2px, transparent 1.2px 24px)",
+        opacity: 0.22,
+      };
+    case "matrix":
+      return {
+        backgroundImage:
+          "repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 18px), repeating-linear-gradient(180deg, currentColor 0 6px, transparent 6px 22px)",
+        opacity: 0.14,
       };
     case "circuit":
       return {
         backgroundImage:
-          "linear-gradient(45deg, currentColor 1px, transparent 1px), linear-gradient(-45deg, currentColor 1px, transparent 1px)",
-        backgroundSize: "26px 26px",
-        opacity: 0.08,
+          "linear-gradient(45deg, currentColor 1px, transparent 1px), linear-gradient(-45deg, currentColor 1px, transparent 1px), radial-gradient(currentColor 1.6px, transparent 2px)",
+        backgroundSize: "26px 26px, 26px 26px, 52px 52px",
+        opacity: 0.18,
+      };
+    case "bloom":
+      return {
+        backgroundImage:
+          "radial-gradient(38% 30% at 20% 25%, currentColor 0%, transparent 70%), radial-gradient(34% 28% at 78% 40%, currentColor 0%, transparent 70%), radial-gradient(40% 32% at 45% 92%, currentColor 0%, transparent 70%)",
+        opacity: 0.32,
       };
     case "nebula":
       return {
         backgroundImage:
-          "radial-gradient(55% 40% at 15% 20%, currentColor 0%, transparent 65%), radial-gradient(45% 35% at 80% 70%, currentColor 0%, transparent 65%), radial-gradient(currentColor 1px, transparent 1.5px)",
-        backgroundSize: "auto, auto, 90px 90px",
-        opacity: 0.2,
+          "radial-gradient(58% 42% at 15% 20%, currentColor 0%, transparent 65%), radial-gradient(48% 38% at 80% 70%, currentColor 0%, transparent 65%), radial-gradient(currentColor 1.2px, transparent 1.6px)",
+        backgroundSize: "auto, auto, 86px 86px",
+        opacity: 0.38,
+      };
+    case "void":
+      return {
+        backgroundImage:
+          "radial-gradient(closest-side at 50% 50%, transparent 30%, currentColor 100%), radial-gradient(currentColor 1px, transparent 1.4px)",
+        backgroundSize: "auto, 120px 120px",
+        opacity: 0.3,
       };
     case "eclipse":
       return {
         backgroundImage:
-          "radial-gradient(closest-side at 50% 45%, transparent 55%, currentColor 58%, transparent 62%), linear-gradient(180deg, currentColor, transparent)",
-        opacity: 0.16,
+          "radial-gradient(closest-side at 50% 45%, transparent 52%, currentColor 56%, transparent 64%), linear-gradient(180deg, currentColor, transparent)",
+        opacity: 0.32,
+      };
+    case "prism":
+      return {
+        backgroundImage:
+          "repeating-linear-gradient(115deg, rgba(45,212,191,0.55) 0 22px, rgba(167,139,250,0.55) 22px 44px, rgba(244,114,182,0.5) 44px 66px, transparent 66px 130px), radial-gradient(70% 50% at 50% 0%, currentColor 0%, transparent 70%)",
+        opacity: 0.22,
       };
     case "sovereign":
       return {
         backgroundImage:
-          "radial-gradient(60% 40% at 50% 0%, rgba(252,211,77,0.9) 0%, transparent 70%), repeating-linear-gradient(90deg, rgba(252,211,77,0.5) 0 1px, transparent 1px 42px)",
-        opacity: 0.14,
+          "radial-gradient(65% 45% at 50% -5%, rgba(252,211,77,0.95) 0%, transparent 70%), repeating-linear-gradient(90deg, rgba(252,211,77,0.6) 0 1px, transparent 1px 38px), repeating-linear-gradient(0deg, rgba(252,211,77,0.35) 0 1px, transparent 1px 38px)",
+        opacity: 0.26,
       };
     case "glass":
-      return { backdropFilter: "blur(2px)", backgroundImage: "linear-gradient(180deg, currentColor, transparent)", opacity: 0.08 };
+      return {
+        backdropFilter: "blur(3px)",
+        backgroundImage: "linear-gradient(180deg, currentColor, transparent 75%)",
+        opacity: 0.16,
+      };
     default:
       return { opacity: 0 };
   }
