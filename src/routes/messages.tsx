@@ -500,6 +500,21 @@ function MessagesPage() {
                               ) : null}
                             </p>
                           )}
+                          {mine && m.id === lastMineId ? (
+                            <p
+                              className={cn(
+                                "mt-1 flex items-center gap-1 font-mono text-[10px]",
+                                m.read_at ? "text-primary" : "text-muted-foreground/70",
+                              )}
+                            >
+                              {m.read_at ? (
+                                <CheckCheck className="size-3" />
+                              ) : (
+                                <Check className="size-3" />
+                              )}
+                              {m.read_at ? "Seen" : "Delivered"}
+                            </p>
+                          ) : null}
                           <Reactions
                             scope="dm"
                             messageId={m.id}
