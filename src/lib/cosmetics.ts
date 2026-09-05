@@ -84,6 +84,11 @@ export const NAMETAG_CLASS: Record<string, string> = {
 export const BADGE_GLYPH: Record<string, string> = {
   "badge-s1-comet": "☄",
   "badge-s1-crest": "❖",
+  "badge-season-legend": "❂",
+  "badge-nova-core": "◎",
+  "badge-moon-orbit": "☽",
+  "badge-crew-anchor": "⚓",
+  "badge-crew-skull": "☠",
   "badge-spark": "✦",
   "badge-bolt": "⚡",
   "badge-star": "★",
@@ -116,6 +121,11 @@ export const BADGE_GLYPH: Record<string, string> = {
 export const BADGE_CLASS: Record<string, string> = {
   "badge-s1-comet": "text-epic",
   "badge-s1-crest": "text-legendary",
+  "badge-season-legend": "cos-gradient cos-gradient-mythos cos-shimmer cos-glow-mythos",
+  "badge-nova-core": "text-legendary cos-glow-epic",
+  "badge-moon-orbit": "text-rare",
+  "badge-crew-anchor": "text-epic",
+  "badge-crew-skull": "text-rare",
   "badge-spark": "text-common",
   "badge-bolt": "text-common",
   "badge-star": "text-common",
@@ -155,6 +165,10 @@ export const BADGE_CLASS: Record<string, string> = {
 export const FRAME_CLASS: Record<string, string> = {
   "frame-s1-halo": "cos-ring border-epic/80 cos-glow-epic animate-breathe",
   "frame-s1-corona": "cos-frame cos-frame-prismatic",
+  "frame-season-gold": "cos-ring border-legendary/80 cos-glow-epic animate-breathe",
+  "frame-aurora-ring": "cos-ring border-primary/70 cos-glow-primary animate-breathe",
+  "frame-void-glass": "cos-ring border-secret/70 cos-glow-violet",
+  "frame-crew-band": "cos-ring border-rare/70 cos-glow-rare",
   "frame-hairline": "cos-ring border-common/50",
   "frame-pulse": "cos-ring border-uncommon/60 animate-breathe",
   "frame-tide": "cos-ring border-primary/60 cos-glow-primary",
@@ -186,6 +200,12 @@ export const BANNER_STYLE: Record<string, string> = {
     "radial-gradient(80% 130% at 50% 130%, oklch(0.6 0.13 200 / 0.7), transparent 70%), linear-gradient(120deg, oklch(0.22 0.05 250), oklch(0.14 0.03 258))",
   "banner-s1-zenith":
     "radial-gradient(70% 120% at 20% 0%, oklch(0.68 0.13 88 / 0.55), transparent 70%), radial-gradient(70% 120% at 90% 120%, oklch(0.55 0.14 300 / 0.6), transparent 70%), linear-gradient(120deg, oklch(0.2 0.05 262), oklch(0.13 0.03 258))",
+  "banner-starfall":
+    "radial-gradient(60% 100% at 20% 0%, oklch(0.7 0.11 210 / 0.45), transparent 70%), radial-gradient(50% 90% at 80% 10%, oklch(0.75 0.09 250 / 0.35), transparent 70%), linear-gradient(150deg, oklch(0.2 0.045 258), oklch(0.13 0.03 258))",
+  "banner-neon-grid":
+    "linear-gradient(oklch(0.7 0.15 190 / 0.18) 1px, transparent 1px) 0 0 / 22px 22px, linear-gradient(90deg, oklch(0.7 0.15 190 / 0.18) 1px, transparent 1px) 0 0 / 22px 22px, linear-gradient(140deg, oklch(0.2 0.06 280), oklch(0.13 0.03 258))",
+  "banner-crew-sigil":
+    "radial-gradient(70% 110% at 50% 0%, oklch(0.62 0.13 165 / 0.5), transparent 70%), linear-gradient(120deg, oklch(0.19 0.05 200), oklch(0.13 0.03 250))",
   "banner-drift": "linear-gradient(120deg, oklch(0.24 0.05 262), oklch(0.16 0.032 258))",
   "banner-signal":
     "repeating-linear-gradient(0deg, oklch(0.28 0.04 258 / 0.9) 0 2px, transparent 2px 5px), linear-gradient(120deg, oklch(0.22 0.04 258), oklch(0.14 0.03 258))",
@@ -246,6 +266,9 @@ export const DEFAULT_BANNER =
 /** Message effect → animation classes on a chat row. */
 export const EFFECT_CLASS: Record<string, string> = {
   "fx-s1-surge": "animate-pop-in cos-wave-row",
+  "fx-ember-trail": "animate-rise cos-comet-row",
+  "fx-prism-shimmer": "animate-pop-in cos-aurora-row",
+  "fx-static-spark": "animate-rise cos-static-row",
   "fx-fade": "animate-pop-in",
   "fx-slide": "animate-rise",
   "fx-spark": "animate-pop-in cos-spark-row",
