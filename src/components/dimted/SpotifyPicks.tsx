@@ -112,7 +112,7 @@ export function SpotifyPicks({
                     <Play className="h-3.5 w-3.5" />
                     {music.isPlaying(pick.spotify_id) ? "In player" : "Play anywhere"}
                   </button>
-                  <
+                  <a
                     href={pick.url}
                     target="_blank"
                     rel="noreferrer noopener"
