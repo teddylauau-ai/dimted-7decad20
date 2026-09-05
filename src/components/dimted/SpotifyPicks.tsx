@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Music4, Plus, Trash2, ExternalLink } from "lucide-react";
+import { Music4, Plus, Trash2, ExternalLink, Play, Radio } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SpotifyPlayer, SpotifyKindChip } from "./SpotifyPlayer";
+import { useMusic, useNowPlaying } from "@/lib/music";
 import {
   MAX_PICKS,
   useAddSpotifyPick,
   useRemoveSpotifyPick,
   useSpotifyPicks,
+  KIND_LABEL,
 } from "@/lib/spotify";
 
 /**
@@ -26,6 +28,7 @@ export function SpotifyPicks({
   emptyHint?: string | undefined;
 }) {
   const picks = useSpotifyPicks(userId);
+  const music = useMusic();
   const add = useAddSpotifyPick(userId);
   const remove = useRemoveSpotifyPick();
   const [link, setLink] = useState("");
@@ -94,6 +97,22 @@ export function SpotifyPicks({
               <div className="mb-2 flex items-center justify-between gap-2">
                 <SpotifyKindChip kind={pick.kind} />
                 <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      music.play({
+                        kind: pick.kind,
+                        spotifyId: pick.spotify_id,
+                        url: pick.url,
+                        note: pick.note,
+                      })
+                    }
+                    className="text-muted-foreground hover:text-primary flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px]"
+                    aria-label="Keep playing across Lazu"
+                  >
+                    <Play className="h-3.5 w-3.5" />
+                    {music.isPlaying(pick.spotify_id) ? "In player" : "Play anywhere"}
+                  </button>
                   <a
                     href={pick.url}
                     target="_blank"
@@ -138,6 +157,53 @@ export function SpotifyPicks({
           .
         </p>
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * "Listening now" card — shows what a member last started playing in Lazu.
+ * Anyone viewing their profile can hit play and hear the same thing.
+ */
+export function NowPlayingCard({ userId, name }: { userId?: string; name?: string }) {
+  const nowPlaying = useNowPlaying(userId);
+  const music = useMusic();
+  const row = nowPlaying.data;
+  if (!row?.now_playing_id || !row.now_playing_kind) return null;
+  const kind = row.now_playing_kind;
+  const id = row.now_playing_id;
+  const url = row.now_playing_url || `https://open.spotify.com/${kind}/${id}`;
+  return (
+    <div className="glass-raised rounded-2xl p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="text-primary flex items-center gap-1.5 font-mono text-[10px] tracking-[0.16em] uppercase">
+          <Radio className="h-3 w-3 animate-pulse" />
+          {name ? `${name} is listening` : "Listening now"} · {KIND_LABEL[kind]}
+        </span>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => music.play({ kind, spotifyId: id, url, note: row.now_playing_note })}
+            className="text-muted-foreground hover:text-primary flex items-center gap-1 rounded-md px-1.5 py-1 text-[11px]"
+          >
+            <Play className="h-3.5 w-3.5" />
+            Listen along
+          </button>
+          <a
+            href={url}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="text-muted-foreground hover:text-foreground rounded-md p-1.5"
+            aria-label="Open in Spotify"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        </div>
+      </div>
+      {row.now_playing_note ? (
+        <p className="text-muted-foreground mb-2 text-sm">“{row.now_playing_note}”</p>
+      ) : null}
+      <SpotifyPlayer kind={kind} spotifyId={id} />
     </div>
   );
 }

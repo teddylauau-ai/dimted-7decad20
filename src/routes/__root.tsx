@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { DimtedProvider } from "@/lib/dimted-store";
 import { AppShell } from "@/components/dimted/AppShell";
 import { CursorGlow } from "@/components/dimted/CursorGlow";
+import { MusicProvider } from "@/lib/music";
 import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
@@ -157,10 +158,13 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <DimtedProvider>
-        <AppShell>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </AppShell>
+        {/* Music lives above the routes so playback survives tab changes. */}
+        <MusicProvider>
+          <AppShell>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </AppShell>
+        </MusicProvider>
       </DimtedProvider>
       <CursorGlow />
       <Toaster position="top-center" />

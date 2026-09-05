@@ -7,7 +7,7 @@ import { EmptyState, LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/c
 import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
 import { HoloCardTrigger } from "@/components/dimted/HoloCard";
 import { Showcase } from "@/components/dimted/Showcase";
-import { SpotifyPicks } from "@/components/dimted/SpotifyPicks";
+import { SpotifyPicks, NowPlayingCard } from "@/components/dimted/SpotifyPicks";
 import { WidgetProfile } from "@/components/dimted/WidgetProfile";
 import { rarityBorder, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
@@ -218,7 +218,8 @@ function PublicProfilePage() {
 
       <Panel className="p-6" delay={40}>
         <PanelHead eyebrow="On repeat" title="Their music" />
-        <div className="mt-4">
+        <div className="mt-4 space-y-4">
+          <NowPlayingCard userId={person.id} name={person.display_name || person.username} />
           <SpotifyPicks userId={person.id} emptyHint="They haven't pinned any music yet." />
         </div>
       </Panel>

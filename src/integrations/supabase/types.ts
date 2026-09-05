@@ -1171,6 +1171,11 @@ export type Database = {
           last_active_at: string
           mute_reason: string | null
           muted_until: string | null
+          now_playing_at: string | null
+          now_playing_id: string | null
+          now_playing_kind: string | null
+          now_playing_note: string | null
+          now_playing_url: string | null
           sanctioned_by: string | null
           showcase: string[]
           sparks: number
@@ -1199,6 +1204,11 @@ export type Database = {
           last_active_at?: string
           mute_reason?: string | null
           muted_until?: string | null
+          now_playing_at?: string | null
+          now_playing_id?: string | null
+          now_playing_kind?: string | null
+          now_playing_note?: string | null
+          now_playing_url?: string | null
           sanctioned_by?: string | null
           showcase?: string[]
           sparks?: number
@@ -1227,6 +1237,11 @@ export type Database = {
           last_active_at?: string
           mute_reason?: string | null
           muted_until?: string | null
+          now_playing_at?: string | null
+          now_playing_id?: string | null
+          now_playing_kind?: string | null
+          now_playing_note?: string | null
+          now_playing_url?: string | null
           sanctioned_by?: string | null
           showcase?: string[]
           sparks?: number
@@ -1881,6 +1896,7 @@ export type Database = {
         Args: { _amount: number; _crew_id: string }
         Returns: Json
       }
+      ensure_active_season: { Args: never; Returns: string }
       equip_cosmetic: { Args: { _slot: string; _slug: string }; Returns: Json }
       grant_admin_cosmetics: { Args: { _user_id: string }; Returns: undefined }
       grant_founder_cosmetics: {
@@ -2003,6 +2019,10 @@ export type Database = {
         Returns: number
       }
       save_profile_widgets: { Args: { _widgets: Json }; Returns: Json }
+      set_now_playing: {
+        Args: { _id: string; _kind: string; _note: string; _url: string }
+        Returns: undefined
+      }
       staff_complete_pulse: {
         Args: { _levels?: number; _user_id: string }
         Returns: Json
