@@ -44,7 +44,10 @@ const SHAPES: Shape[] = [
 
 const PILLARS = [
   { title: "Chat that counts", body: "Every message, voice note and reply feeds your XP bar." },
-  { title: "Pulse Rush", body: "15 hand-built rhythm levels, leaderboards and secret coins." },
+  {
+    title: "Pulse Rush",
+    body: `${PULSE_LEVELS.length} hand-built rhythm levels plus Infinite Run, leaderboards and secret coins.`,
+  },
   { title: "Earned, never bought", body: "Cosmetics, ranks and vaults come from playing — not paying." },
 ];
 
