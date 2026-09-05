@@ -777,10 +777,6 @@ function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => vo
         accent,
         visibility,
         join_policy: visibility === "private" ? "invite" : joinPolicy,
-        badge_style: badgeStyle,
-        nametag_style: nametag,
-        text_effect: textEffect,
-        chat_bg: chatBg,
       });
       onCreated(id);
     } catch (err) {

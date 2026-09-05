@@ -358,6 +358,10 @@ export async function updateCrew(
     accent: CrewAccent;
     visibility: "public" | "private";
     join_policy: "open" | "invite";
+    badge_style: CrewBadgeStyle;
+    nametag_style: CrewNametag;
+    text_effect: CrewTextEffect;
+    chat_bg: CrewChatBg;
   }>,
 ) {
   const { data, error } = await supabase.rpc("update_crew", { _crew_id: crewId, _patch: patch });
