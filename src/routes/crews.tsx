@@ -534,11 +534,19 @@ function CrewsPage() {
                                   onChange={(e) => setRank(m, e.target.value as CrewRole)}
                                   className="bg-secondary/60 rounded-lg px-1.5 py-1 text-[10px] outline-none"
                                 >
-                                  {CREW_RANKS.filter((r) => r.level < myLevel).map((r) => (
+                                  {CREW_RANKS.filter((r) => {
+                                    if (r.level >= 5) return false;
+                                    if (r.key === "captain")
+                                      return (
+                                        (isStaff || myLevel >= 5) && (!jointTaken || m.role === "captain")
+                                      );
+                                    return r.level < myLevel;
+                                  }).map((r) => (
                                     <option key={r.key} value={r.key}>
                                       {r.label}
                                     </option>
                                   ))}
+
                                 </select>
                                 <button onClick={() => kick(m)} className="text-destructive text-[10px] hover:underline">
                                   Remove
