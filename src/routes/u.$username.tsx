@@ -6,6 +6,7 @@ import { Avatar, Nametag, PresenceLabel } from "@/components/dimted/Identity";
 import { EmptyState, LockedTile, Meter, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
 import { HoloCardTrigger } from "@/components/dimted/HoloCard";
+import { Showcase } from "@/components/dimted/Showcase";
 import { rarityBorder, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { bannerFor, SLOTS, type Cosmetic } from "@/lib/cosmetics";
@@ -214,6 +215,9 @@ function PublicProfilePage() {
       <div className="grid gap-5 xl:grid-cols-3">
         <Panel className="p-6" delay={60}>
           <PanelHead eyebrow="Currently worn" title="Cosmetics" />
+          <div className="mt-4">
+            <Showcase slugs={person.showcase} cosmetics={cosmetics.data ?? []} />
+          </div>
           <div className="mt-4 space-y-3">
             {SLOTS.map((s) => {
               const slug = {

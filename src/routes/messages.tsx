@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, Search, Send, Trash2 } from "lucide-react";
+import { ArrowDown, Check, Pencil, Pin, Search, Send, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,15 @@ import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
 import { useMyRole } from "@/lib/roles-queries";
+import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import {
+  editDirectMessage,
+  pinnedMessageId,
+  sendDirectImageMessage,
+  usePinMessage,
+  usePinnedMessage,
+  useUnpinMessage,
+} from "@/lib/chat-extras";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/messages")({
@@ -136,6 +145,18 @@ function MessagesPage() {
 
   const fl = active ? friendshipLevel(active.friendshipXp) : null;
 
+  async function sendImage(file: File) {
+    if (!active || !profile) return;
+    try {
+      await sendDirectImageMessage(active.friendshipId, profile.id, file, "");
+      await messages.refetch();
+      await award("message", `Image to ${active.profile.display_name}`);
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Image didn't send");
+    }
+  }
+
   async function removeMessage(id: string) {
     try {
       await deleteDirectMessage(id);
@@ -149,7 +170,26 @@ function MessagesPage() {
   const ids = useMemo(() => list.map((m) => m.id), [list]);
   const reactions = useReactions("dm", activeId, ids);
   const toggleReaction = useToggleReaction("dm", activeId);
+  const pin = usePinnedMessage("dm", active?.friendshipId);
+  const pinMut = usePinMessage("dm", active?.friendshipId);
+  const unpinMut = useUnpinMessage("dm", active?.friendshipId);
+  const pinnedId = pinnedMessageId(pin.data);
+  const pinnedMsg = pinnedId ? list.find((m) => m.id === pinnedId) : undefined;
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
   const [atBottom, setAtBottom] = useState(true);
+
+  async function saveEdit(id: string) {
+    const body = editDraft.trim();
+    if (!body) return;
+    try {
+      await editDirectMessage(id, body);
+      setEditingId(null);
+      await messages.refetch();
+    } catch {
+      toast.error("Couldn't edit that message");
+    }
+  }
 
   function jumpToLatest() {
     const el = scrollRef.current;
@@ -280,6 +320,19 @@ function MessagesPage() {
               </div>
             ) : null}
 
+            {active && pin.data ? (
+              <PinBanner
+                body={pinnedMsg?.body ?? "Pinned message"}
+                onJump={() => {
+                  const el = pinnedId ? document.getElementById(`msg-${pinnedId}`) : null;
+                  el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  el?.classList.add("bg-amber-500/10");
+                  setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
+                }}
+                onUnpin={() => unpinMut.mutate()}
+              />
+            ) : null}
+
             {/* Oldest first: the chat scrolls up like Discord/iMessage. */}
             <div
               ref={scrollRef}
@@ -310,8 +363,8 @@ function MessagesPage() {
                     new Date(previous.created_at).toDateString() !==
                       new Date(m.created_at).toDateString();
                   const mine = m.author?.id === profile?.id;
-                  return (
-                    <div key={m.id}>
+                   return (
+                     <div key={m.id} id={`msg-${m.id}`} className="rounded-lg transition-colors duration-500">
                       {dayStarts ? (
                         <div className="my-4 flex items-center gap-3">
                           <span className="bg-border h-px flex-1" />
@@ -361,9 +414,50 @@ function MessagesPage() {
                           )}
                           {m.audio_url ? (
                             <VoicePlayer url={m.audio_url} ms={m.audio_ms} />
+                          ) : m.image_url ? (
+                            <div className="space-y-1.5">
+                              <ChatImage src={m.image_url} alt={`Image from ${m.author?.display_name ?? "chat"}`} />
+                              {m.body && !m.body.startsWith("\u{1F5BC}") ? (
+                                <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                                  {m.body}
+                                </p>
+                              ) : null}
+                            </div>
+                          ) : editingId === m.id ? (
+                            <form
+                              className="mt-1 flex gap-2"
+                              onSubmit={(e) => {
+                                e.preventDefault();
+                                void saveEdit(m.id);
+                              }}
+                            >
+                              <Input
+                                value={editDraft}
+                                onChange={(e) => setEditDraft(e.target.value)}
+                                className="h-8 text-sm"
+                                autoFocus
+                              />
+                              <Button type="submit" size="icon" variant="ghost" className="h-8 w-8">
+                                <Check className="size-4" />
+                              </Button>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8"
+                                onClick={() => setEditingId(null)}
+                              >
+                                <X className="size-4" />
+                              </Button>
+                            </form>
                           ) : (
                             <p className="text-foreground/95 text-sm leading-relaxed break-words">
                               {m.body}
+                              {m.edited_at ? (
+                                <span className="text-muted-foreground/60 ml-1.5 font-mono text-[10px]">
+                                  (edited)
+                                </span>
+                              ) : null}
                             </p>
                           )}
                           <Reactions
@@ -375,16 +469,47 @@ function MessagesPage() {
                             }
                           />
                         </div>
-                        {mine || isModerator ? (
+                        <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
                           <button
                             type="button"
-                            aria-label="Delete message"
-                            onClick={() => void removeMessage(m.id)}
-                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive shrink-0 self-start pt-1"
+                            aria-label="Pin message"
+                            title="Pin message"
+                            onClick={() =>
+                              profile && pinMut.mutate({ messageId: m.id, userId: profile.id })
+                            }
+                            className={cn(
+                              "text-muted-foreground/0 group-hover:text-muted-foreground rounded p-0.5 transition hover:!text-amber-400",
+                              pinnedId === m.id && "!text-amber-400 opacity-100",
+                            )}
                           >
-                            <Trash2 className="size-3.5" />
+                            <Pin className="size-3.5" />
                           </button>
-                        ) : null}
+                          {mine && !m.audio_url && !m.image_url ? (
+                            <button
+                              type="button"
+                              aria-label="Edit message"
+                              title="Edit message"
+                              onClick={() => {
+                                setEditingId(m.id);
+                                setEditDraft(m.body);
+                              }}
+                              className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-foreground rounded p-0.5"
+                            >
+                              <Pencil className="size-3.5" />
+                            </button>
+                          ) : null}
+                          {mine || isModerator ? (
+                            <button
+                              type="button"
+                              aria-label="Delete message"
+                              title="Delete message"
+                              onClick={() => void removeMessage(m.id)}
+                              className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive rounded p-0.5"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </button>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   );
@@ -413,6 +538,7 @@ function MessagesPage() {
             >
               <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-3">
+                <ImagePicker onPick={sendImage} disabled={!active} />
                 <VoiceRecorder onSend={sendVoice} disabled={!active} />
                 <Input
                   value={draft}

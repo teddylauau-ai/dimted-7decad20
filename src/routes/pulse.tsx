@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { CalendarClock, Check, Coins, Crown, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
+import { CalendarClock, Check, Coins, Crown, Flame, Infinity as InfinityIcon, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
@@ -11,9 +11,12 @@ import {
   DIFFICULTY_TONE,
   KIND_LABEL,
   LEVELS,
+  buildLevel,
   coinBits,
   colorPair,
+  dailyEndlessSeed,
   dailyLevelN,
+  endlessLevel,
   featText,
   isLevelUnlocked,
   runScore,
@@ -22,9 +25,13 @@ import {
 } from "@/lib/pulse";
 import {
   clearedLevels,
+  recordEndlessRun,
   rowFor,
   totalCoins,
   usePulseDailyClaim,
+  usePulseDailyLeaderboard,
+  usePulseDailyStreak,
+  usePulseEndlessBest,
   usePulseEquip,
   usePulseFinish,
   usePulseItems,
@@ -48,13 +55,13 @@ export const Route = createFileRoute("/pulse")({
       {
         name: "description",
         content:
-          "Pulse Rush is Lazu's flagship game: 21 hand-built rhythm levels, a daily challenge, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
+          "Pulse Rush is Lazu's flagship game: 27 hand-built rhythm levels, an endless mode, a daily challenge, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
       },
       { property: "og:title", content: "Pulse Rush — Lazu" },
       {
         property: "og:description",
         content:
-          "One tap. Fifteen levels. Memorise the beat, clear the run, collect the coins and unlock everything.",
+          "One tap. Twenty-seven levels plus an endless run. Memorise the beat, clear the run, collect the coins and unlock everything.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -94,6 +101,11 @@ function PulsePage() {
   const dailyN = useMemo(() => dailyLevelN(cleared), [cleared]);
   const dailyClaimed = usePulseDailyClaim(profile?.id);
   const dailyLevel = LEVELS[dailyN - 1] ?? LEVELS[0]!;
+  const endlessDef = useMemo(() => endlessLevel(dailyEndlessSeed()), []);
+  const endlessBest = usePulseEndlessBest(profile?.id);
+  const dailyBoard = usePulseDailyLeaderboard();
+  const streak = usePulseDailyStreak(profile?.id);
+  const [endless, setEndless] = useState(false);
 
   const skins: PulseSkins = {
     icon: state.data?.equipped_icon ?? "cube-origin",
@@ -105,9 +117,10 @@ function PulsePage() {
     colors: state.data?.equipped_colors ?? "col-aurora",
   };
 
-  const start = (l: LevelDef, prac: boolean) => {
+  const start = (l: LevelDef, prac: boolean, isEndless = false) => {
     setLevel(l);
     setPractice(prac);
+    setEndless(isEndless);
     setResult(null);
     setPhase("playing");
   };
@@ -117,6 +130,21 @@ function PulsePage() {
       setResult(run);
       setPhase("result");
       try {
+        if (endless) {
+          // Infinite Run: distance is the score, XP scales with how far you got.
+          const units = Math.round((run.pct / 100) * buildLevel(level).length);
+          if (units > 0 && profile) {
+            await recordEndlessRun(profile.id, units);
+            const reward = await awardArcadeXp("pulse-rush" as GameId, Math.min(units, 20000));
+            setResult((r) => (r ? { ...r, reward } : r));
+            if (reward.status === "granted" || reward.status === "awarded") {
+              syncXp(reward, "Pulse Rush · Infinite Run");
+              toast.success(`+${reward.gained} XP · +${reward.sparks_gained} sparks`);
+            }
+            refresh();
+          }
+          return;
+        }
         const res = await finish.mutateAsync({
           level: level.n,
           pct: run.pct,
@@ -143,7 +171,7 @@ function PulsePage() {
         toast.error(e instanceof Error ? e.message : "Couldn't save that attempt");
       }
     },
-    [level, practice, finish, refresh, syncXp],
+    [level, practice, endless, profile, finish, refresh, syncXp, dailyN],
   );
 
   if (!profile) return null;
@@ -154,7 +182,7 @@ function PulsePage() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="eyebrow">
-              Level {level.n} · {DIFFICULTY_LABEL[level.difficulty]}
+              {endless ? "Infinite Run · today's mountain" : `Level ${level.n} · ${DIFFICULTY_LABEL[level.difficulty]}`}
               {practice ? " · practice" : ""}
             </p>
             <h1 className="font-display text-xl font-semibold tracking-tight">{level.name}</h1>
@@ -179,13 +207,20 @@ function PulsePage() {
     return (
       <div className="space-y-4">
         <Panel className="p-6 text-center">
-          <p className="eyebrow">{result.cleared ? "Level complete" : "Run ended"}</p>
+          <p className="eyebrow">{result.cleared && !endless ? "Level complete" : "Run ended"}</p>
           <h1 className="font-display mt-1 text-2xl font-semibold tracking-tight">
-            {level.n}. {level.name}
+            {endless ? "Infinite Run" : `${level.n}. ${level.name}`}
           </h1>
           <p className="font-display text-primary mt-3 text-5xl font-semibold tabular-nums">
-            {Math.floor(result.pct)}%
+            {endless
+              ? `${Math.round((result.pct / 100) * buildLevel(level).length)}u`
+              : `${Math.floor(result.pct)}%`}
           </p>
+          {endless ? (
+            <p className="text-muted-foreground mt-1 font-mono text-xs">
+              personal best {endlessBest.data ?? 0}u
+            </p>
+          ) : null}
           <div className="mt-3 flex justify-center gap-2">
             {got.map((g, i) => (
               <Coins
@@ -206,10 +241,10 @@ function PulsePage() {
             </div>
           ) : null}
           <div className="mt-5 flex flex-wrap justify-center gap-2">
-            <Button onClick={() => start(level, practice)}>
+            <Button onClick={() => start(level, practice, endless)}>
               <Repeat className="mr-1 size-4" /> Again
             </Button>
-            {result.cleared && LEVELS[level.n] ? (
+            {!endless && result.cleared && LEVELS[level.n] ? (
               <Button variant="outline" onClick={() => start(LEVELS[level.n]!, false)}>
                 Next level
               </Button>
@@ -228,7 +263,7 @@ function PulsePage() {
       <PageHeader
         eyebrow="Flagship"
         title="Pulse Rush"
-        blurb="One button. Fifteen levels. Memorise the beat, clear the run, take the coins."
+        blurb="One button. Twenty-seven levels and an endless mountain. Memorise the beat, clear the run, take the coins."
         aside={
           <div className="flex items-center gap-3">
             <span className="text-gold flex items-center gap-1.5 font-mono text-sm">
@@ -241,26 +276,53 @@ function PulsePage() {
         }
       />
 
-      <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
-        <div className="flex items-center gap-3">
-          <span className="bg-primary/15 text-primary grid size-9 place-items-center rounded-xl">
-            <CalendarClock className="size-4" />
-          </span>
-          <div>
-            <p className="font-display text-sm font-semibold">
-              Daily challenge · Level {dailyLevel.n} — {dailyLevel.name}
-            </p>
-            <p className="text-muted-foreground text-xs">
-              {dailyClaimed.data
-                ? "Bonus claimed — come back tomorrow for a new level."
-                : "Clear it today for a one-time +50 coin bonus. Resets at UTC midnight."}
-            </p>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
+          <div className="flex items-center gap-3">
+            <span className="bg-primary/15 text-primary grid size-9 place-items-center rounded-xl">
+              <CalendarClock className="size-4" />
+            </span>
+            <div>
+              <p className="font-display text-sm font-semibold">
+                Daily challenge · Level {dailyLevel.n} — {dailyLevel.name}
+              </p>
+              <p className="text-muted-foreground text-xs">
+                {dailyClaimed.data
+                  ? "Bonus claimed — come back tomorrow for a new level."
+                  : "Clear it today for a one-time +50 coin bonus. Resets at UTC midnight."}
+              </p>
+            </div>
           </div>
-        </div>
-        <Button size="sm" variant="outline" onClick={() => start(dailyLevel, false)}>
-          <Play className="size-3.5" /> {dailyClaimed.data ? "Replay" : "Play the daily"}
-        </Button>
-      </Panel>
+          <div className="flex items-center gap-2">
+            {(streak.data ?? 0) > 0 ? (
+              <span className="text-gold flex items-center gap-1 font-mono text-xs" title="Daily streak">
+                <Flame className="size-3.5" /> {streak.data}d
+              </span>
+            ) : null}
+            <Button size="sm" variant="outline" onClick={() => start(dailyLevel, false)}>
+              <Play className="size-3.5" /> {dailyClaimed.data ? "Replay" : "Play the daily"}
+            </Button>
+          </div>
+        </Panel>
+
+        <Panel className="border-fuchsia-400/25 flex flex-wrap items-center justify-between gap-3 p-4">
+          <div className="flex items-center gap-3">
+            <span className="grid size-9 place-items-center rounded-xl bg-fuchsia-400/15 text-fuchsia-300">
+              <InfinityIcon className="size-4" />
+            </span>
+            <div>
+              <p className="font-display text-sm font-semibold">Infinite Run</p>
+              <p className="text-muted-foreground text-xs">
+                No finish line — today's mountain is the same for everyone. Best:{" "}
+                <span className="text-foreground font-mono">{endlessBest.data ?? 0}u</span>
+              </p>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => start(endlessDef, false, true)}>
+            <Play className="size-3.5" /> Run it
+          </Button>
+        </Panel>
+      </div>
 
       <div className="flex gap-2">
         {(["levels", "locker", "ranks"] as const).map((t) => (
@@ -280,6 +342,46 @@ function PulsePage() {
       </div>
 
       {tab === "ranks" ? (
+        <div className="space-y-4">
+        <Panel className="p-4">
+          <PanelHead
+            eyebrow="Today"
+            title="Daily challenge board"
+            aside={
+              <span className="text-muted-foreground font-mono text-xs">
+                best score today · resets UTC midnight
+              </span>
+            }
+          />
+          {(dailyBoard.data ?? []).length === 0 ? (
+            <p className="text-muted-foreground mt-4 text-sm">
+              Nobody has run the daily yet. First clear takes the crown.
+            </p>
+          ) : (
+            <ol className="mt-3 divide-y divide-white/5">
+              {(dailyBoard.data ?? []).map((r, i) => (
+                <li
+                  key={r.user_id}
+                  className={cn(
+                    "flex items-center gap-3 py-2.5",
+                    r.user_id === profile.id && "bg-primary/5 -mx-2 rounded-lg px-2",
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "w-7 shrink-0 text-center font-mono text-sm",
+                      i === 0 ? "text-gold" : "text-muted-foreground",
+                    )}
+                  >
+                    {i === 0 ? <Crown className="mx-auto size-4" /> : i + 1}
+                  </span>
+                  <IdentityRow profile={r.profile} className="flex-1" />
+                  <span className="text-foreground shrink-0 font-mono text-xs">{r.score}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Panel>
         <Panel className="p-4">
           <PanelHead
             eyebrow="Global"
@@ -330,6 +432,7 @@ function PulsePage() {
             </ol>
           )}
         </Panel>
+        </div>
       ) : tab === "levels" ? (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {LEVELS.map((l) => {

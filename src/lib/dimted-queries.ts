@@ -20,6 +20,7 @@ export type PublicProfile = {
   equipped_effect: string | null;
   avatar_url: string | null;
   banner_url: string | null;
+  showcase: string[];
 };
 
 export type FriendRow = {
@@ -33,7 +34,7 @@ export type FriendRow = {
 };
 
 const PROFILE_FIELDS =
-  "id, username, display_name, bio, title, total_xp, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url";
+  "id, username, display_name, bio, title, total_xp, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url, showcase";
 
 const AUTHOR_FIELDS =
   "id, display_name, username, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
@@ -164,6 +165,8 @@ export type ChatMessage = {
   created_at: string;
   audio_url?: string | null;
   audio_ms?: number | null;
+  image_url?: string | null;
+  edited_at?: string | null;
   author: ChatAuthor | null;
 };
 
@@ -179,7 +182,7 @@ export function useDirectMessages(friendshipId: string | undefined) {
     queryFn: async (): Promise<ChatMessage[]> => {
       const { data, error } = await supabase
         .from("messages")
-        .select(`id, body, audio_url, audio_ms, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
+.select(`id, body, audio_url, audio_ms, image_url, edited_at, created_at, author:profiles!messages_sender_id_fkey (${AUTHOR_FIELDS})`)
         .eq("friendship_id", friendshipId!)
         .order("created_at", { ascending: true })
         .limit(100);
@@ -199,7 +202,7 @@ export function useChannelMessages(channelId: string | undefined) {
       const { data, error } = await supabase
         .from("community_messages")
         .select(
-          `id, body, audio_url, audio_ms, created_at, author:profiles!community_messages_user_id_fkey (${AUTHOR_FIELDS})`,
+          `id, body, audio_url, audio_ms, image_url, edited_at, created_at, author:profiles!community_messages_user_id_fkey (${AUTHOR_FIELDS})`,
         )
         .eq("channel_id", channelId!)
         .order("created_at")

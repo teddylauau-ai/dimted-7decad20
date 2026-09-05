@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Shield, Coins, Crown, ShoppingBag, Sparkles } from "lucide-react";
+import { Shield, Coins, Crown, ShoppingBag, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
@@ -8,6 +8,7 @@ import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics, useInventory } from "@/lib/dimted-queries";
 import { useMyRole } from "@/lib/roles-queries";
 import { claimArmoryMilestone, equipCosmetic } from "@/lib/dimted-actions";
+import { toggleShowcase } from "@/lib/chat-extras";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -120,6 +121,21 @@ function ArmoryPage() {
       toast.success(isOn ? `${item.name} taken off.` : `${item.name} equipped.`);
     } catch {
       toast.error("Couldn't equip that.");
+    }
+  }
+
+  const showcase = profile?.showcase ?? [];
+
+  async function toggleShow(slug: string) {
+    if (!profile) return;
+    try {
+      const next = await toggleShowcase(profile.id, slug, showcase);
+      await refreshProfile();
+      toast.success(
+        next.includes(slug) ? "Starred on your profile." : "Removed from your showcase.",
+      );
+    } catch {
+      toast.error("Couldn't update your showcase.");
     }
   }
 
@@ -376,7 +392,39 @@ function ArmoryPage() {
                           {item.description}
                         </p>
                       </div>
-                      <RarityChip rarity={item.rarity} />
+                      <span className="flex shrink-0 items-start gap-1.5">
+                        <RarityChip rarity={item.rarity} />
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          title={
+                            showcase.includes(item.slug)
+                              ? "Remove from profile showcase"
+                              : "Star on your profile showcase (max 3)"
+                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void toggleShow(item.slug);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.stopPropagation();
+                              void toggleShow(item.slug);
+                            }
+                          }}
+                          className={cn(
+                            "rounded-full p-1 transition-colors",
+                            showcase.includes(item.slug)
+                              ? "text-gold"
+                              : "text-muted-foreground/50 hover:text-gold",
+                          )}
+                        >
+                          <Star
+                            className="size-3.5"
+                            fill={showcase.includes(item.slug) ? "currentColor" : "none"}
+                          />
+                        </span>
+                      </span>
                     </div>
                     <SlotPreview slug={item.slug} slot={item.slot} />
                     <span
@@ -402,6 +450,8 @@ const MILESTONES = [
   { slug: "m-collector-5", goal: 5, label: "Collector I", xp: 200, sparks: 150 },
   { slug: "m-collector-15", goal: 15, label: "Collector II", xp: 500, sparks: 350 },
   { slug: "m-collector-30", goal: 30, label: "Collector III", xp: 1200, sparks: 800 },
+  { slug: "armory-collector-4", goal: 50, label: "Curator", xp: 1500, sparks: 700 },
+  { slug: "armory-collector-5", goal: 75, label: "Vault Master", xp: 2500, sparks: 1200 },
 ];
 
 /** Collection milestones: one-time rewards for growing your locker. */
@@ -449,7 +499,7 @@ function Milestones({ owned, userId }: { owned: number; userId: string | null })
         title="Rewards for building your locker"
         aside={`${owned} owned`}
       />
-      <div className="mt-3 grid gap-2.5 sm:grid-cols-3">
+      <div className="mt-3 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {MILESTONES.map((m) => {
           const done = owned >= m.goal;
           const claimed = claims.data?.has(m.slug) ?? false;

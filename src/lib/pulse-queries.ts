@@ -289,3 +289,112 @@ export function usePulseLeaderboard() {
     },
   });
 }
+
+/* ------------------------------------------------------------------ endless */
+
+/** Record an Infinite Run distance (units). Also feeds the arcade XP backend. */
+export async function recordEndlessRun(userId: string, units: number) {
+  const score = Math.max(1, Math.round(units));
+  const { error } = await supabase.from("game_scores").insert({
+    user_id: userId,
+    game: "pulse-endless",
+    score,
+    detail: { units: score },
+  });
+  if (error) throw error;
+  return score;
+}
+
+/** Your personal best Infinite Run distance. */
+export function usePulseEndlessBest(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["pulse-endless-best", userId],
+    enabled: !!userId,
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await supabase
+        .from("game_scores")
+        .select("score")
+        .eq("user_id", userId!)
+        .eq("game", "pulse-endless")
+        .order("score", { ascending: false })
+        .limit(1);
+      if (error) throw error;
+      return data?.[0]?.score ?? 0;
+    },
+  });
+}
+
+export type DailyRow = {
+  user_id: string;
+  score: number;
+  profile: PulseRankRow["profile"];
+};
+
+/** Today's daily-challenge leaderboard — best score per player, today only. */
+export function usePulseDailyLeaderboard() {
+  return useQuery({
+    queryKey: ["pulse-daily-board"],
+    refetchInterval: 60 * 1000,
+    queryFn: async (): Promise<DailyRow[]> => {
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      const { data, error } = await supabase
+        .from("game_scores")
+        .select("user_id, score")
+        .eq("game", "pulse-daily")
+        .gte("created_at", today.toISOString())
+        .limit(2000);
+      if (error) throw error;
+      const best = new Map<string, number>();
+      for (const r of data ?? []) {
+        best.set(r.user_id, Math.max(best.get(r.user_id) ?? 0, r.score));
+      }
+      const rows = [...best.entries()]
+        .map(([user_id, score]) => ({ user_id, score, profile: null as DailyRow["profile"] }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10);
+      if (rows.length) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select(
+            "id, username, display_name, last_active_at, activity_context, avatar_url, equipped_nametag, equipped_badge, equipped_frame, equipped_effect",
+          )
+          .in("id", rows.map((r) => r.user_id));
+        const byId = new Map((profs ?? []).map((p) => [p.id, p]));
+        for (const r of rows) r.profile = (byId.get(r.user_id) as DailyRow["profile"]) ?? null;
+      }
+      return rows.filter((r) => r.profile);
+    },
+  });
+}
+
+/** Consecutive-day daily-challenge streak (today or yesterday counts as current). */
+export function usePulseDailyStreak(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["pulse-daily-streak", userId],
+    enabled: !!userId,
+    queryFn: async (): Promise<number> => {
+      const since = new Date(Date.now() - 400 * 24 * 3600 * 1000);
+      const { data, error } = await supabase
+        .from("game_scores")
+        .select("created_at")
+        .eq("user_id", userId!)
+        .eq("game", "pulse-daily")
+        .gte("created_at", since.toISOString())
+        .limit(500);
+      if (error) throw error;
+      const days = new Set((data ?? []).map((r) => r.created_at.slice(0, 10)));
+      const cursor = new Date();
+      cursor.setUTCHours(0, 0, 0, 0);
+      const iso = (d: Date) => d.toISOString().slice(0, 10);
+      // Today may not be played yet — start from yesterday if so.
+      if (!days.has(iso(cursor))) cursor.setUTCDate(cursor.getUTCDate() - 1);
+      let streak = 0;
+      while (days.has(iso(cursor))) {
+        streak++;
+        cursor.setUTCDate(cursor.getUTCDate() - 1);
+      }
+      return streak;
+    },
+  });
+}

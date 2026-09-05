@@ -33,6 +33,7 @@ import {
 } from "@/components/dimted/primitives";
 import { RankBadge, RankPill } from "@/components/dimted/RankBadge";
 import { HoloCardTrigger } from "@/components/dimted/HoloCard";
+import { Showcase } from "@/components/dimted/Showcase";
 import { rarityBorder, rarityDot, rarityText } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -305,6 +306,10 @@ function ProfilePage() {
                 {totalXp.toLocaleString()} XP lifetime
               </p>
             </div>
+          </div>
+
+          <div className="border-border mt-5 border-t pt-4">
+            <Showcase slugs={profile?.showcase} cosmetics={cosmetics.data ?? []} editable />
           </div>
 
           <div className="border-border mt-5 border-t pt-4">

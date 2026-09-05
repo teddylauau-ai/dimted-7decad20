@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Globe, Lock, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
+import { Check, Globe, Lock, Pencil, Pin, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,15 @@ import { Reactions } from "@/components/dimted/Reactions";
 import { useReactions, useToggleReaction } from "@/lib/reactions";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
+import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import {
+  editCommunityMessage,
+  pinnedMessageId,
+  postChannelImageMessage,
+  usePinMessage,
+  usePinnedMessage,
+  useUnpinMessage,
+} from "@/lib/chat-extras";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -120,6 +129,37 @@ function CommunitiesPage() {
   const toggleReaction = useToggleReaction("community", activeChannel?.id ?? null);
   const typingNames = useTypingUsers("channel", activeChannel?.id, profile?.id);
   const typing = useTypingSignal("channel", activeChannel?.id);
+  const pin = usePinnedMessage("community", activeChannel?.id);
+  const pinMut = usePinMessage("community", activeChannel?.id);
+  const unpinMut = useUnpinMessage("community", activeChannel?.id);
+  const pinnedId = pinnedMessageId(pin.data);
+  const pinnedMsg = pinnedId ? (messages.data ?? []).find((m) => m.id === pinnedId) : undefined;
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+
+  async function saveEdit(id: string) {
+    const body = editDraft.trim();
+    if (!body) return;
+    try {
+      await editCommunityMessage(id, body);
+      setEditingId(null);
+      await messages.refetch();
+    } catch {
+      toast.error("Couldn't edit that message");
+    }
+  }
+
+  async function postImage(file: File) {
+    if (!profile || !active || !activeChannel) return;
+    try {
+      await postChannelImageMessage(active.id, activeChannel.id, profile.id, file, "");
+      await messages.refetch();
+      await award("community", `Image in #${activeChannel.name}`);
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Image didn't post");
+    }
+  }
 
   async function post(e: React.FormEvent) {
     e.preventDefault();
@@ -371,6 +411,19 @@ function CommunitiesPage() {
               </div>
             ) : null}
 
+            {activeChannel && pin.data ? (
+              <PinBanner
+                body={pinnedMsg?.body ?? "Pinned message"}
+                onJump={() => {
+                  const el = pinnedId ? document.getElementById(`msg-${pinnedId}`) : null;
+                  el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                  el?.classList.add("bg-amber-500/10");
+                  setTimeout(() => el?.classList.remove("bg-amber-500/10"), 1600);
+                }}
+                onUnpin={() => unpinMut.mutate()}
+              />
+            ) : null}
+
             {managing && canManage && active ? (
               <div className="border-border bg-background/40 space-y-4 border-b px-5 py-4">
                 <div className="flex flex-wrap items-center gap-2">
@@ -477,7 +530,8 @@ function CommunitiesPage() {
                   return (
                     <div
                       key={m.id}
-                      className={`chat-row group flex gap-3 ${grouped ? "mt-0" : "mt-3"} ${fx ?? ""}`}
+                      id={`msg-${m.id}`}
+                      className={`chat-row group flex gap-3 rounded-lg px-2 py-1 transition-colors duration-500 hover:bg-secondary/35 ${grouped ? "mt-0" : "mt-3"} ${fx ?? ""}`}
                     >
                       {grouped ? (
                         <span className="text-muted-foreground/0 group-hover:text-muted-foreground/70 w-9 shrink-0 pt-0.5 text-right font-mono text-[9px]">
@@ -493,13 +547,54 @@ function CommunitiesPage() {
                             <span className="text-muted-foreground font-mono text-[10px]">{time}</span>
                           </p>
                         )}
-                        {m.audio_url ? (
-                          <VoicePlayer url={m.audio_url} ms={m.audio_ms} />
-                        ) : (
-                          <p className="text-foreground/95 text-sm leading-relaxed break-words">
-                            {m.body}
-                          </p>
-                        )}
+                         {m.audio_url ? (
+                           <VoicePlayer url={m.audio_url} ms={m.audio_ms} />
+                         ) : m.image_url ? (
+                           <div className="space-y-1.5">
+                             <ChatImage src={m.image_url} alt={`Image from ${m.author?.display_name ?? "chat"}`} />
+                             {m.body && !m.body.startsWith("\u{1F5BC}") ? (
+                               <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                                 {m.body}
+                               </p>
+                             ) : null}
+                           </div>
+                         ) : editingId === m.id ? (
+                           <form
+                             className="mt-1 flex gap-2"
+                             onSubmit={(e) => {
+                               e.preventDefault();
+                               void saveEdit(m.id);
+                             }}
+                           >
+                             <Input
+                               value={editDraft}
+                               onChange={(e) => setEditDraft(e.target.value)}
+                               className="h-8 text-sm"
+                               autoFocus
+                             />
+                             <Button type="submit" size="icon" variant="ghost" className="h-8 w-8">
+                               <Check className="size-4" />
+                             </Button>
+                             <Button
+                               type="button"
+                               size="icon"
+                               variant="ghost"
+                               className="h-8 w-8"
+                               onClick={() => setEditingId(null)}
+                             >
+                               <X className="size-4" />
+                             </Button>
+                           </form>
+                         ) : (
+                           <p className="text-foreground/95 text-sm leading-relaxed break-words">
+                             {m.body}
+                             {m.edited_at ? (
+                               <span className="text-muted-foreground/60 ml-1.5 font-mono text-[10px]">
+                                 (edited)
+                               </span>
+                             ) : null}
+                           </p>
+                         )}
                         <Reactions
                           scope="community"
                           messageId={m.id}
@@ -509,16 +604,47 @@ function CommunitiesPage() {
                           }
                         />
                       </div>
-                      {m.author?.id === profile?.id || canManage ? (
+                      <div className="flex shrink-0 items-start gap-0.5 self-start pt-1">
                         <button
                           type="button"
-                          aria-label="Delete message"
-                          onClick={() => void removeMessage(m.id)}
-                          className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive shrink-0 self-start pt-1"
+                          aria-label="Pin message"
+                          title="Pin message"
+                          onClick={() =>
+                            profile && pinMut.mutate({ messageId: m.id, userId: profile.id })
+                          }
+                          className={cn(
+                            "text-muted-foreground/0 group-hover:text-muted-foreground rounded p-0.5 transition hover:!text-amber-400",
+                            pinnedId === m.id && "!text-amber-400 opacity-100",
+                          )}
                         >
-                          <Trash2 className="size-3.5" />
+                          <Pin className="size-3.5" />
                         </button>
-                      ) : null}
+                        {m.author?.id === profile?.id && !m.audio_url && !m.image_url ? (
+                          <button
+                            type="button"
+                            aria-label="Edit message"
+                            title="Edit message"
+                            onClick={() => {
+                              setEditingId(m.id);
+                              setEditDraft(m.body);
+                            }}
+                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-foreground rounded p-0.5"
+                          >
+                            <Pencil className="size-3.5" />
+                          </button>
+                        ) : null}
+                        {m.author?.id === profile?.id || canManage ? (
+                          <button
+                            type="button"
+                            aria-label="Delete message"
+                            title="Delete message"
+                            onClick={() => void removeMessage(m.id)}
+                            className="text-muted-foreground/0 group-hover:text-muted-foreground hover:!text-destructive rounded p-0.5"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
                   );
                 })
@@ -528,6 +654,7 @@ function CommunitiesPage() {
             <form onSubmit={post} className="border-border overflow-hidden border-t">
               <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-4">
+                <ImagePicker onPick={postImage} disabled={!activeChannel} />
                 <VoiceRecorder onSend={postVoice} disabled={!activeChannel} />
                 <Input
                   value={draft}
