@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, Globe, Lock, Pencil, Pin, Plus, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
+import { Check, Globe, Lock, Pencil, Pin, Plus, Reply, Send, Settings2, Trash2, UserMinus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ import { Reactions } from "@/components/dimted/Reactions";
 import { useReactions, useToggleReaction } from "@/lib/reactions";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
-import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import { ChatImage, ImagePicker, PinBanner, ReplyChip, ReplyQuote, findReplyTarget } from "@/components/dimted/ChatExtras";
 import {
   editCommunityMessage,
   pinnedMessageId,
@@ -165,10 +165,12 @@ function CommunitiesPage() {
     e.preventDefault();
     const body = draft.trim();
     if (!body || !profile || !active || !activeChannel) return;
+    const replyingTo = replyTo;
     setDraft("");
+    setReplyTo(null);
     typing.clear();
     try {
-      await postChannelMessage(active.id, activeChannel.id, profile.id, body);
+      await postChannelMessage(active.id, activeChannel.id, profile.id, body, replyingTo?.id ?? null);
       await messages.refetch();
       await award("community", `Posted in #${activeChannel.name}`);
       refresh();
