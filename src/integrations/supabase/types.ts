@@ -14,6 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      call_participants: {
+        Row: {
+          call_id: string
+          id: string
+          joined_at: string
+          left_at: string | null
+          user_id: string
+          video: boolean
+        }
+        Insert: {
+          call_id: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          user_id: string
+          video?: boolean
+        }
+        Update: {
+          call_id?: string
+          id?: string
+          joined_at?: string
+          left_at?: string | null
+          user_id?: string
+          video?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_participants_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_signals: {
+        Row: {
+          call_id: string
+          created_at: string
+          from_user: string
+          id: number
+          kind: string
+          payload: Json
+          to_user: string | null
+        }
+        Insert: {
+          call_id: string
+          created_at?: string
+          from_user: string
+          id?: number
+          kind: string
+          payload?: Json
+          to_user?: string | null
+        }
+        Update: {
+          call_id?: string
+          created_at?: string
+          from_user?: string
+          id?: number
+          kind?: string
+          payload?: Json
+          to_user?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_signals_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_signals_from_user_fkey"
+            columns: ["from_user"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_signals_to_user_fkey"
+            columns: ["to_user"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calls: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          scope_id: string
+          scope_type: string
+          started_by: string
+          video: boolean
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          scope_id: string
+          scope_type: string
+          started_by: string
+          video?: boolean
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          scope_id?: string
+          scope_type?: string
+          started_by?: string
+          video?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calls_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       channels: {
         Row: {
           community_id: string
@@ -1129,6 +1261,14 @@ export type Database = {
       }
       can_see_community: {
         Args: { _community_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_use_call: {
+        Args: { _call_id: string; _user_id: string }
+        Returns: boolean
+      }
+      can_use_call_scope: {
+        Args: { _scope_id: string; _scope_type: string; _user_id: string }
         Returns: boolean
       }
       claim_armory_milestone: { Args: { _slug: string }; Returns: Json }
