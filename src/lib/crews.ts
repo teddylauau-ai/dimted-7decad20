@@ -720,3 +720,26 @@ export async function staffDeleteCrewMessage(messageId: string) {
   if (error) throw error;
   return data as unknown as { status: string };
 }
+
+/* ------------------------------------------------------- crew chat XP scale */
+
+/**
+ * XP a single crew message banks into the shared pool. It scales with the
+ * crew's own level (+10% per level, capped at 5x) so chatting stays worth
+ * something once a crew is deep into the ladder.
+ */
+export function crewChatXp(totalXp: number, kind: "text" | "rich" = "text"): number {
+  const base = kind === "rich" ? 24 : 18;
+  const level = crewLevel(totalXp).level;
+  const scale = Math.min(5, 1 + (level - 1) * 0.1);
+  return Math.round(base * scale);
+}
+
+/** How far a crew is from the very top of the ladder. */
+export function crewMaxProgress(totalXp: number) {
+  const xp = Math.max(0, totalXp);
+  return {
+    remaining: Math.max(0, CREW_MAX_XP - xp),
+    pct: Math.min(100, Math.round((xp / CREW_MAX_XP) * 1000) / 10),
+  };
+}
