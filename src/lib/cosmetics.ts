@@ -66,6 +66,10 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-sov-halo": "cos-gradient cos-sov cos-sov-halo",
   "tag-admin-cipher": "cos-gradient cos-gradient-admin-cipher cos-shimmer cos-glow-founder",
   "tag-admin-tidecall": "cos-gradient cos-gradient-admin-tidecall cos-shimmer",
+  "tag-lagoon": "cos-gradient cos-gradient-lagoon cos-shimmer",
+  "tag-rose": "cos-gradient cos-gradient-rose",
+  "tag-lime": "cos-gradient cos-gradient-lime",
+  "tag-candy": "cos-gradient cos-gradient-candy cos-shimmer",
 };
 
 /** Badge → the glyph drawn after the name. */
@@ -93,6 +97,10 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-sov-star": "✦",
   "badge-sov-seal": "❂",
   "badge-admin-shield": "⛨",
+  "badge-dice": "⚄",
+  "badge-wave": "≈",
+  "badge-flask": "⚗",
+  "badge-orbit": "◉",
 };
 
 export const BADGE_CLASS: Record<string, string> = {
@@ -119,6 +127,10 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-sov-star": "cos-sov-badge cos-sov-badge-star",
   "badge-sov-seal": "cos-sov-badge cos-sov-badge-seal",
   "badge-admin-shield": "cos-gradient cos-gradient-admin-cipher cos-shimmer",
+  "badge-dice": "text-common",
+  "badge-wave": "text-uncommon",
+  "badge-flask": "text-rare",
+  "badge-orbit": "text-epic cos-glow-epic",
 };
 
 /**
@@ -149,6 +161,9 @@ export const FRAME_CLASS: Record<string, string> = {
   "frame-sov-mirror": "cos-frame cos-frame-sov-mirror",
   "frame-sov-eclipse": "cos-frame cos-frame-sov-eclipse",
   "frame-admin-scanline": "cos-frame cos-frame-scanline",
+  "frame-frost": "cos-ring border-rare/70 cos-glow-rare animate-breathe",
+  "frame-blossom": "cos-ring border-[oklch(0.8_0.14_15)] cos-glow-epic animate-breathe",
+  "frame-venom": "cos-ring border-uncommon/80 cos-glow-primary animate-breathe",
 };
 
 /** Banner → background style for the profile header. */
@@ -199,6 +214,12 @@ export const BANNER_STYLE: Record<string, string> = {
     "repeating-linear-gradient(0deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), repeating-linear-gradient(90deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), radial-gradient(60% 110% at 50% 120%, oklch(0.7 0.14 200 / 0.45), transparent 68%), linear-gradient(180deg, oklch(0.11 0.02 258), oklch(0.17 0.04 240))",
   "banner-eventide":
     "linear-gradient(180deg, oklch(0.32 0.09 285), oklch(0.6 0.14 30) 70%, oklch(0.85 0.13 82))",
+  "banner-lagoon":
+    "linear-gradient(100deg, oklch(0.24 0.07 220), oklch(0.32 0.1 195), oklch(0.26 0.09 250))",
+  "banner-rose":
+    "linear-gradient(100deg, oklch(0.3 0.1 10), oklch(0.36 0.12 350), oklch(0.26 0.08 330))",
+  "banner-storm":
+    "linear-gradient(100deg, oklch(0.2 0.04 250), oklch(0.28 0.08 260), oklch(0.34 0.12 85))",
 };
 
 export const DEFAULT_BANNER =
@@ -221,6 +242,9 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-sov-decree": "cos-sov-decree-row",
   "fx-sov-goldwave": "cos-sov-goldwave-row",
   "fx-admin-dispatch": "animate-rise cos-admin-dispatch-row",
+  "fx-bounce": "animate-rise",
+  "fx-glimmer": "animate-pop-in cos-glow-row",
+  "fx-drift": "animate-rise",
 };
 
 export type WornCosmetics = {

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Check, Coins, Crown, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
+import { CalendarClock, Check, Coins, Crown, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
@@ -13,6 +13,7 @@ import {
   LEVELS,
   coinBits,
   colorPair,
+  dailyLevelN,
   featText,
   isLevelUnlocked,
   runScore,
@@ -23,6 +24,7 @@ import {
   clearedLevels,
   rowFor,
   totalCoins,
+  usePulseDailyClaim,
   usePulseEquip,
   usePulseFinish,
   usePulseItems,
@@ -46,7 +48,7 @@ export const Route = createFileRoute("/pulse")({
       {
         name: "description",
         content:
-          "Pulse Rush is Lazu's flagship game: fifteen hand-built rhythm levels, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
+          "Pulse Rush is Lazu's flagship game: 21 hand-built rhythm levels, a daily challenge, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
       },
       { property: "og:title", content: "Pulse Rush — Lazu" },
       {
@@ -89,6 +91,9 @@ function PulsePage() {
   const cleared = useMemo(() => clearedLevels(progress.data), [progress.data]);
   const collected = totalCoins(progress.data);
   const owned = useMemo(() => new Set(ownedItems.data ?? []), [ownedItems.data]);
+  const dailyN = useMemo(() => dailyLevelN(cleared), [cleared]);
+  const dailyClaimed = usePulseDailyClaim(profile?.id);
+  const dailyLevel = LEVELS[dailyN - 1] ?? LEVELS[0]!;
 
   const skins: PulseSkins = {
     icon: state.data?.equipped_icon ?? "cube-origin",
@@ -118,9 +123,11 @@ function PulsePage() {
           ms: run.ms,
           coinMask: run.coinMask,
           practice,
+          daily: level.n === dailyN,
         });
         if (practice) return;
         if (res.gained) toast.success(`+${res.gained} coins`);
+        if (res.daily_bonus) toast.success(`Daily challenge bonus: +${res.daily_bonus} coins`);
         // Every real run earns XP — a 72% attempt still counts toward your level.
         const reward = await awardArcadeXp(
           "pulse-rush" as GameId,
@@ -233,6 +240,27 @@ function PulsePage() {
           </div>
         }
       />
+
+      <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
+        <div className="flex items-center gap-3">
+          <span className="bg-primary/15 text-primary grid size-9 place-items-center rounded-xl">
+            <CalendarClock className="size-4" />
+          </span>
+          <div>
+            <p className="font-display text-sm font-semibold">
+              Daily challenge · Level {dailyLevel.n} — {dailyLevel.name}
+            </p>
+            <p className="text-muted-foreground text-xs">
+              {dailyClaimed.data
+                ? "Bonus claimed — come back tomorrow for a new level."
+                : "Clear it today for a one-time +50 coin bonus. Resets at UTC midnight."}
+            </p>
+          </div>
+        </div>
+        <Button size="sm" variant="outline" onClick={() => start(dailyLevel, false)}>
+          <Play className="size-3.5" /> {dailyClaimed.data ? "Replay" : "Play the daily"}
+        </Button>
+      </Panel>
 
       <div className="flex gap-2">
         {(["levels", "locker", "ranks"] as const).map((t) => (

@@ -295,6 +295,50 @@ export function drawCube(slug: string, s: SkinCtx) {
       ctx.restore();
       break;
     }
+    case "cube-tide": {
+      roundRect(ctx, size, 6);
+      fillStroke(ctx, grad(ctx, half, "#164e63", p), "#a5f3fc", 2);
+      ctx.strokeStyle = "#e0f2fe";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const wob = Math.sin(now / 260) * 2;
+      ctx.moveTo(-half * 0.75, wob);
+      ctx.quadraticCurveTo(-half * 0.25, -half * 0.3 + wob, half * 0.25, wob);
+      ctx.quadraticCurveTo(half * 0.6, half * 0.25 + wob, half * 0.8, wob);
+      ctx.stroke();
+      break;
+    }
+    case "cube-rose": {
+      roundRect(ctx, size, 5);
+      fillStroke(ctx, grad(ctx, half, "#881337", "#fb7185"), "#fecdd3", 2);
+      ctx.fillStyle = "#fff1f2";
+      for (let i = 0; i < 5; i++) {
+        const a = (i / 5) * Math.PI * 2 + now / 2400;
+        ctx.beginPath();
+        ctx.arc(Math.cos(a) * half * 0.32, Math.sin(a) * half * 0.32, half * 0.16, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(0, 0, half * 0.16, 0, Math.PI * 2);
+      ctx.fillStyle = "#fda4af";
+      ctx.fill();
+      break;
+    }
+    case "cube-storm": {
+      roundRect(ctx, size, 3);
+      fillStroke(ctx, grad(ctx, half, "#1e293b", "#475569"), p, 3);
+      poly(ctx, [
+        [half * 0.15, -half * 0.75],
+        [-half * 0.35, half * 0.1],
+        [0, half * 0.1],
+        [-half * 0.15, half * 0.75],
+        [half * 0.35, -half * 0.1],
+        [0, -half * 0.1],
+      ]);
+      ctx.fillStyle = Math.sin(now / 120) > 0 ? "#fde68a" : "#fbbf24";
+      ctx.fill();
+      break;
+    }
     default: {
       // cube-origin and any future default
       roundRect(ctx, size, 4);
@@ -366,6 +410,35 @@ export function drawShip(slug: string, s: SkinCtx) {
       ctx.fillStyle = q;
       ctx.fill();
       break;
+    case "ship-comet":
+      poly(ctx, [
+        [-half * 0.9, -half * 0.7],
+        [half * 1.3, 0],
+        [-half * 0.9, half * 0.7],
+      ]);
+      fillStroke(ctx, grad(ctx, half, "#e0f2fe", p), "#ffffff", 2);
+      ctx.beginPath();
+      ctx.arc(half * 0.25, 0, half * 0.32, 0, Math.PI * 2);
+      ctx.fillStyle = "#f8fafc";
+      ctx.fill();
+      break;
+    case "ship-aurora": {
+      poly(ctx, [
+        [-half, -half * 1.05],
+        [half * 1.35, 0],
+        [-half, half * 1.05],
+        [-half * 0.3, 0],
+      ]);
+      const g = ctx.createLinearGradient(0, -half, 0, half);
+      g.addColorStop(0, "#22d3ee");
+      g.addColorStop(0.5, p);
+      g.addColorStop(1, "#a78bfa");
+      ctx.shadowColor = p;
+      ctx.shadowBlur = 12 + 6 * Math.sin(now / 300);
+      fillStroke(ctx, g, "#e0f2fe", 2);
+      ctx.shadowBlur = 0;
+      break;
+    }
     default:
       poly(ctx, [
         [-half, -half * 0.7],
@@ -440,6 +513,34 @@ export function drawBall(slug: string, s: SkinCtx) {
       ctx.restore();
       break;
     }
+    case "ball-orbit": {
+      ctx.beginPath();
+      ctx.arc(0, 0, half, 0, Math.PI * 2);
+      fillStroke(ctx, "#18181b", p, 3);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, half * 1.4, half * 0.5, 0.5, 0, Math.PI * 2);
+      ctx.strokeStyle = q;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      const sa = spin * 2 + now / 700;
+      ctx.beginPath();
+      ctx.arc(Math.cos(sa) * half * 1.4, Math.sin(sa) * half * 0.7, 3, 0, Math.PI * 2);
+      ctx.fillStyle = q;
+      ctx.fill();
+      break;
+    }
+    case "ball-comet": {
+      ctx.beginPath();
+      ctx.arc(0, 0, half, 0, Math.PI * 2);
+      fillStroke(ctx, grad(ctx, half, "#fde68a", "#f97316"), "#7c2d12", 2);
+      for (let i = 1; i <= 3; i++) {
+        ctx.beginPath();
+        ctx.arc(-half * 0.5 * i, half * 0.1 * i, half * 0.34 / i, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(251,146,60,${0.55 - i * 0.14})`;
+        ctx.fill();
+      }
+      break;
+    }
     default: {
       fillStroke(ctx, p, q, 3);
       ctx.save();
@@ -490,6 +591,23 @@ export function drawWave(slug: string, s: SkinCtx) {
       fillStroke(ctx, p, "#ffffff", 2);
       ctx.globalAlpha = 1;
       break;
+    case "wave-razor": {
+      poly(ctx, [
+        [-half * 1.4, half * 0.9],
+        [-half * 0.2, half * 0.25],
+        [half * 1.5, 0],
+        [-half * 0.2, -half * 0.25],
+        [-half * 1.4, -half * 0.9],
+      ]);
+      fillStroke(ctx, grad(ctx, half, "#0c0a09", "#57534e"), "#f43f5e", 2.5);
+      ctx.beginPath();
+      ctx.moveTo(-half * 0.9, 0);
+      ctx.lineTo(half * 1.1, 0);
+      ctx.strokeStyle = "#fda4af";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      break;
+    }
     default:
       poly(ctx, [
         [-half, 0],
@@ -531,6 +649,10 @@ export function trailStyle(slug: string): TrailStyle {
       return { density: 1, life: 380, size: 5, shape: "spark", dual: true, glow: 0 };
     case "trail-pulse":
       return { density: 1, life: 620, size: 10, shape: "ring", dual: false, glow: 12 };
+    case "trail-lumen":
+      return { density: 2, life: 700, size: 4, shape: "dot", dual: true, glow: 10 };
+    case "trail-comet":
+      return { density: 3, life: 600, size: 4, shape: "spark", dual: true, glow: 8 };
     default: // trail-plasma
       return { density: 1, life: 460, size: 5, shape: "dot", dual: false, glow: 12 };
   }
@@ -602,6 +724,8 @@ export function deathStyle(slug: string): DeathStyle {
       return { count: 30, speed: 0.18, inward: true, size: 7, life: 620, shape: "shard", shockwave: true, flash: 0.3, shake: 14 };
     case "death-static":
       return { count: 60, speed: 0.3, inward: false, size: 3, life: 340, shape: "square", shockwave: false, flash: 0.4, shake: 16 };
+    case "death-bloom":
+      return { count: 36, speed: 0.22, inward: false, size: 5, life: 640, shape: "dot", shockwave: true, flash: 0.25, shake: 10 };
     default: // death-shatter
       return { count: 24, speed: 0.28, inward: false, size: 7, life: 560, shape: "shard", shockwave: false, flash: 0.3, shake: 14 };
   }

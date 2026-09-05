@@ -546,6 +546,91 @@ export const LEVELS: LevelDef[] = [
       ["coin", 3], ["flat", 10],
     ],
   },
+  {
+    n: 16,
+    name: "Voltage",
+    brief: "Hard. Orbs over blades — chain them clean.",
+    difficulty: "hard",
+    bpm: 158,
+    palette: PAL.ember,
+    ease: 0.6,
+    seq: [
+      ["flat", 6], ["speed", 2], ["spikes", 4, 4], ["orbs", 3], ["coin", 5],
+      ["saws", 3], ["tight", 5], ["ship", 26, 1], ["coin", 4],
+      ["flat", 4], ["pillars", 3, 3], ["spikes", 4, 4], ["saws", 2],
+      ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 17,
+    name: "Glasshouse",
+    brief: "Hard. Ball and wave trade blows mid-phrase.",
+    difficulty: "hard",
+    bpm: 160,
+    palette: PAL.void,
+    ease: 0.5,
+    seq: [
+      ["flat", 6], ["tight", 5], ["wave", 26, 0], ["coin", 5],
+      ["ball", 26], ["flat", 4], ["saws", 3], ["orbs", 3], ["coin", 6],
+      ["wave", 24, 1], ["flat", 4], ["tight", 5], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 18,
+    name: "Afterburner",
+    brief: "Insane. Third gear, then fourth.",
+    difficulty: "insane",
+    bpm: 170,
+    palette: PAL.royal,
+    ease: 0.2,
+    seq: [
+      ["flat", 6], ["speed", 3], ["spikes", 5, 4], ["tight", 6], ["coin", 6],
+      ["ship", 28, 1], ["saws", 3], ["orbs", 4], ["coin", 5],
+      ["speed", 4], ["tight", 6], ["spikes", 5, 4], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 19,
+    name: "Mirrormaze",
+    brief: "Insane. Gravity stops meaning anything.",
+    difficulty: "insane",
+    bpm: 172,
+    palette: PAL.toxic,
+    ease: 0.2,
+    seq: [
+      ["flat", 6], ["speed", 3], ["ball", 28], ["coin", 5], ["wave", 28, 1],
+      ["tight", 6], ["saws", 4], ["coin", 6], ["ship", 28, 1],
+      ["pillars", 4, 3], ["tight", 6], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 20,
+    name: "Sovereign",
+    brief: "Demon. Every pattern you know, no breathing room.",
+    difficulty: "demon",
+    bpm: 176,
+    palette: PAL.gold,
+    seq: [
+      ["flat", 6], ["speed", 4], ["tight", 7], ["saws", 4], ["coin", 6],
+      ["wave", 28, 1], ["ship", 30, 1], ["spikes", 6, 4], ["orbs", 4],
+      ["coin", 5], ["ball", 30], ["pillars", 5, 3], ["tight", 8],
+      ["saws", 4], ["coin", 3], ["flat", 8],
+    ],
+  },
+  {
+    n: 21,
+    name: "Lazu Eternal",
+    brief: "Demon. The true finale — the whole game in one run.",
+    difficulty: "demon",
+    bpm: 182,
+    palette: PAL.gold,
+    seq: [
+      ["flat", 6], ["speed", 4], ["spikes", 6, 4], ["tight", 8], ["coin", 6],
+      ["ship", 32, 1], ["saws", 5], ["wave", 32, 1], ["orbs", 5], ["coin", 5],
+      ["ball", 32], ["pillars", 5, 3], ["tight", 8], ["saws", 5],
+      ["spikes", 6, 4], ["coin", 3], ["flat", 10],
+    ],
+  },
 ];
 
 export function levelDef(n: number): LevelDef | undefined {
@@ -574,6 +659,20 @@ export const DIFFICULTY_TONE: Record<Difficulty, string> = {
 export function isLevelUnlocked(n: number, cleared: number[]): boolean {
   if (n <= 1) return true;
   return cleared.includes(n - 1);
+}
+
+/**
+ * The daily challenge level: one deterministic pick per UTC day, always a
+ * level the player has unlocked (their highest clear plus one), so everyone
+ * gets a challenge they can actually attempt and it rotates on its own.
+ */
+export function dailyLevelN(cleared: number[], now = new Date()): number {
+  const maxCleared = cleared.reduce((m, n) => Math.max(m, n), 0);
+  const pool = Math.min(LEVELS.length, maxCleared + 1);
+  const key = now.toISOString().slice(0, 10);
+  let h = 0;
+  for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return (h % pool) + 1;
 }
 
 /* ---------------------------------------------------------------- cosmetics */
