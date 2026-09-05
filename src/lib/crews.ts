@@ -80,8 +80,12 @@ export const CREW_ACCENTS: { key: CrewAccent; label: string; dot: string; glow: 
 
 export type CrewBadgeStyle = "plain" | "ring" | "plate" | "crest" | "holo" | "pulse" | "aurora" | "eclipse" | "sovereign" | "centurion";
 export type CrewNametag = "none" | "accent" | "glow" | "gradient" | "outline" | "mono" | "prism" | "aurora" | "sovereign";
-export type CrewTextEffect = "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave" | "pulse" | "prism";
-export type CrewChatBg = "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass" | "nebula" | "eclipse" | "sovereign";
+export type CrewTextEffect =
+  | "none" | "glow" | "shimmer" | "sharp" | "soft" | "wave" | "pulse" | "prism"
+  | "neon" | "chrome" | "gradient" | "glitch" | "flare";
+export type CrewChatBg =
+  | "none" | "grid" | "aurora" | "stars" | "waves" | "circuit" | "glass" | "nebula" | "eclipse" | "sovereign"
+  | "ember" | "hex" | "matrix" | "bloom" | "void" | "prism";
 
 /** Crew badge shells — how the crew emoji/picture is framed everywhere. */
 export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: number; cls: string }[] = [
