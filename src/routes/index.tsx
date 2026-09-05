@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Crown, Flame, Sparkles, Trophy, Users, MessageSquareText } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Meter, Panel, PanelHead, RarityChip, LockedTile, EmptyState } from "@/components/dimted/primitives";
 import { ProfileHoverCard } from "@/components/dimted/ProfileHoverCard";
@@ -20,6 +21,14 @@ import {
 import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
 import { friendshipLevel } from "@/lib/dimted";
+import {
+  fetchActiveSeason,
+  fetchMySeasonProgress,
+  fetchSeasonTiers,
+  seasonTimeLeft,
+  currentTier,
+  tierXpNeeded,
+} from "@/lib/season";
 
 
 function XpTicker() {
@@ -32,6 +41,62 @@ function XpTicker() {
     >
       +{lastGain.amount} XP · {lastGain.label}
     </div>
+  );
+}
+
+function fmtTime(totalSeconds: number) {
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  if (days > 0) return `${days}d ${hours}h`;
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+}
+
+function SeasonTeaser() {
+  const { profile } = useDimted();
+  const season = useQuery({
+    queryKey: ["active-season"],
+    queryFn: fetchActiveSeason,
+    staleTime: 60_000,
+  });
+  const tiers = useQuery({
+    queryKey: ["season-tiers", season.data?.id],
+    queryFn: () => fetchSeasonTiers(season.data!.id),
+    enabled: !!season.data?.id,
+    staleTime: 60_000,
+  });
+  const progress = useQuery({
+    queryKey: ["my-season-progress", season.data?.id],
+    queryFn: () => fetchMySeasonProgress(season.data!.id),
+    enabled: !!season.data?.id && !!profile,
+    staleTime: 30_000,
+  });
+  if (!season.data) return null;
+  const xp = progress.data?.xp ?? 0;
+  const current = currentTier(xp);
+  const next = (tiers.data ?? []).find((t) => t.tier === current + 1);
+  const xpToNext = next ? tierXpNeeded(current + 1) - xp : 0;
+  const pct = next ? Math.min(1, Math.max(0, xp / tierXpNeeded(current + 1))) : 1;
+  const timeLeft = fmtTime(seasonTimeLeft(season.data.ends_at));
+
+  return (
+    <Link to="/season" className="block">
+      <div className="glass lift group flex items-center gap-3 rounded-2xl border border-gold/20 bg-gradient-to-r from-gold/5 to-primary/5 px-3 py-2.5 transition-colors hover:border-gold/40">
+        <div className="bg-gold/15 text-gold flex size-10 shrink-0 items-center justify-center rounded-xl">
+          <Crown className="size-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="eyebrow text-gold">Season Pass</p>
+          <p className="truncate text-sm font-medium">{season.data.name}</p>
+          <p className="text-muted-foreground mt-0.5 truncate font-mono text-[10px]">
+            Tier {current} · {xpToNext > 0 ? `${xpToNext.toLocaleString()} XP to next` : "max tier"} · {timeLeft} left
+          </p>
+        </div>
+        <div className="w-24 shrink-0">
+          <Meter value={pct} tone="xp" className="h-1.5" />
+        </div>
+      </div>
+    </Link>
   );
 }
 
@@ -131,6 +196,7 @@ function HomePage() {
         </div>
       </header>
 
+      <SeasonTeaser />
 
       <div className="space-y-4">
           <Panel className="relative overflow-hidden p-0">

@@ -14,11 +14,13 @@ import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ArmoryRouteImport } from './routes/armory'
 import { Route as CommunitiesRouteImport } from './routes/communities'
+import { Route as CrewsRouteImport } from './routes/crews'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PulseRouteImport } from './routes/pulse'
+import { Route as SeasonRouteImport } from './routes/season'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SocialRouteImport } from './routes/social'
 import { Route as StudyRouteImport } from './routes/study'
@@ -49,6 +51,11 @@ const CommunitiesRoute = CommunitiesRouteImport.update({
   path: '/communities',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CrewsRoute = CrewsRouteImport.update({
+  id: '/crews',
+  path: '/crews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiscoverRoute = DiscoverRouteImport.update({
   id: '/discover',
   path: '/discover',
@@ -72,6 +79,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const PulseRoute = PulseRouteImport.update({
   id: '/pulse',
   path: '/pulse',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeasonRoute = SeasonRouteImport.update({
+  id: '/season',
+  path: '/season',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopRoute = ShopRouteImport.update({
@@ -101,11 +113,13 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/communities': typeof CommunitiesRoute
+  '/crews': typeof CrewsRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
   '/pulse': typeof PulseRoute
+  '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
   '/study': typeof StudyRoute
@@ -117,11 +131,13 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/communities': typeof CommunitiesRoute
+  '/crews': typeof CrewsRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
   '/pulse': typeof PulseRoute
+  '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
   '/study': typeof StudyRoute
@@ -134,11 +150,13 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/communities': typeof CommunitiesRoute
+  '/crews': typeof CrewsRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
   '/pulse': typeof PulseRoute
+  '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
   '/study': typeof StudyRoute
@@ -152,11 +170,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/armory'
     | '/communities'
+    | '/crews'
     | '/discover'
     | '/friends'
     | '/messages'
     | '/profile'
     | '/pulse'
+    | '/season'
     | '/shop'
     | '/social'
     | '/study'
@@ -168,11 +188,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/armory'
     | '/communities'
+    | '/crews'
     | '/discover'
     | '/friends'
     | '/messages'
     | '/profile'
     | '/pulse'
+    | '/season'
     | '/shop'
     | '/social'
     | '/study'
@@ -184,11 +206,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/armory'
     | '/communities'
+    | '/crews'
     | '/discover'
     | '/friends'
     | '/messages'
     | '/profile'
     | '/pulse'
+    | '/season'
     | '/shop'
     | '/social'
     | '/study'
@@ -201,11 +225,13 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ArmoryRoute: typeof ArmoryRoute
   CommunitiesRoute: typeof CommunitiesRoute
+  CrewsRoute: typeof CrewsRoute
   DiscoverRoute: typeof DiscoverRoute
   FriendsRoute: typeof FriendsRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
   PulseRoute: typeof PulseRoute
+  SeasonRoute: typeof SeasonRoute
   ShopRoute: typeof ShopRoute
   SocialRoute: typeof SocialRoute
   StudyRoute: typeof StudyRoute
@@ -249,6 +275,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CommunitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/crews': {
+      id: '/crews'
+      path: '/crews'
+      fullPath: '/crews'
+      preLoaderRoute: typeof CrewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/discover': {
       id: '/discover'
       path: '/discover'
@@ -282,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/pulse'
       fullPath: '/pulse'
       preLoaderRoute: typeof PulseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/season': {
+      id: '/season'
+      path: '/season'
+      fullPath: '/season'
+      preLoaderRoute: typeof SeasonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop': {
@@ -321,11 +361,13 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ArmoryRoute: ArmoryRoute,
   CommunitiesRoute: CommunitiesRoute,
+  CrewsRoute: CrewsRoute,
   DiscoverRoute: DiscoverRoute,
   FriendsRoute: FriendsRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
   PulseRoute: PulseRoute,
+  SeasonRoute: SeasonRoute,
   ShopRoute: ShopRoute,
   SocialRoute: SocialRoute,
   StudyRoute: StudyRoute,

@@ -2,6 +2,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import {
   BookOpen,
   Compass,
+  Crown,
   Gamepad2,
   Home,
   LogOut,
@@ -10,6 +11,7 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkle,
+  Swords,
   UserRound,
   Users,
   Zap,
@@ -37,6 +39,7 @@ const RAIL = [
   { to: "/", label: "Home", icon: Home },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/communities", label: "Communities", icon: Users },
+  { to: "/crews", label: "Crews", icon: Swords },
   { to: "/pulse", label: "Pulse Rush", icon: Zap },
   { to: "/activities", label: "Arcade", icon: Gamepad2 },
   { to: "/study", label: "Study", icon: BookOpen },
@@ -53,6 +56,7 @@ const GROUPS = [
       { to: "/profile", label: "Profile", icon: UserRound },
       { to: "/shop", label: "Shop", icon: ShoppingBag },
       { to: "/armory", label: "Armory", icon: Backpack },
+      { to: "/season", label: "Season", icon: Crown },
     ],
   },
   {
@@ -61,6 +65,7 @@ const GROUPS = [
       { to: "/messages", label: "Messages", icon: MessageCircle },
       { to: "/friends", label: "Friends", icon: Sparkle },
       { to: "/communities", label: "Communities", icon: Users },
+      { to: "/crews", label: "Crews", icon: Swords },
     ],
   },
   {
