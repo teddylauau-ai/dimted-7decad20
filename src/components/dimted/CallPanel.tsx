@@ -53,7 +53,7 @@ function Tile({
       {hasVideo ? null : (
         <div className="flex h-full w-full items-center justify-center">
           {profile ? (
-            <Avatar profile={profile as never} size={40} showPresence={false} />
+            <Avatar profile={profile as never} size={40} presence={false} />
           ) : (
             <span className="text-xs text-muted-foreground">Audio</span>
           )}
