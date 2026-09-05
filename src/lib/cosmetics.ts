@@ -33,6 +33,9 @@ export type Cosmetic = {
 
 /** Nametag → classes applied to the name text. */
 export const NAMETAG_CLASS: Record<string, string> = {
+  "tag-s1-signal": "cos-gradient cos-gradient-glacier",
+  "tag-s1-vector": "cos-gradient cos-gradient-neon cos-shimmer",
+  "tag-s1-apex": "cos-gradient cos-gradient-solar cos-shimmer",
   "tag-frost": "text-rare",
   "tag-mint": "text-uncommon",
   "tag-sky": "text-[oklch(0.84_0.11_222)]",
@@ -74,6 +77,8 @@ export const NAMETAG_CLASS: Record<string, string> = {
 
 /** Badge → the glyph drawn after the name. */
 export const BADGE_GLYPH: Record<string, string> = {
+  "badge-s1-comet": "☄",
+  "badge-s1-crest": "❖",
   "badge-spark": "✦",
   "badge-bolt": "⚡",
   "badge-star": "★",
@@ -104,6 +109,8 @@ export const BADGE_GLYPH: Record<string, string> = {
 };
 
 export const BADGE_CLASS: Record<string, string> = {
+  "badge-s1-comet": "text-epic",
+  "badge-s1-crest": "text-legendary",
   "badge-spark": "text-common",
   "badge-bolt": "text-common",
   "badge-star": "text-common",
@@ -141,6 +148,8 @@ export const BADGE_CLASS: Record<string, string> = {
  * spinning frames animate their ring layer only.
  */
 export const FRAME_CLASS: Record<string, string> = {
+  "frame-s1-halo": "cos-ring border-epic/80 cos-glow-epic animate-breathe",
+  "frame-s1-corona": "cos-frame cos-frame-prismatic",
   "frame-hairline": "cos-ring border-common/50",
   "frame-pulse": "cos-ring border-uncommon/60 animate-breathe",
   "frame-tide": "cos-ring border-primary/60 cos-glow-primary",
@@ -168,6 +177,10 @@ export const FRAME_CLASS: Record<string, string> = {
 
 /** Banner → background style for the profile header. */
 export const BANNER_STYLE: Record<string, string> = {
+  "banner-s1-horizon":
+    "radial-gradient(80% 130% at 50% 130%, oklch(0.6 0.13 200 / 0.7), transparent 70%), linear-gradient(120deg, oklch(0.22 0.05 250), oklch(0.14 0.03 258))",
+  "banner-s1-zenith":
+    "radial-gradient(70% 120% at 20% 0%, oklch(0.68 0.13 88 / 0.55), transparent 70%), radial-gradient(70% 120% at 90% 120%, oklch(0.55 0.14 300 / 0.6), transparent 70%), linear-gradient(120deg, oklch(0.2 0.05 262), oklch(0.13 0.03 258))",
   "banner-drift": "linear-gradient(120deg, oklch(0.24 0.05 262), oklch(0.16 0.032 258))",
   "banner-signal":
     "repeating-linear-gradient(0deg, oklch(0.28 0.04 258 / 0.9) 0 2px, transparent 2px 5px), linear-gradient(120deg, oklch(0.22 0.04 258), oklch(0.14 0.03 258))",
@@ -227,6 +240,7 @@ export const DEFAULT_BANNER =
 
 /** Message effect → animation classes on a chat row. */
 export const EFFECT_CLASS: Record<string, string> = {
+  "fx-s1-surge": "animate-pop-in cos-wave-row",
   "fx-fade": "animate-pop-in",
   "fx-slide": "animate-rise",
   "fx-spark": "animate-pop-in cos-spark-row",
