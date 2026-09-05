@@ -122,8 +122,13 @@ export const CREW_TEXT_EFFECTS: { key: CrewTextEffect; label: string; unlock: nu
   { key: "sharp", label: "Sharp", unlock: 5, cls: "font-medium tracking-tight" },
   { key: "soft", label: "Soft", unlock: 5, cls: "italic opacity-90" },
   { key: "wave", label: "Wave", unlock: 14, cls: "crew-fx-wave" },
+  { key: "neon", label: "Neon", unlock: 10, cls: "crew-fx-neon font-semibold" },
+  { key: "gradient", label: "Fade", unlock: 20, cls: "crew-fx-gradient font-semibold" },
+  { key: "chrome", label: "Chrome", unlock: 28, cls: "crew-fx-chrome font-semibold tracking-tight" },
   { key: "pulse", label: "Pulse", unlock: 45, cls: "animate-pulse font-medium" },
+  { key: "glitch", label: "Glitch", unlock: 55, cls: "crew-fx-glitch font-semibold" },
   { key: "prism", label: "Prism", unlock: 75, cls: "crew-fx-shimmer font-semibold tracking-tight" },
+  { key: "flare", label: "Flare", unlock: 88, cls: "crew-fx-flare font-bold" },
 ];
 
 /** Crew chat backgrounds. */
