@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchMyCrews } from "@/lib/crews";
-import { friendshipLevel, levelFromTotalXp, type PlayerStats, type Rarity } from "./dimted";
+import { friendshipLevel, levelFromTotalXp, MAX_TOTAL_XP, type PlayerStats, type Rarity } from "./dimted";
 import type { Cosmetic } from "./cosmetics";
 
 export type PublicProfile = {
