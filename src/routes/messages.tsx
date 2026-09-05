@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Meter, Panel, PageHeader } from "@/components/dimted/primitives";
+import { CallPanel } from "@/components/dimted/CallPanel";
 import { Avatar, Nametag, ProfileLink } from "@/components/dimted/Identity";
 import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { useDimted } from "@/lib/dimted-store";
@@ -266,6 +267,18 @@ function MessagesPage() {
                 </div>
               ) : null}
             </header>
+
+            {active ? (
+              <div className="border-border bg-background/30 border-b px-5 py-2">
+                <CallPanel
+                  scope="dm"
+                  scopeId={active.friendshipId}
+                  meId={profile?.id}
+                  meProfile={profile as never}
+                  lookup={(id) => (id === active.profile.id ? (active.profile as never) : null)}
+                />
+              </div>
+            ) : null}
 
             {/* Oldest first: the chat scrolls up like Discord/iMessage. */}
             <div
