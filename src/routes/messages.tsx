@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowDown, Search, Send, Trash2 } from "lucide-react";
+import { ArrowDown, Check, Pencil, Pin, Search, Send, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,15 @@ import { VoicePlayer, VoiceRecorder } from "@/components/dimted/VoiceMessage";
 import { TypingIndicator } from "@/components/dimted/TypingIndicator";
 import { useTypingSignal, useTypingUsers } from "@/lib/typing";
 import { useMyRole } from "@/lib/roles-queries";
+import { ChatImage, ImagePicker, PinBanner } from "@/components/dimted/ChatExtras";
+import {
+  editDirectMessage,
+  pinnedMessageId,
+  sendDirectImageMessage,
+  usePinMessage,
+  usePinnedMessage,
+  useUnpinMessage,
+} from "@/lib/chat-extras";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/messages")({
