@@ -21,7 +21,7 @@ import { Meter } from "./primitives";
 import { SpotifyPicks } from "./SpotifyPicks";
 import { Showcase } from "./Showcase";
 import { useCosmetics, useFriendships, usePlayerStats } from "@/lib/dimted-queries";
-import { ACHIEVEMENTS, friendshipLevel, levelFromTotalXp, rankForLevel, TITLES, UNLOCKS } from "@/lib/dimted";
+import { ACHIEVEMENTS, friendshipLevel, levelFromTotalXp, rankForLevel, TITLES, UNLOCKS, xpLabel } from "@/lib/dimted";
 import { SLOTS } from "@/lib/cosmetics";
 import { rarityBorder, rarityText } from "./rarity";
 
@@ -212,7 +212,7 @@ function WidgetContent({
             <RankPill level={level} />
             <p className="text-muted-foreground mt-1 font-mono text-[10px]">{rank}</p>
             <Meter value={progress} tone="xp" className="mt-2 h-2 w-40" />
-            <p className="text-muted-foreground mt-1 text-[10px]">{intoLevel.toLocaleString()} / {needed.toLocaleString()} XP</p>
+            <p className="text-muted-foreground mt-1 text-[10px]">{xpLabel(level, intoLevel, needed)}</p>
           </div>
         </div>
       );

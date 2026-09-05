@@ -36,14 +36,14 @@ export const RARITY_LABEL: Record<Rarity, string> = {
 export const MAX_LEVEL = 100;
 
 /**
- * XP required to move from `level` to `level + 1`. Deliberately tiny at the
- * start — level 2 lands after a single arcade run and the first handful of
- * levels fall within the first session — then it ramps steadily so the top of
- * the ladder is roughly a month of committed daily play (~355k XP total).
+ * XP required to move from `level` to `level + 1`. Two-stage curve: levels 1–69
+ * are deliberately breezy (a single arcade run covers the first few), then the
+ * climb from 70 to 100 turns into a real grind that carries most of the total.
  */
 export function xpForLevel(level: number): number {
   const l = Math.min(Math.max(level, 1), MAX_LEVEL);
-  return Math.round((90 + 9 * Math.pow(l - 1, 1.5)) / 10) * 10;
+  if (l < 70) return Math.round((40 + 4 * Math.pow(l - 1, 1.35)) / 10) * 10;
+  return Math.round((1200 + 174 * Math.pow(l - 69, 1.35)) / 10) * 10;
 }
 
 
@@ -61,6 +61,17 @@ export function totalXpForLevel(level: number): number {
  */
 export const MAX_TOTAL_XP = totalXpForLevel(MAX_LEVEL);
 
+/** True once an account has topped the ladder — the bar shows full / "MAXED". */
+export function isMaxed(level: number): boolean {
+  return level >= MAX_LEVEL;
+}
+
+/** Bar caption: "MAXED" at the top of the ladder, otherwise "into / needed XP". */
+export function xpLabel(level: number, intoLevel: number, needed: number): string {
+  if (isMaxed(level)) return "MAXED";
+  return `${intoLevel.toLocaleString()} / ${needed.toLocaleString()} XP`;
+}
+
 export function levelFromTotalXp(totalXp: number): {
   level: number;
   intoLevel: number;
@@ -72,8 +83,15 @@ export function levelFromTotalXp(totalXp: number): {
     remaining -= xpForLevel(level);
     level += 1;
   }
+  // At the top of the ladder there is no Level 101 to fill towards, so the bar
+  // reads as complete instead of dangling an unreachable requirement.
+  if (level >= MAX_LEVEL) {
+    const cap = xpForLevel(MAX_LEVEL - 1);
+    return { level: MAX_LEVEL, intoLevel: cap, needed: cap };
+  }
   return { level, intoLevel: remaining, needed: xpForLevel(level) };
 }
+
 
 export const RANKS: { from: number; name: string }[] = [
   { from: 1, name: "Newcomer" },

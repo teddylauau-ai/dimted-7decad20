@@ -20,7 +20,7 @@ import {
 } from "@/lib/dimted";
 import { useFriendships, usePlayerStats, useXpFeed, useXpLeaderboard } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
-import { friendshipLevel } from "@/lib/dimted";
+import { friendshipLevel, MAX_LEVEL, xpLabel } from "@/lib/dimted";
 import {
   fetchActiveSeason,
   fetchMySeasonProgress,
@@ -145,7 +145,7 @@ function HomePage() {
               Level {level} · {rank}
             </h1>
             <p className="text-muted-foreground mt-0.5 truncate font-mono text-[11px]">
-              {intoLevel.toLocaleString()}/{needed.toLocaleString()} XP · {profile?.display_name ?? "—"}
+              {xpLabel(level, intoLevel, needed)} · {profile?.display_name ?? "—"}
             </p>
           </div>
           <div className="shrink-0 text-right">
@@ -223,16 +223,16 @@ function HomePage() {
                     <RankPill level={level} />
                   </div>
                   <p className="text-muted-foreground mt-0.5 font-mono text-[11px]">
-                    {(needed - intoLevel).toLocaleString()} XP to Level {level + 1}
+                    {level >= MAX_LEVEL ? "Ladder complete · maxed" : `${(needed - intoLevel).toLocaleString()} XP to Level ${level + 1}`}
                   </p>
                 </div>
 
                 <div className="text-right">
                   <p className="numeral text-gold text-xl leading-none">
-                    {intoLevel.toLocaleString()}
+                    {level >= MAX_LEVEL ? "MAX" : intoLevel.toLocaleString()}
                   </p>
                   <p className="text-muted-foreground font-mono text-[10px] tracking-[0.16em] uppercase">
-                    / {needed.toLocaleString()} xp
+                    {level >= MAX_LEVEL ? "level 100" : `/ ${needed.toLocaleString()} xp`}
                   </p>
                 </div>
               </div>

@@ -9,6 +9,7 @@ import {
   TITLES,
   UNLOCKS,
   friendshipLevel,
+  xpLabel,
   type Achievement,
 } from "@/lib/dimted";
 import { useDimted } from "@/lib/dimted-store";
@@ -301,7 +302,7 @@ function ProfilePage() {
             </div>
             <div className="text-right">
               <p className="text-muted-foreground font-mono text-xs">
-                {intoLevel.toLocaleString()} / {needed.toLocaleString()} XP
+                {xpLabel(level, intoLevel, needed)}
               </p>
               <Meter value={progress} tone="xp" className="mt-2 h-2 w-56" animate />
               <p className="text-muted-foreground/70 mt-1.5 font-mono text-[10px]">

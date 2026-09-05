@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchMyCrews } from "@/lib/crews";
-import { friendshipLevel, levelFromTotalXp, type PlayerStats, type Rarity } from "./dimted";
+import { friendshipLevel, levelFromTotalXp, MAX_TOTAL_XP, type PlayerStats, type Rarity } from "./dimted";
 import type { Cosmetic } from "./cosmetics";
 
 export type PublicProfile = {
@@ -22,6 +22,7 @@ export type PublicProfile = {
   avatar_url: string | null;
   banner_url: string | null;
   showcase: string[];
+  maxed_at?: string | null;
 };
 
 export type FriendRow = {
@@ -35,7 +36,7 @@ export type FriendRow = {
 };
 
 const PROFILE_FIELDS =
-  "id, username, display_name, bio, title, total_xp, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url, showcase";
+  "id, username, display_name, bio, title, total_xp, last_active_at, activity_context, created_at, equipped_nametag, equipped_badge, equipped_frame, equipped_banner, equipped_effect, avatar_url, banner_url, showcase, maxed_at";
 
 const AUTHOR_FIELDS =
   "id, display_name, username, last_active_at, activity_context, equipped_nametag, equipped_badge, equipped_frame, equipped_effect, avatar_url";
@@ -598,6 +599,27 @@ export function useCommunityInvites(communityId: string | undefined) {
  * Global XP ladder — every real account, ranked by total XP, except the Owner,
  * who always holds the number one seat regardless of XP.
  */
+/**
+ * Ladder order: Owner first, then higher level wins. Everyone sitting at the
+ * Level 100 cap is ranked by who got there first, so the earliest to max out
+ * stays ahead of later arrivals.
+ */
+function sortLadder(rows: PublicProfile[], ownerIds: Set<string>): PublicProfile[] {
+  return [...rows].sort((a, b) => {
+    const ao = ownerIds.has(a.id) ? 1 : 0;
+    const bo = ownerIds.has(b.id) ? 1 : 0;
+    if (ao !== bo) return bo - ao;
+    const am = a.total_xp >= MAX_TOTAL_XP;
+    const bm = b.total_xp >= MAX_TOTAL_XP;
+    if (am && bm) {
+      const at = a.maxed_at ? Date.parse(a.maxed_at) : Number.MAX_SAFE_INTEGER;
+      const bt = b.maxed_at ? Date.parse(b.maxed_at) : Number.MAX_SAFE_INTEGER;
+      if (at !== bt) return at - bt;
+    }
+    return b.total_xp - a.total_xp;
+  });
+}
+
 export function useXpLeaderboard(limit = 50) {
   return useQuery({
     queryKey: ["xp-leaderboard", limit],
@@ -616,14 +638,8 @@ export function useXpLeaderboard(limit = 50) {
         .select("user_id")
         .eq("role", "owner");
       const ownerIds = new Set((owners ?? []).map((o) => o.user_id));
-      if (ownerIds.size === 0) return rows;
 
-      return [...rows].sort((a, b) => {
-        const ao = ownerIds.has(a.id) ? 1 : 0;
-        const bo = ownerIds.has(b.id) ? 1 : 0;
-        if (ao !== bo) return bo - ao;
-        return b.total_xp - a.total_xp;
-      });
+      return sortLadder(rows, ownerIds);
     },
   });
 }
