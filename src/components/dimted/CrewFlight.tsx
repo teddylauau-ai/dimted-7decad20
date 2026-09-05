@@ -208,7 +208,7 @@ export function CrewFlight({ crewId, crewName, boosted }: { crewId: string; crew
         toast.error("Couldn't bank that run");
       }
     },
-    [best, boosted, crewId, missions, runs, surgeActive, syncXp],
+    [best, board, boosted, crewId, missions, profile, runs, surgeActive, syncXp],
   );
 
   const makeGate = useCallback((x: number, atScore: number): Gate => {
