@@ -203,14 +203,25 @@ export function useCallSession(
         if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
           throw new Error("insecure");
         }
-        const media = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-          video: withVideo ? { width: 640, height: 480 } : false,
-        });
+        // Some embeds/devices refuse the camera but allow the mic: fall back
+        // to audio-only rather than failing the whole call.
+        let media: MediaStream;
+        let gotVideo = withVideo;
+        try {
+          media = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: withVideo ? { width: 640, height: 480 } : false,
+          });
+        } catch (mediaErr) {
+          if (!withVideo) throw mediaErr;
+          media = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          gotVideo = false;
+        }
         localRef.current = media;
         setLocalStream(media);
         setMicOn(true);
-        setCamOn(withVideo);
+        setCamOn(gotVideo);
+
 
         const { data: live } = await supabase
           .from("calls")
@@ -253,7 +264,12 @@ export function useCallSession(
         setError(
           msg === "insecure"
             ? "Calls need a secure (https) connection — open the site in its own tab."
-            : name === "NotAllowedError" || msg.includes("Permission") || msg.includes("denied")
+            : name === "NotAllowedError" ||
+                name === "SecurityError" ||
+                msg.includes("Permission") ||
+                msg.includes("policy") ||
+                msg.includes("denied")
+
               ? framed
                 ? "The preview window blocks the mic — open the site in its own tab, then allow microphone access."
                 : "Allow microphone (and camera) access in your browser, then try again."

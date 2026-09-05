@@ -28,6 +28,8 @@ import { Avatar, Nametag, PresenceLabel } from "./Identity";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 import { StatusClock } from "./StatusClock";
+import { XpFlash } from "./XpFlash";
+
 import { BrandMark, Wordmark } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
 import { LevelUpOverlay } from "./LevelUpOverlay";
@@ -328,6 +330,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
 
       </div>
+
+      <XpFlash />
+
 
       {/* Mobile bar */}
       <nav className="glass-raised fixed inset-x-3 bottom-3 z-30 flex justify-between rounded-2xl px-2 py-2 lg:hidden">

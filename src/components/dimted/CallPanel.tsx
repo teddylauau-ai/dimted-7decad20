@@ -90,6 +90,36 @@ export function CallPanel({
   if (!scopeId) return null;
 
   if (!session.inCall) {
+    // In the editor preview the page runs inside a frame that usually is not
+    // allowed to use the mic, so calling would always fail: send people to the
+    // real tab instead of showing them a dead button.
+    const framed = typeof window !== "undefined" && window.self !== window.top;
+    const micBlocked =
+      framed &&
+      typeof document !== "undefined" &&
+      // @ts-expect-error - featurePolicy is not in the DOM lib yet
+      typeof document.featurePolicy?.allowsFeature === "function" &&
+      // @ts-expect-error - featurePolicy is not in the DOM lib yet
+      !document.featurePolicy.allowsFeature("microphone");
+
+    if (micBlocked) {
+      return (
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          {others.length ? (
+            <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs text-primary">
+              {others.length === 1 ? "1 person in a call" : `${others.length} people in a call`}
+            </span>
+          ) : null}
+          <Button size="sm" variant="outline" asChild>
+            <a href={window.location.href} target="_blank" rel="noreferrer">
+              <PhoneCall className="mr-1.5 h-4 w-4" />
+              Call in new tab
+            </a>
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-wrap items-center justify-end gap-2">
         {others.length ? (
@@ -100,7 +130,7 @@ export function CallPanel({
         {session.error ? (
           <span className="flex items-center gap-1.5 text-xs text-destructive">
             {session.error}
-            {typeof window !== "undefined" && window.self !== window.top ? (
+            {framed ? (
               <a
                 href={window.location.href}
                 target="_blank"
@@ -135,6 +165,7 @@ export function CallPanel({
       </div>
     );
   }
+
 
   return (
     <div className="w-full rounded-2xl border border-primary/30 bg-primary/5 p-2">
