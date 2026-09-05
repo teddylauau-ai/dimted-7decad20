@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Shield, Coins, Crown, ShoppingBag, Sparkles, Star } from "lucide-react";
+import { Shield, Coins, Crown, ShoppingBag, Sparkles, Star, Users } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader, Panel, PanelHead, RarityChip } from "@/components/dimted/primitives";
 import { Avatar, Nametag } from "@/components/dimted/Identity";
@@ -76,7 +76,7 @@ function ArmoryPage() {
   const { isOwner, isStaff } = useMyRole(profile?.id);
   const cosmetics = useCosmetics();
   const inventory = useInventory(profile?.id);
-  const [slot, setSlot] = useState<CosmeticSlot | "vault" | "admin">("nametag");
+  const [slot, setSlot] = useState<CosmeticSlot | "vault" | "admin" | "crew">("nametag");
 
   const owned = useMemo(() => new Set(inventory.data ?? []), [inventory.data]);
   const all = cosmetics.data ?? [];
