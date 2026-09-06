@@ -1968,6 +1968,23 @@ export type Database = {
         Args: { _minutes: number; _reason?: string; _user_id: string }
         Returns: Json
       }
+      arcade_game_par: { Args: { _game: string }; Returns: number }
+      arcade_game_weight: { Args: { _game: string }; Returns: number }
+      arcade_top_players: {
+        Args: { _limit?: number }
+        Returns: {
+          arcade_xp: number
+          avatar_url: string
+          display_name: string
+          equipped_badge: string
+          equipped_effect: string
+          equipped_frame: string
+          equipped_nametag: string
+          runs: number
+          user_id: string
+          username: string
+        }[]
+      }
       award_arcade_xp: {
         Args: { _game: string; _score: number }
         Returns: Json

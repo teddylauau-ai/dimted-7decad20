@@ -17,7 +17,7 @@ import { LaneHop } from "@/components/games/LaneHop";
 import { EchoSequence } from "@/components/games/EchoSequence";
 import { NeonCoil } from "@/components/games/NeonCoil";
 import { NovaRift } from "@/components/games/NovaRift";
-import { GAMES, type GameId } from "@/lib/games";
+import { GAMES, gamesByXp, parXp, type GameId } from "@/lib/games";
 import {
   LEVELS,
   TOTAL_STARS,
@@ -40,6 +40,7 @@ import {
   personalBest,
   useLeaderboard,
   useMyScores,
+  useTopGamePlayers,
   useSubmitScore,
   type ArcadeReward,
 } from "@/lib/games-queries";
@@ -297,7 +298,7 @@ export function ArcadeSection() {
   // Mastery ranks across all games decide which games are unlocked.
   const mastery = useMemo(
     () =>
-      GAMES.map((g) => ({
+      gamesByXp().map((g) => ({
         game: g,
         best: personalBest(myScores.data, g.id),
         ...masteryFor(personalBest(myScores.data, g.id), g.xpPerScore),
@@ -368,7 +369,7 @@ export function ArcadeSection() {
         />
         <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
           Beating your own high score raises that game's rank: Rookie → Runner → Adept → Veteran → Ace →
-          Nova. Total ranks unlock the harder games.
+          Nova. Total ranks unlock the harder games. Games are listed richest XP first — payouts are balanced against a good run in each game, so longer, harder games pay a little more.
         </p>
       </Panel>
 
@@ -400,8 +401,8 @@ export function ArcadeSection() {
                 {isLocked ? (
                   <Lock className="text-muted-foreground size-3.5 shrink-0" />
                 ) : (
-                  <span className="text-muted-foreground shrink-0 font-mono text-[10px]">
-                    best {m.best.toLocaleString()}
+                  <span className="text-gold shrink-0 font-mono text-[10px]">
+                    {parXp(g)} XP
                   </span>
                 )}
               </div>
@@ -412,6 +413,9 @@ export function ArcadeSection() {
               ) : (
                 <>
                   <p className="text-muted-foreground mt-1.5 text-sm leading-relaxed">{g.tagline}</p>
+                  <p className="text-muted-foreground mt-1 font-mono text-[10px]">
+                    best {m.best.toLocaleString()} · #{i + 1} XP payout
+                  </p>
                   <div className="mt-3">
                     <div className="flex items-center justify-between font-mono text-[10px]">
                       <span className={m.rank >= 5 ? "text-gold" : "text-primary"}>{m.name}</span>
@@ -578,6 +582,70 @@ export function ArcadeSection() {
           )}
         </Panel>
       </div>
+
+      <TopPlayersPanel meId={profile?.id} />
     </div>
+  );
+}
+
+// ------------------------------------------------------------- Top players
+
+function TopPlayersPanel({ meId }: { meId: string | undefined }) {
+  const top = useTopGamePlayers(15);
+  return (
+    <Panel className="p-5">
+      <PanelHead
+        eyebrow="Hall of fame"
+        title="Top players"
+        aside={<span className="text-muted-foreground font-mono text-[11px]">XP from games</span>}
+      />
+      {top.isLoading ? (
+        <p className="text-muted-foreground mt-4 font-mono text-[11px]">Loading…</p>
+      ) : (top.data ?? []).length === 0 ? (
+        <p className="text-muted-foreground mt-4 text-sm">
+          No game XP earned yet. Play a run and take the top spot.
+        </p>
+      ) : (
+        <ol className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {(top.data ?? []).map((row, i) => (
+            <li
+              key={row.user_id}
+              className={cn(
+                "border-border bg-background/40 flex items-center gap-2 rounded-xl border px-2.5 py-2",
+                row.user_id === meId && "border-primary/40",
+              )}
+            >
+              <span
+                className={cn(
+                  "numeral w-5 shrink-0 text-sm",
+                  i === 0 ? "text-gold" : "text-muted-foreground",
+                )}
+              >
+                {i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <IdentityRow
+                  profile={{
+                    username: row.username,
+                    display_name: row.display_name,
+                    avatar_url: row.avatar_url,
+                    equipped_nametag: row.equipped_nametag,
+                    equipped_badge: row.equipped_badge,
+                    equipped_frame: row.equipped_frame,
+                  }}
+                  size={26}
+                />
+              </div>
+              <span className="shrink-0 text-right">
+                <span className="numeral block text-sm">{row.arcade_xp.toLocaleString()}</span>
+                <span className="text-muted-foreground block font-mono text-[10px]">
+                  {row.runs} runs
+                </span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Panel>
   );
 }
