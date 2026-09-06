@@ -64,9 +64,23 @@ export function CampaignSection() {
   const [runKey, setRunKey] = useState(0);
   const [phase, setPhase] = useState<"idle" | "playing" | "won" | "lost">("idle");
   const [result, setResult] = useState<{ stars: number; ms: number; shards: number } | null>(null);
+  const [skin, setSkin] = useState(() => loadRiftSkin());
+  const board = useRiftLeaderboard();
+
+  const pickRunner = (slug: string) => {
+    const next = { ...skin, runner: slug };
+    setSkin(next);
+    saveRiftSkin(next.runner, next.trail);
+  };
+  const pickTrail = (slug: string) => {
+    const next = { ...skin, trail: slug };
+    setSkin(next);
+    saveRiftSkin(next.runner, next.trail);
+  };
 
   const level = LEVELS.find((l) => l.n === levelN)!;
   const locked = levelN > unlockedUpTo;
+
 
   const start = (n = levelN) => {
     setLevelN(n);
