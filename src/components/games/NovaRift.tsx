@@ -109,6 +109,8 @@ export function NovaRift({
     const trail: { x: number; y: number; a: number }[] = [];
 
     const die = () => {
+      // Brief spawn grace: nothing can end the run in the first few frames.
+      if (performance.now() - started < 120) return;
       if (done) return;
       done = true;
       cbs.current.onFail();
