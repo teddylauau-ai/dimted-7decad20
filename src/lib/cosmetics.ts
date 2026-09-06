@@ -125,7 +125,10 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-wave": "≈",
   "badge-flask": "⚗",
   "badge-orbit": "◉",
+  "badge-vault-key": "⚿",
+  "badge-obsidian-crown": "♛",
 };
+
 
 export const BADGE_CLASS: Record<string, string> = {
   "badge-s1-comet": "cos-gradient cos-gradient-s1-vector cos-shimmer",
@@ -165,7 +168,10 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-wave": "text-uncommon",
   "badge-flask": "text-rare",
   "badge-orbit": "text-epic cos-glow-epic",
+  "badge-vault-key": "text-legendary cos-glow-gold",
+  "badge-obsidian-crown": "text-mythic cos-glow-mythos",
 };
+
 
 /**
  * Frame → classes on the avatar wrapper.
