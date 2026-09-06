@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Gamepad2, Sparkles, Zap } from "lucide-react";
-import { AppShell } from "@/components/dimted/AppShell";
 import { PageHeader } from "@/components/dimted/primitives";
 import { PulseRushSection } from "@/components/games/PulseRushSection";
 import { CampaignSection, ArcadeSection } from "@/components/games/ArcadeSections";
@@ -42,7 +41,7 @@ function GamesPage() {
   const active = TABS.find((t) => t.id === tab)!;
 
   return (
-    <AppShell>
+    <div className="space-y-3">
       <PageHeader
         eyebrow="Play"
         title="Games"
@@ -88,6 +87,6 @@ function GamesPage() {
           <ArcadeSection />
         )}
       </div>
-    </AppShell>
+    </div>
   );
 }
