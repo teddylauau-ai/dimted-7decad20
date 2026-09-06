@@ -209,7 +209,8 @@ function ShopPage() {
       ),
     [all],
   );
-  // Prismatic vault: six pieces in every slot, permanently stocked, priced high.
+  // Prismatic vault: only three pieces per slot are stocked at a time, and the
+  // selection rotates every week so the shelf genuinely changes.
   const vaultDrops = useMemo(() => {
     const order: Record<string, number> = {
       nametag: 0,
@@ -218,8 +219,15 @@ function ShopPage() {
       banner: 3,
       effect: 4,
     };
-    return all
-      .filter((i) => i.pool === "vault")
+    const pool = all.filter((i) => i.pool === "vault");
+    const bySlot = new Map<string, Cosmetic[]>();
+    for (const item of pool) {
+      const list = bySlot.get(item.slot) ?? [];
+      list.push(item);
+      bySlot.set(item.slot, list);
+    }
+    return [...bySlot.entries()]
+      .flatMap(([s, list]) => rotate(list, `vault-${s}-${weekKey()}`, 3))
       .sort(
         (a, b) =>
           (order[a.slot] ?? 9) - (order[b.slot] ?? 9) || a.price_sparks - b.price_sparks,
@@ -229,6 +237,7 @@ function ShopPage() {
     () => (slot === "all" ? vaultDrops : vaultDrops.filter((i) => i.slot === slot)),
     [vaultDrops, slot],
   );
+
 
   // The vaults are a secret shelf: normal accounts never learn they exist.
   // Owner sees both, admins see the staff vault only, everyone else sees neither.
@@ -436,12 +445,14 @@ function ShopPage() {
             <PanelHead
               eyebrow="Prismatic vault"
               title="Rainbow tier"
-              aside={`${vaultDrops.length} pieces`}
+              aside={`rotates in ${formatCountdown(secondsUntilWeeklyReset())}`}
             />
             <p className="text-muted-foreground mt-2 text-xs">
-              Six prismatic pieces in every slot — nametags, badges, frames, banners and message
-              effects. The most expensive gear in Lazu, and always in stock.
+              Three prismatic pieces per slot, hand-picked each week — nametags, badges, frames,
+              banners and message effects. The most expensive gear in Lazu, and the stock changes
+              every week.
             </p>
+
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {vaultShown.map((item) => (
                 <ItemCard
