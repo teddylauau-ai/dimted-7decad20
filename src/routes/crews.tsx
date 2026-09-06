@@ -1176,7 +1176,6 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
 function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => void; onCancel: () => void }) {
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
-  const [emoji, setEmoji] = useState("🛡️");
   const [accent, setAccent] = useState<CrewAccent>("teal");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [joinPolicy, setJoinPolicy] = useState<"open" | "invite">("invite");
@@ -1191,7 +1190,7 @@ function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => vo
         name: name.trim(),
         tagline: tagline.trim(),
         description: "",
-        badge_emoji: emoji,
+        badge_emoji: "",
         accent,
         visibility,
         join_policy: visibility === "private" ? "invite" : joinPolicy,
@@ -1209,21 +1208,10 @@ function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => vo
       <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Crew name" className="h-8 text-sm" maxLength={40} />
       <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Tagline" className="h-8 text-sm" maxLength={90} />
 
-      <div className="flex flex-wrap gap-1">
-        {CREW_EMOJI.map((e) => (
-          <button
-            key={e}
-            type="button"
-            onClick={() => setEmoji(e)}
-            className={cn("grid size-7 place-items-center rounded-lg text-sm", emoji === e ? "bg-secondary ring-1 ring-primary/50" : "hover:bg-secondary/60")}
-          >
-            {e}
-          </button>
-        ))}
-      </div>
+      <p className="text-muted-foreground text-[11px]">You can upload a crew picture right after you create it.</p>
 
       <div className="flex flex-wrap gap-1.5">
-        {CREW_ACCENTS.map((a) => (
+        {accentsFor(1).map((a) => (
           <button
             key={a.key}
             type="button"
@@ -1274,7 +1262,6 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
   const [name, setName] = useState(crew.name);
   const [tagline, setTagline] = useState(crew.tagline ?? "");
   const [description, setDescription] = useState(crew.description ?? "");
-  const [emoji, setEmoji] = useState(crew.badge_emoji);
   const [accent, setAccent] = useState<CrewAccent>(crew.accent);
   const [visibility, setVisibility] = useState<"public" | "private">(crew.visibility);
   const [joinPolicy, setJoinPolicy] = useState<"open" | "invite">(crew.join_policy);
@@ -1299,7 +1286,6 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
         name,
         tagline,
         description,
-        badge_emoji: emoji,
         accent,
         visibility,
         join_policy: visibility === "private" ? "invite" : joinPolicy,
