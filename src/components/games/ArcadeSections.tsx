@@ -398,14 +398,12 @@ export function CampaignSection() {
                 <div className="min-w-0 flex-1">
                   <IdentityRow
                     profile={{
-                      id: row.userId,
                       username: row.username,
                       display_name: row.displayName,
                       avatar_url: row.avatarUrl,
                       equipped_nametag: row.equippedNametag,
                       equipped_badge: row.equippedBadge,
                       equipped_frame: row.equippedFrame,
-                      equipped_effect: row.equippedEffect,
                     }}
                   />
                 </div>
