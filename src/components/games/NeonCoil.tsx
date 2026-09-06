@@ -1,16 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { Game3DCanvas } from "./Game3DCanvas";
 
 /**
- * Neon Coil — snake, rebuilt in 3D. Sweep the coil around a floating grid,
- * swallow energy cores, wrap through the edges. Every few cores drops a mine
- * onto the board, so the arena keeps closing in on you.
+ * Neon Coil — a sleek cybernetic serpent hunting energy cores on a floating
+ * grid. The body glides between cells instead of snapping, the head is a
+ * armoured wedge with a visor and fins, and every few cores drops a mine so the
+ * arena keeps closing in.
  */
 
 const N = 15; // grid cells per side
 const HALF = (N - 1) / 2;
+const POOL = 90; // reusable segment meshes
 
 type Cell = { x: number; y: number };
 
@@ -22,6 +24,40 @@ function randomCell(taken: Set<string>): Cell {
     if (!taken.has(key(c))) return c;
   }
   return { x: 0, y: 0 };
+}
+
+/** Head of the serpent: armoured wedge, glowing visor, swept fins. */
+function SerpentHead() {
+  return (
+    <group>
+      <mesh castShadow>
+        <boxGeometry args={[0.72, 0.4, 0.9]} />
+        <meshStandardMaterial color="#123c46" roughness={0.28} metalness={0.85} />
+      </mesh>
+      {/* snout taper */}
+      <mesh castShadow position={[0, -0.02, 0.56]} rotation-x={Math.PI / 2}>
+        <coneGeometry args={[0.3, 0.42, 4]} />
+        <meshStandardMaterial color="#0f333c" roughness={0.25} metalness={0.9} />
+      </mesh>
+      {/* visor */}
+      <mesh position={[0, 0.1, 0.36]}>
+        <boxGeometry args={[0.56, 0.12, 0.16]} />
+        <meshStandardMaterial color="#8ffff0" emissive="#37f5d8" emissiveIntensity={2.6} />
+      </mesh>
+      {/* dorsal ridge */}
+      <mesh position={[0, 0.24, -0.06]}>
+        <boxGeometry args={[0.12, 0.14, 0.7]} />
+        <meshStandardMaterial color="#f6c860" emissive="#f6c860" emissiveIntensity={1.1} />
+      </mesh>
+      {/* swept fins */}
+      {[-1, 1].map((sx) => (
+        <mesh key={sx} position={[sx * 0.42, 0.02, -0.16]} rotation-y={sx * 0.5} castShadow>
+          <boxGeometry args={[0.26, 0.07, 0.42]} />
+          <meshStandardMaterial color="#1c5c68" emissive="#2ee6c4" emissiveIntensity={0.7} metalness={0.8} roughness={0.3} />
+        </mesh>
+      ))}
+    </group>
+  );
 }
 
 function CoilScene({
@@ -38,9 +74,12 @@ function CoilScene({
   cb.current = { onScore, onEnd, onView };
   const [, force] = useState(0);
   const core = useRef<THREE.Mesh>(null);
+  const headRef = useRef<THREE.Group>(null);
+  const segRefs = useRef<(THREE.Group | null)[]>([]);
 
   const st = useRef({
     body: [{ x: 7, y: 7 }] as Cell[],
+    prev: [{ x: 7, y: 7 }] as Cell[],
     dir: { x: 1, y: 0 },
     next: { x: 1, y: 0 },
     food: { x: 11, y: 7 } as Cell,
@@ -49,7 +88,8 @@ function CoilScene({
     eaten: 0,
     over: false,
     step: 0,
-    interval: 0.14,
+    interval: 0.16,
+    yaw: 0,
   });
 
   useEffect(() => {
@@ -95,60 +135,100 @@ function CoilScene({
     const s = st.current;
     if (core.current) {
       core.current.rotation.y += dt * 2.4;
-      core.current.position.y = 0.42 + Math.sin(state.clock.elapsedTime * 3) * 0.08;
+      core.current.position.y = 0.46 + Math.sin(state.clock.elapsedTime * 3) * 0.08;
     }
-    camera.position.lerp(new THREE.Vector3(0, 15, 12.5), 1 - Math.exp(-2 * dt));
-    camera.lookAt(0, 0, 0);
-    if (s.over) return;
+    // gentler, slightly higher-angle view: easier to read the grid while playing
+    camera.position.lerp(new THREE.Vector3(0, 16.5, 9.5), 1 - Math.exp(-2 * dt));
+    camera.lookAt(0, 0, -0.4);
 
-    s.step += dt;
-    if (s.step < s.interval) return;
-    s.step = 0;
-    s.dir = s.next;
+    if (!s.over) {
+      s.step += dt;
+      if (s.step >= s.interval) {
+        s.step -= s.interval;
+        s.dir = s.next;
 
-    const head = s.body[0]!;
-    const nx = (head.x + s.dir.x + N) % N;
-    const ny = (head.y + s.dir.y + N) % N;
-    const nextHead = { x: nx, y: ny };
+        const head = s.body[0]!;
+        const nx = (head.x + s.dir.x + N) % N;
+        const ny = (head.y + s.dir.y + N) % N;
+        const nextHead = { x: nx, y: ny };
 
-    if (
-      s.body.slice(0, -1).some((c) => c.x === nx && c.y === ny) ||
-      s.mines.some((m) => m.x === nx && m.y === ny)
-    ) {
-      s.over = true;
-      cb.current.onEnd(s.score);
-      force((v) => v + 1);
-      return;
+        if (
+          s.body.slice(0, -1).some((c) => c.x === nx && c.y === ny) ||
+          s.mines.some((m) => m.x === nx && m.y === ny)
+        ) {
+          s.over = true;
+          cb.current.onEnd(s.score);
+          force((v) => v + 1);
+          return;
+        }
+
+        s.prev = s.body;
+        const ate = nextHead.x === s.food.x && nextHead.y === s.food.y;
+        const nextBody = [nextHead, ...s.body];
+        if (!ate) nextBody.pop();
+        s.body = nextBody;
+        if (ate) {
+          s.eaten += 1;
+          s.score += 40 + s.body.length * 4;
+          s.interval = Math.max(0.07, 0.16 - s.eaten * 0.003);
+          const taken = new Set(s.body.map(key));
+          s.mines.forEach((m) => taken.add(key(m)));
+          if (s.eaten % 3 === 0) s.mines.push(randomCell(taken));
+          const taken2 = new Set(s.body.map(key));
+          s.mines.forEach((m) => taken2.add(key(m)));
+          s.food = randomCell(taken2);
+          cb.current.onScore(s.score);
+          cb.current.onView({ score: s.score, length: s.body.length });
+          force((v) => v + 1);
+        }
+      }
     }
 
-    const ate = nextHead.x === s.food.x && nextHead.y === s.food.y;
-    s.body = [nextHead, ...s.body];
-    if (!ate) s.body.pop();
-    else {
-      s.eaten += 1;
-      s.score += 40 + s.body.length * 4;
-      s.interval = Math.max(0.06, 0.14 - s.eaten * 0.003);
-      const taken = new Set(s.body.map(key));
-      s.mines.forEach((m) => taken.add(key(m)));
-      if (s.eaten % 3 === 0) s.mines.push(randomCell(taken));
-      const taken2 = new Set(s.body.map(key));
-      s.mines.forEach((m) => taken2.add(key(m)));
-      s.food = randomCell(taken2);
-      cb.current.onScore(s.score);
-      cb.current.onView({ score: s.score, length: s.body.length });
+    // smooth glide: interpolate each segment from its previous cell
+    const t = s.over ? 1 : Math.min(1, s.step / s.interval);
+    const len = s.body.length;
+    for (let i = 0; i < POOL; i++) {
+      const g = segRefs.current[i];
+      if (!g) continue;
+      if (i >= len) {
+        g.visible = false;
+        continue;
+      }
+      g.visible = i > 0; // segment 0 is the head group
+      const cur = s.body[i]!;
+      const from = s.prev[i] ?? s.prev[s.prev.length - 1] ?? cur;
+      let fx = from.x;
+      let fy = from.y;
+      if (Math.abs(cur.x - fx) > 1) fx = cur.x; // wrapped, snap
+      if (Math.abs(cur.y - fy) > 1) fy = cur.y;
+      const x = fx + (cur.x - fx) * t - HALF;
+      const z = fy + (cur.y - fy) * t - HALF;
+      const wave = Math.sin(state.clock.elapsedTime * 6 - i * 0.55) * 0.05;
+      g.position.set(x, 0.3 + wave, z);
+      const taper = 1 - (i / Math.max(6, len)) * 0.45;
+      g.scale.setScalar(Math.max(0.4, taper));
+      g.rotation.y = Math.atan2(cur.x - fx, cur.y - fy);
+      if (i === 0) {
+        const h = headRef.current;
+        if (h) {
+          h.position.set(x, 0.34, z);
+          const target = Math.atan2(s.dir.x, s.dir.y);
+          h.rotation.y += ((target - h.rotation.y + Math.PI * 3) % (Math.PI * 2) - Math.PI) * Math.min(1, dt * 14);
+        }
+      }
     }
-    force((v) => v + 1);
   });
 
   const s = st.current;
   const pos = (c: Cell): [number, number, number] => [c.x - HALF, 0.3, c.y - HALF];
+  const pool = useMemo(() => Array.from({ length: POOL }, (_, i) => i), []);
 
   return (
     <>
-      <fog attach="fog" args={["#050a12", 20, 44]} />
+      <fog attach="fog" args={["#050a12", 20, 46]} />
       <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0]} receiveShadow>
         <planeGeometry args={[N, N]} />
-        <meshStandardMaterial color="#07131e" roughness={0.4} metalness={0.6} />
+        <meshStandardMaterial color="#07131e" roughness={0.35} metalness={0.7} />
       </mesh>
       <gridHelper args={[N, N, "#15384a", "#0d222f"]} position={[0, 0.01, 0]} />
       {/* arena rim */}
@@ -170,32 +250,56 @@ function CoilScene({
           <meshStandardMaterial color="#2ee6c4" emissive="#2ee6c4" emissiveIntensity={0.8} />
         </mesh>
       ))}
-      {s.body.map((c, i) => {
-        const t = i / Math.max(1, s.body.length);
-        const scale = i === 0 ? 0.88 : 0.72 - t * 0.16;
-        return (
-          <mesh key={`${i}-${c.x}-${c.y}`} position={pos(c)} castShadow>
-            <boxGeometry args={[scale, scale * 0.8, scale]} />
+
+      {/* serpent head */}
+      <group ref={headRef}>
+        <SerpentHead />
+      </group>
+
+      {/* body segments: armoured plates that taper toward the tail */}
+      {pool.map((i) => (
+        <group
+          key={i}
+          ref={(el) => {
+            segRefs.current[i] = el;
+          }}
+          visible={false}
+        >
+          <mesh castShadow>
+            <boxGeometry args={[0.62, 0.34, 0.78]} />
             <meshStandardMaterial
-              color={i === 0 ? "#f6c860" : new THREE.Color(`hsl(${168 + t * 60}, 75%, ${58 - t * 18}%)`)}
-              emissive={i === 0 ? "#f6c860" : "#2ee6c4"}
-              emissiveIntensity={i === 0 ? 0.7 : 0.3 - t * 0.2}
-              roughness={0.25}
-              metalness={0.5}
+              color="#10333d"
+              roughness={0.3}
+              metalness={0.85}
             />
           </mesh>
-        );
-      })}
+          {/* glowing spine line */}
+          <mesh position={[0, 0.2, 0]}>
+            <boxGeometry args={[0.16, 0.06, 0.66]} />
+            <meshStandardMaterial color="#2ee6c4" emissive="#2ee6c4" emissiveIntensity={1.5} />
+          </mesh>
+          {/* side vents */}
+          {[-1, 1].map((sx) => (
+            <mesh key={sx} position={[sx * 0.33, 0, 0]}>
+              <boxGeometry args={[0.04, 0.12, 0.5]} />
+              <meshStandardMaterial color="#7df9ff" emissive="#7df9ff" emissiveIntensity={0.9} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
       <mesh ref={core} position={pos(s.food)} castShadow>
         <octahedronGeometry args={[0.42, 0]} />
         <meshStandardMaterial color="#7df9ff" emissive="#7df9ff" emissiveIntensity={1.4} />
       </mesh>
       <pointLight position={pos(s.food)} color="#7df9ff" intensity={6} distance={5} />
       {s.mines.map((m, i) => (
-        <mesh key={`m${i}`} position={pos(m)} castShadow>
-          <coneGeometry args={[0.36, 0.8, 5]} />
-          <meshStandardMaterial color="#ff5f7e" emissive="#ff2f57" emissiveIntensity={0.9} />
-        </mesh>
+        <group key={`m${i}`} position={pos(m)}>
+          <mesh castShadow>
+            <icosahedronGeometry args={[0.32, 0]} />
+            <meshStandardMaterial color="#ff5f7e" emissive="#ff2f57" emissiveIntensity={1.1} metalness={0.7} roughness={0.3} />
+          </mesh>
+        </group>
       ))}
     </>
   );
@@ -222,7 +326,7 @@ export function NeonCoil({
         <span className="text-foreground numeral text-base">{view.score.toLocaleString()}</span>
         <span className="text-primary">coil {view.length}</span>
       </div>
-      <Game3DCanvas aspect={1} camera={{ position: [0, 15, 12.5], fov: 46 }}>
+      <Game3DCanvas aspect={1} camera={{ position: [0, 16.5, 9.5], fov: 46 }}>
         <CoilScene onScore={onScore} onEnd={onEnd} onView={setView} />
       </Game3DCanvas>
       <p className="text-muted-foreground font-mono text-[10px]">
