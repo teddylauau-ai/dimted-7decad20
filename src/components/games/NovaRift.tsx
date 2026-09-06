@@ -207,67 +207,130 @@ export function NovaRift({
       const sx = shake ? (Math.random() - 0.5) * shake : 0;
       ctx.save();
       const grad = ctx.createLinearGradient(0, 0, 0, VIEW_H);
-      grad.addColorStop(0, "#070c18");
-      grad.addColorStop(1, "#0c1526");
+      grad.addColorStop(0, "#0a1122");
+      grad.addColorStop(0.55, "#0d1a2e");
+      grad.addColorStop(1, "#122238");
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, VIEW_W, VIEW_H);
 
       // parallax stars
-      ctx.fillStyle = "rgba(120,220,220,0.35)";
+      ctx.fillStyle = "rgba(150,235,235,0.4)";
       for (let i = 0; i < 60; i++) {
         const px = ((i * 197 - cam * 0.25) % (VIEW_W + 40) + VIEW_W + 40) % (VIEW_W + 40);
-        const py = (i * 83) % VIEW_H;
+        const py = (i * 83) % (VIEW_H * 0.7);
         ctx.fillRect(px, py, 2, 2);
       }
+      // parallax hill layers
+      const hills = (off: number, h: number, col: string) => {
+        ctx.fillStyle = col;
+        ctx.beginPath();
+        ctx.moveTo(0, VIEW_H);
+        for (let px = 0; px <= VIEW_W; px += 20) {
+          const wx = px + cam * off;
+          const hy = VIEW_H - h - Math.sin(wx * 0.004) * h * 0.5 - Math.sin(wx * 0.011) * h * 0.2;
+          ctx.lineTo(px, hy);
+        }
+        ctx.lineTo(VIEW_W, VIEW_H);
+        ctx.closePath();
+        ctx.fill();
+      };
+      hills(0.12, 120, "rgba(30,68,96,0.45)");
+      hills(0.28, 70, "rgba(20,50,74,0.6)");
 
       ctx.translate(-cam + sx, 0);
 
-      // goal beam
-      const goalGrad = ctx.createLinearGradient(level.goalX, 0, level.goalX + 60, 0);
-      goalGrad.addColorStop(0, "rgba(255,206,120,0.55)");
-      goalGrad.addColorStop(1, "rgba(255,206,120,0)");
-      ctx.fillStyle = goalGrad;
-      ctx.fillRect(level.goalX, 0, 60, VIEW_H);
-      ctx.fillStyle = "#ffce78";
-      ctx.fillRect(level.goalX - 4, 0, 5, VIEW_H);
+      // goal portal
+      const gx = level.goalX + 18;
+      for (let r = 3; r >= 0; r--) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(255,206,120,${0.16 + r * 0.1})`;
+        ctx.lineWidth = 3;
+        const rad = 42 + r * 12 + Math.sin(frame * 0.06 + r) * 4;
+        ctx.ellipse(gx, FLOOR_Y - 70, rad * 0.55, rad, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(255,206,120,0.18)";
+      ctx.beginPath();
+      ctx.ellipse(gx, FLOOR_Y - 70, 26, 52, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-      // solids
+      // solids — chunky tiled platforms
       for (const sd of solids) {
         if (sd.x + sd.w < cam - 40 || sd.x > cam + VIEW_W + 40) continue;
-        ctx.fillStyle = "#16283c";
+        ctx.fillStyle = "#1b3350";
         ctx.fillRect(sd.x, sd.y, sd.w, sd.h);
-        ctx.fillStyle = "rgba(90,225,215,0.75)";
+        ctx.fillStyle = "#254866";
+        ctx.fillRect(sd.x, sd.y, sd.w, 10);
+        ctx.fillStyle = "rgba(120,240,225,0.9)";
         ctx.fillRect(sd.x, sd.y, sd.w, 3);
+        ctx.fillStyle = "rgba(9,18,30,0.35)";
+        for (let tx = sd.x + 12; tx < sd.x + sd.w - 6; tx += 26) {
+          ctx.fillRect(tx, sd.y + 16, 3, Math.min(sd.h - 20, 22));
+        }
       }
 
-      // pads
+      // bounce pads
       for (const pad of level.pads ?? []) {
+        const squash = Math.sin(frame * 0.12) * 2;
+        ctx.fillStyle = "#8a6a2c";
+        ctx.fillRect(pad.x, pad.y + 8, 40, 8);
         ctx.fillStyle = "#ffce78";
-        ctx.fillRect(pad.x, pad.y, 40, 10);
+        ctx.fillRect(pad.x, pad.y + squash, 40, 9);
+        ctx.fillStyle = "rgba(255,206,120,0.35)";
+        ctx.fillRect(pad.x + 4, pad.y - 8 + squash, 32, 4);
       }
 
-      // movers
+      // movers — spinning saw blades
       for (const m of movers) {
+        const cx2 = m.x + m.w / 2;
+        const cy2 = m.y + m.h / 2;
+        const rad = Math.max(m.w, m.h) / 2 + 3;
         ctx.save();
-        ctx.translate(m.x + m.w / 2, m.y + m.h / 2);
-        ctx.rotate(frame * 0.15);
+        ctx.translate(cx2, cy2);
+        ctx.rotate(frame * 0.22);
         ctx.fillStyle = "#ff6b7d";
-        ctx.fillRect(-m.w / 2, -m.h / 2, m.w, m.h);
+        for (let i = 0; i < 8; i++) {
+          ctx.rotate((Math.PI * 2) / 8);
+          ctx.beginPath();
+          ctx.moveTo(-5, -rad);
+          ctx.lineTo(5, -rad);
+          ctx.lineTo(0, -rad - 7);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.beginPath();
+        ctx.fillStyle = "#b23a4c";
+        ctx.arc(0, 0, rad, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.fillStyle = "#ffd0d6";
+        ctx.arc(0, 0, rad * 0.35, 0, Math.PI * 2);
+        ctx.fill();
         ctx.restore();
       }
 
-      // spikes
-      ctx.fillStyle = "#ff5c72";
+      // spikes — metal blades on a base
       for (const sp of level.spikes) {
         if (sp.x + sp.w < cam - 40 || sp.x > cam + VIEW_W + 40) continue;
-        const count = Math.max(1, Math.round(sp.w / 26));
+        ctx.fillStyle = "#3a2130";
+        ctx.fillRect(sp.x, sp.y + sp.h - 5, sp.w, 5);
+        const count = Math.max(1, Math.round(sp.w / 22));
         const step = sp.w / count;
         for (let i = 0; i < count; i++) {
+          const bx = sp.x + i * step;
           ctx.beginPath();
-          ctx.moveTo(sp.x + i * step, sp.y + sp.h);
-          ctx.lineTo(sp.x + i * step + step / 2, sp.y);
-          ctx.lineTo(sp.x + (i + 1) * step, sp.y + sp.h);
+          ctx.moveTo(bx, sp.y + sp.h);
+          ctx.lineTo(bx + step / 2, sp.y);
+          ctx.lineTo(bx + step, sp.y + sp.h);
           ctx.closePath();
+          ctx.fillStyle = "#ff5c72";
+          ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(bx + step / 2, sp.y);
+          ctx.lineTo(bx + step * 0.62, sp.y + sp.h);
+          ctx.lineTo(bx + step / 2, sp.y + sp.h);
+          ctx.closePath();
+          ctx.fillStyle = "rgba(255,255,255,0.28)";
           ctx.fill();
         }
       }
@@ -286,17 +349,69 @@ export function NovaRift({
         ctx.restore();
       }
 
-      // trail + player
+      // ---- avatar: a little rift runner
+      const face = vx < -8 ? -1 : 1;
       trail.forEach((t, i) => {
-        ctx.fillStyle = `rgba(143,240,228,${0.16 * (1 - i / trail.length)})`;
-        ctx.fillRect(t.x, t.y, PW, PH);
+        const a = 0.14 * (1 - i / trail.length);
+        ctx.fillStyle = `rgba(143,240,228,${a})`;
+        ctx.fillRect(t.x + 3, t.y + 6, PW - 6, PH - 8);
       });
-      ctx.fillStyle = dashLeft > 0 ? "#ffce78" : "#e8fbf8";
-      ctx.shadowColor = dashLeft > 0 ? "#ffce78" : "#5ae1d7";
-      ctx.shadowBlur = 16;
-      ctx.fillRect(x, y, PW, PH);
+      ctx.save();
+      ctx.translate(x + PW / 2, y + PH);
+      ctx.scale(face, 1);
+      // shadow on ground
+      if (onGround) {
+        ctx.fillStyle = "rgba(0,0,0,0.3)";
+        ctx.beginPath();
+        ctx.ellipse(0, 2, 11, 3.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const stride = onGround ? Math.sin(frame * 0.35) * (Math.abs(vx) > 30 ? 5 : 0) : 3;
+      // legs
+      ctx.strokeStyle = "#2f6f86";
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(-2, -9);
+      ctx.lineTo(-2 - stride, 0);
+      ctx.moveTo(2, -9);
+      ctx.lineTo(2 + stride, 0);
+      ctx.stroke();
+      // body
+      const bodyCol = dashLeft > 0 ? "#ffce78" : "#8ff0e4";
+      ctx.fillStyle = bodyCol;
+      ctx.shadowColor = bodyCol;
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.roundRect(-7, -20, 14, 12, 4);
+      ctx.fill();
       ctx.shadowBlur = 0;
+      // arm
+      ctx.strokeStyle = bodyCol;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(3, -17);
+      ctx.lineTo(6 + stride * 0.6, -12);
+      ctx.stroke();
+      // head + visor
+      ctx.fillStyle = "#e8fbf8";
+      ctx.beginPath();
+      ctx.arc(0, -25, 6.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#0d2436";
+      ctx.beginPath();
+      ctx.roundRect(0, -28, 6, 4.5, 2);
+      ctx.fill();
+      // scarf trailing back
+      ctx.fillStyle = "rgba(255,110,140,0.9)";
+      ctx.beginPath();
+      ctx.moveTo(-5, -20);
+      ctx.lineTo(-14 - Math.abs(vx) * 0.02, -18 + Math.sin(frame * 0.3) * 3);
+      ctx.lineTo(-5, -15);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
+      ctx.restore();
+
 
       if (frame % 6 === 0) {
         setHud({ shards: collected, ms: Math.round(now - started) });
