@@ -90,7 +90,13 @@ export function PulseRush({
   const endRef = useRef(onEnd);
   endRef.current = onEnd;
 
-  const [hud, setHud] = useState({ pct: 0, best: 0, attempts: 1, coins: [false, false, false], checkpoints: 0 });
+  const [hud, setHud] = useState({
+    pct: 0,
+    best: 0,
+    attempts: 1,
+    coins: [false, false, false],
+    checkpoints: 0,
+  });
   const [outcome, setOutcome] = useState<"running" | "dead" | "cleared">("running");
   const restartRef = useRef<() => void>(() => {});
   const checkpointRef = useRef<{ place: () => void; remove: () => void }>({
@@ -702,7 +708,15 @@ export function PulseRush({
           ctx.strokeStyle = color;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.ellipse(ox + U / 2, (FLOOR + ROOF) / 2, U * 0.35, (FLOOR - ROOF) / 2 - 8, 0, 0, Math.PI * 2);
+          ctx.ellipse(
+            ox + U / 2,
+            (FLOOR + ROOF) / 2,
+            U * 0.35,
+            (FLOOR - ROOF) / 2 - 8,
+            0,
+            0,
+            Math.PI * 2,
+          );
           ctx.fill();
           ctx.stroke();
         }
@@ -788,7 +802,13 @@ export function PulseRush({
     }
 
     function portalColor(m: Mode) {
-      return m === "ship" ? "#f472b6" : m === "ball" ? "#f59e0b" : m === "wave" ? "#22d3ee" : "#a3e635";
+      return m === "ship"
+        ? "#f472b6"
+        : m === "ball"
+          ? "#f59e0b"
+          : m === "wave"
+            ? "#22d3ee"
+            : "#a3e635";
     }
 
     /* ------------------------------------------------------------------ loop */
@@ -852,7 +872,6 @@ export function PulseRush({
       window.removeEventListener("pointercancel", onUp);
       canvas.removeEventListener("pointerdown", onDown);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     level,
     practice,

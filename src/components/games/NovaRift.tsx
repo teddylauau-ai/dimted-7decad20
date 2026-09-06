@@ -1,14 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  FLOOR_Y,
-  VIEW_H,
-  VIEW_W,
-  abilitiesFor,
-  type LevelDef,
-  type Rect,
-} from "@/lib/campaign";
+import { FLOOR_Y, VIEW_H, VIEW_W, abilitiesFor, type LevelDef, type Rect } from "@/lib/campaign";
 import { runnerBySlug, trailBySlug } from "@/lib/rift-skins";
-
 
 /**
  * Nova Rift — hand-designed precision platformer. Each level is a fixed layout
@@ -37,7 +29,6 @@ function rgba(hex: string, a: number) {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
 }
 
-
 export function NovaRift({
   level,
   running,
@@ -63,7 +54,6 @@ export function NovaRift({
   const dashQueued = useRef(false);
   const [hud, setHud] = useState({ shards: 0, ms: 0 });
 
-
   useEffect(() => {
     if (!running) return;
     const ctx = canvas.current?.getContext("2d");
@@ -79,7 +69,6 @@ export function NovaRift({
     const skin = runnerBySlug(runner);
     const tr = trailBySlug(trailSlug);
 
-
     const abilities = abilitiesFor(level.n);
     const canDouble = abilities.includes("double-jump");
     const canDash = abilities.includes("dash");
@@ -89,7 +78,11 @@ export function NovaRift({
       ...level.platforms,
     ];
     const shards = level.shards.map((sh) => ({ ...sh, got: false }));
-    const movers = (level.movers ?? []).map((m) => ({ ...m, t: Math.random() * Math.PI * 2, cx: m.x }));
+    const movers = (level.movers ?? []).map((m) => ({
+      ...m,
+      t: Math.random() * Math.PI * 2,
+      cx: m.x,
+    }));
 
     let x = 40;
     let y = FLOOR_Y - PH;
@@ -101,7 +94,7 @@ export function NovaRift({
     let dashCool = 0;
     let cam = 0;
     let done = false;
-    let started = performance.now();
+    const started = performance.now();
     let last = started;
     let frame = 0;
     let shake = 0;
@@ -244,7 +237,7 @@ export function NovaRift({
       // parallax stars
       ctx.fillStyle = "rgba(150,235,235,0.4)";
       for (let i = 0; i < 60; i++) {
-        const px = ((i * 197 - cam * 0.25) % (VIEW_W + 40) + VIEW_W + 40) % (VIEW_W + 40);
+        const px = (((i * 197 - cam * 0.25) % (VIEW_W + 40)) + VIEW_W + 40) % (VIEW_W + 40);
         const py = (i * 83) % (VIEW_H * 0.7);
         ctx.fillRect(px, py, 2, 2);
       }
@@ -487,7 +480,6 @@ export function NovaRift({
       ctx.restore();
       ctx.restore();
 
-
       if (frame % 6 === 0) {
         setHud({ shards: collected, ms: Math.round(now - started) });
       }
@@ -497,9 +489,11 @@ export function NovaRift({
     let raf = requestAnimationFrame(tick);
 
     const down = (e: KeyboardEvent) => {
-      if ([" ", "ArrowUp", "ArrowLeft", "ArrowRight", "ArrowDown"].includes(e.key)) e.preventDefault();
+      if ([" ", "ArrowUp", "ArrowLeft", "ArrowRight", "ArrowDown"].includes(e.key))
+        e.preventDefault();
       keys.current[e.key] = true;
-      if (e.key === " " || e.key === "ArrowUp" || e.key === "w" || e.key === "W") jumpQueued.current = true;
+      if (e.key === " " || e.key === "ArrowUp" || e.key === "w" || e.key === "W")
+        jumpQueued.current = true;
       if (e.key === "Shift") dashQueued.current = true;
     };
     const up = (e: KeyboardEvent) => {
