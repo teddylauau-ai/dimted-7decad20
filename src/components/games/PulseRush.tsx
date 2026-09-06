@@ -185,10 +185,19 @@ export function PulseRush({
       deathParts.length = 0;
       dead = false;
       cleared = false;
+      tapped = false;
+      needRelease = held;
       setOutcome("running");
     };
 
     const restart = () => {
+      const now = performance.now();
+      if (now - restartedAt < 120) return;
+      restartedAt = now;
+      if (deathTimer) {
+        window.clearTimeout(deathTimer);
+        deathTimer = 0;
+      }
       attempts += 1;
       restore(practice && checkpoints.length ? checkpoints[checkpoints.length - 1]! : null);
     };
