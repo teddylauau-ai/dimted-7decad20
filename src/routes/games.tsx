@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Gamepad2, Sparkles, Zap } from "lucide-react";
 import { AppShell } from "@/components/dimted/AppShell";
-import { PageHead } from "@/components/dimted/primitives";
+import { PageHeader } from "@/components/dimted/primitives";
 import { PulseRushSection } from "@/components/games/PulseRushSection";
 import { CampaignSection, ArcadeSection } from "@/components/games/ArcadeSections";
 import { cn } from "@/lib/utils";
@@ -43,10 +43,10 @@ function GamesPage() {
 
   return (
     <AppShell>
-      <PageHead
+      <PageHeader
         eyebrow="Play"
         title="Games"
-        subtitle="Everything playable lives here. Every run pays XP and sparks toward your level."
+        blurb="Everything playable lives here. Every run pays XP and sparks toward your level."
       />
 
       <div
