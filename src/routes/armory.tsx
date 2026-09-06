@@ -106,13 +106,24 @@ function ArmoryPage() {
   const isAdmin = slot === "admin";
   const isCrew = slot === "crew";
   const isExclusive = isVault || isAdmin || isCrew;
-  const list = isVault
+  const rawList = isVault
     ? vaultItems
     : isAdmin
       ? adminItems
       : isCrew
         ? crewItems
         : ownedItems.filter((i) => i.slot === slot && i.pool !== "crew");
+  // Highest rarity first (mythic → common), then alphabetical inside a tier.
+  const list = useMemo(
+    () =>
+      [...rawList].sort(
+        (a, b) =>
+          RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity) ||
+          a.name.localeCompare(b.name),
+      ),
+    [rawList],
+  );
+
   const activeSlug = isExclusive ? null : equipped[slot as CosmeticSlot];
   const meta = isVault
     ? { label: "Owner's Vault", blurb: "One-of-a-kind pieces bound to your account only" }
