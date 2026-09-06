@@ -30,6 +30,14 @@ function hit(ax: number, ay: number, aw: number, ah: number, b: Rect) {
   return ax < b.x + b.w && ax + aw > b.x && ay < b.y + b.h && ay + ah > b.y;
 }
 
+/** #rrggbb → rgba() so cosmetics can be drawn with alpha. */
+function rgba(hex: string, a: number) {
+  const h = hex.replace("#", "");
+  const n = parseInt(h.length === 3 ? h.replace(/./g, (c) => c + c) : h, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+
 export function NovaRift({
   level,
   running,
