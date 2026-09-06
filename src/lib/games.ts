@@ -10,7 +10,11 @@ export type GameId =
   | "prism-break"
   | "comet-sling"
   | "nova-fusion"
-  | "signal-type";
+  | "signal-type"
+  | "tower-stack"
+  | "lane-hop"
+  | "echo-sequence"
+  | "neon-coil";
 
 export type GameDef = {
   id: GameId;
