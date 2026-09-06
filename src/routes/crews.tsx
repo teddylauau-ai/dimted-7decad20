@@ -718,20 +718,22 @@ function CrewsPage() {
 
             ) : (
               <>
-                <div
-                  ref={scrollRef}
-                  onScroll={(e) => {
-                    const el = e.currentTarget;
-                    setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
-                  }}
-                  className="relative flex-1 overflow-y-auto px-3 py-4"
-                >
+                <div className="relative flex min-h-0 flex-1 overflow-hidden">
                   <div
                     aria-hidden
                     className={cn("pointer-events-none absolute inset-0", ACCENT_TEXT[active.accent])}
                     style={chatBgStyle(active.chat_bg)}
                   />
+                  <div
+                    ref={scrollRef}
+                    onScroll={(e) => {
+                      const el = e.currentTarget;
+                      setAtBottom(el.scrollHeight - el.scrollTop - el.clientHeight < 80);
+                    }}
+                    className="relative flex-1 overflow-y-auto px-3 py-4"
+                  >
                   <div className="relative">
+
                   {chatList.map((m, i) => {
                     const previous = chatList[i - 1];
                     const grouped =
@@ -774,6 +776,8 @@ function CrewsPage() {
                   )}
                   </div>
                 </div>
+                </div>
+
 
                 {atBottom ? null : (
                   <button
