@@ -71,24 +71,26 @@ export type CrewAccent =
   | "flux" | "sunfire" | "glacier" | "orchid" | "toxin" | "deepwater" | "prism" | "sovereign";
 
 /** Crew colours. The seven solids are open from the start; the gradients are
- *  unlocked by crew level, so what the picker says is what a crew really has. */
-export const CREW_ACCENTS: { key: CrewAccent; label: string; unlock: number; dot: string; glow: string; ring: string; text: string }[] = [
-  { key: "teal", label: "Aurora", unlock: 1, dot: "bg-teal-400", glow: "from-teal-400/25", ring: "ring-teal-400/40", text: "text-teal-400" },
-  { key: "violet", label: "Nebula", unlock: 1, dot: "bg-violet-400", glow: "from-violet-400/25", ring: "ring-violet-400/40", text: "text-violet-400" },
-  { key: "amber", label: "Ember", unlock: 1, dot: "bg-amber-400", glow: "from-amber-400/25", ring: "ring-amber-400/40", text: "text-amber-400" },
-  { key: "rose", label: "Nova", unlock: 1, dot: "bg-rose-400", glow: "from-rose-400/25", ring: "ring-rose-400/40", text: "text-rose-400" },
-  { key: "emerald", label: "Verdant", unlock: 1, dot: "bg-emerald-400", glow: "from-emerald-400/25", ring: "ring-emerald-400/40", text: "text-emerald-400" },
-  { key: "sky", label: "Cirrus", unlock: 1, dot: "bg-sky-400", glow: "from-sky-400/25", ring: "ring-sky-400/40", text: "text-sky-400" },
-  { key: "slate", label: "Obsidian", unlock: 1, dot: "bg-slate-400", glow: "from-slate-400/25", ring: "ring-slate-400/40", text: "text-slate-400" },
-  { key: "flux", label: "Aurora Flux", unlock: 5, dot: "bg-gradient-to-br from-teal-300 to-violet-500", glow: "from-teal-400/30", ring: "ring-teal-300/50", text: "text-teal-300" },
-  { key: "sunfire", label: "Sunfire", unlock: 12, dot: "bg-gradient-to-br from-amber-300 to-rose-500", glow: "from-amber-400/30", ring: "ring-amber-300/50", text: "text-amber-300" },
-  { key: "glacier", label: "Glacier", unlock: 20, dot: "bg-gradient-to-br from-sky-300 to-emerald-400", glow: "from-sky-400/30", ring: "ring-sky-300/50", text: "text-sky-300" },
-  { key: "orchid", label: "Orchid", unlock: 30, dot: "bg-gradient-to-br from-rose-300 to-violet-500", glow: "from-rose-400/30", ring: "ring-rose-300/50", text: "text-rose-300" },
-  { key: "toxin", label: "Toxin", unlock: 40, dot: "bg-gradient-to-br from-lime-300 to-emerald-500", glow: "from-lime-400/30", ring: "ring-lime-300/50", text: "text-lime-300" },
-  { key: "deepwater", label: "Deepwater", unlock: 55, dot: "bg-gradient-to-br from-slate-300 to-sky-600", glow: "from-sky-500/30", ring: "ring-slate-300/50", text: "text-slate-200" },
-  { key: "prism", label: "Prism", unlock: 75, dot: "bg-gradient-to-br from-teal-300 via-violet-400 to-rose-400", glow: "from-violet-400/30", ring: "ring-violet-300/50", text: "text-violet-300" },
-  { key: "sovereign", label: "Sovereign", unlock: 100, dot: "bg-gradient-to-br from-amber-200 via-amber-300 to-amber-500", glow: "from-amber-300/35", ring: "ring-amber-200/60", text: "text-amber-200" },
+ *  unlocked by crew level. `dot` (the picker swatch) and `wash` (the banner)
+ *  always use the same colour stops, so the preview matches the real thing. */
+export const CREW_ACCENTS: { key: CrewAccent; label: string; unlock: number; dot: string; wash: string; glow: string; ring: string; text: string }[] = [
+  { key: "teal", label: "Aurora", unlock: 1, dot: "bg-teal-400", wash: "bg-gradient-to-br from-teal-400/35 via-teal-400/12 to-transparent", glow: "from-teal-400/25", ring: "ring-teal-400/40", text: "text-teal-400" },
+  { key: "violet", label: "Nebula", unlock: 1, dot: "bg-violet-400", wash: "bg-gradient-to-br from-violet-400/35 via-violet-400/12 to-transparent", glow: "from-violet-400/25", ring: "ring-violet-400/40", text: "text-violet-400" },
+  { key: "amber", label: "Ember", unlock: 1, dot: "bg-amber-400", wash: "bg-gradient-to-br from-amber-400/35 via-amber-400/12 to-transparent", glow: "from-amber-400/25", ring: "ring-amber-400/40", text: "text-amber-400" },
+  { key: "rose", label: "Nova", unlock: 1, dot: "bg-rose-400", wash: "bg-gradient-to-br from-rose-400/35 via-rose-400/12 to-transparent", glow: "from-rose-400/25", ring: "ring-rose-400/40", text: "text-rose-400" },
+  { key: "emerald", label: "Verdant", unlock: 1, dot: "bg-emerald-400", wash: "bg-gradient-to-br from-emerald-400/35 via-emerald-400/12 to-transparent", glow: "from-emerald-400/25", ring: "ring-emerald-400/40", text: "text-emerald-400" },
+  { key: "sky", label: "Cirrus", unlock: 1, dot: "bg-sky-400", wash: "bg-gradient-to-br from-sky-400/35 via-sky-400/12 to-transparent", glow: "from-sky-400/25", ring: "ring-sky-400/40", text: "text-sky-400" },
+  { key: "slate", label: "Obsidian", unlock: 1, dot: "bg-slate-400", wash: "bg-gradient-to-br from-slate-400/35 via-slate-400/12 to-transparent", glow: "from-slate-400/25", ring: "ring-slate-400/40", text: "text-slate-400" },
+  { key: "flux", label: "Aurora Flux", unlock: 5, dot: "bg-gradient-to-br from-teal-300 via-teal-400 to-violet-500", wash: "bg-gradient-to-br from-teal-300/40 via-violet-500/25 to-transparent", glow: "from-teal-400/30", ring: "ring-teal-300/50", text: "text-teal-300" },
+  { key: "sunfire", label: "Sunfire", unlock: 12, dot: "bg-gradient-to-br from-amber-300 via-orange-400 to-rose-500", wash: "bg-gradient-to-br from-amber-300/40 via-rose-500/25 to-transparent", glow: "from-amber-400/30", ring: "ring-amber-300/50", text: "text-amber-300" },
+  { key: "glacier", label: "Glacier", unlock: 20, dot: "bg-gradient-to-br from-sky-300 via-cyan-300 to-emerald-400", wash: "bg-gradient-to-br from-sky-300/40 via-emerald-400/25 to-transparent", glow: "from-sky-400/30", ring: "ring-sky-300/50", text: "text-sky-300" },
+  { key: "orchid", label: "Orchid", unlock: 30, dot: "bg-gradient-to-br from-rose-300 via-fuchsia-400 to-violet-500", wash: "bg-gradient-to-br from-rose-300/40 via-violet-500/25 to-transparent", glow: "from-rose-400/30", ring: "ring-rose-300/50", text: "text-rose-300" },
+  { key: "toxin", label: "Toxin", unlock: 40, dot: "bg-gradient-to-br from-lime-300 via-green-400 to-emerald-500", wash: "bg-gradient-to-br from-lime-300/40 via-emerald-500/25 to-transparent", glow: "from-lime-400/30", ring: "ring-lime-300/50", text: "text-lime-300" },
+  { key: "deepwater", label: "Deepwater", unlock: 55, dot: "bg-gradient-to-br from-slate-300 via-sky-400 to-sky-700", wash: "bg-gradient-to-br from-slate-300/35 via-sky-600/28 to-transparent", glow: "from-sky-500/30", ring: "ring-slate-300/50", text: "text-slate-200" },
+  { key: "prism", label: "Prism", unlock: 75, dot: "bg-gradient-to-br from-teal-300 via-violet-400 to-rose-400", wash: "bg-gradient-to-br from-teal-300/40 via-violet-400/30 to-rose-400/25", glow: "from-violet-400/30", ring: "ring-violet-300/50", text: "text-violet-300" },
+  { key: "sovereign", label: "Sovereign", unlock: 100, dot: "bg-gradient-to-br from-amber-200 via-amber-300 to-amber-600", wash: "bg-gradient-to-br from-amber-200/45 via-amber-400/28 to-transparent", glow: "from-amber-300/35", ring: "ring-amber-200/60", text: "text-amber-200" },
 ];
+
 
 /** Colours a crew at this level can actually pick. */
 export function accentsFor(level: number) {
