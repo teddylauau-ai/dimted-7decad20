@@ -290,16 +290,12 @@ export function masteryFor(best: number, xpPerScore: number): {
 /** How many mastery ranks you must own before a game opens up. */
 export const UNLOCK_AT: Record<string, number> = {
   "nova-blocks": 0,
-  "pulse-grid": 0,
   "nova-rift": 0,
   "aurora-drift": 2,
-  "signal-type": 4,
   "nova-fusion": 6,
-  "spectre-dash": 9,
   "prism-break": 12,
   "comet-sling": 16,
   "tower-stack": 0,
-  "echo-sequence": 3,
   "neon-coil": 5,
   "lane-hop": 7,
 };
