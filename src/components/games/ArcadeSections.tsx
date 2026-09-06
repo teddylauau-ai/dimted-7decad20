@@ -67,30 +67,58 @@ export function CampaignSection() {
   const submit = useSubmitScore(profile?.id);
   const refresh = useRefreshDimted();
 
+  const riftState = useRiftState(profile?.id);
+  const shop = useRiftShop();
+  const buy = useRiftBuy(profile?.id);
+  const equip = useRiftEquip(profile?.id);
+
   const cleared = highestCleared(progress.data);
   const stars = totalStars(progress.data);
+  const owned = riftState.data?.unlocks ?? [];
+  const spendable = riftState.data?.starsAvailable ?? 0;
+  const skin = { runner: riftState.data?.runner ?? "aurora", trail: riftState.data?.trail ?? "ghost" };
+  const priceOf = (slug: string) => shop.data?.find((i) => i.slug === slug)?.cost_stars ?? 0;
+  const isOpen = (n: number) => n <= cleared + 1 || owned.includes(levelSlug(n));
   const unlockedUpTo = Math.min(LEVELS.length, cleared + 1);
 
   const [levelN, setLevelN] = useState(1);
   const [runKey, setRunKey] = useState(0);
   const [phase, setPhase] = useState<"idle" | "playing" | "won" | "lost">("idle");
   const [result, setResult] = useState<{ stars: number; ms: number; shards: number } | null>(null);
-  const [skin, setSkin] = useState(() => loadRiftSkin());
   const board = useRiftLeaderboard();
 
-  const pickRunner = (slug: string) => {
-    const next = { ...skin, runner: slug };
-    setSkin(next);
-    saveRiftSkin(next.runner, next.trail);
+  const purchase = async (slug: string, label: string) => {
+    try {
+      const res = await buy.mutateAsync(slug);
+      if (res.status === "bought") toast.success(`${label} unlocked`);
+      else if (res.status === "owned") toast(`You already own ${label}`);
+      else if (res.status === "poor") toast.error(`Need ${res.need} stars — you have ${res.have}`);
+      else toast.error("Couldn't unlock that");
+    } catch {
+      toast.error("Couldn't unlock that");
+    }
   };
-  const pickTrail = (slug: string) => {
-    const next = { ...skin, trail: slug };
-    setSkin(next);
-    saveRiftSkin(next.runner, next.trail);
+
+  const pickRunner = async (slug: string) => {
+    try {
+      const res = await equip.mutateAsync({ kind: "runner", slug });
+      if (res.status === "locked") toast.error("Unlock that runner first");
+    } catch {
+      toast.error("Couldn't switch runner");
+    }
+  };
+  const pickTrail = async (slug: string) => {
+    try {
+      const res = await equip.mutateAsync({ kind: "trail", slug });
+      if (res.status === "locked") toast.error("Unlock that trail first");
+    } catch {
+      toast.error("Couldn't switch trail");
+    }
   };
 
   const level = LEVELS.find((l) => l.n === levelN)!;
-  const locked = levelN > unlockedUpTo;
+  const locked = !isOpen(levelN);
+
 
 
   const start = (n = levelN) => {
