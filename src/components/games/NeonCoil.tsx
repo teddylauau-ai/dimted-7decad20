@@ -1,17 +1,205 @@
 import { useEffect, useRef, useState } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+import { Game3DCanvas } from "./Game3DCanvas";
 
 /**
- * Neon Coil — snake with portals. Eat cores to grow, use the edge portals to
- * wrap around, and dodge the drifting mines that appear as you get longer.
+ * Neon Coil — snake, rebuilt in 3D. Sweep the coil around a floating grid,
+ * swallow energy cores, wrap through the edges. Every few cores drops a mine
+ * onto the board, so the arena keeps closing in on you.
  */
 
-const GRID = 19;
-const CELL = 18;
-const SIZE = GRID * CELL;
+const N = 15; // grid cells per side
+const HALF = (N - 1) / 2;
 
-type P = { x: number; y: number };
+type Cell = { x: number; y: number };
 
-const eq = (a: P, b: P) => a.x === b.x && a.y === b.y;
+const key = (c: Cell) => `${c.x},${c.y}`;
+
+function randomCell(taken: Set<string>): Cell {
+  for (let i = 0; i < 400; i++) {
+    const c = { x: Math.floor(Math.random() * N), y: Math.floor(Math.random() * N) };
+    if (!taken.has(key(c))) return c;
+  }
+  return { x: 0, y: 0 };
+}
+
+function CoilScene({
+  onScore,
+  onEnd,
+  onView,
+}: {
+  onScore: (n: number) => void;
+  onEnd: (n: number) => void;
+  onView: (v: { score: number; length: number }) => void;
+}) {
+  const { gl, camera } = useThree();
+  const cb = useRef({ onScore, onEnd, onView });
+  cb.current = { onScore, onEnd, onView };
+  const [, force] = useState(0);
+  const core = useRef<THREE.Mesh>(null);
+
+  const st = useRef({
+    body: [{ x: 7, y: 7 }] as Cell[],
+    dir: { x: 1, y: 0 },
+    next: { x: 1, y: 0 },
+    food: { x: 11, y: 7 } as Cell,
+    mines: [] as Cell[],
+    score: 0,
+    eaten: 0,
+    over: false,
+    step: 0,
+    interval: 0.14,
+  });
+
+  useEffect(() => {
+    const s = st.current;
+    const turn = (x: number, y: number) => {
+      if (s.over) return;
+      if (s.dir.x === -x && s.dir.y === -y) return;
+      s.next = { x, y };
+    };
+    const k = (e: KeyboardEvent) => {
+      const c = e.key.toLowerCase();
+      if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(c))
+        e.preventDefault();
+      if (c === "arrowup" || c === "w") turn(0, -1);
+      else if (c === "arrowdown" || c === "s") turn(0, 1);
+      else if (c === "arrowleft" || c === "a") turn(-1, 0);
+      else if (c === "arrowright" || c === "d") turn(1, 0);
+    };
+    window.addEventListener("keydown", k);
+    let start: { x: number; y: number } | null = null;
+    const el = gl.domElement;
+    const down = (e: PointerEvent) => (start = { x: e.clientX, y: e.clientY });
+    const up = (e: PointerEvent) => {
+      if (!start) return;
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      start = null;
+      if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
+      if (Math.abs(dx) > Math.abs(dy)) turn(dx > 0 ? 1 : -1, 0);
+      else turn(0, dy > 0 ? 1 : -1);
+    };
+    el.addEventListener("pointerdown", down);
+    el.addEventListener("pointerup", up);
+    return () => {
+      window.removeEventListener("keydown", k);
+      el.removeEventListener("pointerdown", down);
+      el.removeEventListener("pointerup", up);
+    };
+  }, [gl]);
+
+  useFrame((state, raw) => {
+    const dt = Math.min(raw, 0.05);
+    const s = st.current;
+    if (core.current) {
+      core.current.rotation.y += dt * 2.4;
+      core.current.position.y = 0.42 + Math.sin(state.clock.elapsedTime * 3) * 0.08;
+    }
+    camera.position.lerp(new THREE.Vector3(0, 15, 12.5), 1 - Math.exp(-2 * dt));
+    camera.lookAt(0, 0, 0);
+    if (s.over) return;
+
+    s.step += dt;
+    if (s.step < s.interval) return;
+    s.step = 0;
+    s.dir = s.next;
+
+    const head = s.body[0]!;
+    const nx = (head.x + s.dir.x + N) % N;
+    const ny = (head.y + s.dir.y + N) % N;
+    const nextHead = { x: nx, y: ny };
+
+    if (
+      s.body.slice(0, -1).some((c) => c.x === nx && c.y === ny) ||
+      s.mines.some((m) => m.x === nx && m.y === ny)
+    ) {
+      s.over = true;
+      cb.current.onEnd(s.score);
+      force((v) => v + 1);
+      return;
+    }
+
+    const ate = nextHead.x === s.food.x && nextHead.y === s.food.y;
+    s.body = [nextHead, ...s.body];
+    if (!ate) s.body.pop();
+    else {
+      s.eaten += 1;
+      s.score += 40 + s.body.length * 4;
+      s.interval = Math.max(0.06, 0.14 - s.eaten * 0.003);
+      const taken = new Set(s.body.map(key));
+      s.mines.forEach((m) => taken.add(key(m)));
+      if (s.eaten % 3 === 0) s.mines.push(randomCell(taken));
+      const taken2 = new Set(s.body.map(key));
+      s.mines.forEach((m) => taken2.add(key(m)));
+      s.food = randomCell(taken2);
+      cb.current.onScore(s.score);
+      cb.current.onView({ score: s.score, length: s.body.length });
+    }
+    force((v) => v + 1);
+  });
+
+  const s = st.current;
+  const pos = (c: Cell): [number, number, number] => [c.x - HALF, 0.3, c.y - HALF];
+
+  return (
+    <>
+      <fog attach="fog" args={["#050a12", 20, 44]} />
+      <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0]} receiveShadow>
+        <planeGeometry args={[N, N]} />
+        <meshStandardMaterial color="#07131e" roughness={0.4} metalness={0.6} />
+      </mesh>
+      <gridHelper args={[N, N, "#15384a", "#0d222f"]} position={[0, 0.01, 0]} />
+      {/* arena rim */}
+      {[
+        [0, (N + 0.4) / 2],
+        [0, -(N + 0.4) / 2],
+      ].map(([x, z], i) => (
+        <mesh key={`rz${i}`} position={[x!, 0.2, z!]}>
+          <boxGeometry args={[N + 0.6, 0.14, 0.3]} />
+          <meshStandardMaterial color="#2ee6c4" emissive="#2ee6c4" emissiveIntensity={0.8} />
+        </mesh>
+      ))}
+      {[
+        [(N + 0.4) / 2, 0],
+        [-(N + 0.4) / 2, 0],
+      ].map(([x, z], i) => (
+        <mesh key={`rx${i}`} position={[x!, 0.2, z!]}>
+          <boxGeometry args={[0.3, 0.14, N + 0.6]} />
+          <meshStandardMaterial color="#2ee6c4" emissive="#2ee6c4" emissiveIntensity={0.8} />
+        </mesh>
+      ))}
+      {s.body.map((c, i) => {
+        const t = i / Math.max(1, s.body.length);
+        const scale = i === 0 ? 0.88 : 0.72 - t * 0.16;
+        return (
+          <mesh key={`${i}-${c.x}-${c.y}`} position={pos(c)} castShadow>
+            <boxGeometry args={[scale, scale * 0.8, scale]} />
+            <meshStandardMaterial
+              color={i === 0 ? "#f6c860" : new THREE.Color(`hsl(${168 + t * 60}, 75%, ${58 - t * 18}%)`)}
+              emissive={i === 0 ? "#f6c860" : "#2ee6c4"}
+              emissiveIntensity={i === 0 ? 0.7 : 0.3 - t * 0.2}
+              roughness={0.25}
+              metalness={0.5}
+            />
+          </mesh>
+        );
+      })}
+      <mesh ref={core} position={pos(s.food)} castShadow>
+        <octahedronGeometry args={[0.42, 0]} />
+        <meshStandardMaterial color="#7df9ff" emissive="#7df9ff" emissiveIntensity={1.4} />
+      </mesh>
+      <pointLight position={pos(s.food)} color="#7df9ff" intensity={6} distance={5} />
+      {s.mines.map((m, i) => (
+        <mesh key={`m${i}`} position={pos(m)} castShadow>
+          <coneGeometry args={[0.36, 0.8, 5]} />
+          <meshStandardMaterial color="#ff5f7e" emissive="#ff2f57" emissiveIntensity={0.9} />
+        </mesh>
+      ))}
+    </>
+  );
+}
 
 export function NeonCoil({
   running,
@@ -22,186 +210,23 @@ export function NeonCoil({
   onScore: (score: number) => void;
   onEnd: (score: number) => void;
 }) {
-  const canvas = useRef<HTMLCanvasElement | null>(null);
-  const cbs = useRef({ onScore, onEnd });
-  cbs.current = { onScore, onEnd };
-  const s = useRef({
-    body: [] as P[],
-    dir: { x: 1, y: 0 },
-    queued: [] as P[],
-    core: { x: 12, y: 9 } as P,
-    mines: [] as P[],
-    score: 0,
-    over: false,
-    stepMs: 140,
-    last: 0,
-  });
-  const [view, setView] = useState({ score: 0, len: 3 });
-
+  const [view, setView] = useState({ score: 0, length: 1 });
   useEffect(() => {
-    if (!running) return;
-    const st = s.current;
-    const mid = Math.floor(GRID / 2);
-    st.body = [
-      { x: mid, y: mid },
-      { x: mid - 1, y: mid },
-      { x: mid - 2, y: mid },
-    ];
-    st.dir = { x: 1, y: 0 };
-    st.queued = [];
-    st.mines = [];
-    st.score = 0;
-    st.over = false;
-    st.stepMs = 140;
-    st.last = 0;
-    cbs.current.onScore(0);
-
-    const free = (): P => {
-      let p: P;
-      do {
-        p = { x: Math.floor(Math.random() * GRID), y: Math.floor(Math.random() * GRID) };
-      } while (st.body.some((b) => eq(b, p)) || st.mines.some((m) => eq(m, p)));
-      return p;
-    };
-    st.core = free();
-
-    const ctx = canvas.current?.getContext("2d") ?? null;
-    let frame = 0;
-
-    const draw = () => {
-      if (!ctx) return;
-      ctx.fillStyle = "#070c14";
-      ctx.fillRect(0, 0, SIZE, SIZE);
-      ctx.strokeStyle = "rgba(255,255,255,0.04)";
-      for (let i = 1; i < GRID; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * CELL, 0);
-        ctx.lineTo(i * CELL, SIZE);
-        ctx.moveTo(0, i * CELL);
-        ctx.lineTo(SIZE, i * CELL);
-        ctx.stroke();
-      }
-      // core
-      ctx.fillStyle = "#f6c860";
-      ctx.shadowColor = "#f6c860";
-      ctx.shadowBlur = 16;
-      ctx.beginPath();
-      ctx.arc(st.core.x * CELL + CELL / 2, st.core.y * CELL + CELL / 2, CELL / 2.6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      // mines
-      ctx.fillStyle = "#ff6a8b";
-      for (const m of st.mines) {
-        ctx.beginPath();
-        ctx.arc(m.x * CELL + CELL / 2, m.y * CELL + CELL / 2, CELL / 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      // body
-      st.body.forEach((b, i) => {
-        const t = 1 - i / Math.max(6, st.body.length);
-        ctx.fillStyle = i === 0 ? "#5ffbe0" : `rgba(46,230,196,${0.28 + t * 0.6})`;
-        ctx.beginPath();
-        ctx.roundRect(b.x * CELL + 2, b.y * CELL + 2, CELL - 4, CELL - 4, 5);
-        ctx.fill();
-      });
-    };
-
-    const step = () => {
-      const next = st.queued.shift();
-      if (next) st.dir = next;
-      const head = st.body[0]!;
-      const nh = {
-        x: (head.x + st.dir.x + GRID) % GRID,
-        y: (head.y + st.dir.y + GRID) % GRID,
-      };
-      if (st.body.some((b) => eq(b, nh)) || st.mines.some((m) => eq(m, nh))) {
-        st.over = true;
-        cbs.current.onEnd(st.score);
-        return;
-      }
-      st.body.unshift(nh);
-      if (eq(nh, st.core)) {
-        st.score += 90 + st.body.length * 6;
-        cbs.current.onScore(st.score);
-        st.core = free();
-        st.stepMs = Math.max(70, st.stepMs - 2.5);
-        if (st.body.length % 5 === 0 && st.mines.length < 14) st.mines.push(free());
-        setView({ score: st.score, len: st.body.length });
-      } else {
-        st.body.pop();
-      }
-    };
-
-    const tick = (now: number) => {
-      if (!st.over) {
-        if (now - st.last >= st.stepMs) {
-          st.last = now;
-          step();
-        }
-        draw();
-      }
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-
-    const turn = (x: number, y: number) => {
-      const cur = st.queued[st.queued.length - 1] ?? st.dir;
-      if (cur.x === -x && cur.y === -y) return;
-      if (cur.x === x && cur.y === y) return;
-      if (st.queued.length < 2) st.queued.push({ x, y });
-    };
-    const key = (e: KeyboardEvent) => {
-      const k = e.key.toLowerCase();
-      if (["arrowup", "arrowdown", "arrowleft", "arrowright", "w", "a", "s", "d"].includes(k))
-        e.preventDefault();
-      if (k === "arrowup" || k === "w") turn(0, -1);
-      else if (k === "arrowdown" || k === "s") turn(0, 1);
-      else if (k === "arrowleft" || k === "a") turn(-1, 0);
-      else if (k === "arrowright" || k === "d") turn(1, 0);
-    };
-    window.addEventListener("keydown", key);
-
-    const el = canvas.current;
-    let start: { x: number; y: number } | null = null;
-    const down = (e: PointerEvent) => {
-      start = { x: e.clientX, y: e.clientY };
-    };
-    const up = (e: PointerEvent) => {
-      if (!start) return;
-      const dx = e.clientX - start.x;
-      const dy = e.clientY - start.y;
-      start = null;
-      if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
-      if (Math.abs(dx) > Math.abs(dy)) turn(dx > 0 ? 1 : -1, 0);
-      else turn(0, dy > 0 ? 1 : -1);
-    };
-    el?.addEventListener("pointerdown", down);
-    el?.addEventListener("pointerup", up);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("keydown", key);
-      el?.removeEventListener("pointerdown", down);
-      el?.removeEventListener("pointerup", up);
-      s.current.over = true;
-    };
+    if (running) setView({ score: 0, length: 1 });
   }, [running]);
+  if (!running) return null;
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <div className="text-muted-foreground flex w-full max-w-[342px] items-baseline justify-between font-mono text-[11px]">
+      <div className="text-muted-foreground flex w-full max-w-[360px] items-baseline justify-between font-mono text-[11px]">
         <span className="text-foreground numeral text-base">{view.score.toLocaleString()}</span>
-        <span className="text-primary">length {view.len}</span>
+        <span className="text-primary">coil {view.length}</span>
       </div>
-      <canvas
-        ref={canvas}
-        width={SIZE}
-        height={SIZE}
-        className="border-border touch-none rounded-xl border"
-        style={{ width: "min(342px, 86vw)", height: "auto" }}
-      />
+      <Game3DCanvas aspect={1} camera={{ position: [0, 15, 12.5], fov: 46 }}>
+        <CoilScene onScore={onScore} onEnd={onEnd} onView={setView} />
+      </Game3DCanvas>
       <p className="text-muted-foreground font-mono text-[10px]">
-        Arrows / WASD / swipe · edges wrap around
+        Arrows / WASD · swipe on mobile · edges wrap
       </p>
     </div>
   );
