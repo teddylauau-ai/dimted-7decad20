@@ -141,6 +141,12 @@ export function PulseRush({
 
     let held = false;
     let tapped = false;
+    /** After a restart, a still-held finger/key must be released before it counts again. */
+    let needRelease = false;
+    /** Pending auto-restart timer, so a manual restart can cancel it. */
+    let deathTimer = 0;
+    /** Timestamp of the last restart — swallows duplicate restart presses. */
+    let restartedAt = 0;
     const usedOrbs = new Set<Obj>();
     const takenCoins = new Set<Obj>();
     const parts: Particle[] = [];
