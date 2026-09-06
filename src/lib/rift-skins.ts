@@ -89,7 +89,7 @@ export const RIFT_TRAILS: RiftTrail[] = [
   { slug: "ghost", name: "Ghost", blurb: "Soft afterimage.", stars: 0, color: "#8ff0e4", style: "ghost" },
   { slug: "spark", name: "Spark", blurb: "Snapping motes.", stars: 4, color: "#7ce7ff", style: "spark" },
   { slug: "ribbon", name: "Ribbon", blurb: "One flowing line.", stars: 10, color: "#ff8fb8", style: "ribbon" },
-  { slug: "ember", name: "Ember", blurb: "Burning wake.", stars: 18, color: "#ffa martian", style: "ember" },
+  { slug: "ember", name: "Ember", blurb: "Burning wake.", stars: 18, color: "#ff9a4d", style: "ember" },
   { slug: "prism", name: "Prism", blurb: "Shifting spectrum.", stars: 26, color: "#c9a5ff", style: "prism" },
 ];
 
