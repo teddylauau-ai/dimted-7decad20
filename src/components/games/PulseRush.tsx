@@ -232,9 +232,13 @@ export function PulseRush({
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       if (isJumpKey(k)) {
         e.preventDefault();
+        if (dead || cleared) {
+          held = true;
+          restart();
+          return;
+        }
         if (!held) tapped = true;
         held = true;
-        if (dead || cleared) restart();
       }
       if (k === "z" && practice) checkpointRef.current.place();
       if (k === "x" && practice) checkpointRef.current.remove();
@@ -242,16 +246,24 @@ export function PulseRush({
     };
     const onKeyUp = (e: KeyboardEvent) => {
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      if (isJumpKey(k)) held = false;
+      if (isJumpKey(k)) {
+        held = false;
+        needRelease = false;
+      }
     };
     const onDown = (e: PointerEvent) => {
       e.preventDefault();
+      if (dead || cleared) {
+        held = true;
+        restart();
+        return;
+      }
       if (!held) tapped = true;
       held = true;
-      if (dead || cleared) restart();
     };
     const onUp = () => {
       held = false;
+      needRelease = false;
     };
 
     window.addEventListener("keydown", onKeyDown, { passive: false });
