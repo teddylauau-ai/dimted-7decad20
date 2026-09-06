@@ -105,6 +105,9 @@ export function PulseRush({
     if (!c) return;
     const ctx: CanvasRenderingContext2D = c;
 
+    setOutcome("running");
+    setHud({ pct: 0, best: 0, attempts: 1, coins: [false, false, false], checkpoints: 0 });
+
     const built = buildLevel(level);
     const objects = built.objects.slice().sort((a, b) => a.x - b.x);
     const goal = built.length * U;
@@ -302,8 +305,11 @@ export function PulseRush({
         });
       }
       best = Math.max(best, pct());
+      tapped = false;
       setOutcome("dead");
-      window.setTimeout(() => {
+      if (deathTimer) window.clearTimeout(deathTimer);
+      deathTimer = window.setTimeout(() => {
+        deathTimer = 0;
         if (!disposed && dead) restart();
       }, 420);
     }
@@ -347,6 +353,9 @@ export function PulseRush({
         return;
       }
 
+      // A press that only restarted the run must be released before it steers again.
+      const holding = held && !needRelease;
+
       elapsed += dt;
       if (flipCd > 0) flipCd -= dt;
       x += BASE_SPEED * speed * dt;
@@ -357,7 +366,7 @@ export function PulseRush({
       // vertical motion per mode
       if (mode === "cube" || mode === "ball") {
         if (mode === "cube") {
-          if (tapped || held) {
+          if (tapped || holding) {
             if (onSurface) jump();
           }
         } else if (tapped && onSurface && flipCd <= 0) {
@@ -375,13 +384,13 @@ export function PulseRush({
           rot = (rot + grav * dt * 0.0125) % (Math.PI * 2);
         }
       } else if (mode === "ship") {
-        const up = held ? -1 : 1;
-        vy += grav * up * (held ? 0.0019 : 0.0016) * dt;
+        const up = holding ? -1 : 1;
+        vy += grav * up * (holding ? 0.0019 : 0.0016) * dt;
         vy = Math.max(-0.44, Math.min(0.44, vy));
         rot = vy * 1.2;
       } else {
         // wave: pure 45 degrees
-        vy = (held ? -1 : 1) * grav * BASE_SPEED * speed;
+        vy = (holding ? -1 : 1) * grav * BASE_SPEED * speed;
         rot = 0;
       }
 
