@@ -174,9 +174,22 @@ function ProfilePage() {
 
   async function pickTitle(name: string) {
     if (!profile) return;
-    await updateProfile(profile.id, { title: name });
-    await refreshProfile();
+    try {
+      await updateProfile(profile.id, { title: name });
+      await refreshProfile();
+      toast.success(`Title set to "${name}"`);
+    } catch {
+      toast.error("Couldn't change your title");
+    }
   }
+
+  async function saveCustomTitle() {
+    const name = customTitle.trim().slice(0, 28);
+    if (!name) return;
+    await pickTitle(name);
+    setCustomTitle("");
+  }
+
 
   return (
     <div className="space-y-5">
