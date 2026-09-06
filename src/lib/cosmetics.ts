@@ -82,8 +82,12 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-rose": "cos-gradient cos-gradient-rose",
   "tag-lime": "cos-gradient cos-gradient-lime",
   "tag-candy": "cos-gradient cos-gradient-candy cos-shimmer",
-  "tag-vault-gilded": "cos-gradient cos-gradient-vault-gilded cos-shimmer cos-glow-gold",
-  "tag-obsidian-heist": "cos-gradient cos-gradient-obsidian-heist cos-shimmer cos-glow-mythos",
+  "tag-prism-arc": "cos-gradient cos-gradient-prism-arc cos-shimmer",
+  "tag-chroma-flux": "cos-gradient cos-gradient-chroma-flux cos-shimmer",
+  "tag-opal-veil": "cos-gradient cos-gradient-opal-veil cos-shimmer",
+  "tag-kaleido-spin": "cos-gradient cos-gradient-kaleido-spin cos-shimmer",
+  "tag-iris-bloom": "cos-gradient cos-gradient-iris-bloom cos-shimmer cos-glow-prismatic",
+  "tag-spectrum-apex": "cos-gradient cos-gradient-spectrum-apex cos-shimmer cos-glow-prismatic",
 };
 
 /** Badge → the glyph drawn after the name. */
