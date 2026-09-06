@@ -90,7 +90,13 @@ export function PulseRush({
   const endRef = useRef(onEnd);
   endRef.current = onEnd;
 
-  const [hud, setHud] = useState({ pct: 0, best: 0, attempts: 1, coins: [false, false, false], checkpoints: 0 });
+  const [hud, setHud] = useState({
+    pct: 0,
+    best: 0,
+    attempts: 1,
+    coins: [false, false, false],
+    checkpoints: 0,
+  });
   const [outcome, setOutcome] = useState<"running" | "dead" | "cleared">("running");
   const restartRef = useRef<() => void>(() => {});
   const checkpointRef = useRef<{ place: () => void; remove: () => void }>({
@@ -104,6 +110,9 @@ export function PulseRush({
     const c = canvas.getContext("2d");
     if (!c) return;
     const ctx: CanvasRenderingContext2D = c;
+
+    setOutcome("running");
+    setHud({ pct: 0, best: 0, attempts: 1, coins: [false, false, false], checkpoints: 0 });
 
     const built = buildLevel(level);
     const objects = built.objects.slice().sort((a, b) => a.x - b.x);
@@ -141,6 +150,12 @@ export function PulseRush({
 
     let held = false;
     let tapped = false;
+    /** After a restart, a still-held finger/key must be released before it counts again. */
+    let needRelease = false;
+    /** Pending auto-restart timer, so a manual restart can cancel it. */
+    let deathTimer = 0;
+    /** Timestamp of the last restart — swallows duplicate restart presses. */
+    let restartedAt = 0;
     const usedOrbs = new Set<Obj>();
     const takenCoins = new Set<Obj>();
     const parts: Particle[] = [];
@@ -179,10 +194,19 @@ export function PulseRush({
       deathParts.length = 0;
       dead = false;
       cleared = false;
+      tapped = false;
+      needRelease = held;
       setOutcome("running");
     };
 
     const restart = () => {
+      const now = performance.now();
+      if (now - restartedAt < 120) return;
+      restartedAt = now;
+      if (deathTimer) {
+        window.clearTimeout(deathTimer);
+        deathTimer = 0;
+      }
       attempts += 1;
       restore(practice && checkpoints.length ? checkpoints[checkpoints.length - 1]! : null);
     };
@@ -217,9 +241,13 @@ export function PulseRush({
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
       if (isJumpKey(k)) {
         e.preventDefault();
+        if (dead || cleared) {
+          held = true;
+          restart();
+          return;
+        }
         if (!held) tapped = true;
         held = true;
-        if (dead || cleared) restart();
       }
       if (k === "z" && practice) checkpointRef.current.place();
       if (k === "x" && practice) checkpointRef.current.remove();
@@ -227,16 +255,24 @@ export function PulseRush({
     };
     const onKeyUp = (e: KeyboardEvent) => {
       const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-      if (isJumpKey(k)) held = false;
+      if (isJumpKey(k)) {
+        held = false;
+        needRelease = false;
+      }
     };
     const onDown = (e: PointerEvent) => {
       e.preventDefault();
+      if (dead || cleared) {
+        held = true;
+        restart();
+        return;
+      }
       if (!held) tapped = true;
       held = true;
-      if (dead || cleared) restart();
     };
     const onUp = () => {
       held = false;
+      needRelease = false;
     };
 
     window.addEventListener("keydown", onKeyDown, { passive: false });
@@ -275,8 +311,11 @@ export function PulseRush({
         });
       }
       best = Math.max(best, pct());
+      tapped = false;
       setOutcome("dead");
-      window.setTimeout(() => {
+      if (deathTimer) window.clearTimeout(deathTimer);
+      deathTimer = window.setTimeout(() => {
+        deathTimer = 0;
         if (!disposed && dead) restart();
       }, 420);
     }
@@ -320,6 +359,9 @@ export function PulseRush({
         return;
       }
 
+      // A press that only restarted the run must be released before it steers again.
+      const holding = held && !needRelease;
+
       elapsed += dt;
       if (flipCd > 0) flipCd -= dt;
       x += BASE_SPEED * speed * dt;
@@ -330,7 +372,7 @@ export function PulseRush({
       // vertical motion per mode
       if (mode === "cube" || mode === "ball") {
         if (mode === "cube") {
-          if (tapped || held) {
+          if (tapped || holding) {
             if (onSurface) jump();
           }
         } else if (tapped && onSurface && flipCd <= 0) {
@@ -348,13 +390,13 @@ export function PulseRush({
           rot = (rot + grav * dt * 0.0125) % (Math.PI * 2);
         }
       } else if (mode === "ship") {
-        const up = held ? -1 : 1;
-        vy += grav * up * (held ? 0.0019 : 0.0016) * dt;
+        const up = holding ? -1 : 1;
+        vy += grav * up * (holding ? 0.0019 : 0.0016) * dt;
         vy = Math.max(-0.44, Math.min(0.44, vy));
         rot = vy * 1.2;
       } else {
         // wave: pure 45 degrees
-        vy = (held ? -1 : 1) * grav * BASE_SPEED * speed;
+        vy = (holding ? -1 : 1) * grav * BASE_SPEED * speed;
         rot = 0;
       }
 
@@ -666,7 +708,15 @@ export function PulseRush({
           ctx.strokeStyle = color;
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.ellipse(ox + U / 2, (FLOOR + ROOF) / 2, U * 0.35, (FLOOR - ROOF) / 2 - 8, 0, 0, Math.PI * 2);
+          ctx.ellipse(
+            ox + U / 2,
+            (FLOOR + ROOF) / 2,
+            U * 0.35,
+            (FLOOR - ROOF) / 2 - 8,
+            0,
+            0,
+            Math.PI * 2,
+          );
           ctx.fill();
           ctx.stroke();
         }
@@ -752,7 +802,13 @@ export function PulseRush({
     }
 
     function portalColor(m: Mode) {
-      return m === "ship" ? "#f472b6" : m === "ball" ? "#f59e0b" : m === "wave" ? "#22d3ee" : "#a3e635";
+      return m === "ship"
+        ? "#f472b6"
+        : m === "ball"
+          ? "#f59e0b"
+          : m === "wave"
+            ? "#22d3ee"
+            : "#a3e635";
     }
 
     /* ------------------------------------------------------------------ loop */
@@ -808,6 +864,7 @@ export function PulseRush({
 
     return () => {
       disposed = true;
+      if (deathTimer) window.clearTimeout(deathTimer);
       cancelAnimationFrame(raf);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
@@ -815,7 +872,6 @@ export function PulseRush({
       window.removeEventListener("pointercancel", onUp);
       canvas.removeEventListener("pointerdown", onDown);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     level,
     practice,
