@@ -6,15 +6,11 @@ import { Panel, PanelHead } from "@/components/dimted/primitives";
 import { IdentityRow } from "@/components/dimted/Identity";
 import { NovaBlocks } from "@/components/games/NovaBlocks";
 import { AuroraDrift } from "@/components/games/AuroraDrift";
-import { PulseGrid } from "@/components/games/PulseGrid";
-import { SpectreDash } from "@/components/games/SpectreDash";
 import { PrismBreak } from "@/components/games/PrismBreak";
 import { CometSling } from "@/components/games/CometSling";
 import { NovaFusion } from "@/components/games/NovaFusion";
-import { SignalType } from "@/components/games/SignalType";
 import { TowerStack } from "@/components/games/TowerStack";
 import { LaneHop } from "@/components/games/LaneHop";
-import { EchoSequence } from "@/components/games/EchoSequence";
 import { NeonCoil } from "@/components/games/NeonCoil";
 import { NovaRift } from "@/components/games/NovaRift";
 import { GAMES, gamesByXp, parXp, type GameId } from "@/lib/games";
@@ -461,10 +457,6 @@ export function ArcadeSection() {
                   <NovaBlocks running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "aurora-drift" ? (
                   <AuroraDrift running onScore={handleScore} onEnd={handleEnd} />
-                ) : gameId === "pulse-grid" ? (
-                  <PulseGrid running onScore={handleScore} onEnd={handleEnd} />
-                ) : gameId === "spectre-dash" ? (
-                  <SpectreDash running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "prism-break" ? (
                   <PrismBreak running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "comet-sling" ? (
@@ -475,12 +467,8 @@ export function ArcadeSection() {
                   <TowerStack running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "lane-hop" ? (
                   <LaneHop running onScore={handleScore} onEnd={handleEnd} />
-                ) : gameId === "echo-sequence" ? (
-                  <EchoSequence running onScore={handleScore} onEnd={handleEnd} />
-                ) : gameId === "neon-coil" ? (
-                  <NeonCoil running onScore={handleScore} onEnd={handleEnd} />
                 ) : (
-                  <SignalType running onScore={handleScore} onEnd={handleEnd} />
+                  <NeonCoil running onScore={handleScore} onEnd={handleEnd} />
                 )}
               </div>
             ) : (

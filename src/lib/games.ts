@@ -5,15 +5,11 @@
 export type GameId =
   | "nova-blocks"
   | "aurora-drift"
-  | "pulse-grid"
-  | "spectre-dash"
   | "prism-break"
   | "comet-sling"
   | "nova-fusion"
-  | "signal-type"
   | "tower-stack"
   | "lane-hop"
-  | "echo-sequence"
   | "neon-coil";
 
 export type GameDef = {
@@ -52,26 +48,6 @@ export const GAMES: GameDef[] = [
     xpWeight: 0.90,
   },
   {
-    id: "pulse-grid",
-    name: "Pulse Grid",
-    tagline: "Pure reaction. Hit the light before it dies.",
-    how: "Tiles pulse for a shrinking window. Chain hits to build a multiplier. Three misses and you're out.",
-    controls: "Click or tap the lit tile",
-    xpPerScore: 250,
-    xpPar: 40000,
-    xpWeight: 0.85,
-  },
-  {
-    id: "spectre-dash",
-    name: "Spectre Dash",
-    tagline: "One button. Spikes. No mercy.",
-    how: "Your cube auto-runs and speeds up forever. Tap to jump, land on blocks, hit gold pads for a launch, touch a spike and it's over. Score is distance.",
-    controls: "Space / tap to jump",
-    xpPerScore: 120,
-    xpPar: 1200,
-    xpWeight: 1.10,
-  },
-  {
     id: "prism-break",
     name: "Prism Break",
     tagline: "Break the wall of light before it breaks you.",
@@ -102,16 +78,6 @@ export const GAMES: GameDef[] = [
     xpWeight: 1.15,
   },
   {
-    id: "signal-type",
-    name: "Signal Type",
-    tagline: "45 seconds of incoming transmissions.",
-    how: "Type each word and hit space. Clean streaks build up to an ×8 multiplier; one typo resets it.",
-    controls: "Type · space or enter to send",
-    xpPerScore: 400,
-    xpPar: 8000,
-    xpWeight: 0.90,
-  },
-  {
     id: "tower-stack",
     name: "Tower Stack",
     tagline: "One tap. One slab. Don't get sloppy.",
@@ -130,16 +96,6 @@ export const GAMES: GameDef[] = [
     xpPerScore: 280,
     xpPar: 220,
     xpWeight: 0.95,
-  },
-  {
-    id: "echo-sequence",
-    name: "Echo Sequence",
-    tagline: "Memory, but the clock keeps speeding up.",
-    how: "The pads play a growing pattern and you repeat it back. Playback gets faster every round and one wrong pad ends the run.",
-    controls: "Click or tap the pads",
-    xpPerScore: 220,
-    xpPar: 600,
-    xpWeight: 0.85,
   },
   {
     id: "neon-coil",
