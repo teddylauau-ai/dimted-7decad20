@@ -443,7 +443,7 @@ function CrewsPage() {
                 {active.banner_url ? (
                   <img src={active.banner_url} alt={`${active.name} banner`} className="size-full object-cover" />
                 ) : (
-                  <div className={cn("size-full bg-gradient-to-br to-transparent", accent.glow)} />
+                  <div className={cn("size-full", accent.wash)} />
                 )}
                 <div className="from-background absolute inset-0 bg-gradient-to-t via-background/30 to-transparent" />
               </div>
@@ -1426,7 +1426,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
             {crew.banner_url ? (
               <img src={crew.banner_url} alt="Crew banner" className="size-full object-cover" />
             ) : (
-              <div className={cn("size-full bg-gradient-to-br to-transparent", accentOf(accent).glow)} />
+              <div className={cn("size-full", accentOf(accent).wash)} />
             )}
           </div>
           <label className="bg-secondary/60 hover:bg-secondary flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium">
@@ -1554,7 +1554,7 @@ function DiscoverPanel({ crews, onJoin }: { crews: CrewRow[]; onJoin: (crew: Cre
                 {c.banner_url ? (
                   <img src={c.banner_url} alt={`${c.name} banner`} className="size-full object-cover" />
                 ) : (
-                  <div className={cn("size-full bg-gradient-to-br to-transparent", a.glow)} />
+                  <div className={cn("size-full", a.wash)} />
                 )}
               </div>
               <div className="flex items-center gap-2 p-3">
