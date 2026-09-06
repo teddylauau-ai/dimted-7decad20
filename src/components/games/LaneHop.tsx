@@ -22,15 +22,141 @@ type Lane = {
 };
 
 function makeLane(index: number): Lane {
+  // Gentle on-ramp: the first stretch is mostly grass with slow, sparse traffic,
+  // then difficulty climbs steadily the deeper you push.
+  const warm = Math.min(1, index / 26); // 0 at the start, 1 by lane ~26
   if (index % 4 === 0) return { kind: "safe", dir: 1, speed: 0, cars: [], carW: 0 };
-  const kind = Math.random() < 0.68 ? "road" : "river";
+  if (index < 10 && index % 2 === 0) return { kind: "safe", dir: 1, speed: 0, cars: [], carW: 0 };
+
+  // rivers only start once the player has found their rhythm
+  const kind: Lane["kind"] = index > 14 && Math.random() < 0.26 ? "river" : "road";
   const dir: 1 | -1 = Math.random() < 0.5 ? 1 : -1;
-  const speed = (kind === "road" ? 2.6 : 1.7) + Math.min(6, index * 0.09) + Math.random() * 1.2;
-  const carW = kind === "road" ? (Math.random() < 0.3 ? 2 : 1.3) : 2.6;
-  const gap = kind === "road" ? 3 + Math.random() * 2 : 3.4;
+  const base = kind === "road" ? 1.35 : 1.2;
+  const speed = base + warm * (kind === "road" ? 3.6 : 2.2) + Math.random() * (0.3 + warm * 1.1);
+  const carW = kind === "road" ? (Math.random() < 0.26 + warm * 0.1 ? 2.1 : 1.3) : 2.8;
+  const gap = kind === "road" ? 6.4 - warm * 3.2 + Math.random() * 1.6 : 3.8 - warm * 0.5;
   const cars: number[] = [];
   for (let x = -EDGE - carW; x < EDGE + carW; x += carW + gap) cars.push(x + Math.random() * 0.4);
   return { kind, dir, speed, cars, carW };
+}
+
+const CAR_PAINT = ["#d94b58", "#3d7ad6", "#e7e9ee", "#2f3b4a", "#e0a52f", "#3aa37a"];
+
+/** A road vehicle with a body, greenhouse, wheels and lights. */
+function Vehicle({ w, dir, tint }: { w: number; dir: 1 | -1; tint: string }) {
+  const truck = w > 1.7;
+  const wheelY = 0.13;
+  const wheelX = w / 2 - 0.28;
+  return (
+    <group rotation-y={dir > 0 ? 0 : Math.PI}>
+      {/* chassis */}
+      <mesh position={[0, 0.28, 0]} castShadow>
+        <boxGeometry args={[w, 0.3, 0.62]} />
+        <meshStandardMaterial color={tint} roughness={0.32} metalness={0.55} />
+      </mesh>
+      {/* cabin / greenhouse */}
+      <mesh position={[truck ? -w * 0.26 : 0, 0.52, 0]} castShadow>
+        <boxGeometry args={[truck ? w * 0.4 : w * 0.52, 0.24, 0.56]} />
+        <meshStandardMaterial color={tint} roughness={0.3} metalness={0.5} />
+      </mesh>
+      {/* glass */}
+      <mesh position={[truck ? -w * 0.26 : 0, 0.53, 0]}>
+        <boxGeometry args={[truck ? w * 0.41 : w * 0.53, 0.15, 0.575]} />
+        <meshStandardMaterial color="#0e1a26" roughness={0.08} metalness={0.9} />
+      </mesh>
+      {truck ? (
+        <mesh position={[w * 0.19, 0.55, 0]} castShadow>
+          <boxGeometry args={[w * 0.52, 0.34, 0.6]} />
+          <meshStandardMaterial color="#c9d2dc" roughness={0.6} metalness={0.25} />
+        </mesh>
+      ) : null}
+      {/* wheels */}
+      {[
+        [wheelX, 0.33],
+        [wheelX, -0.33],
+        [-wheelX, 0.33],
+        [-wheelX, -0.33],
+      ].map(([x, z], i) => (
+        <mesh key={i} position={[x!, wheelY, z!]} rotation-x={Math.PI / 2} castShadow>
+          <cylinderGeometry args={[0.13, 0.13, 0.09, 12]} />
+          <meshStandardMaterial color="#14181e" roughness={0.85} />
+        </mesh>
+      ))}
+      {/* headlights + tail lights */}
+      {[-0.18, 0.18].map((z) => (
+        <mesh key={`h${z}`} position={[w / 2 + 0.01, 0.28, z]}>
+          <boxGeometry args={[0.05, 0.1, 0.14]} />
+          <meshStandardMaterial color="#fff6d8" emissive="#fff6d8" emissiveIntensity={2.4} />
+        </mesh>
+      ))}
+      {[-0.18, 0.18].map((z) => (
+        <mesh key={`t${z}`} position={[-w / 2 - 0.01, 0.3, z]}>
+          <boxGeometry args={[0.04, 0.08, 0.12]} />
+          <meshStandardMaterial color="#ff3b52" emissive="#ff2f45" emissiveIntensity={1.6} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/** The party pig from the level-up screen, as a playable 3D character. */
+function PigCharacter() {
+  const pink = "#f4a3b8";
+  const deep = "#e07f99";
+  return (
+    <group>
+      <mesh castShadow position={[0, 0.02, 0]}>
+        <boxGeometry args={[0.56, 0.42, 0.62]} />
+        <meshStandardMaterial color={pink} roughness={0.65} metalness={0.05} />
+      </mesh>
+      {/* head */}
+      <mesh castShadow position={[0, 0.34, 0.06]}>
+        <boxGeometry args={[0.46, 0.36, 0.44]} />
+        <meshStandardMaterial color={pink} roughness={0.6} />
+      </mesh>
+      {/* snout */}
+      <mesh castShadow position={[0, 0.3, 0.3]} rotation-x={Math.PI / 2}>
+        <cylinderGeometry args={[0.11, 0.12, 0.12, 12]} />
+        <meshStandardMaterial color={deep} roughness={0.55} />
+      </mesh>
+      {/* ears */}
+      {[-0.15, 0.15].map((x) => (
+        <mesh key={x} castShadow position={[x, 0.53, 0.02]} rotation-x={-0.35}>
+          <coneGeometry args={[0.1, 0.18, 4]} />
+          <meshStandardMaterial color={deep} roughness={0.6} />
+        </mesh>
+      ))}
+      {/* eyes */}
+      {[-0.12, 0.12].map((x) => (
+        <mesh key={`e${x}`} position={[x, 0.4, 0.27]}>
+          <sphereGeometry args={[0.045, 10, 10]} />
+          <meshStandardMaterial color="#141a22" />
+        </mesh>
+      ))}
+      {/* legs */}
+      {[
+        [-0.18, 0.2],
+        [0.18, 0.2],
+        [-0.18, -0.2],
+        [0.18, -0.2],
+      ].map(([x, z], i) => (
+        <mesh key={`l${i}`} castShadow position={[x!, -0.24, z!]}>
+          <cylinderGeometry args={[0.07, 0.07, 0.18, 8]} />
+          <meshStandardMaterial color={deep} roughness={0.7} />
+        </mesh>
+      ))}
+      {/* curly tail */}
+      <mesh position={[0, 0.12, -0.34]} rotation-y={Math.PI / 2}>
+        <torusGeometry args={[0.07, 0.025, 6, 12, Math.PI * 1.4]} />
+        <meshStandardMaterial color={deep} roughness={0.6} />
+      </mesh>
+      {/* tiny party hat, because it is that pig */}
+      <mesh castShadow position={[0, 0.66, 0.02]}>
+        <coneGeometry args={[0.12, 0.24, 12]} />
+        <meshStandardMaterial color="#2ee6c4" emissive="#2ee6c4" emissiveIntensity={0.35} />
+      </mesh>
+    </group>
+  );
 }
 
 const LANE_COLORS: Record<Lane["kind"], string> = {
@@ -74,23 +200,8 @@ function LaneRow({ lane, index }: { lane: Lane; index: number }) {
       <group ref={cars}>
         {lane.cars.map((x, i) =>
           lane.kind === "road" ? (
-            <group key={i} position={[x, 0.34, 0]}>
-              <mesh castShadow>
-                <boxGeometry args={[lane.carW, 0.42, 0.66]} />
-                <meshStandardMaterial
-                  color={lane.dir > 0 ? "#ff6a8b" : "#ffb347"}
-                  roughness={0.3}
-                  metalness={0.4}
-                />
-              </mesh>
-              <mesh position={[0, 0.3, 0]} castShadow>
-                <boxGeometry args={[lane.carW * 0.55, 0.24, 0.56]} />
-                <meshStandardMaterial color="#0d1522" roughness={0.2} metalness={0.6} />
-              </mesh>
-              <mesh position={[(lane.dir > 0 ? 1 : -1) * (lane.carW / 2 + 0.02), 0.02, 0]}>
-                <boxGeometry args={[0.06, 0.18, 0.5]} />
-                <meshStandardMaterial color="#fff6d8" emissive="#fff6d8" emissiveIntensity={2} />
-              </mesh>
+            <group key={i} position={[x, 0.06, 0]}>
+              <Vehicle w={lane.carW} dir={lane.dir} tint={CAR_PAINT[(index * 3 + i) % CAR_PAINT.length]!} />
             </group>
           ) : (
             <mesh key={i} position={[x, 0.02, 0]} castShadow receiveShadow>
@@ -265,20 +376,9 @@ function HopScene({
         <LaneRow key={index} lane={lane} index={index} />
       ))}
       <group ref={player}>
-        <mesh castShadow>
-          <boxGeometry args={[0.6, 0.5, 0.6]} />
-          <meshStandardMaterial
-            color="#f6c860"
-            emissive="#f6c860"
-            emissiveIntensity={0.35}
-            roughness={0.25}
-            metalness={0.5}
-          />
-        </mesh>
-        <mesh position={[0, 0.36, 0]} castShadow>
-          <boxGeometry args={[0.4, 0.24, 0.4]} />
-          <meshStandardMaterial color="#fff3cf" emissive="#f6c860" emissiveIntensity={0.5} />
-        </mesh>
+        <group rotation-y={Math.PI}>
+          <PigCharacter />
+        </group>
       </group>
     </>
   );
