@@ -61,6 +61,10 @@ export function NovaRift({
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
 
+    const skin = runnerBySlug(runner);
+    const tr = trailBySlug(trailSlug);
+
+
     const abilities = abilitiesFor(level.n);
     const canDouble = abilities.includes("double-jump");
     const canDash = abilities.includes("dash");
