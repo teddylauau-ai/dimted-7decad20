@@ -298,10 +298,18 @@ export const BANNER_STYLE: Record<string, string> = {
     "linear-gradient(100deg, oklch(0.3 0.1 10), oklch(0.36 0.12 350), oklch(0.26 0.08 330))",
   "banner-storm":
     "linear-gradient(100deg, oklch(0.2 0.04 250), oklch(0.28 0.08 260), oklch(0.34 0.12 85))",
-  "banner-vault-treasury":
-    "radial-gradient(70% 120% at 50% 120%, oklch(0.78 0.14 82 / 0.65), transparent 68%), radial-gradient(60% 100% at 20% 0%, oklch(0.9 0.1 95 / 0.35), transparent 70%), linear-gradient(120deg, oklch(0.22 0.05 60), oklch(0.15 0.03 258))",
-  "banner-obsidian-vault":
-    "radial-gradient(70% 120% at 50% 120%, oklch(0.45 0.12 285 / 0.7), transparent 68%), radial-gradient(60% 100% at 20% 0%, oklch(0.85 0.12 85 / 0.2), transparent 70%), linear-gradient(120deg, oklch(0.14 0.04 285), oklch(0.1 0.03 258))",
+  "banner-prism-dawn":
+    "radial-gradient(80% 130% at 50% 130%, oklch(0.8 0.16 20 / 0.45), transparent 62%), radial-gradient(70% 120% at 15% 0%, oklch(0.8 0.15 190 / 0.4), transparent 68%), linear-gradient(110deg, oklch(0.24 0.07 300), oklch(0.16 0.04 258))",
+  "banner-chroma-tide":
+    "linear-gradient(100deg, oklch(0.32 0.12 20), oklch(0.34 0.12 95), oklch(0.32 0.12 190), oklch(0.3 0.13 300))",
+  "banner-opal-drift":
+    "radial-gradient(60% 110% at 20% 10%, oklch(0.85 0.09 190 / 0.35), transparent 70%), radial-gradient(60% 110% at 80% 90%, oklch(0.85 0.1 320 / 0.32), transparent 70%), radial-gradient(60% 110% at 55% 50%, oklch(0.9 0.1 110 / 0.22), transparent 70%), linear-gradient(120deg, oklch(0.22 0.04 258), oklch(0.16 0.03 258))",
+  "banner-kaleido-field":
+    "repeating-conic-gradient(from 0deg at 50% 50%, oklch(0.8 0.16 20 / 0.2) 0 12deg, oklch(0.8 0.16 110 / 0.2) 12deg 24deg, oklch(0.8 0.16 200 / 0.2) 24deg 36deg, oklch(0.8 0.16 300 / 0.2) 36deg 48deg), linear-gradient(120deg, oklch(0.2 0.05 262), oklch(0.14 0.03 258))",
+  "banner-iris-storm":
+    "conic-gradient(from 210deg at 30% 120%, oklch(0.85 0.17 20 / 0.55), oklch(0.85 0.17 95 / 0.5), oklch(0.85 0.16 190 / 0.5), oklch(0.8 0.18 300 / 0.55), oklch(0.85 0.17 20 / 0.55)), linear-gradient(120deg, oklch(0.18 0.05 280), oklch(0.12 0.03 258))",
+  "banner-spectrum-apex":
+    "radial-gradient(circle at 50% 105%, oklch(1 0.03 250) 0 8%, oklch(0.9 0.17 20 / 0.8) 9% 13%, oklch(0.9 0.17 110 / 0.6) 14% 20%, oklch(0.88 0.16 200 / 0.5) 21% 28%, oklch(0.85 0.18 300 / 0.45) 29% 38%, transparent 55%), repeating-conic-gradient(from 0deg at 50% 105%, oklch(1 0.04 250 / 0.1) 0 3deg, transparent 3deg 10deg), linear-gradient(180deg, oklch(0.06 0.015 262), oklch(0.14 0.04 300) 72%, oklch(0.3 0.1 320))",
 };
 
 export const DEFAULT_BANNER =
