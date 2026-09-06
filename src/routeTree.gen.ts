@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ActivitiesRouteImport } from './routes/activities'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ArmoryRouteImport } from './routes/armory'
 import { Route as CrewsRouteImport } from './routes/crews'
@@ -18,7 +17,6 @@ import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PulseRouteImport } from './routes/pulse'
 import { Route as SeasonRouteImport } from './routes/season'
 import { Route as ShopRouteImport } from './routes/shop'
 import { Route as SocialRouteImport } from './routes/social'
@@ -28,11 +26,6 @@ import { Route as UUsernameRouteImport } from './routes/u.$username'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ActivitiesRoute = ActivitiesRouteImport.update({
-  id: '/activities',
-  path: '/activities',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -70,11 +63,6 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PulseRoute = PulseRouteImport.update({
-  id: '/pulse',
-  path: '/pulse',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SeasonRoute = SeasonRouteImport.update({
   id: '/season',
   path: '/season',
@@ -103,7 +91,6 @@ const UUsernameRoute = UUsernameRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/crews': typeof CrewsRoute
@@ -111,7 +98,6 @@ export interface FileRoutesByFullPath {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/pulse': typeof PulseRoute
   '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
@@ -120,7 +106,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/crews': typeof CrewsRoute
@@ -128,7 +113,6 @@ export interface FileRoutesByTo {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/pulse': typeof PulseRoute
   '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
@@ -138,7 +122,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/activities': typeof ActivitiesRoute
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/crews': typeof CrewsRoute
@@ -146,7 +129,6 @@ export interface FileRoutesById {
   '/friends': typeof FriendsRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
-  '/pulse': typeof PulseRoute
   '/season': typeof SeasonRoute
   '/shop': typeof ShopRoute
   '/social': typeof SocialRoute
@@ -157,7 +139,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/activities'
     | '/admin'
     | '/armory'
     | '/crews'
@@ -165,7 +146,6 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/pulse'
     | '/season'
     | '/shop'
     | '/social'
@@ -174,7 +154,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/activities'
     | '/admin'
     | '/armory'
     | '/crews'
@@ -182,7 +161,6 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/pulse'
     | '/season'
     | '/shop'
     | '/social'
@@ -191,7 +169,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/activities'
     | '/admin'
     | '/armory'
     | '/crews'
@@ -199,7 +176,6 @@ export interface FileRouteTypes {
     | '/friends'
     | '/messages'
     | '/profile'
-    | '/pulse'
     | '/season'
     | '/shop'
     | '/social'
@@ -209,7 +185,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ActivitiesRoute: typeof ActivitiesRoute
   AdminRoute: typeof AdminRoute
   ArmoryRoute: typeof ArmoryRoute
   CrewsRoute: typeof CrewsRoute
@@ -217,7 +192,6 @@ export interface RootRouteChildren {
   FriendsRoute: typeof FriendsRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
-  PulseRoute: typeof PulseRoute
   SeasonRoute: typeof SeasonRoute
   ShopRoute: typeof ShopRoute
   SocialRoute: typeof SocialRoute
@@ -232,13 +206,6 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/activities': {
-      id: '/activities'
-      path: '/activities'
-      fullPath: '/activities'
-      preLoaderRoute: typeof ActivitiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -290,13 +257,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pulse': {
-      id: '/pulse'
-      path: '/pulse'
-      fullPath: '/pulse'
-      preLoaderRoute: typeof PulseRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/season': {
       id: '/season'
       path: '/season'
@@ -337,7 +297,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ActivitiesRoute: ActivitiesRoute,
   AdminRoute: AdminRoute,
   ArmoryRoute: ArmoryRoute,
   CrewsRoute: CrewsRoute,
@@ -345,7 +304,6 @@ const rootRouteChildren: RootRouteChildren = {
   FriendsRoute: FriendsRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
-  PulseRoute: PulseRoute,
   SeasonRoute: SeasonRoute,
   ShopRoute: ShopRoute,
   SocialRoute: SocialRoute,

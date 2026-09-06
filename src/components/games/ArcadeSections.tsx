@@ -2,7 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Lock, Play, RotateCcw, Star, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { Panel, PanelHead } from "@/components/dimted/primitives";
 import { IdentityRow } from "@/components/dimted/Identity";
 import { NovaBlocks } from "@/components/games/NovaBlocks";
 import { AuroraDrift } from "@/components/games/AuroraDrift";

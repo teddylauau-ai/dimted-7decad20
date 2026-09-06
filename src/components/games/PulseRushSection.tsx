@@ -3,7 +3,7 @@ import { CalendarClock, Check, Coins, Crown, Flame, Infinity as InfinityIcon, Lo
 import { toast } from "sonner";
 import { awardBonusXp } from "@/lib/achievements";
 import { Button } from "@/components/ui/button";
-import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { Panel, PanelHead } from "@/components/dimted/primitives";
 import { PulseSkinPreview } from "@/components/games/PulseSkinPreview";
 import { PulseRush, type PulseRunEnd, type PulseSkins } from "@/components/games/PulseRush";
 import {
