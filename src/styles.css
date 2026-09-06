@@ -1064,18 +1064,27 @@ html.light .glass-raised {
   animation: cos-spin 8s linear infinite;
 }
 .cos-frame-iris-corona::before {
-  background-image: conic-gradient(
-    oklch(0.94 0.19 20),
-    oklch(0.94 0.19 95),
-    oklch(0.92 0.18 190),
-    oklch(0.9 0.2 300),
-    oklch(0.94 0.19 20)
+  /* petals: rainbow wedges separated by gaps, counter-spinning */
+  background-image: repeating-conic-gradient(
+    from 0deg,
+    oklch(0.94 0.19 20) 0 18deg,
+    transparent 18deg 30deg,
+    oklch(0.92 0.18 190) 30deg 48deg,
+    transparent 48deg 60deg,
+    oklch(0.9 0.2 300) 60deg 78deg,
+    transparent 78deg 90deg
   );
-  animation: cos-spin 5s linear infinite;
+  animation: cos-spin-back 9s linear infinite;
 }
 .cos-frame-iris-corona {
   box-shadow: 0 0 28px -6px oklch(0.9 0.18 300 / 0.8);
 }
+@keyframes cos-spin-back {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
 .cos-frame-spectrum-apex::before {
   background-image: conic-gradient(
     from 0deg,
