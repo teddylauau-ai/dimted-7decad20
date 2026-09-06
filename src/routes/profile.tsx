@@ -449,27 +449,31 @@ function ProfilePage() {
             })}
           </div>
 
-          <form
-            className="mt-4 flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void saveCustomTitle();
-            }}
-          >
-            <Input
-              value={customTitle}
-              onChange={(e) => setCustomTitle(e.target.value)}
-              maxLength={28}
-              placeholder="Write your own title..."
-              className="h-9 text-sm"
-            />
-            <Button type="submit" size="sm" disabled={!customTitle.trim()} className="h-9">
-              Set
-            </Button>
-          </form>
-          <p className="text-muted-foreground mt-1.5 text-[11px]">
-            Up to 28 characters. Shows under your name everywhere.
-          </p>
+          {myRole.isOwner ? (
+            <>
+              <form
+                className="mt-4 flex gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void saveCustomTitle();
+                }}
+              >
+                <Input
+                  value={customTitle}
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  maxLength={28}
+                  placeholder="Write your own title..."
+                  className="h-9 text-sm"
+                />
+                <Button type="submit" size="sm" disabled={!customTitle.trim()} className="h-9">
+                  Set
+                </Button>
+              </form>
+              <p className="text-muted-foreground mt-1.5 text-[11px]">
+                Owner only · up to 28 characters.
+              </p>
+            </>
+          ) : null}
 
 
 
