@@ -168,6 +168,38 @@ function AdminPage() {
   const board = useLeaderboard(game);
   const removeScore = useDeleteScore();
 
+  const riftShop = useRiftShop();
+  const grantRift = useGrantRift();
+  const completeRift = useCompleteRift();
+  const grantVanguard = useGrantVanguard();
+  const setCurrency = useSetCurrency();
+  const setSeason = useSetSeasonXp();
+  const grantEverything = useGrantEverything();
+  const [riftStars, setRiftStars] = useState("100");
+  const [riftCoins, setRiftCoins] = useState("5000");
+  const [riftSlug, setRiftSlug] = useState("");
+  const [cores, setCores] = useState("5000");
+  const [exactXp, setExactXp] = useState("0");
+  const [exactSparks, setExactSparks] = useState("0");
+  const [seasonXp, setSeasonXp] = useState("0");
+
+  async function giveRift(opts: { slug?: string; stars?: number; coins?: number }) {
+    if (!target) return;
+    try {
+      const args: { userId: string; slug?: string; stars?: number; coins?: number } = {
+        userId: target.id,
+      };
+      if (opts.slug) args.slug = opts.slug;
+      if (opts.stars) args.stars = opts.stars;
+      if (opts.coins) args.coins = opts.coins;
+      await grantRift.mutateAsync(args);
+      toast.success("Nova Rift updated.");
+    } catch (e) {
+      fail(e);
+    }
+  }
+
+
   const everyone = useMemo(() => accounts.data ?? [], [accounts.data]);
   const target = everyone.find((p) => p.id === (targetId ?? profile?.id)) ?? null;
 
