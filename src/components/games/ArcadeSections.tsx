@@ -32,12 +32,15 @@ import {
   useRiftLeaderboard,
   useSaveClear,
 } from "@/lib/campaign-queries";
+import { RIFT_RUNNERS, RIFT_TRAILS } from "@/lib/rift-skins";
 import {
-  RIFT_RUNNERS,
-  RIFT_TRAILS,
-  loadRiftSkin,
-  saveRiftSkin,
-} from "@/lib/rift-skins";
+  levelSlug,
+  useRiftBuy,
+  useRiftEquip,
+  useRiftShop,
+  useRiftState,
+} from "@/lib/rift-queries";
+
 
 import {
   awardArcadeXp,
