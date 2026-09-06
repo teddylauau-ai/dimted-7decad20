@@ -41,8 +41,7 @@ const RAIL = [
   { to: "/", label: "Home", icon: Home },
   { to: "/messages", label: "Messages", icon: MessageCircle },
   { to: "/crews", label: "Crews", icon: Swords },
-  { to: "/pulse", label: "Pulse Rush", icon: Zap },
-  { to: "/activities", label: "Arcade", icon: Gamepad2 },
+  { to: "/games", label: "Games", icon: Gamepad2 },
   { to: "/study", label: "Study", icon: BookOpen },
   { to: "/social", label: "Social", icon: Music4 },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
@@ -71,8 +70,7 @@ const GROUPS = [
   {
     label: "Play",
     items: [
-      { to: "/pulse", label: "Pulse Rush", icon: Zap },
-      { to: "/activities", label: "Arcade", icon: Gamepad2 },
+      { to: "/games", label: "Games", icon: Gamepad2 },
       { to: "/study", label: "Study", icon: BookOpen },
     ],
   },

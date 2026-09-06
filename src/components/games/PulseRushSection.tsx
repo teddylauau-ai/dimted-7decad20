@@ -1,10 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { CalendarClock, Check, Coins, Crown, Flame, Infinity as InfinityIcon, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { awardBonusXp } from "@/lib/achievements";
 import { Button } from "@/components/ui/button";
-import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { Panel, PanelHead } from "@/components/dimted/primitives";
 import { PulseSkinPreview } from "@/components/games/PulseSkinPreview";
 import { PulseRush, type PulseRunEnd, type PulseSkins } from "@/components/games/PulseRush";
 import {
@@ -49,33 +48,12 @@ import { useRefreshDimted } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
 import type { GameId } from "@/lib/games";
 
-export const Route = createFileRoute("/pulse")({
-  head: () => ({
-    meta: [
-      { title: "Pulse Rush — one-button rhythm platformer | Lazu" },
-      {
-        name: "description",
-        content:
-          "Pulse Rush is Lazu's flagship game: 27 hand-built rhythm levels, an endless mode, a daily challenge, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
-      },
-      { property: "og:title", content: "Pulse Rush — Lazu" },
-      {
-        property: "og:description",
-        content:
-          "One tap. Twenty-seven levels plus an endless run. Memorise the beat, clear the run, collect the coins and unlock everything.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: PulsePage,
-});
 
 type Phase = "select" | "playing" | "result";
 
 const KIND_ORDER: ItemKind[] = ["icon", "ship", "ball", "wave", "trail", "death", "colors"];
 
-function PulsePage() {
+export function PulseRushSection() {
   const { profile, syncXp } = useDimted();
   const state = usePulseState(profile?.id);
   const items = usePulseItems();
@@ -272,21 +250,24 @@ function PulsePage() {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        eyebrow="Flagship"
-        title="Pulse Rush"
-        blurb="One button. Twenty-seven levels and an endless mountain. Memorise the beat, clear the run, take the coins."
-        aside={
-          <div className="flex items-center gap-3">
-            <span className="text-gold flex items-center gap-1.5 font-mono text-sm">
-              <Coins className="size-4" /> {coins}
-            </span>
-            <span className="text-muted-foreground flex items-center gap-1.5 font-mono text-sm">
-              <Trophy className="size-4" /> {cleared.length}/{LEVELS.length}
-            </span>
-          </div>
-        }
-      />
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow">Flagship</p>
+          <h2 className="font-display text-lg font-semibold tracking-tight">Pulse Rush</h2>
+          <p className="text-muted-foreground mt-1 max-w-xl text-sm leading-relaxed">
+            One button. Twenty-seven levels and an endless mountain. Memorise the beat, clear the run,
+            take the coins.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-gold flex items-center gap-1.5 font-mono text-sm">
+            <Coins className="size-4" /> {coins}
+          </span>
+          <span className="text-muted-foreground flex items-center gap-1.5 font-mono text-sm">
+            <Trophy className="size-4" /> {cleared.length}/{LEVELS.length}
+          </span>
+        </div>
+      </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
         <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">

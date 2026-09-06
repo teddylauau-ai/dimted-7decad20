@@ -298,4 +298,8 @@ export const UNLOCK_AT: Record<string, number> = {
   "spectre-dash": 9,
   "prism-break": 12,
   "comet-sling": 16,
+  "tower-stack": 1,
+  "echo-sequence": 3,
+  "neon-coil": 5,
+  "lane-hop": 7,
 };

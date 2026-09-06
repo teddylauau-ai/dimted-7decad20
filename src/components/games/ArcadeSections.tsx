@@ -1,9 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { Lock, Play, RotateCcw, Star, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
+import { Panel, PanelHead } from "@/components/dimted/primitives";
 import { IdentityRow } from "@/components/dimted/Identity";
 import { NovaBlocks } from "@/components/games/NovaBlocks";
 import { AuroraDrift } from "@/components/games/AuroraDrift";
@@ -13,6 +12,10 @@ import { PrismBreak } from "@/components/games/PrismBreak";
 import { CometSling } from "@/components/games/CometSling";
 import { NovaFusion } from "@/components/games/NovaFusion";
 import { SignalType } from "@/components/games/SignalType";
+import { TowerStack } from "@/components/games/TowerStack";
+import { LaneHop } from "@/components/games/LaneHop";
+import { EchoSequence } from "@/components/games/EchoSequence";
+import { NeonCoil } from "@/components/games/NeonCoil";
 import { NovaRift } from "@/components/games/NovaRift";
 import { GAMES, type GameId } from "@/lib/games";
 import {
@@ -44,73 +47,12 @@ import { useDimted } from "@/lib/dimted-store";
 import { useRefreshDimted } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/activities")({
-  head: () => ({
-    meta: [
-      { title: "Arcade & Nova Rift Campaign — Lazu" },
-      {
-        name: "description",
-        content:
-          "Play Nova Rift's 12-level campaign with stars, unlockable abilities and par times, plus eight endless arcade games with mastery ranks. Every run pays XP and sparks.",
-      },
-      { property: "og:title", content: "Lazu Arcade & Nova Rift Campaign" },
-      {
-        property: "og:description",
-        content: "A 12-level platformer campaign plus eight arcade games with mastery progression.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: ArcadePage,
-});
 
 type Phase = "idle" | "playing" | "over";
 
-function ArcadePage() {
-  const [mode, setMode] = useState<"campaign" | "arcade">("campaign");
-
-  return (
-    <div className="space-y-5">
-      <PageHeader
-        eyebrow="Play"
-        title={mode === "campaign" ? "Nova Rift" : "Arcade"}
-        blurb={
-          mode === "campaign"
-            ? "A twelve-level precision platformer. Clear a level to unlock the next, collect shards and beat par times for stars, and earn new abilities as you climb."
-            : "Eight endless games. Every personal best pushes your mastery rank in that game, and mastery ranks unlock the harder titles."
-        }
-      />
-
-      <div className="glass-raised inline-flex rounded-full p-1">
-        {(
-          [
-            { id: "campaign", label: "Campaign" },
-            { id: "arcade", label: "Arcade" },
-          ] as const
-        ).map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setMode(t.id)}
-            className={cn(
-              "rounded-full px-4 py-1.5 text-xs transition-colors",
-              mode === t.id ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {mode === "campaign" ? <Campaign /> : <Arcade />}
-    </div>
-  );
-}
-
 // ------------------------------------------------------------------ Campaign
 
-function Campaign() {
+export function CampaignSection() {
   const { profile, surgeActive, syncXp } = useDimted();
   const progress = useCampaignProgress(profile?.id);
   const saveClear = useSaveClear(profile?.id);
@@ -336,7 +278,7 @@ function Campaign() {
 
 // -------------------------------------------------------------------- Arcade
 
-function Arcade() {
+export function ArcadeSection() {
   const { profile, surgeActive, syncXp } = useDimted();
   const [gameId, setGameId] = useState<GameId>("nova-blocks");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -525,6 +467,14 @@ function Arcade() {
                   <CometSling running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "nova-fusion" ? (
                   <NovaFusion running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "tower-stack" ? (
+                  <TowerStack running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "lane-hop" ? (
+                  <LaneHop running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "echo-sequence" ? (
+                  <EchoSequence running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "neon-coil" ? (
+                  <NeonCoil running onScore={handleScore} onEnd={handleEnd} />
                 ) : (
                   <SignalType running onScore={handleScore} onEnd={handleEnd} />
                 )}

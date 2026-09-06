@@ -10,7 +10,11 @@ export type GameId =
   | "prism-break"
   | "comet-sling"
   | "nova-fusion"
-  | "signal-type";
+  | "signal-type"
+  | "tower-stack"
+  | "lane-hop"
+  | "echo-sequence"
+  | "neon-coil";
 
 export type GameDef = {
   id: GameId;
@@ -86,6 +90,38 @@ export const GAMES: GameDef[] = [
     how: "Type each word and hit space. Clean streaks build up to an ×8 multiplier; one typo resets it.",
     controls: "Type · space or enter to send",
     xpPerScore: 400,
+  },
+  {
+    id: "tower-stack",
+    name: "Tower Stack",
+    tagline: "One tap. One slab. Don't get sloppy.",
+    how: "A slab slides above your tower — drop it as square as you can. Overhang gets sliced off, so every messy drop shrinks the next one. Perfect drops regrow width and pay a combo.",
+    controls: "Space / tap to drop",
+    xpPerScore: 350,
+  },
+  {
+    id: "lane-hop",
+    name: "Lane Hop",
+    tagline: "Cross the traffic. Ride the light rafts.",
+    how: "Hop forward lane by lane. Roads kill on contact, rivers of light only carry you if you land on a raft. Traffic speeds up the deeper you get.",
+    controls: "W / up to hop, A D to sidestep, tap or swipe",
+    xpPerScore: 280,
+  },
+  {
+    id: "echo-sequence",
+    name: "Echo Sequence",
+    tagline: "Memory, but the clock keeps speeding up.",
+    how: "The pads play a growing pattern and you repeat it back. Playback gets faster every round and one wrong pad ends the run.",
+    controls: "Click or tap the pads",
+    xpPerScore: 220,
+  },
+  {
+    id: "neon-coil",
+    name: "Neon Coil",
+    tagline: "Snake with portals and drifting mines.",
+    how: "Eat cores to grow. Edges wrap around, so there are no walls, but every few cores drops a mine on the board.",
+    controls: "Arrows / WASD / swipe",
+    xpPerScore: 320,
   },
 ];
 
