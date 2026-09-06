@@ -445,12 +445,14 @@ function ShopPage() {
             <PanelHead
               eyebrow="Prismatic vault"
               title="Rainbow tier"
-              aside={`${vaultDrops.length} pieces`}
+              aside={`rotates in ${formatCountdown(secondsUntilWeeklyReset())}`}
             />
             <p className="text-muted-foreground mt-2 text-xs">
-              Six prismatic pieces in every slot — nametags, badges, frames, banners and message
-              effects. The most expensive gear in Lazu, and always in stock.
+              Three prismatic pieces per slot, hand-picked each week — nametags, badges, frames,
+              banners and message effects. The most expensive gear in Lazu, and the stock changes
+              every week.
             </p>
+
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {vaultShown.map((item) => (
                 <ItemCard
