@@ -53,8 +53,10 @@ export function useSaveClear(userId: string | undefined) {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["campaign-progress", userId] });
+      void qc.invalidateQueries({ queryKey: ["rift-state", userId] });
       void qc.invalidateQueries({ queryKey: ["rift-leaderboard"] });
     },
+
   });
 }
 

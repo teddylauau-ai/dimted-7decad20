@@ -32,12 +32,15 @@ import {
   useRiftLeaderboard,
   useSaveClear,
 } from "@/lib/campaign-queries";
+import { RIFT_RUNNERS, RIFT_TRAILS } from "@/lib/rift-skins";
 import {
-  RIFT_RUNNERS,
-  RIFT_TRAILS,
-  loadRiftSkin,
-  saveRiftSkin,
-} from "@/lib/rift-skins";
+  levelSlug,
+  useRiftBuy,
+  useRiftEquip,
+  useRiftShop,
+  useRiftState,
+} from "@/lib/rift-queries";
+
 
 import {
   awardArcadeXp,
@@ -64,30 +67,58 @@ export function CampaignSection() {
   const submit = useSubmitScore(profile?.id);
   const refresh = useRefreshDimted();
 
+  const riftState = useRiftState(profile?.id);
+  const shop = useRiftShop();
+  const buy = useRiftBuy(profile?.id);
+  const equip = useRiftEquip(profile?.id);
+
   const cleared = highestCleared(progress.data);
   const stars = totalStars(progress.data);
+  const owned = riftState.data?.unlocks ?? [];
+  const spendable = riftState.data?.starsAvailable ?? 0;
+  const skin = { runner: riftState.data?.runner ?? "aurora", trail: riftState.data?.trail ?? "ghost" };
+  const priceOf = (slug: string) => shop.data?.find((i) => i.slug === slug)?.cost_stars ?? 0;
+  const isOpen = (n: number) => n <= cleared + 1 || owned.includes(levelSlug(n));
   const unlockedUpTo = Math.min(LEVELS.length, cleared + 1);
 
   const [levelN, setLevelN] = useState(1);
   const [runKey, setRunKey] = useState(0);
   const [phase, setPhase] = useState<"idle" | "playing" | "won" | "lost">("idle");
   const [result, setResult] = useState<{ stars: number; ms: number; shards: number } | null>(null);
-  const [skin, setSkin] = useState(() => loadRiftSkin());
   const board = useRiftLeaderboard();
 
-  const pickRunner = (slug: string) => {
-    const next = { ...skin, runner: slug };
-    setSkin(next);
-    saveRiftSkin(next.runner, next.trail);
+  const purchase = async (slug: string, label: string) => {
+    try {
+      const res = await buy.mutateAsync(slug);
+      if (res.status === "bought") toast.success(`${label} unlocked`);
+      else if (res.status === "owned") toast(`You already own ${label}`);
+      else if (res.status === "poor") toast.error(`Need ${res.need} stars — you have ${res.have}`);
+      else toast.error("Couldn't unlock that");
+    } catch {
+      toast.error("Couldn't unlock that");
+    }
   };
-  const pickTrail = (slug: string) => {
-    const next = { ...skin, trail: slug };
-    setSkin(next);
-    saveRiftSkin(next.runner, next.trail);
+
+  const pickRunner = async (slug: string) => {
+    try {
+      const res = await equip.mutateAsync({ kind: "runner", slug });
+      if (res.status === "locked") toast.error("Unlock that runner first");
+    } catch {
+      toast.error("Couldn't switch runner");
+    }
+  };
+  const pickTrail = async (slug: string) => {
+    try {
+      const res = await equip.mutateAsync({ kind: "trail", slug });
+      if (res.status === "locked") toast.error("Unlock that trail first");
+    } catch {
+      toast.error("Couldn't switch trail");
+    }
   };
 
   const level = LEVELS.find((l) => l.n === levelN)!;
-  const locked = levelN > unlockedUpTo;
+  const locked = !isOpen(levelN);
+
 
 
   const start = (n = levelN) => {
@@ -166,46 +197,63 @@ export function CampaignSection() {
         </p>
       </Panel>
 
-      {/* Level select */}
+      {/* Level select — locked levels can be bought with stars */}
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
         {LEVELS.map((l) => {
-          const isLocked = l.n > unlockedUpTo;
+          const isLocked = !isOpen(l.n);
+          const price = priceOf(levelSlug(l.n));
           const got = starsAt(progress.data, l.n);
           return (
-            <button
+            <div
               key={l.n}
-              disabled={isLocked}
-              onClick={() => {
-                setLevelN(l.n);
-                setPhase("idle");
-                setResult(null);
-              }}
               className={cn(
                 "glass rounded-xl p-3 text-left transition-colors",
                 l.n === levelN && !isLocked && "ring-primary/60 ring-2",
-                isLocked ? "cursor-not-allowed opacity-45" : "hover:bg-secondary/40",
               )}
             >
-              <div className="flex items-center justify-between gap-1">
-                <span className="numeral text-sm">{l.n}</span>
-                {isLocked ? (
-                  <Lock className="text-muted-foreground size-3.5" />
-                ) : (
-                  <span className="flex gap-0.5">
-                    {[0, 1, 2].map((i) => (
-                      <Star
-                        key={i}
-                        className={cn("size-3", i < got ? "text-gold fill-current" : "text-muted-foreground/40")}
-                      />
-                    ))}
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 truncate text-[11px] leading-tight">{l.name}</p>
-            </button>
+              <button
+                type="button"
+                disabled={isLocked}
+                onClick={() => {
+                  setLevelN(l.n);
+                  setPhase("idle");
+                  setResult(null);
+                }}
+                className={cn("w-full text-left", isLocked && "cursor-not-allowed opacity-60")}
+              >
+                <div className="flex items-center justify-between gap-1">
+                  <span className="numeral text-sm">{l.n}</span>
+                  {isLocked ? (
+                    <Lock className="text-muted-foreground size-3.5" />
+                  ) : (
+                    <span className="flex gap-0.5">
+                      {[0, 1, 2].map((i) => (
+                        <Star
+                          key={i}
+                          className={cn("size-3", i < got ? "text-gold fill-current" : "text-muted-foreground/40")}
+                        />
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 truncate text-[11px] leading-tight">{l.name}</p>
+              </button>
+              {isLocked && price > 0 ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={buy.isPending || spendable < price}
+                  onClick={() => void purchase(levelSlug(l.n), `Level ${l.n}`)}
+                  className="mt-2 h-7 w-full px-2 text-[11px]"
+                >
+                  <Star className="size-3 fill-current" /> {price}
+                </Button>
+              ) : null}
+            </div>
           );
         })}
       </div>
+
 
       <Panel className="flex flex-col items-center gap-4 p-5">
         {phase === "playing" ? (
@@ -300,86 +348,119 @@ export function CampaignSection() {
         )}
       </Panel>
 
-      {/* Runners + trails, earned with stars */}
+      {/* Star shop: runners + trails bought with stars, saved to your account */}
       <Panel className="p-4 sm:p-5">
         <PanelHead
-          eyebrow="Rift wardrobe"
+          eyebrow="Star shop"
           title="Runners & trails"
           aside={
-            <span className="text-muted-foreground font-mono text-[11px]">{stars} stars earned</span>
+            <span className="text-gold flex items-center gap-1.5 font-mono text-[11px]">
+              <Star className="size-3.5 fill-current" />
+              {spendable} to spend
+            </span>
           }
         />
         <p className="text-muted-foreground mt-2 text-xs">
-          Earned by playing — collect stars to open new runners and trails.
+          Stars you earn are your currency. Unlocks and your equipped look are saved to your account,
+          so they're waiting on every device. {stars} stars earned all time.
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {RIFT_RUNNERS.map((r) => {
-            const isLocked = stars < r.stars;
+            const slug = `runner:${r.slug}`;
+            const price = priceOf(slug);
+            const isLocked = price > 0 && !owned.includes(slug);
             const on = skin.runner === r.slug;
             return (
-              <button
+              <div
                 key={r.slug}
-                type="button"
-                disabled={isLocked}
-                onClick={() => pickRunner(r.slug)}
                 className={cn(
                   "glass rounded-xl p-3 text-left transition-colors",
                   on && "ring-primary/60 ring-2",
-                  isLocked ? "cursor-not-allowed opacity-45" : "hover:bg-secondary/40",
                 )}
               >
-                <span className="flex items-center gap-2">
-                  <span
-                    className="size-5 rounded-full"
-                    style={{ background: r.body, boxShadow: `0 0 10px ${r.body}` }}
-                  />
-                  <span className="truncate text-xs font-medium">{r.name}</span>
-                  {isLocked ? <Lock className="text-muted-foreground ml-auto size-3.5" /> : null}
-                </span>
-                <p className="text-muted-foreground mt-1 truncate text-[11px]">
-                  {isLocked ? `${r.stars} stars` : r.blurb}
-                </p>
-              </button>
+                <button
+                  type="button"
+                  disabled={isLocked || equip.isPending}
+                  onClick={() => void pickRunner(r.slug)}
+                  className={cn("w-full text-left", isLocked && "cursor-not-allowed opacity-60")}
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="size-5 rounded-full"
+                      style={{ background: r.body, boxShadow: `0 0 10px ${r.body}` }}
+                    />
+                    <span className="truncate text-xs font-medium">{r.name}</span>
+                    {isLocked ? <Lock className="text-muted-foreground ml-auto size-3.5" /> : null}
+                  </span>
+                  <p className="text-muted-foreground mt-1 truncate text-[11px]">{r.blurb}</p>
+                </button>
+                {isLocked ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={buy.isPending || spendable < price}
+                    onClick={() => void purchase(slug, r.name)}
+                    className="mt-2 h-7 w-full px-2 text-[11px]"
+                  >
+                    <Star className="size-3 fill-current" /> {price}
+                  </Button>
+                ) : null}
+              </div>
             );
           })}
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {RIFT_TRAILS.map((t) => {
-            const isLocked = stars < t.stars;
+            const slug = `trail:${t.slug}`;
+            const price = priceOf(slug);
+            const isLocked = price > 0 && !owned.includes(slug);
             const on = skin.trail === t.slug;
             return (
-              <button
+              <div
                 key={t.slug}
-                type="button"
-                disabled={isLocked}
-                onClick={() => pickTrail(t.slug)}
                 className={cn(
                   "glass rounded-xl p-3 text-left transition-colors",
                   on && "ring-primary/60 ring-2",
-                  isLocked ? "cursor-not-allowed opacity-45" : "hover:bg-secondary/40",
                 )}
               >
-                <span className="flex items-center gap-2">
-                  <span
-                    className="h-1.5 w-8 rounded-full"
-                    style={{
-                      background:
-                        t.style === "prism"
-                          ? "linear-gradient(90deg,#7ce7ff,#c9a5ff,#ff8fb8)"
-                          : `linear-gradient(90deg, transparent, ${t.color})`,
-                    }}
-                  />
-                  <span className="truncate text-xs font-medium">{t.name}</span>
-                  {isLocked ? <Lock className="text-muted-foreground ml-auto size-3.5" /> : null}
-                </span>
-                <p className="text-muted-foreground mt-1 truncate text-[11px]">
-                  {isLocked ? `${t.stars} stars` : t.blurb}
-                </p>
-              </button>
+                <button
+                  type="button"
+                  disabled={isLocked || equip.isPending}
+                  onClick={() => void pickTrail(t.slug)}
+                  className={cn("w-full text-left", isLocked && "cursor-not-allowed opacity-60")}
+                >
+                  <span className="flex items-center gap-2">
+                    <span
+                      className="h-1.5 w-8 rounded-full"
+                      style={{
+                        background:
+                          t.style === "prism"
+                            ? "linear-gradient(90deg,#7ce7ff,#c9a5ff,#ff8fb8)"
+                            : `linear-gradient(90deg, transparent, ${t.color})`,
+                      }}
+                    />
+                    <span className="truncate text-xs font-medium">{t.name}</span>
+                    {isLocked ? <Lock className="text-muted-foreground ml-auto size-3.5" /> : null}
+                  </span>
+                  <p className="text-muted-foreground mt-1 truncate text-[11px]">{t.blurb}</p>
+                </button>
+                {isLocked ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={buy.isPending || spendable < price}
+                    onClick={() => void purchase(slug, t.name)}
+                    className="mt-2 h-7 w-full px-2 text-[11px]"
+                  >
+                    <Star className="size-3 fill-current" /> {price}
+                  </Button>
+                ) : null}
+              </div>
             );
           })}
         </div>
       </Panel>
+
 
       {/* Nova Rift ladder */}
       <Panel className="p-4 sm:p-5">

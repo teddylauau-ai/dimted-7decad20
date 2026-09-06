@@ -1507,6 +1507,104 @@ export type Database = {
         }
         Relationships: []
       }
+      rift_items: {
+        Row: {
+          cost_stars: number
+          created_at: string
+          kind: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          cost_stars?: number
+          created_at?: string
+          kind: string
+          name: string
+          slug: string
+        }
+        Update: {
+          cost_stars?: number
+          created_at?: string
+          kind?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      rift_state: {
+        Row: {
+          created_at: string
+          equipped_runner: string
+          equipped_trail: string
+          stars_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          equipped_runner?: string
+          equipped_trail?: string
+          stars_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          equipped_runner?: string
+          equipped_trail?: string
+          stars_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rift_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rift_unlocks: {
+        Row: {
+          cost_stars: number
+          created_at: string
+          id: string
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          cost_stars?: number
+          created_at?: string
+          id?: string
+          slug: string
+          user_id: string
+        }
+        Update: {
+          cost_stars?: number
+          created_at?: string
+          id?: string
+          slug?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rift_unlocks_slug_fkey"
+            columns: ["slug"]
+            isOneToOne: false
+            referencedRelation: "rift_items"
+            referencedColumns: ["slug"]
+          },
+          {
+            foreignKeyName: "rift_unlocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       season_progress: {
         Row: {
           claimed_tiers: number[]
@@ -2157,6 +2255,10 @@ export type Database = {
       pulse_unlock: { Args: { _slug: string }; Returns: Json }
       purchase_cosmetic: { Args: { _slug: string }; Returns: Json }
       reset_profile_widgets: { Args: never; Returns: Json }
+      rift_buy: { Args: { _slug: string }; Returns: Json }
+      rift_equip: { Args: { _kind: string; _slug: string }; Returns: Json }
+      rift_stars_earned: { Args: { _user_id: string }; Returns: number }
+      rift_state_for_me: { Args: never; Returns: Json }
       role_rank: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: number
