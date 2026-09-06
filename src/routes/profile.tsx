@@ -99,6 +99,8 @@ function ProfilePage() {
   const bannerInput = useRef<HTMLInputElement>(null);
   const [bannerUploading, setBannerUploading] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
+  const [customTitle, setCustomTitle] = useState("");
+
 
   const ownedItems = ITEMS.filter((i) => i.requiredLevel <= level);
   const earned = ACHIEVEMENTS.filter((a) => a.earned(stats));
@@ -174,9 +176,22 @@ function ProfilePage() {
 
   async function pickTitle(name: string) {
     if (!profile) return;
-    await updateProfile(profile.id, { title: name });
-    await refreshProfile();
+    try {
+      await updateProfile(profile.id, { title: name });
+      await refreshProfile();
+      toast.success(`Title set to "${name}"`);
+    } catch {
+      toast.error("Couldn't change your title");
+    }
   }
+
+  async function saveCustomTitle() {
+    const name = customTitle.trim().slice(0, 28);
+    if (!name) return;
+    await pickTitle(name);
+    setCustomTitle("");
+  }
+
 
   return (
     <div className="space-y-5">
@@ -433,6 +448,30 @@ function ProfilePage() {
               );
             })}
           </div>
+
+          <form
+            className="mt-4 flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void saveCustomTitle();
+            }}
+          >
+            <Input
+              value={customTitle}
+              onChange={(e) => setCustomTitle(e.target.value)}
+              maxLength={28}
+              placeholder="Write your own title..."
+              className="h-9 text-sm"
+            />
+            <Button type="submit" size="sm" disabled={!customTitle.trim()} className="h-9">
+              Set
+            </Button>
+          </form>
+          <p className="text-muted-foreground mt-1.5 text-[11px]">
+            Up to 28 characters. Shows under your name everywhere.
+          </p>
+
+
 
           <div className="border-border mt-6 border-t pt-4">
             <p className="eyebrow">Streaks · never punishing</p>
