@@ -108,21 +108,27 @@ function ShardMesh({ shard, onDone }: { shard: Shard; onDone: (id: number) => vo
   );
 }
 
-/** Static skyline of neighbouring towers, generated once. */
+/** Static cartoon skyline, kept far away and clear of the camera's sightline. */
+const CITY_HUES = [200, 218, 176, 244, 190];
 function Skyline() {
   const towers = useMemo(() => {
     const out: { x: number; z: number; w: number; d: number; h: number; i: number }[] = [];
     let seed = 7;
     const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
-    for (let i = 0; i < 34; i++) {
-      const a = (i / 34) * Math.PI * 2 + rnd() * 0.12;
-      const r = 13 + rnd() * 12;
+    const camAngle = Math.atan2(12.5, 9.5);
+    for (let i = 0; i < 40; i++) {
+      const a = (i / 40) * Math.PI * 2 + rnd() * 0.1;
+      // keep the wedge between the camera and the tower completely empty
+      let diff = Math.abs(a - camAngle);
+      if (diff > Math.PI) diff = Math.PI * 2 - diff;
+      if (diff < 1.05) continue;
+      const r = 22 + rnd() * 14;
       out.push({
         x: Math.cos(a) * r,
         z: Math.sin(a) * r,
-        w: 1.6 + rnd() * 2.4,
-        d: 1.6 + rnd() * 2.4,
-        h: 3 + rnd() * 13,
+        w: 2 + rnd() * 2.6,
+        d: 2 + rnd() * 2.6,
+        h: 2.5 + rnd() * 7,
         i,
       });
     }
@@ -134,18 +140,17 @@ function Skyline() {
         <mesh key={t.i} position={[t.x, t.h / 2, t.z]}>
           <boxGeometry args={[t.w, t.h, t.d]} />
           <meshStandardMaterial
-            map={facadeTexture(t.i)}
-            emissiveMap={facadeTexture(t.i)}
-            color="#0f2233"
-            emissive="#284b66"
+            color={`hsl(${CITY_HUES[t.i % CITY_HUES.length]}, 38%, ${28 + (t.i % 4) * 5}%)`}
+            emissive={`hsl(${CITY_HUES[t.i % CITY_HUES.length]}, 45%, 22%)`}
             emissiveIntensity={0.5}
-            roughness={0.6}
-            metalness={0.3}
+            roughness={0.85}
+            metalness={0}
           />
         </mesh>
       ))}
     </group>
   );
+
 }
 
 function StackScene({
