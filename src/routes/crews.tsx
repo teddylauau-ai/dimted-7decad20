@@ -11,7 +11,7 @@ import { Avatar, ProfileLink } from "@/components/dimted/Identity";
 import { CrestLadder, CrewCrestRow } from "@/components/dimted/CrewCrest";
 import {
   CREW_ACCENTS,
-  CREW_EMOJI,
+  accentsFor,
   ACCENT_TEXT,
   CREW_BADGE_STYLES,
   CREW_CHAT_BGS,
@@ -391,7 +391,7 @@ function CrewsPage() {
               <div className="mt-1 space-y-1">
                 {(myInvites.data ?? []).map((i) => (
                   <div key={i.id} className="bg-secondary/30 flex items-center gap-2 rounded-xl px-2 py-1.5">
-                    <span className="text-sm">{i.crew?.badge_emoji}</span>
+                    <span className="bg-secondary/60 grid size-5 place-items-center rounded-md text-[10px] font-semibold">{(i.crew?.name ?? "?").trim().charAt(0).toUpperCase()}</span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-medium">{i.crew?.name}</p>
                     </div>
@@ -873,7 +873,7 @@ function CrewBadgeChip({ crew }: { crew: CrewRow }) {
         shell.cls,
       )}
     >
-      {crew.avatar_url ? <img src={crew.avatar_url} alt="" className="size-full object-cover" /> : crew.badge_emoji}
+      {crew.avatar_url ? <img src={crew.avatar_url} alt="" className="size-full object-cover" /> : crewInitial(crew.name)}
     </span>
   );
 }
@@ -1136,17 +1136,24 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
   );
 }
 
+/** First letter of a crew name, used when a crew hasn't uploaded a picture yet. */
+function crewInitial(name: string | null | undefined) {
+  return (name ?? "?").trim().charAt(0).toUpperCase() || "?";
+}
+
 function CrewMark({ crew, size = 32, rounded = "rounded-lg" }: { crew: CrewRow; size?: number; rounded?: string }) {
   const a = accentOf(crew.accent);
   return (
     <span
-      className={cn("grid shrink-0 place-items-center overflow-hidden ring-1", rounded, a.ring, "bg-secondary/50")}
+      className={cn("grid shrink-0 place-items-center overflow-hidden ring-1", rounded, a.ring, "bg-secondary/50", ACCENT_TEXT[crew.accent])}
       style={{ width: size, height: size }}
     >
       {crew.avatar_url ? (
         <img src={crew.avatar_url} alt={`${crew.name} picture`} className="size-full object-cover" />
       ) : (
-        <span style={{ fontSize: Math.round(size * 0.5) }}>{crew.badge_emoji}</span>
+        <span className="font-display font-semibold" style={{ fontSize: Math.round(size * 0.45) }}>
+          {crewInitial(crew.name)}
+        </span>
       )}
     </span>
   );
@@ -1169,7 +1176,6 @@ function TabBtn({ active, onClick, children }: { active: boolean; onClick: () =>
 function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => void; onCancel: () => void }) {
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
-  const [emoji, setEmoji] = useState("🛡️");
   const [accent, setAccent] = useState<CrewAccent>("teal");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [joinPolicy, setJoinPolicy] = useState<"open" | "invite">("invite");
@@ -1184,7 +1190,7 @@ function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => vo
         name: name.trim(),
         tagline: tagline.trim(),
         description: "",
-        badge_emoji: emoji,
+        badge_emoji: "",
         accent,
         visibility,
         join_policy: visibility === "private" ? "invite" : joinPolicy,
@@ -1202,21 +1208,10 @@ function CreateCrewForm({ onCreated, onCancel }: { onCreated: (id: string) => vo
       <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Crew name" className="h-8 text-sm" maxLength={40} />
       <Input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Tagline" className="h-8 text-sm" maxLength={90} />
 
-      <div className="flex flex-wrap gap-1">
-        {CREW_EMOJI.map((e) => (
-          <button
-            key={e}
-            type="button"
-            onClick={() => setEmoji(e)}
-            className={cn("grid size-7 place-items-center rounded-lg text-sm", emoji === e ? "bg-secondary ring-1 ring-primary/50" : "hover:bg-secondary/60")}
-          >
-            {e}
-          </button>
-        ))}
-      </div>
+      <p className="text-muted-foreground text-[11px]">You can upload a crew picture right after you create it.</p>
 
       <div className="flex flex-wrap gap-1.5">
-        {CREW_ACCENTS.map((a) => (
+        {accentsFor(1).map((a) => (
           <button
             key={a.key}
             type="button"
@@ -1267,7 +1262,6 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
   const [name, setName] = useState(crew.name);
   const [tagline, setTagline] = useState(crew.tagline ?? "");
   const [description, setDescription] = useState(crew.description ?? "");
-  const [emoji, setEmoji] = useState(crew.badge_emoji);
   const [accent, setAccent] = useState<CrewAccent>(crew.accent);
   const [visibility, setVisibility] = useState<"public" | "private">(crew.visibility);
   const [joinPolicy, setJoinPolicy] = useState<"open" | "invite">(crew.join_policy);
@@ -1282,6 +1276,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
     // Never save a style the crew hasn't unlocked yet.
     const allowed = <T extends string>(opts: { key: T; unlock: number }[], val: T, fallback: T) =>
       (opts.find((o) => o.key === val)?.unlock ?? 99) <= level ? val : fallback;
+    const safeAccent = allowed(CREW_ACCENTS, accent, "teal");
     const safeBadge = allowed(CREW_BADGE_STYLES, badgeStyle, "plain");
     const safeNametag = allowed(CREW_NAMETAGS, nametag, "none");
     const safeEffect = allowed(CREW_TEXT_EFFECTS, textEffect, "none");
@@ -1292,8 +1287,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
         name,
         tagline,
         description,
-        badge_emoji: emoji,
-        accent,
+        accent: safeAccent,
         visibility,
         join_policy: visibility === "private" ? "invite" : joinPolicy,
         badge_style: safeBadge,
@@ -1301,6 +1295,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
         text_effect: safeEffect,
         chat_bg: safeBg,
       });
+      setAccent(safeAccent);
       setBadgeStyle(safeBadge);
       setNametag(safeNametag);
       setTextEffect(safeEffect);
@@ -1358,33 +1353,28 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
       </Panel>
 
       <Panel>
-        <PanelHead title="Badge & colour" />
-        <div className="mt-2 flex flex-wrap gap-1">
-          {CREW_EMOJI.map((e) => (
-            <button
-              key={e}
-              type="button"
-              onClick={() => setEmoji(e)}
-              className={cn("grid size-9 place-items-center rounded-xl text-lg", emoji === e ? "bg-secondary ring-1 ring-primary/50" : "hover:bg-secondary/60")}
-            >
-              {e}
-            </button>
-          ))}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {CREW_ACCENTS.map((a) => (
-            <button
-              key={a.key}
-              type="button"
-              onClick={() => setAccent(a.key)}
-              className={cn(
-                "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs",
-                accent === a.key ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/50",
-              )}
-            >
-              <span className={cn("size-3 rounded-full", a.dot)} /> {a.label}
-            </button>
-          ))}
+        <PanelHead title="Crew colour" aside={<span className="text-muted-foreground text-xs">Gradients unlock as your crew levels</span>} />
+        <div className="mt-2 flex flex-wrap gap-2">
+          {CREW_ACCENTS.map((a) => {
+            const locked = a.unlock > level;
+            return (
+              <button
+                key={a.key}
+                type="button"
+                disabled={locked}
+                onClick={() => setAccent(a.key)}
+                title={locked ? `Unlocks at crew level ${a.unlock}` : a.label}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs",
+                  locked && "cursor-not-allowed opacity-45",
+                  accent === a.key ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/50",
+                )}
+              >
+                <span className={cn("size-3 rounded-full", a.dot)} /> {a.label}
+                {locked && <span className="font-mono text-[9px]">Lv {a.unlock}</span>}
+              </button>
+            );
+          })}
         </div>
       </Panel>
 
@@ -1395,7 +1385,7 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
             {crew.avatar_url ? (
               <img src={crew.avatar_url} alt="Crew picture" className="size-full object-cover" />
             ) : (
-              <span className="text-2xl">{emoji}</span>
+              <span className="font-display text-2xl font-semibold">{(name || crew.name || "?").trim().charAt(0).toUpperCase()}</span>
             )}
           </div>
           <label className="bg-secondary/60 hover:bg-secondary flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium">
@@ -1410,11 +1400,11 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
               }}
               className="text-muted-foreground hover:text-destructive text-xs"
             >
-              Use emoji instead
+              Remove picture
             </button>
           )}
         </div>
-        <p className="text-muted-foreground mt-2 text-[11px]">A picture replaces the emoji badge everywhere.</p>
+        <p className="text-muted-foreground mt-2 text-[11px]">Your crew picture is the crew's badge everywhere. Without one we show your crew's first letter.</p>
       </Panel>
 
       <Panel>
@@ -1487,7 +1477,11 @@ function CrewSettings({ crew, userId, onSaved }: { crew: CrewRow; userId: string
             />
             <div className="relative flex items-center gap-1.5">
               <span className={cn("grid size-4 place-items-center rounded text-[9px]", ACCENT_TEXT[accent], accentOf(accent).ring, (CREW_BADGE_STYLES.find((b) => b.key === badgeStyle) ?? CREW_BADGE_STYLES[0]!).cls)}>
-                {emoji}
+                {crew.avatar_url ? (
+                  <img src={crew.avatar_url} alt="" className="size-full rounded object-cover" />
+                ) : (
+                  (name || crew.name || "?").trim().charAt(0).toUpperCase()
+                )}
               </span>
               <span className={cn("text-xs", ACCENT_TEXT[accent], (CREW_NAMETAGS.find((n) => n.key === nametag) ?? CREW_NAMETAGS[0]!).cls)}>
                 {name || "Crew name"}
