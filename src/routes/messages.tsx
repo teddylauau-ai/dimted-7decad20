@@ -610,6 +610,7 @@ function MessagesPage() {
                   );
                 })
               )}
+              <TypingIndicator names={typingNames} variant="inline" />
               {list.length >= 100 ? (
                 <p className="text-muted-foreground/70 py-4 text-center font-mono text-[10px] tracking-[0.16em] uppercase">
                   Older messages are cleared automatically
@@ -632,7 +633,6 @@ function MessagesPage() {
               className="border-border bg-secondary/15 overflow-hidden border-t"
             >
               {replyTo ? <ReplyChip target={replyTo} onCancel={() => setReplyTo(null)} /> : null}
-              <TypingIndicator names={typingNames} />
               <div className="flex gap-2 px-5 py-3">
                 <ImagePicker onPick={sendImage} disabled={!active} />
                 <VoiceRecorder onSend={sendVoice} disabled={!active} />
