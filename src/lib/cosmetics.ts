@@ -8,7 +8,7 @@ import type { Rarity } from "./dimted";
 export type CosmeticSlot = "nametag" | "badge" | "frame" | "banner" | "effect";
 
 /** Which shelf of the shop an item lives on. */
-export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "admin" | "founder" | "owner" | "crew";
+export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "vault" | "admin" | "founder" | "owner" | "crew";
 
 export const SLOTS: { slot: CosmeticSlot; label: string; blurb: string }[] = [
   { slot: "nametag", label: "Nametags", blurb: "How your name reads everywhere you speak." },
@@ -81,7 +81,10 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-rose": "cos-gradient cos-gradient-rose",
   "tag-lime": "cos-gradient cos-gradient-lime",
   "tag-candy": "cos-gradient cos-gradient-candy cos-shimmer",
+  "tag-vault-gilded": "cos-gradient cos-gradient-vault-gilded cos-shimmer cos-glow-gold",
+  "tag-obsidian-heist": "cos-gradient cos-gradient-obsidian-heist cos-shimmer cos-glow-mythos",
 };
+
 
 /** Badge → the glyph drawn after the name. */
 export const BADGE_GLYPH: Record<string, string> = {
@@ -122,7 +125,10 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-wave": "≈",
   "badge-flask": "⚗",
   "badge-orbit": "◉",
+  "badge-vault-key": "⚿",
+  "badge-obsidian-crown": "♛",
 };
+
 
 export const BADGE_CLASS: Record<string, string> = {
   "badge-s1-comet": "cos-gradient cos-gradient-s1-vector cos-shimmer",
@@ -162,7 +168,10 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-wave": "text-uncommon",
   "badge-flask": "text-rare",
   "badge-orbit": "text-epic cos-glow-epic",
+  "badge-vault-key": "text-legendary cos-glow-gold",
+  "badge-obsidian-crown": "text-mythic cos-glow-mythos",
 };
+
 
 /**
  * Frame → classes on the avatar wrapper.
@@ -203,6 +212,8 @@ export const FRAME_CLASS: Record<string, string> = {
   "frame-frost": "cos-ring border-rare/70 cos-glow-rare animate-breathe",
   "frame-blossom": "cos-ring border-[oklch(0.8_0.14_15)] cos-glow-epic animate-breathe",
   "frame-venom": "cos-ring border-uncommon/80 cos-glow-primary animate-breathe",
+  "frame-vault-seal": "cos-ring border-gold/80 cos-glow-gold animate-breathe",
+  "frame-obsidian-spire": "cos-ring border-mythic/80 cos-glow-mythic animate-breathe",
 };
 
 /** Banner → background style for the profile header. */
@@ -273,7 +284,12 @@ export const BANNER_STYLE: Record<string, string> = {
     "linear-gradient(100deg, oklch(0.3 0.1 10), oklch(0.36 0.12 350), oklch(0.26 0.08 330))",
   "banner-storm":
     "linear-gradient(100deg, oklch(0.2 0.04 250), oklch(0.28 0.08 260), oklch(0.34 0.12 85))",
+  "banner-vault-treasury":
+    "radial-gradient(70% 120% at 50% 120%, oklch(0.78 0.14 82 / 0.65), transparent 68%), radial-gradient(60% 100% at 20% 0%, oklch(0.9 0.1 95 / 0.35), transparent 70%), linear-gradient(120deg, oklch(0.22 0.05 60), oklch(0.15 0.03 258))",
+  "banner-obsidian-vault":
+    "radial-gradient(70% 120% at 50% 120%, oklch(0.45 0.12 285 / 0.7), transparent 68%), radial-gradient(60% 100% at 20% 0%, oklch(0.85 0.12 85 / 0.2), transparent 70%), linear-gradient(120deg, oklch(0.14 0.04 285), oklch(0.1 0.03 258))",
 };
+
 
 export const DEFAULT_BANNER =
   "radial-gradient(60% 120% at 20% 120%, oklch(0.42 0.1 200 / 0.5), transparent 70%), linear-gradient(120deg, oklch(0.21 0.04 262), oklch(0.15 0.032 258))";
@@ -304,7 +320,10 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-bounce": "cos-bounce-row",
   "fx-glimmer": "cos-glimmer-row",
   "fx-drift": "cos-drift-row",
+  "fx-vault-goldwave": "cos-vault-goldwave-row",
+  "fx-obsidian-surge": "cos-obsidian-surge-row",
 };
+
 
 export type WornCosmetics = {
   nametag?: string | null | undefined;

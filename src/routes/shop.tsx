@@ -194,6 +194,7 @@ function ShopPage() {
       ),
     [all],
   );
+  const vaultDrops = useMemo(() => rotate(all.filter((i) => i.pool === "vault"), weekKey(), 3), [all]);
 
 
   // The vaults are a secret shelf: normal accounts never learn they exist.
@@ -394,6 +395,43 @@ function ShopPage() {
         </Panel>
       ) : null}
 
+      {view === "shop" && vaultDrops.length ? (
+        <Panel className="border-gold/40 relative overflow-hidden p-5">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            style={{
+              background:
+                "radial-gradient(70% 120% at 12% -20%, oklch(0.85 0.14 82 / 0.18), transparent 65%), radial-gradient(60% 110% at 92% 120%, oklch(0.45 0.12 285 / 0.14), transparent 68%)",
+            }}
+          />
+          <div className="relative">
+            <PanelHead
+              eyebrow="Vault drop"
+              title="This week's heist"
+              aside={`resets in ${formatCountdown(secondsUntilWeeklyReset())}`}
+            />
+            <p className="text-muted-foreground mt-2 text-xs">
+              A rotating shelf of legendary and mythic pieces. Gone when the vault seals at Monday
+              midnight UTC.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {vaultDrops.map((item) => (
+                <ItemCard
+                  key={item.slug}
+                  item={item}
+                  owned={owned.has(item.slug)}
+                  equipped={equippedSlug[item.slot] === item.slug}
+                  level={level}
+                  sparks={sparks}
+                  onBuy={() => void buy(item)}
+                  onEquip={() => void equip(item)}
+                />
+              ))}
+            </div>
+          </div>
+        </Panel>
+      ) : null}
+
       {view === "shop" && limited.length ? (
         <Panel className="border-gold/30 p-5">
           <PanelHead
@@ -418,6 +456,7 @@ function ShopPage() {
           </div>
         </Panel>
       ) : null}
+
 
       {view === "shop" && daily.length ? (
         <Panel className="p-5" delay={40}>
