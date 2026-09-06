@@ -12,7 +12,7 @@ import { Game3DCanvas } from "./Game3DCanvas";
 
 const SLAB_H = 0.55;
 const BASE = 4;
-const SWEEP = 7;
+const SWEEP = 4.4;
 const PERFECT = 0.14;
 
 type Slab = { x: number; z: number; w: number; d: number };
@@ -108,7 +108,7 @@ function StackScene({
     moving: { x: -SWEEP, z: 0, w: BASE, d: BASE } as Slab,
     axis: "x" as "x" | "z",
     dir: 1,
-    speed: 3.4,
+    speed: 2.8,
     score: 0,
     combo: 0,
     over: false,
@@ -186,7 +186,7 @@ function StackScene({
 
       st.axis = axis === "x" ? "z" : "x";
       st.dir = 1;
-      st.speed = Math.min(11, 3.4 + st.slabs.length * 0.2);
+      st.speed = Math.min(9, 2.8 + st.slabs.length * 0.18);
       st.moving =
         st.axis === "x"
           ? { x: -SWEEP, z: placed.z, w: placed.w, d: placed.d }
@@ -240,7 +240,7 @@ function StackScene({
     }
 
     // orbiting chase camera that rises with the tower
-    const t = state.clock.elapsedTime * 0.18;
+    const t = state.clock.elapsedTime * 0.09;
     const focus = topY + 0.6;
     const radius = 11;
     camera.position.lerp(
