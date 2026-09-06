@@ -29,8 +29,16 @@ import {
   starsAt,
   totalStars,
   useCampaignProgress,
+  useRiftLeaderboard,
   useSaveClear,
 } from "@/lib/campaign-queries";
+import {
+  RIFT_RUNNERS,
+  RIFT_TRAILS,
+  loadRiftSkin,
+  saveRiftSkin,
+} from "@/lib/rift-skins";
+
 import {
   awardArcadeXp,
   personalBest,
