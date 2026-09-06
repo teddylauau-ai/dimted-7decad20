@@ -19,7 +19,9 @@ import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { Avatar, IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics } from "@/lib/dimted-queries";
+import { useRiftShop, type RiftItem } from "@/lib/rift-queries";
 import { usePulseItems } from "@/lib/pulse-queries";
+
 import { LEVELS } from "@/lib/pulse";
 import { MAX_TOTAL_XP } from "@/lib/dimted";
 import {
