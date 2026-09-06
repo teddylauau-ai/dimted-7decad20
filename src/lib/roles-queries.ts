@@ -180,6 +180,87 @@ export function useCompletePulse() {
   });
 }
 
+/** Nova Rift: coins, stars, one item or "*" for the whole catalogue. */
+export function useGrantRift() {
+  return useStaffMutation(
+    async ({
+      userId,
+      slug,
+      coins,
+      stars,
+    }: {
+      userId: string;
+      slug?: string;
+      coins?: number;
+      stars?: number;
+    }) => {
+      const args: { _user_id: string; _coins: number; _stars: number; _slug?: string } = {
+        _user_id: userId,
+        _coins: coins ?? 0,
+        _stars: stars ?? 0,
+      };
+      if (slug) args._slug = slug;
+      const { data, error } = await supabase.rpc("staff_grant_rift", args);
+
+      if (error) throw error;
+      return unwrap(data);
+    },
+  );
+}
+
+/** Owner-only: mark Nova Rift levels cleared with three stars each. */
+export function useCompleteRift() {
+  return useStaffMutation(async ({ userId, levels }: { userId: string; levels?: number }) => {
+    const { data, error } = await supabase.rpc("staff_complete_rift", {
+      _user_id: userId,
+      _levels: levels ?? 18,
+    });
+    if (error) throw error;
+    return unwrap(data);
+  });
+}
+
+/** Nova Vanguard cores. */
+export function useGrantVanguard() {
+  return useStaffMutation(async ({ userId, cores }: { userId: string; cores: number }) => {
+    const { data, error } = await supabase.rpc("staff_grant_vanguard", { _user_id: userId, _cores: cores });
+    if (error) throw error;
+    return unwrap(data);
+  });
+}
+
+/** Owner-only: set exact XP and sparks instead of adding. */
+export function useSetCurrency() {
+  return useStaffMutation(async ({ userId, xp, sparks }: { userId: string; xp: number; sparks: number }) => {
+    const { data, error } = await supabase.rpc("owner_set_currency", {
+      _user_id: userId,
+      _xp: xp,
+      _sparks: sparks,
+    });
+    if (error) throw error;
+    return unwrap(data);
+  });
+}
+
+/** Owner-only: season pass XP for the live season. */
+export function useSetSeasonXp() {
+  return useStaffMutation(async ({ userId, xp }: { userId: string; xp: number }) => {
+    const { data, error } = await supabase.rpc("owner_set_season_xp", { _user_id: userId, _xp: xp });
+    if (error) throw error;
+    return unwrap(data);
+  });
+}
+
+/** Owner-only: every currency, cosmetic, locker item and campaign clear at once. */
+export function useGrantEverything() {
+  return useStaffMutation(async ({ userId }: { userId: string }) => {
+    const { data, error } = await supabase.rpc("staff_grant_everything", { _user_id: userId });
+    if (error) throw error;
+    return unwrap(data);
+  });
+}
+
+
 /** Owner-only: set the title that sits under someone's name. */
 export function useSetTitle() {
   return useStaffMutation(async ({ userId, title }: { userId: string; title: string }) => {

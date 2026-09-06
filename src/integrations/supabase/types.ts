@@ -2214,6 +2214,10 @@ export type Database = {
         Args: { _crew_id: string; _user_id: string }
         Returns: Json
       }
+      owner_set_currency: {
+        Args: { _sparks: number; _user_id: string; _xp: number }
+        Returns: Json
+      }
       owner_set_season_xp: {
         Args: { _user_id: string; _xp: number }
         Returns: Json
@@ -2288,6 +2292,10 @@ export type Database = {
         Args: { _levels?: number; _user_id: string }
         Returns: Json
       }
+      staff_complete_rift: {
+        Args: { _levels?: number; _user_id: string }
+        Returns: Json
+      }
       staff_grant_cosmetic: {
         Args: { _slug: string; _user_id: string }
         Returns: Json
@@ -2296,8 +2304,22 @@ export type Database = {
         Args: { _sparks: number; _user_id: string; _xp: number }
         Returns: Json
       }
+      staff_grant_everything: { Args: { _user_id: string }; Returns: Json }
       staff_grant_pulse: {
         Args: { _coins?: number; _slug?: string; _user_id: string }
+        Returns: Json
+      }
+      staff_grant_rift: {
+        Args: {
+          _coins?: number
+          _slug?: string
+          _stars?: number
+          _user_id: string
+        }
+        Returns: Json
+      }
+      staff_grant_vanguard: {
+        Args: { _cores?: number; _user_id: string }
         Returns: Json
       }
       staff_ignite_surge_for: {

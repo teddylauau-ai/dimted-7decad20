@@ -19,7 +19,9 @@ import { Panel, PanelHead, PageHeader } from "@/components/dimted/primitives";
 import { Avatar, IdentityRow } from "@/components/dimted/Identity";
 import { useDimted } from "@/lib/dimted-store";
 import { useCosmetics } from "@/lib/dimted-queries";
+import { useRiftShop, type RiftItem } from "@/lib/rift-queries";
 import { usePulseItems } from "@/lib/pulse-queries";
+
 import { LEVELS } from "@/lib/pulse";
 import { MAX_TOTAL_XP } from "@/lib/dimted";
 import {
@@ -31,6 +33,13 @@ import {
   useEditProfile,
   useForceSurge,
   useCompletePulse,
+  useCompleteRift,
+  useGrantRift,
+  useGrantVanguard,
+  useSetCurrency,
+  useSetSeasonXp,
+  useGrantEverything,
+
   useGrantCosmetic,
   useGrantPulse,
   useGrantCurrency,
@@ -167,6 +176,38 @@ function AdminPage() {
   const [game, setGame] = useState(GAMES[0]!.id);
   const board = useLeaderboard(game);
   const removeScore = useDeleteScore();
+
+  const riftShop = useRiftShop();
+  const grantRift = useGrantRift();
+  const completeRift = useCompleteRift();
+  const grantVanguard = useGrantVanguard();
+  const setCurrency = useSetCurrency();
+  const setSeason = useSetSeasonXp();
+  const grantEverything = useGrantEverything();
+  const [riftStars, setRiftStars] = useState("100");
+  const [riftCoins, setRiftCoins] = useState("5000");
+  const [riftSlug, setRiftSlug] = useState("");
+  const [cores, setCores] = useState("5000");
+  const [exactXp, setExactXp] = useState("0");
+  const [exactSparks, setExactSparks] = useState("0");
+  const [seasonXp, setSeasonXp] = useState("0");
+
+  async function giveRift(opts: { slug?: string; stars?: number; coins?: number }) {
+    if (!target) return;
+    try {
+      const args: { userId: string; slug?: string; stars?: number; coins?: number } = {
+        userId: target.id,
+      };
+      if (opts.slug) args.slug = opts.slug;
+      if (opts.stars) args.stars = opts.stars;
+      if (opts.coins) args.coins = opts.coins;
+      await grantRift.mutateAsync(args);
+      toast.success("Nova Rift updated.");
+    } catch (e) {
+      fail(e);
+    }
+  }
+
 
   const everyone = useMemo(() => accounts.data ?? [], [accounts.data]);
   const target = everyone.find((p) => p.id === (targetId ?? profile?.id)) ?? null;
@@ -728,6 +769,211 @@ function AdminPage() {
               </div>
             </Panel>
           ) : null}
+
+          {/* ---- Grants: Nova Rift ---- */}
+          {activeTab === "grants" && me.isStaff ? (
+            <Panel className="p-4">
+              <PanelHead
+                eyebrow="Nova Rift"
+                title="Stars, coins and catalogue"
+                aside={`${(riftShop.data ?? []).length} items`}
+              />
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <Input
+                  className="h-9"
+                  value={riftStars}
+                  inputMode="numeric"
+                  onChange={(e) => setRiftStars(e.target.value)}
+                />
+                <Input
+                  className="h-9"
+                  value={riftCoins}
+                  inputMode="numeric"
+                  onChange={(e) => setRiftCoins(e.target.value)}
+                />
+                <select
+                  value={riftSlug}
+                  onChange={(e) => setRiftSlug(e.target.value)}
+                  className="border-border bg-secondary/40 focus-visible:ring-ring w-full rounded-xl border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
+                >
+                  <option value="">Choose a rift item…</option>
+                  {(riftShop.data ?? []).map((i: RiftItem) => (
+                    <option key={i.slug} value={i.slug}>
+                      {i.name} · {i.kind}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <p className="text-muted-foreground mt-1 font-mono text-[10px] uppercase">
+                stars · coins · item
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <Button
+                  size="sm"
+                  disabled={grantRift.isPending}
+                  onClick={() =>
+                    void giveRift({ stars: Number(riftStars) || 0, coins: Number(riftCoins) || 0 })
+                  }
+                >
+                  <Sparkles className="size-4" /> Give currency
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!riftSlug || grantRift.isPending}
+                  onClick={() => void giveRift({ slug: riftSlug })}
+                >
+                  <Gem className="size-4" /> Unlock item
+                </Button>
+                {me.isOwner ? (
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => void giveRift({ slug: "*", stars: 100000, coins: 100000 })}
+                    >
+                      Whole catalogue
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={completeRift.isPending}
+                      onClick={async () => {
+                        if (!target) return;
+                        try {
+                          await completeRift.mutateAsync({ userId: target.id, levels: 18 });
+                          toast.success("Every rift level cleared with three stars.");
+                        } catch (e) {
+                          fail(e);
+                        }
+                      }}
+                    >
+                      <Zap className="size-4" /> Clear campaign
+                    </Button>
+                  </>
+                ) : null}
+              </div>
+            </Panel>
+          ) : null}
+
+          {/* ---- Grants: Nova Vanguard ---- */}
+          {activeTab === "grants" && me.isStaff ? (
+            <Panel className="p-4">
+              <PanelHead eyebrow="Nova Vanguard" title="Cores" aside="arsenal currency" />
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <Input
+                  className="h-9"
+                  value={cores}
+                  inputMode="numeric"
+                  onChange={(e) => setCores(e.target.value)}
+                />
+                <Button
+                  size="sm"
+                  className="h-9"
+                  disabled={grantVanguard.isPending}
+                  onClick={async () => {
+                    if (!target) return;
+                    try {
+                      const res = (await grantVanguard.mutateAsync({
+                        userId: target.id,
+                        cores: Number(cores) || 0,
+                      })) as { cores?: number };
+                      toast.success(`Vanguard cores: ${(res.cores ?? 0).toLocaleString()}`);
+                    } catch (e) {
+                      fail(e);
+                    }
+                  }}
+                >
+                  <Sparkles className="size-4" /> Give cores
+                </Button>
+              </div>
+            </Panel>
+          ) : null}
+
+          {/* ---- Grants: exact setters + total override (owner only) ---- */}
+          {activeTab === "grants" && me.isOwner ? (
+            <Panel className="p-4">
+              <PanelHead eyebrow="Override" title="Set exact numbers" aside="owner only" />
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <Input
+                  className="h-9"
+                  value={exactXp}
+                  inputMode="numeric"
+                  onChange={(e) => setExactXp(e.target.value)}
+                />
+                <Input
+                  className="h-9"
+                  value={exactSparks}
+                  inputMode="numeric"
+                  onChange={(e) => setExactSparks(e.target.value)}
+                />
+                <Input
+                  className="h-9"
+                  value={seasonXp}
+                  inputMode="numeric"
+                  onChange={(e) => setSeasonXp(e.target.value)}
+                />
+              </div>
+              <p className="text-muted-foreground mt-1 font-mono text-[10px] uppercase">
+                total XP · sparks · season pass XP
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <Button
+                  size="sm"
+                  disabled={setCurrency.isPending}
+                  onClick={async () => {
+                    if (!target) return;
+                    try {
+                      await setCurrency.mutateAsync({
+                        userId: target.id,
+                        xp: Number(exactXp) || 0,
+                        sparks: Number(exactSparks) || 0,
+                      });
+                      toast.success("Totals set.");
+                    } catch (e) {
+                      fail(e);
+                    }
+                  }}
+                >
+                  Set totals
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={setSeason.isPending}
+                  onClick={async () => {
+                    if (!target) return;
+                    try {
+                      await setSeason.mutateAsync({ userId: target.id, xp: Number(seasonXp) || 0 });
+                      toast.success("Season pass XP set.");
+                    } catch (e) {
+                      fail(e);
+                    }
+                  }}
+                >
+                  Set season XP
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={grantEverything.isPending}
+                  onClick={async () => {
+                    if (!target) return;
+                    if (!confirm(`Give ${target.display_name} absolutely everything in the game?`)) return;
+                    try {
+                      await grantEverything.mutateAsync({ userId: target.id });
+                      toast.success("Everything granted — currencies, wardrobe, lockers, campaigns.");
+                    } catch (e) {
+                      fail(e);
+                    }
+                  }}
+                >
+                  <Crown className="size-4" /> Give everything
+                </Button>
+              </div>
+            </Panel>
+          ) : null}
+
 
           {/* ---- Grants: titles (owner only, hidden otherwise) ---- */}
           {activeTab === "grants" && me.isOwner ? (
