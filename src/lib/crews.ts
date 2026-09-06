@@ -122,6 +122,10 @@ export const CREW_BADGE_STYLES: { key: CrewBadgeStyle; label: string; unlock: nu
   { key: "eclipse", label: "Eclipse", unlock: 55, cls: "ring-[3px] shadow-[0_0_28px_-6px_currentColor] brightness-110" },
   { key: "sovereign", label: "Sovereign", unlock: 80, cls: "ring-[3px] ring-amber-300/70 shadow-[0_0_30px_-4px_rgba(252,211,77,0.7)]" },
   { key: "centurion", label: "Centurion", unlock: 100, cls: "ring-[3px] ring-amber-200 animate-pulse shadow-[0_0_36px_-2px_rgba(253,230,138,0.85)]" },
+  { key: "etched", label: "Etched", unlock: 8, cls: "ring-1 ring-offset-1 ring-offset-background shadow-inner" },
+  { key: "orbit", label: "Orbit", unlock: 25, cls: "ring-2 ring-dashed shadow-[0_0_20px_-6px_currentColor]" },
+  { key: "prism", label: "Prism", unlock: 45, cls: "ring-2 ring-offset-2 ring-offset-background saturate-150 shadow-[0_0_24px_-4px_currentColor]" },
+  { key: "void", label: "Void", unlock: 70, cls: "ring-[3px] ring-slate-900/80 shadow-[0_0_26px_-4px_currentColor] contrast-125" },
 ];
 
 /** Crew nametags — applied to member names inside crew chat. */
