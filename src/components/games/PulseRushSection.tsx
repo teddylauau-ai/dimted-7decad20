@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { CalendarClock, Check, Coins, Crown, Flame, Infinity as InfinityIcon, Lock, Play, Repeat, Shapes, Trophy } from "lucide-react";
 import { toast } from "sonner";
@@ -49,33 +48,12 @@ import { useRefreshDimted } from "@/lib/dimted-queries";
 import { cn } from "@/lib/utils";
 import type { GameId } from "@/lib/games";
 
-export const Route = createFileRoute("/pulse")({
-  head: () => ({
-    meta: [
-      { title: "Pulse Rush — one-button rhythm platformer | Lazu" },
-      {
-        name: "description",
-        content:
-          "Pulse Rush is Lazu's flagship game: 27 hand-built rhythm levels, an endless mode, a daily challenge, ship, wave and ball modes, secret coins, and a locker full of unlockable cubes, trails and death effects.",
-      },
-      { property: "og:title", content: "Pulse Rush — Lazu" },
-      {
-        property: "og:description",
-        content:
-          "One tap. Twenty-seven levels plus an endless run. Memorise the beat, clear the run, collect the coins and unlock everything.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: PulsePage,
-});
 
 type Phase = "select" | "playing" | "result";
 
 const KIND_ORDER: ItemKind[] = ["icon", "ship", "ball", "wave", "trail", "death", "colors"];
 
-function PulsePage() {
+export function PulseRushSection() {
   const { profile, syncXp } = useDimted();
   const state = usePulseState(profile?.id);
   const items = usePulseItems();
