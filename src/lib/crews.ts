@@ -290,6 +290,37 @@ export function chatBgStyle(bg: CrewChatBg): React.CSSProperties {
         backgroundImage: "linear-gradient(180deg, currentColor, transparent 75%)",
         opacity: 0.16,
       };
+    case "dunes":
+      return {
+        backgroundImage:
+          "repeating-radial-gradient(ellipse at 50% 140%, currentColor 0 1.5px, transparent 1.5px 40px), linear-gradient(0deg, currentColor, transparent 60%)",
+        opacity: 0.2,
+      };
+    case "orbit":
+      return {
+        backgroundImage:
+          "repeating-radial-gradient(circle at 50% 50%, currentColor 0 1px, transparent 1px 46px), radial-gradient(currentColor 1.4px, transparent 2px)",
+        backgroundSize: "auto, 90px 90px",
+        opacity: 0.2,
+      };
+    case "storm":
+      return {
+        backgroundImage:
+          "repeating-linear-gradient(75deg, currentColor 0 1px, transparent 1px 14px), radial-gradient(60% 40% at 30% 0%, currentColor 0%, transparent 70%)",
+        opacity: 0.18,
+      };
+    case "shards":
+      return {
+        backgroundImage:
+          "repeating-linear-gradient(135deg, currentColor 0 2px, transparent 2px 22px), repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 34px)",
+        opacity: 0.16,
+      };
+    case "lattice":
+      return {
+        backgroundImage:
+          "repeating-linear-gradient(30deg, currentColor 0 1px, transparent 1px 20px), repeating-linear-gradient(150deg, currentColor 0 1px, transparent 1px 20px), radial-gradient(70% 50% at 50% 50%, currentColor 0%, transparent 75%)",
+        opacity: 0.17,
+      };
     default:
       return { opacity: 0 };
   }
