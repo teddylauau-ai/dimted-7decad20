@@ -129,12 +129,12 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-wave": "≈",
   "badge-flask": "⚗",
   "badge-orbit": "◉",
-  "badge-prism-shard": "◈",
-  "badge-chroma-star": "✶",
-  "badge-opal-eye": "❍",
-  "badge-kaleido-bloom": "❋",
-  "badge-iris-lotus": "✵",
-  "badge-spectrum-apex": "✥",
+  "badge-prism-shard": "cos-badge-prismatic cos-badge-prism-shard",
+  "badge-chroma-star": "cos-badge-prismatic cos-badge-chroma-star",
+  "badge-opal-eye": "cos-badge-prismatic cos-badge-opal-eye",
+  "badge-kaleido-bloom": "cos-badge-prismatic cos-badge-kaleido-bloom",
+  "badge-iris-lotus": "cos-badge-prismatic cos-badge-iris-lotus cos-glow-prismatic",
+  "badge-spectrum-apex": "cos-badge-prismatic cos-badge-spectrum-apex cos-glow-prismatic",
 };
 
 export const BADGE_CLASS: Record<string, string> = {
@@ -175,12 +175,12 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-wave": "text-uncommon",
   "badge-flask": "text-rare",
   "badge-orbit": "text-epic cos-glow-epic",
-  "badge-prism-shard": "cos-badge-prismatic",
-  "badge-chroma-star": "cos-badge-prismatic",
-  "badge-opal-eye": "cos-badge-prismatic",
-  "badge-kaleido-bloom": "cos-badge-prismatic",
-  "badge-iris-lotus": "cos-badge-prismatic cos-glow-prismatic",
-  "badge-spectrum-apex": "cos-badge-prismatic cos-glow-prismatic",
+  "badge-prism-shard": "cos-badge-prismatic cos-badge-prism-shard",
+  "badge-chroma-star": "cos-badge-prismatic cos-badge-chroma-star",
+  "badge-opal-eye": "cos-badge-prismatic cos-badge-opal-eye",
+  "badge-kaleido-bloom": "cos-badge-prismatic cos-badge-kaleido-bloom",
+  "badge-iris-lotus": "cos-badge-prismatic cos-badge-iris-lotus cos-glow-prismatic",
+  "badge-spectrum-apex": "cos-badge-prismatic cos-badge-spectrum-apex cos-glow-prismatic",
 };
 
 /**
