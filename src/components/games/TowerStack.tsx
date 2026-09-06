@@ -25,31 +25,26 @@ function hueOf(i: number) {
   return (204 + i * 4) % 360;
 }
 
-/** Cached facade texture: dark glass curtain wall with lit office windows. */
+/** Cached facade texture: simple cartoon building with a few big windows. */
 const facadeCache = new Map<number, THREE.Texture>();
 function facadeTexture(index: number) {
-  const bucket = index % 6;
+  const bucket = index % 4;
   const cached = facadeCache.get(bucket);
   if (cached) return cached;
   const c = document.createElement("canvas");
   c.width = 128;
   c.height = 64;
   const g = c.getContext("2d")!;
-  g.fillStyle = "#0b1a28";
+  g.fillStyle = "#ffffff";
   g.fillRect(0, 0, 128, 64);
-  const cols = 10;
-  const rows = 3;
+  const cols = 5;
+  const rows = 2;
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
-      const lit = Math.random();
-      g.fillStyle =
-        lit > 0.72 ? "#ffe8ad" : lit > 0.5 ? "#7fd7ff" : lit > 0.32 ? "#16405c" : "#0e2536";
-      g.fillRect(6 + x * 11.6, 8 + y * 17, 8.4, 12);
+      g.fillStyle = (x + y + bucket) % 3 === 0 ? "#ffe9a8" : "#cfefff";
+      g.fillRect(12 + x * 21, 12 + y * 22, 14, 14);
     }
   }
-  g.strokeStyle = "#22475f";
-  g.lineWidth = 2;
-  g.strokeRect(1, 1, 126, 62);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
@@ -58,7 +53,7 @@ function facadeTexture(index: number) {
 }
 
 function FloorMesh({ slab, index, emissive = 0.1 }: { slab: Slab; index: number; emissive?: number }) {
-  const color = useMemo(() => new THREE.Color(`hsl(${hueOf(index)}, 34%, 44%)`), [index]);
+  const color = useMemo(() => new THREE.Color(`hsl(${hueOf(index)}, 52%, 56%)`), [index]);
   const tex = useMemo(() => facadeTexture(index), [index]);
   return (
     <group position={[slab.x, index * SLAB_H + SLAB_H / 2, slab.z]}>
@@ -69,19 +64,14 @@ function FloorMesh({ slab, index, emissive = 0.1 }: { slab: Slab; index: number;
           color={color}
           emissive={color}
           emissiveIntensity={emissive}
-          emissiveMap={tex}
-          roughness={0.45}
-          metalness={0.45}
+          roughness={0.65}
+          metalness={0.05}
         />
-      </mesh>
-      {/* concrete slab lip between floors */}
-      <mesh position={[0, SLAB_H / 2 + 0.03, 0]}>
-        <boxGeometry args={[slab.w + 0.08, 0.06, slab.d + 0.08]} />
-        <meshStandardMaterial color="#9fb3c2" roughness={0.8} metalness={0.1} />
       </mesh>
     </group>
   );
 }
+
 
 function ShardMesh({ shard, onDone }: { shard: Shard; onDone: (id: number) => void }) {
   const ref = useRef<THREE.Mesh>(null);
