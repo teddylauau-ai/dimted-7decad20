@@ -51,7 +51,10 @@ export function useSaveClear(userId: string | undefined) {
         if (error) throw error;
       }
     },
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["campaign-progress", userId] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["campaign-progress", userId] });
+      void qc.invalidateQueries({ queryKey: ["rift-leaderboard"] });
+    },
   });
 }
 
@@ -94,7 +97,8 @@ export type RiftBoardRow = {
 export function useRiftLeaderboard(limit = 25) {
   return useQuery({
     queryKey: ["rift-leaderboard", limit],
-    staleTime: 30_000,
+    staleTime: 5_000,
+    refetchOnMount: "always",
     queryFn: async (): Promise<RiftBoardRow[]> => {
       const { data, error } = await supabase
         .from("game_progress")

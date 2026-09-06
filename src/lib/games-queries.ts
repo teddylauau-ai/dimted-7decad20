@@ -63,7 +63,8 @@ export type TopPlayerRow = {
 export function useTopGamePlayers(limit = 15) {
   return useQuery({
     queryKey: ["arcade-top-players", limit],
-    staleTime: 30_000,
+    staleTime: 5_000,
+    refetchOnMount: "always",
     queryFn: async (): Promise<TopPlayerRow[]> => {
       const { data, error } = await supabase.rpc("arcade_top_players", { _limit: limit } as never);
       if (error) throw error;
@@ -110,6 +111,9 @@ export function useSubmitScore(userId: string | undefined) {
     onSuccess: (_d, vars) => {
       void qc.invalidateQueries({ queryKey: ["leaderboard", vars.game] });
       void qc.invalidateQueries({ queryKey: ["my-scores", userId] });
+      void qc.invalidateQueries({ queryKey: ["arcade-top-players"] });
+      void qc.invalidateQueries({ queryKey: ["skyward-leaderboard"] });
+      void qc.invalidateQueries({ queryKey: ["xp-leaderboard"] });
     },
   });
 }
@@ -122,7 +126,11 @@ export function useDeleteScore() {
       const { error } = await supabase.from("game_scores").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => void qc.invalidateQueries({ queryKey: ["leaderboard"] }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["leaderboard"] });
+      void qc.invalidateQueries({ queryKey: ["arcade-top-players"] });
+      void qc.invalidateQueries({ queryKey: ["skyward-leaderboard"] });
+    },
   });
 }
 
@@ -181,7 +189,8 @@ export async function submitSkywardRun(
 export function useSkywardLeaderboard() {
   return useQuery({
     queryKey: ["skyward-leaderboard"],
-    staleTime: 30_000,
+    staleTime: 5_000,
+    refetchOnMount: "always",
     queryFn: async (): Promise<SkywardRow[]> => {
       const { data, error } = await supabase
         .from("game_scores")

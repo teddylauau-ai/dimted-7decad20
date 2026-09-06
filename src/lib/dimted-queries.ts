@@ -623,7 +623,8 @@ function sortLadder(rows: PublicProfile[], ownerIds: Set<string>): PublicProfile
 export function useXpLeaderboard(limit = 50) {
   return useQuery({
     queryKey: ["xp-leaderboard", limit],
-    staleTime: 30 * 1000,
+    staleTime: 5_000,
+    refetchOnMount: "always",
     queryFn: async (): Promise<PublicProfile[]> => {
       const { data, error } = await supabase
         .from("profiles")
