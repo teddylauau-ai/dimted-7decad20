@@ -15,6 +15,7 @@ import { Route as ArmoryRouteImport } from './routes/armory'
 import { Route as CrewsRouteImport } from './routes/crews'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
+import { Route as GamesRouteImport } from './routes/games'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as SeasonRouteImport } from './routes/season'
@@ -51,6 +52,11 @@ const DiscoverRoute = DiscoverRouteImport.update({
 const FriendsRoute = FriendsRouteImport.update({
   id: '/friends',
   path: '/friends',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GamesRoute = GamesRouteImport.update({
+  id: '/games',
+  path: '/games',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MessagesRoute = MessagesRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/crews': typeof CrewsRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
+  '/games': typeof GamesRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
   '/season': typeof SeasonRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/crews': typeof CrewsRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
+  '/games': typeof GamesRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
   '/season': typeof SeasonRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/crews': typeof CrewsRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
+  '/games': typeof GamesRoute
   '/messages': typeof MessagesRoute
   '/profile': typeof ProfileRoute
   '/season': typeof SeasonRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/crews'
     | '/discover'
     | '/friends'
+    | '/games'
     | '/messages'
     | '/profile'
     | '/season'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/crews'
     | '/discover'
     | '/friends'
+    | '/games'
     | '/messages'
     | '/profile'
     | '/season'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/crews'
     | '/discover'
     | '/friends'
+    | '/games'
     | '/messages'
     | '/profile'
     | '/season'
@@ -190,6 +202,7 @@ export interface RootRouteChildren {
   CrewsRoute: typeof CrewsRoute
   DiscoverRoute: typeof DiscoverRoute
   FriendsRoute: typeof FriendsRoute
+  GamesRoute: typeof GamesRoute
   MessagesRoute: typeof MessagesRoute
   ProfileRoute: typeof ProfileRoute
   SeasonRoute: typeof SeasonRoute
@@ -241,6 +254,13 @@ declare module '@tanstack/react-router' {
       path: '/friends'
       fullPath: '/friends'
       preLoaderRoute: typeof FriendsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/games': {
+      id: '/games'
+      path: '/games'
+      fullPath: '/games'
+      preLoaderRoute: typeof GamesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/messages': {
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   CrewsRoute: CrewsRoute,
   DiscoverRoute: DiscoverRoute,
   FriendsRoute: FriendsRoute,
+  GamesRoute: GamesRoute,
   MessagesRoute: MessagesRoute,
   ProfileRoute: ProfileRoute,
   SeasonRoute: SeasonRoute,
