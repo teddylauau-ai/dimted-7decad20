@@ -222,8 +222,12 @@ export const FRAME_CLASS: Record<string, string> = {
   "frame-frost": "cos-ring border-rare/70 cos-glow-rare animate-breathe",
   "frame-blossom": "cos-ring border-[oklch(0.8_0.14_15)] cos-glow-epic animate-breathe",
   "frame-venom": "cos-ring border-uncommon/80 cos-glow-primary animate-breathe",
-  "frame-vault-seal": "cos-ring border-gold/80 cos-glow-gold animate-breathe",
-  "frame-obsidian-spire": "cos-ring border-mythic/80 cos-glow-mythic animate-breathe",
+  "frame-prism-halo": "cos-frame cos-frame-prism-halo",
+  "frame-chroma-orbit": "cos-frame cos-frame-chroma-orbit",
+  "frame-opal-shell": "cos-frame cos-frame-opal-shell",
+  "frame-kaleido-ring": "cos-frame cos-frame-kaleido-ring",
+  "frame-iris-corona": "cos-frame cos-frame-iris-corona",
+  "frame-spectrum-apex": "cos-frame cos-frame-spectrum-apex",
 };
 
 /** Banner → background style for the profile header. */
