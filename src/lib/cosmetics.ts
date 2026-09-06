@@ -129,8 +129,12 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-wave": "≈",
   "badge-flask": "⚗",
   "badge-orbit": "◉",
-  "badge-vault-key": "⚿",
-  "badge-obsidian-crown": "♛",
+  "badge-prism-shard": "◈",
+  "badge-chroma-star": "✶",
+  "badge-opal-eye": "❍",
+  "badge-kaleido-bloom": "❋",
+  "badge-iris-lotus": "✵",
+  "badge-spectrum-apex": "✥",
 };
 
 export const BADGE_CLASS: Record<string, string> = {
