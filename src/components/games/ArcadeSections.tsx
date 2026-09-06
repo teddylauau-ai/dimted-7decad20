@@ -590,7 +590,7 @@ export function ArcadeSection() {
 
 // ------------------------------------------------------------- Top players
 
-function TopPlayersPanel({ meId }: { meId?: string }) {
+function TopPlayersPanel({ meId }: { meId: string | undefined }) {
   const top = useTopGamePlayers(15);
   return (
     <Panel className="p-5">
@@ -626,14 +626,12 @@ function TopPlayersPanel({ meId }: { meId?: string }) {
               <div className="min-w-0 flex-1">
                 <IdentityRow
                   profile={{
-                    id: row.user_id,
                     username: row.username,
                     display_name: row.display_name,
                     avatar_url: row.avatar_url,
                     equipped_nametag: row.equipped_nametag,
                     equipped_badge: row.equipped_badge,
                     equipped_frame: row.equipped_frame,
-                    equipped_effect: row.equipped_effect,
                   }}
                   size={26}
                 />
