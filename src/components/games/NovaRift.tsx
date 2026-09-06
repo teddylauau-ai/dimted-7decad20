@@ -504,7 +504,7 @@ export function NovaRift({
       window.removeEventListener("keyup", up);
       done = true;
     };
-  }, [level, running]);
+  }, [level, running, runner, trailSlug]);
 
   const held = (key: string, on: boolean) => {
     keys.current[key] = on;
