@@ -197,46 +197,63 @@ export function CampaignSection() {
         </p>
       </Panel>
 
-      {/* Level select */}
+      {/* Level select — locked levels can be bought with stars */}
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
         {LEVELS.map((l) => {
-          const isLocked = l.n > unlockedUpTo;
+          const isLocked = !isOpen(l.n);
+          const price = priceOf(levelSlug(l.n));
           const got = starsAt(progress.data, l.n);
           return (
-            <button
+            <div
               key={l.n}
-              disabled={isLocked}
-              onClick={() => {
-                setLevelN(l.n);
-                setPhase("idle");
-                setResult(null);
-              }}
               className={cn(
                 "glass rounded-xl p-3 text-left transition-colors",
                 l.n === levelN && !isLocked && "ring-primary/60 ring-2",
-                isLocked ? "cursor-not-allowed opacity-45" : "hover:bg-secondary/40",
               )}
             >
-              <div className="flex items-center justify-between gap-1">
-                <span className="numeral text-sm">{l.n}</span>
-                {isLocked ? (
-                  <Lock className="text-muted-foreground size-3.5" />
-                ) : (
-                  <span className="flex gap-0.5">
-                    {[0, 1, 2].map((i) => (
-                      <Star
-                        key={i}
-                        className={cn("size-3", i < got ? "text-gold fill-current" : "text-muted-foreground/40")}
-                      />
-                    ))}
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 truncate text-[11px] leading-tight">{l.name}</p>
-            </button>
+              <button
+                type="button"
+                disabled={isLocked}
+                onClick={() => {
+                  setLevelN(l.n);
+                  setPhase("idle");
+                  setResult(null);
+                }}
+                className={cn("w-full text-left", isLocked && "cursor-not-allowed opacity-60")}
+              >
+                <div className="flex items-center justify-between gap-1">
+                  <span className="numeral text-sm">{l.n}</span>
+                  {isLocked ? (
+                    <Lock className="text-muted-foreground size-3.5" />
+                  ) : (
+                    <span className="flex gap-0.5">
+                      {[0, 1, 2].map((i) => (
+                        <Star
+                          key={i}
+                          className={cn("size-3", i < got ? "text-gold fill-current" : "text-muted-foreground/40")}
+                        />
+                      ))}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 truncate text-[11px] leading-tight">{l.name}</p>
+              </button>
+              {isLocked && price > 0 ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={buy.isPending || spendable < price}
+                  onClick={() => void purchase(levelSlug(l.n), `Level ${l.n}`)}
+                  className="mt-2 h-7 w-full px-2 text-[11px]"
+                >
+                  <Star className="size-3 fill-current" /> {price}
+                </Button>
+              ) : null}
+            </div>
           );
         })}
       </div>
+
 
       <Panel className="flex flex-col items-center gap-4 p-5">
         {phase === "playing" ? (
