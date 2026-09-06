@@ -87,7 +87,7 @@ function relative(ageMs: number): string {
 
 /** Map a route path to the context string we report to the server. */
 export function contextFromPath(path: string): string {
-  if (path.startsWith("/activities")) return "arcade";
+  if (path.startsWith("/games")) return "arcade";
   if (path.startsWith("/study")) return "study";
   if (path.startsWith("/messages")) return "messages";
   if (path.startsWith("/communities")) return "communities";

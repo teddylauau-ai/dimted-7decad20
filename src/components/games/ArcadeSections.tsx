@@ -12,6 +12,10 @@ import { PrismBreak } from "@/components/games/PrismBreak";
 import { CometSling } from "@/components/games/CometSling";
 import { NovaFusion } from "@/components/games/NovaFusion";
 import { SignalType } from "@/components/games/SignalType";
+import { TowerStack } from "@/components/games/TowerStack";
+import { LaneHop } from "@/components/games/LaneHop";
+import { EchoSequence } from "@/components/games/EchoSequence";
+import { NeonCoil } from "@/components/games/NeonCoil";
 import { NovaRift } from "@/components/games/NovaRift";
 import { GAMES, type GameId } from "@/lib/games";
 import {
@@ -463,6 +467,14 @@ export function ArcadeSection() {
                   <CometSling running onScore={handleScore} onEnd={handleEnd} />
                 ) : gameId === "nova-fusion" ? (
                   <NovaFusion running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "tower-stack" ? (
+                  <TowerStack running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "lane-hop" ? (
+                  <LaneHop running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "echo-sequence" ? (
+                  <EchoSequence running onScore={handleScore} onEnd={handleEnd} />
+                ) : gameId === "neon-coil" ? (
+                  <NeonCoil running onScore={handleScore} onEnd={handleEnd} />
                 ) : (
                   <SignalType running onScore={handleScore} onEnd={handleEnd} />
                 )}
