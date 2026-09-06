@@ -280,21 +280,11 @@ export function chatBgStyle(bg: CrewChatBg): React.CSSProperties {
 }
 
 /** Tailwind text-colour class for an accent, used to tint chat backgrounds/nametags. */
-export const ACCENT_TEXT: Record<CrewAccent, string> = {
-  teal: "text-teal-400",
-  violet: "text-violet-400",
-  amber: "text-amber-400",
-  rose: "text-rose-400",
-  emerald: "text-emerald-400",
-  sky: "text-sky-400",
-  slate: "text-slate-400",
-};
+export const ACCENT_TEXT = Object.fromEntries(
+  CREW_ACCENTS.map((a) => [a.key, a.text]),
+) as Record<CrewAccent, string>;
 
-export const CREW_EMOJI = [
-  "🛡️","⚡","🔥","🌊","🦅","🐺","🐉","👾","🚀","🌌","💠","🎯","🎧","🧿","⚔️","🪐","🥇","🧠","🌠","☄️",
-];
-
-const DEFAULT_ACCENT = CREW_ACCENTS[0] as { key: CrewAccent; label: string; dot: string; glow: string; ring: string };
+const DEFAULT_ACCENT = CREW_ACCENTS[0]!;
 
 export function accentOf(accent: string | null | undefined) {
   return CREW_ACCENTS.find((a) => a.key === accent) ?? DEFAULT_ACCENT;
