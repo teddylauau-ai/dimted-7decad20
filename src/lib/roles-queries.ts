@@ -194,12 +194,14 @@ export function useGrantRift() {
       coins?: number;
       stars?: number;
     }) => {
-      const { data, error } = await supabase.rpc("staff_grant_rift", {
+      const args: { _user_id: string; _coins: number; _stars: number; _slug?: string } = {
         _user_id: userId,
-        _slug: slug ?? undefined,
         _coins: coins ?? 0,
         _stars: stars ?? 0,
-      });
+      };
+      if (slug) args._slug = slug;
+      const { data, error } = await supabase.rpc("staff_grant_rift", args);
+
       if (error) throw error;
       return unwrap(data);
     },
