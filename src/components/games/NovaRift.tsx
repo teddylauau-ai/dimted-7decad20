@@ -7,6 +7,8 @@ import {
   type LevelDef,
   type Rect,
 } from "@/lib/campaign";
+import { runnerBySlug, trailBySlug } from "@/lib/rift-skins";
+
 
 /**
  * Nova Rift — hand-designed precision platformer. Each level is a fixed layout
@@ -28,18 +30,30 @@ function hit(ax: number, ay: number, aw: number, ah: number, b: Rect) {
   return ax < b.x + b.w && ax + aw > b.x && ay < b.y + b.h && ay + ah > b.y;
 }
 
+/** #rrggbb → rgba() so cosmetics can be drawn with alpha. */
+function rgba(hex: string, a: number) {
+  const h = hex.replace("#", "");
+  const n = parseInt(h.length === 3 ? h.replace(/./g, (c) => c + c) : h, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+}
+
+
 export function NovaRift({
   level,
   running,
   onWin,
   onFail,
   onShards,
+  runner = "aurora",
+  trail: trailSlug = "ghost",
 }: {
   level: LevelDef;
   running: boolean;
   onWin: (shards: number, ms: number) => void;
   onFail: () => void;
   onShards?: (shards: number) => void;
+  runner?: string;
+  trail?: string;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const cbs = useRef({ onWin, onFail, onShards });
@@ -49,10 +63,15 @@ export function NovaRift({
   const dashQueued = useRef(false);
   const [hud, setHud] = useState({ shards: 0, ms: 0 });
 
+
   useEffect(() => {
     if (!running) return;
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
+
+    const skin = runnerBySlug(runner);
+    const tr = trailBySlug(trailSlug);
+
 
     const abilities = abilitiesFor(level.n);
     const canDouble = abilities.includes("double-jump");
@@ -349,16 +368,51 @@ export function NovaRift({
         ctx.restore();
       }
 
-      // ---- avatar: a little rift runner
+      // ---- trail (cosmetic)
       const face = vx < -8 ? -1 : 1;
+      const speedish = Math.min(1, Math.abs(vx) / RUN);
       trail.forEach((t, i) => {
-        const a = 0.14 * (1 - i / trail.length);
-        ctx.fillStyle = `rgba(143,240,228,${a})`;
-        ctx.fillRect(t.x + 3, t.y + 6, PW - 6, PH - 8);
+        const k = 1 - i / trail.length;
+        const cx3 = t.x + PW / 2;
+        const cy3 = t.y + PH / 2;
+        if (tr.style === "ghost") {
+          ctx.fillStyle = rgba(tr.color, 0.16 * k);
+          ctx.fillRect(t.x + 3, t.y + 6, PW - 6, PH - 8);
+        } else if (tr.style === "spark") {
+          ctx.fillStyle = rgba(tr.color, 0.5 * k * (0.3 + speedish));
+          const j = Math.sin(frame * 0.5 + i) * 4;
+          ctx.fillRect(cx3 - 2, cy3 + j, 3, 3);
+          ctx.fillRect(cx3 - 6, cy3 - j, 2, 2);
+        } else if (tr.style === "ribbon") {
+          if (i === 0) {
+            ctx.beginPath();
+            ctx.strokeStyle = rgba(tr.color, 0.55);
+            ctx.lineWidth = 4;
+            ctx.lineCap = "round";
+            trail.forEach((q, qi) =>
+              qi === 0
+                ? ctx.moveTo(q.x + PW / 2, q.y + PH / 2)
+                : ctx.lineTo(q.x + PW / 2, q.y + PH / 2 + Math.sin(frame * 0.3 + qi) * 2),
+            );
+            ctx.stroke();
+          }
+        } else if (tr.style === "ember") {
+          ctx.fillStyle = rgba(tr.color, 0.4 * k);
+          ctx.beginPath();
+          ctx.arc(cx3 - i * 1.5, cy3 + Math.sin(frame * 0.4 + i) * 3, 6 * k + 1, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          const hue = (frame * 6 + i * 28) % 360;
+          ctx.fillStyle = `hsla(${hue}, 90%, 70%, ${0.32 * k})`;
+          ctx.fillRect(t.x + 3, t.y + 5, PW - 6, PH - 6);
+        }
       });
+
+      // ---- avatar: the chosen rift runner
+      const wide = skin.shape === "bulk" ? 1.22 : skin.shape === "slim" ? 0.82 : 1;
       ctx.save();
       ctx.translate(x + PW / 2, y + PH);
-      ctx.scale(face, 1);
+      ctx.scale(face * wide, 1);
       // shadow on ground
       if (onGround) {
         ctx.fillStyle = "rgba(0,0,0,0.3)";
@@ -368,8 +422,8 @@ export function NovaRift({
       }
       const stride = onGround ? Math.sin(frame * 0.35) * (Math.abs(vx) > 30 ? 5 : 0) : 3;
       // legs
-      ctx.strokeStyle = "#2f6f86";
-      ctx.lineWidth = 3.5;
+      ctx.strokeStyle = skin.limb;
+      ctx.lineWidth = skin.shape === "bulk" ? 4.5 : 3.5;
       ctx.beginPath();
       ctx.moveTo(-2, -9);
       ctx.lineTo(-2 - stride, 0);
@@ -377,12 +431,13 @@ export function NovaRift({
       ctx.lineTo(2 + stride, 0);
       ctx.stroke();
       // body
-      const bodyCol = dashLeft > 0 ? "#ffce78" : "#8ff0e4";
+      const bodyCol = dashLeft > 0 ? "#ffce78" : skin.body;
       ctx.fillStyle = bodyCol;
       ctx.shadowColor = bodyCol;
       ctx.shadowBlur = 12;
       ctx.beginPath();
-      ctx.roundRect(-7, -20, 14, 12, 4);
+      if (skin.shape === "bot") ctx.rect(-7, -20, 14, 12);
+      else ctx.roundRect(-7, -20, 14, 12, skin.shape === "slim" ? 6 : 4);
       ctx.fill();
       ctx.shadowBlur = 0;
       // arm
@@ -393,22 +448,33 @@ export function NovaRift({
       ctx.lineTo(6 + stride * 0.6, -12);
       ctx.stroke();
       // head + visor
-      ctx.fillStyle = "#e8fbf8";
+      ctx.fillStyle = skin.head;
       ctx.beginPath();
-      ctx.arc(0, -25, 6.5, 0, Math.PI * 2);
-      ctx.fill();
+      if (skin.shape === "bot") {
+        ctx.roundRect(-6, -31, 12, 11, 2);
+        ctx.fill();
+        ctx.fillStyle = skin.scarf;
+        ctx.fillRect(-1, -37, 2, 6);
+        ctx.beginPath();
+        ctx.arc(0, -38, 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.arc(0, -25, skin.shape === "bulk" ? 7.2 : 6.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.fillStyle = "#0d2436";
       ctx.beginPath();
-      ctx.roundRect(0, -28, 6, 4.5, 2);
+      ctx.roundRect(0, skin.shape === "bot" ? -28 : -28, 6, 4.5, 2);
       ctx.fill();
-      // scarf trailing back
-      ctx.fillStyle = "rgba(255,110,140,0.9)";
+      // scarf / cape trailing back
+      ctx.fillStyle = rgba(skin.scarf, 0.9);
       ctx.beginPath();
       ctx.moveTo(-5, -20);
       ctx.lineTo(-14 - Math.abs(vx) * 0.02, -18 + Math.sin(frame * 0.3) * 3);
       ctx.lineTo(-5, -15);
       ctx.closePath();
       ctx.fill();
+
       ctx.restore();
       ctx.restore();
 
@@ -438,7 +504,7 @@ export function NovaRift({
       window.removeEventListener("keyup", up);
       done = true;
     };
-  }, [level, running]);
+  }, [level, running, runner, trailSlug]);
 
   const held = (key: string, on: boolean) => {
     keys.current[key] = on;
