@@ -1509,6 +1509,7 @@ export type Database = {
       }
       rift_items: {
         Row: {
+          cost_coins: number
           cost_stars: number
           created_at: string
           kind: string
@@ -1516,6 +1517,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          cost_coins?: number
           cost_stars?: number
           created_at?: string
           kind: string
@@ -1523,6 +1525,7 @@ export type Database = {
           slug: string
         }
         Update: {
+          cost_coins?: number
           cost_stars?: number
           created_at?: string
           kind?: string
@@ -1533,6 +1536,7 @@ export type Database = {
       }
       rift_state: {
         Row: {
+          coins_spent: number
           created_at: string
           equipped_runner: string
           equipped_trail: string
@@ -1541,6 +1545,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          coins_spent?: number
           created_at?: string
           equipped_runner?: string
           equipped_trail?: string
@@ -1549,6 +1554,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          coins_spent?: number
           created_at?: string
           equipped_runner?: string
           equipped_trail?: string
@@ -1571,6 +1577,7 @@ export type Database = {
           cost_stars: number
           created_at: string
           id: string
+          paid_coins: number
           slug: string
           user_id: string
         }
@@ -1578,6 +1585,7 @@ export type Database = {
           cost_stars?: number
           created_at?: string
           id?: string
+          paid_coins?: number
           slug: string
           user_id: string
         }
@@ -1585,6 +1593,7 @@ export type Database = {
           cost_stars?: number
           created_at?: string
           id?: string
+          paid_coins?: number
           slug?: string
           user_id?: string
         }
@@ -2255,7 +2264,10 @@ export type Database = {
       pulse_unlock: { Args: { _slug: string }; Returns: Json }
       purchase_cosmetic: { Args: { _slug: string }; Returns: Json }
       reset_profile_widgets: { Args: never; Returns: Json }
-      rift_buy: { Args: { _slug: string }; Returns: Json }
+      rift_buy:
+        | { Args: { _slug: string }; Returns: Json }
+        | { Args: { _currency?: string; _slug: string }; Returns: Json }
+      rift_coins_earned: { Args: { _user_id: string }; Returns: number }
       rift_equip: { Args: { _kind: string; _slug: string }; Returns: Json }
       rift_stars_earned: { Args: { _user_id: string }; Returns: number }
       rift_state_for_me: { Args: never; Returns: Json }

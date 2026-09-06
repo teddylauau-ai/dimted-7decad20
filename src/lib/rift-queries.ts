@@ -8,6 +8,9 @@ export type RiftState = {
   starsSpent: number;
   starsEarned: number;
   starsAvailable: number;
+  coinsSpent: number;
+  coinsEarned: number;
+  coinsAvailable: number;
   unlocks: string[];
 };
 
@@ -17,6 +20,9 @@ const FALLBACK: RiftState = {
   starsSpent: 0,
   starsEarned: 0,
   starsAvailable: 0,
+  coinsSpent: 0,
+  coinsEarned: 0,
+  coinsAvailable: 0,
   unlocks: [],
 };
 
@@ -26,6 +32,9 @@ type RawState = {
   stars_spent?: number;
   stars_earned?: number;
   stars_available?: number;
+  coins_spent?: number;
+  coins_earned?: number;
+  coins_available?: number;
   unlocks?: string[];
 };
 
@@ -43,13 +52,24 @@ export function useRiftState(userId: string | undefined) {
         starsSpent: raw.stars_spent ?? 0,
         starsEarned: raw.stars_earned ?? 0,
         starsAvailable: raw.stars_available ?? 0,
+        coinsSpent: raw.coins_spent ?? 0,
+        coinsEarned: raw.coins_earned ?? 0,
+        coinsAvailable: raw.coins_available ?? 0,
         unlocks: raw.unlocks ?? [],
       };
     },
   });
 }
 
-export type RiftItem = { slug: string; kind: "level" | "runner" | "trail"; name: string; cost_stars: number };
+export type RiftCurrency = "stars" | "coins";
+
+export type RiftItem = {
+  slug: string;
+  kind: "level" | "runner" | "trail";
+  name: string;
+  cost_stars: number;
+  cost_coins: number;
+};
 
 export function useRiftShop() {
   return useQuery({
@@ -58,7 +78,7 @@ export function useRiftShop() {
     queryFn: async (): Promise<RiftItem[]> => {
       const { data, error } = await supabase
         .from("rift_items" as never)
-        .select("slug, kind, name, cost_stars");
+        .select("slug, kind, name, cost_stars, cost_coins");
       if (error) throw error;
       return (data ?? []) as unknown as RiftItem[];
     },
@@ -74,13 +94,22 @@ function useRiftInvalidate(userId: string | undefined) {
   };
 }
 
-export type BuyResult = { status: string; need?: number; have?: number };
+export type BuyResult = { status: string; currency?: RiftCurrency; need?: number; have?: number };
 
 export function useRiftBuy(userId: string | undefined) {
   const bust = useRiftInvalidate(userId);
   return useMutation({
-    mutationFn: async (slug: string): Promise<BuyResult> => {
-      const { data, error } = await supabase.rpc("rift_buy" as never, { _slug: slug } as never);
+    mutationFn: async ({
+      slug,
+      currency = "stars",
+    }: {
+      slug: string;
+      currency?: RiftCurrency;
+    }): Promise<BuyResult> => {
+      const { data, error } = await supabase.rpc("rift_buy" as never, {
+        _slug: slug,
+        _currency: currency,
+      } as never);
       if (error) throw error;
       return (data ?? { status: "error" }) as unknown as BuyResult;
     },
