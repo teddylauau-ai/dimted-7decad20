@@ -1024,47 +1024,117 @@ html.light .glass-raised {
   );
   animation: cos-spin 6s linear infinite;
 }
+/* Prism Halo — still ring: a crisp white core with a soft rainbow bloom
+   breathing outside it. No spinning. */
 .cos-frame-prism-halo::before {
-  background-image: conic-gradient(
-    oklch(0.9 0.17 20),
-    oklch(0.9 0.17 110),
-    oklch(0.88 0.16 200),
-    oklch(0.86 0.18 300),
-    oklch(0.9 0.17 20)
-  );
-  animation: cos-spin 7s linear infinite;
+  background-image:
+    radial-gradient(closest-side, transparent 78%, oklch(1 0.02 250 / 0.95) 86%, transparent 88%),
+    conic-gradient(
+      from 200deg,
+      oklch(0.92 0.16 20 / 0.85),
+      oklch(0.93 0.15 95 / 0.85),
+      oklch(0.9 0.14 195 / 0.85),
+      oklch(0.88 0.17 305 / 0.85),
+      oklch(0.92 0.16 20 / 0.85)
+    );
+  filter: blur(0.4px);
 }
+.cos-frame-prism-halo::after {
+  content: "";
+  inset: -22%;
+  background-image: radial-gradient(
+    closest-side,
+    oklch(0.9 0.16 300 / 0.35),
+    transparent 72%
+  );
+  animation: cos-halo-breathe 4.6s ease-in-out infinite;
+}
+@keyframes cos-halo-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+/* Chroma Orbit — a dark graphite ring with two comet dots racing around it at
+   different speeds. */
 .cos-frame-chroma-orbit::before {
-  background-image: conic-gradient(
-    from 0deg,
-    oklch(0.92 0.18 40) 0 22%,
-    transparent 22% 50%,
-    oklch(0.88 0.19 280) 50% 72%,
-    transparent 72% 100%
-  );
-  animation: cos-spin 3.6s linear infinite;
+  background-image:
+    conic-gradient(
+      from 0deg,
+      oklch(0.95 0.19 40) 0deg 14deg,
+      transparent 14deg 360deg
+    ),
+    radial-gradient(closest-side, transparent 76%, oklch(0.34 0.03 258) 78%, oklch(0.34 0.03 258) 100%);
+  animation: cos-spin 2.4s linear infinite;
 }
+.cos-frame-chroma-orbit::after {
+  content: "";
+  background-image: conic-gradient(
+    from 180deg,
+    oklch(0.9 0.2 290) 0deg 10deg,
+    transparent 10deg 360deg
+  );
+  animation: cos-spin-back 3.8s linear infinite;
+}
+.cos-frame-chroma-orbit {
+  box-shadow: 0 0 20px -8px oklch(0.9 0.19 290 / 0.9);
+}
+
+/* Opal Shell — pearlescent scalloped shell: soft off-axis pastel pools that
+   drift in hue instead of rotating. */
 .cos-frame-opal-shell::before {
-  background-image: conic-gradient(
-    oklch(0.96 0.07 190),
-    oklch(0.95 0.09 320),
-    oklch(0.96 0.08 110),
-    oklch(0.96 0.07 190)
-  );
-  animation: cos-spin 12s linear infinite;
+  background-image:
+    radial-gradient(60% 60% at 26% 24%, oklch(0.98 0.07 200 / 0.95), transparent 70%),
+    radial-gradient(60% 60% at 76% 34%, oklch(0.97 0.09 330 / 0.9), transparent 70%),
+    radial-gradient(70% 70% at 50% 88%, oklch(0.97 0.08 120 / 0.9), transparent 72%),
+    linear-gradient(160deg, oklch(0.99 0.02 250), oklch(0.9 0.04 260));
+  animation: cos-opal-drift 9s ease-in-out infinite;
 }
+@keyframes cos-opal-drift {
+  0%,
+  100% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(50deg);
+  }
+}
+
+/* Kaleido Ring — hard-edged faceted gems with dark seams, plus an inner ring
+   of facets turning the other way. */
 .cos-frame-kaleido-ring::before {
   background-image: repeating-conic-gradient(
     from 0deg,
-    oklch(0.9 0.18 20) 0 15deg,
-    oklch(0.9 0.18 110) 15deg 30deg,
-    oklch(0.88 0.17 200) 30deg 45deg,
-    oklch(0.86 0.19 300) 45deg 60deg
+    oklch(0.92 0.19 25) 0deg 16deg,
+    oklch(0.2 0.03 258) 16deg 18deg,
+    oklch(0.9 0.19 130) 18deg 34deg,
+    oklch(0.2 0.03 258) 34deg 36deg,
+    oklch(0.88 0.18 215) 36deg 52deg,
+    oklch(0.2 0.03 258) 52deg 54deg,
+    oklch(0.87 0.2 310) 54deg 70deg,
+    oklch(0.2 0.03 258) 70deg 72deg
   );
-  animation: cos-spin 8s linear infinite;
+  animation: cos-spin 10s steps(24, end) infinite;
 }
+.cos-frame-kaleido-ring::after {
+  content: "";
+  inset: calc(var(--frame-w, 2px) * 1.6);
+  background-image: repeating-conic-gradient(
+    from 9deg,
+    oklch(0.98 0.05 250 / 0.55) 0deg 6deg,
+    transparent 6deg 24deg
+  );
+  animation: cos-spin-back 6s linear infinite;
+}
+
+/* Iris Corona — rainbow petals that bloom outward, counter-spinning. */
 .cos-frame-iris-corona::before {
-  /* petals: rainbow wedges separated by gaps, counter-spinning */
   background-image: repeating-conic-gradient(
     from 0deg,
     oklch(0.94 0.19 20) 0 18deg,
@@ -1074,7 +1144,9 @@ html.light .glass-raised {
     oklch(0.9 0.2 300) 60deg 78deg,
     transparent 78deg 90deg
   );
-  animation: cos-spin-back 9s linear infinite;
+  animation:
+    cos-spin-back 9s linear infinite,
+    cos-petal-bloom 3.2s ease-in-out infinite;
 }
 .cos-frame-iris-corona {
   box-shadow: 0 0 28px -6px oklch(0.9 0.18 300 / 0.8);
@@ -1084,18 +1156,43 @@ html.light .glass-raised {
     transform: rotate(-360deg);
   }
 }
+@keyframes cos-petal-bloom {
+  0%,
+  100% {
+    scale: 1;
+  }
+  50% {
+    scale: 1.1;
+  }
+}
 
+/* Spectrum Apex — the top-tier piece: a white-hot core ring under a fast
+   spectrum sweep, with a flaring aura pulse. */
 .cos-frame-spectrum-apex::before {
+  background-image:
+    radial-gradient(closest-side, transparent 74%, oklch(1 0.02 250) 80%, transparent 83%),
+    conic-gradient(
+      from 0deg,
+      oklch(1 0.03 250),
+      oklch(0.94 0.2 20),
+      oklch(0.95 0.2 95),
+      oklch(0.92 0.19 190),
+      oklch(0.9 0.21 300),
+      oklch(1 0.03 250)
+    );
+  animation: cos-spin 2.4s linear infinite;
+}
+.cos-frame-spectrum-apex::after {
+  content: "";
+  inset: -30%;
   background-image: conic-gradient(
     from 0deg,
-    oklch(1 0.03 250),
-    oklch(0.94 0.2 20),
-    oklch(0.95 0.2 95),
-    oklch(0.92 0.19 190),
-    oklch(0.9 0.21 300),
-    oklch(1 0.03 250)
+    transparent 0deg 300deg,
+    oklch(0.98 0.14 250 / 0.5) 340deg,
+    transparent 360deg
   );
-  animation: cos-spin 3s linear infinite;
+  filter: blur(6px);
+  animation: cos-spin 1.6s linear infinite;
 }
 .cos-frame-spectrum-apex {
   box-shadow: 0 0 34px -4px oklch(0.93 0.19 300 / 0.9);
@@ -1578,6 +1675,14 @@ html.light .glass-raised {
   .cos-frame-glitch::before,
   .cos-frame-prismatic::before,
   .cos-frame-iris-corona::before,
+  .cos-frame-prism-halo::after,
+  .cos-frame-chroma-orbit::before,
+  .cos-frame-chroma-orbit::after,
+  .cos-frame-opal-shell::before,
+  .cos-frame-kaleido-ring::before,
+  .cos-frame-kaleido-ring::after,
+  .cos-frame-spectrum-apex::before,
+  .cos-frame-spectrum-apex::after,
   .cos-badge-chroma-star,
   .cos-badge-iris-lotus,
   .cos-badge-spectrum-apex,
