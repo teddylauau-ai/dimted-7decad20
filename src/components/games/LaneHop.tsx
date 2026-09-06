@@ -376,7 +376,9 @@ function HopScene({
         <LaneRow key={index} lane={lane} index={index} />
       ))}
       <group ref={player}>
-        <PigCharacter />
+        <group rotation-y={Math.PI}>
+          <PigCharacter />
+        </group>
       </group>
     </>
   );
