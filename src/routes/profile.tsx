@@ -99,6 +99,8 @@ function ProfilePage() {
   const bannerInput = useRef<HTMLInputElement>(null);
   const [bannerUploading, setBannerUploading] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
+  const [customTitle, setCustomTitle] = useState("");
+
 
   const ownedItems = ITEMS.filter((i) => i.requiredLevel <= level);
   const earned = ACHIEVEMENTS.filter((a) => a.earned(stats));
