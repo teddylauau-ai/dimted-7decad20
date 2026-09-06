@@ -132,6 +132,9 @@ export function usePulseFinish(userId: string | undefined) {
       void qc.invalidateQueries({ queryKey: ["pulse-progress", userId] });
       void qc.invalidateQueries({ queryKey: ["pulse-leaderboard"] });
       void qc.invalidateQueries({ queryKey: ["pulse-daily", userId] });
+      void qc.invalidateQueries({ queryKey: ["pulse-daily-board"] });
+      void qc.invalidateQueries({ queryKey: ["pulse-endless-best", userId] });
+      void qc.invalidateQueries({ queryKey: ["xp-leaderboard"] });
     },
   });
 }
@@ -242,7 +245,8 @@ export type PulseRankRow = {
 export function usePulseLeaderboard() {
   return useQuery({
     queryKey: ["pulse-leaderboard"],
-    staleTime: 60 * 1000,
+    staleTime: 5_000,
+    refetchOnMount: "always",
     queryFn: async (): Promise<PulseRankRow[]> => {
       const { data, error } = await supabase
         .from("game_progress")
