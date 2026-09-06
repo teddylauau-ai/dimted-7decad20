@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Owner-only crew console: every crew on the site in one list, with live edits
- * to name, tagline, emoji, accent, styles, shared XP, member limit, visibility
+ * to name, tagline, accent, styles, shared XP, member limit, visibility
  * and join policy — plus roster moves, leadership hand-over and deletion.
  */
 export function OwnerCrewControl({ userId }: { userId: string }) {
@@ -34,7 +34,6 @@ export function OwnerCrewControl({ userId }: { userId: string }) {
   const [search, setSearch] = useState("");
   const [name, setName] = useState("");
   const [tagline, setTagline] = useState("");
-  const [emoji, setEmoji] = useState("");
   const [xp, setXp] = useState("");
   const [limit, setLimit] = useState("");
 
@@ -61,7 +60,6 @@ export function OwnerCrewControl({ userId }: { userId: string }) {
     setSelected(id);
     setName(crew?.name ?? "");
     setTagline(crew?.tagline ?? "");
-    setEmoji(crew?.badge_emoji ?? "");
     setXp(String(crew?.total_xp ?? 0));
     setLimit(String(crew?.member_limit ?? 20));
   }
@@ -112,8 +110,12 @@ export function OwnerCrewControl({ userId }: { userId: string }) {
               crew.id === selected && "border-primary/60 bg-primary/5",
             )}
           >
-            <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-white/5 text-sm">
-              {crew.badge_emoji}
+            <span className="grid size-7 shrink-0 place-items-center overflow-hidden rounded-lg bg-white/5 text-sm font-semibold">
+              {crew.avatar_url ? (
+                <img src={crew.avatar_url} alt="" className="size-full object-cover" />
+              ) : (
+                crew.name.trim().charAt(0).toUpperCase()
+              )}
             </span>
             <span>
               <span className="block text-xs font-medium">{crew.name}</span>
@@ -156,13 +158,7 @@ export function OwnerCrewControl({ userId }: { userId: string }) {
               onChange={(e) => setTagline(e.target.value)}
               placeholder="Tagline"
             />
-            <Input
-              className="h-9"
-              value={emoji}
-              onChange={(e) => setEmoji(e.target.value.slice(0, 2))}
-              placeholder="Emoji"
-            />
-            <Input className="h-9" value={xp} onChange={(e) => setXp(e.target.value)} placeholder="Shared XP" inputMode="numeric" />
+            <Input className="h-9 sm:col-span-1" value={xp} onChange={(e) => setXp(e.target.value)} placeholder="Shared XP" inputMode="numeric" />
             <Input
               className="h-9"
               value={limit}
@@ -178,7 +174,6 @@ export function OwnerCrewControl({ userId }: { userId: string }) {
                   {
                     name,
                     tagline,
-                    badge_emoji: emoji,
                     total_xp: Number(xp) || 0,
                     member_limit: Math.max(2, Number(limit) || active.member_limit),
                   },
