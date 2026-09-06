@@ -10,6 +10,8 @@ import { Mic, MicOff, PhoneCall, PhoneOff, Video, VideoOff } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/dimted/Identity";
 import {
+  consumePendingJoin,
+  JOIN_CALL_EVENT,
   useActiveCall,
   useCallHeadcount,
   useCallSession,
@@ -86,6 +88,22 @@ export function CallPanel({
   const session = useCallSession(scope, scopeId, meId);
   const heads = useCallHeadcount(live.data?.id ?? null);
   const others = (heads.data ?? []).filter((id) => id !== meId);
+
+  // Accepting the global incoming-call popup queues a join for this exact
+  // chat — pick it up on mount (if we were already open) and whenever the
+  // popup broadcasts (if we just got selected).
+  useEffect(() => {
+    const tryJoin = () => {
+      const video = consumePendingJoin(scope, scopeId);
+      if (video !== null && !session.inCall && !session.joining) {
+        void session.join(video);
+      }
+    };
+    tryJoin();
+    window.addEventListener(JOIN_CALL_EVENT, tryJoin);
+    return () => window.removeEventListener(JOIN_CALL_EVENT, tryJoin);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scope, scopeId, session.inCall, session.joining]);
 
   if (!scopeId) return null;
 

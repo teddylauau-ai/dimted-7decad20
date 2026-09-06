@@ -40,6 +40,38 @@ const ICE: RTCConfiguration = {
   ],
 };
 
+/* --------------------------------- incoming-call handoff ---------------------------------
+ * The global "X is calling…" popup lives in the app shell, but the actual
+ * WebRTC session lives in the chat's CallPanel. Accepting a call writes a
+ * pending-join request here and broadcasts an event; whichever page/panel
+ * owns that scope picks it up and joins. */
+type PendingJoin = { scope: CallScope; scopeId: string; video: boolean };
+let pendingJoin: PendingJoin | null = null;
+
+export const JOIN_CALL_EVENT = "lazu:join-call";
+
+export function requestJoinCall(scope: CallScope, scopeId: string, video: boolean) {
+  pendingJoin = { scope, scopeId, video };
+  window.dispatchEvent(
+    new CustomEvent(JOIN_CALL_EVENT, { detail: { scope, scopeId } }),
+  );
+}
+
+/** Read the pending request without consuming it (used to select the chat). */
+export function peekPendingJoin(): PendingJoin | null {
+  return pendingJoin;
+}
+
+/** Consume the pending request if it matches this exact scope. */
+export function consumePendingJoin(scope: CallScope, scopeId: string | null | undefined) {
+  if (pendingJoin && scopeId && pendingJoin.scope === scope && pendingJoin.scopeId === scopeId) {
+    const video = pendingJoin.video;
+    pendingJoin = null;
+    return video;
+  }
+  return null;
+}
+
 /** The live (not yet ended) call for a chat or channel, if there is one. */
 export function useActiveCall(scope: CallScope, scopeId: string | null | undefined) {
   return useQuery({

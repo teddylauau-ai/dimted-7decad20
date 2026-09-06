@@ -29,6 +29,7 @@ import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 import { StatusClock } from "./StatusClock";
 import { XpFlash } from "./XpFlash";
+import { IncomingCallToast } from "./IncomingCallToast";
 
 import { BrandMark, Wordmark } from "./Brand";
 import { AuthScreen } from "./AuthScreen";
@@ -332,6 +333,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       <XpFlash />
+      <IncomingCallToast />
 
 
       {/* Mobile bar */}
