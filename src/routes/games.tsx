@@ -41,7 +41,7 @@ function GamesPage() {
   const active = TABS.find((t) => t.id === tab)!;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-16 pt-6 sm:px-6">
+    <div className="space-y-3">
       <PageHeader
         eyebrow="Play"
         title="Games"
