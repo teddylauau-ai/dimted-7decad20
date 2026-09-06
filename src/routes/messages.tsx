@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Meter, Panel, PageHeader } from "@/components/dimted/primitives";
 import { CallPanel } from "@/components/dimted/CallPanel";
+import { JOIN_CALL_EVENT, peekPendingJoin } from "@/lib/calls";
 import { Avatar, Nametag, ProfileLink } from "@/components/dimted/Identity";
 import { EFFECT_CLASS } from "@/lib/cosmetics";
 import { useDimted } from "@/lib/dimted-store";
@@ -124,6 +125,17 @@ function MessagesPage() {
   useEffect(() => {
     if (!activeId && accepted[0]) setActiveId(accepted[0].friendshipId);
   }, [accepted, activeId]);
+
+  // Answering a call from the global popup jumps straight into that chat.
+  useEffect(() => {
+    const select = () => {
+      const p = peekPendingJoin();
+      if (p?.scope === "dm") setActiveId(p.scopeId);
+    };
+    select();
+    window.addEventListener(JOIN_CALL_EVENT, select);
+    return () => window.removeEventListener(JOIN_CALL_EVENT, select);
+  }, []);
 
   const qc = useQueryClient();
   // Opening a conversation clears that person's unread message pings — the red
