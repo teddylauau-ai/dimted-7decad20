@@ -210,7 +210,15 @@ export function CampaignSection() {
       <Panel className="flex flex-col items-center gap-4 p-5">
         {phase === "playing" ? (
           <div key={runKey} className="w-full">
-            <NovaRift level={level} running onWin={handleWin} onFail={handleFail} />
+            <NovaRift
+              level={level}
+              running
+              onWin={handleWin}
+              onFail={handleFail}
+              runner={skin.runner}
+              trail={skin.trail}
+            />
+
             <div className="mt-3 flex justify-center">
               <Button variant="outline" size="sm" onClick={() => setPhase("idle")}>
                 Quit level
