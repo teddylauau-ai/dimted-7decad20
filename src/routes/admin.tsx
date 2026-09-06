@@ -31,6 +31,13 @@ import {
   useEditProfile,
   useForceSurge,
   useCompletePulse,
+  useCompleteRift,
+  useGrantRift,
+  useGrantVanguard,
+  useSetCurrency,
+  useSetSeasonXp,
+  useGrantEverything,
+
   useGrantCosmetic,
   useGrantPulse,
   useGrantCurrency,
