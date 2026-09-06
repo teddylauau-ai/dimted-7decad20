@@ -423,27 +423,27 @@ function ShopPage() {
         </Panel>
       ) : null}
 
-      {view === "shop" && vaultDrops.length ? (
-        <Panel className="border-gold/40 relative overflow-hidden p-5">
+      {view === "shop" && vaultShown.length ? (
+        <Panel className="border-mythic/40 relative overflow-hidden p-5">
           <div
             className="pointer-events-none absolute inset-0 opacity-50"
             style={{
               background:
-                "radial-gradient(70% 120% at 12% -20%, oklch(0.85 0.14 82 / 0.18), transparent 65%), radial-gradient(60% 110% at 92% 120%, oklch(0.45 0.12 285 / 0.14), transparent 68%)",
+                "radial-gradient(70% 120% at 8% -20%, oklch(0.88 0.17 20 / 0.14), transparent 62%), radial-gradient(60% 110% at 50% 120%, oklch(0.88 0.16 190 / 0.12), transparent 65%), radial-gradient(60% 110% at 95% -10%, oklch(0.86 0.19 300 / 0.16), transparent 66%)",
             }}
           />
           <div className="relative">
             <PanelHead
-              eyebrow="Vault drop"
-              title="This week's heist"
-              aside={`resets in ${formatCountdown(secondsUntilWeeklyReset())}`}
+              eyebrow="Prismatic vault"
+              title="Rainbow tier"
+              aside={`${vaultDrops.length} pieces`}
             />
             <p className="text-muted-foreground mt-2 text-xs">
-              A rotating shelf of legendary and mythic pieces. Gone when the vault seals at Monday
-              midnight UTC.
+              Six prismatic pieces in every slot — nametags, badges, frames, banners and message
+              effects. The most expensive gear in Lazu, and always in stock.
             </p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {vaultDrops.map((item) => (
+              {vaultShown.map((item) => (
                 <ItemCard
                   key={item.slug}
                   item={item}
@@ -459,6 +459,7 @@ function ShopPage() {
           </div>
         </Panel>
       ) : null}
+
 
       {view === "shop" && limited.length ? (
         <Panel className="border-gold/30 p-5">
