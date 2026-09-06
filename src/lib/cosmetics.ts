@@ -341,8 +341,12 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-bounce": "cos-bounce-row",
   "fx-glimmer": "cos-glimmer-row",
   "fx-drift": "cos-drift-row",
-  "fx-vault-goldwave": "cos-vault-goldwave-row",
-  "fx-obsidian-surge": "cos-obsidian-surge-row",
+  "fx-prism-wave": "cos-prism-wave-row",
+  "fx-chroma-pulse": "cos-chroma-pulse-row",
+  "fx-opal-shimmer": "cos-opal-shimmer-row",
+  "fx-kaleido-swirl": "cos-kaleido-swirl-row",
+  "fx-iris-glow": "cos-iris-glow-row",
+  "fx-spectrum-apex": "cos-spectrum-apex-row",
 };
 
 export type WornCosmetics = {
