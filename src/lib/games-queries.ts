@@ -46,6 +46,32 @@ export function useLeaderboard(game: GameId) {
   });
 }
 
+export type TopPlayerRow = {
+  user_id: string;
+  username: string;
+  display_name: string;
+  avatar_url: string | null;
+  equipped_nametag: string | null;
+  equipped_badge: string | null;
+  equipped_frame: string | null;
+  equipped_effect: string | null;
+  arcade_xp: number;
+  runs: number;
+};
+
+/** Top players across every Games hub minigame, by XP earned from games. */
+export function useTopGamePlayers(limit = 15) {
+  return useQuery({
+    queryKey: ["arcade-top-players", limit],
+    staleTime: 30_000,
+    queryFn: async (): Promise<TopPlayerRow[]> => {
+      const { data, error } = await supabase.rpc("arcade_top_players", { _limit: limit } as never);
+      if (error) throw error;
+      return (data ?? []) as unknown as TopPlayerRow[];
+    },
+  });
+}
+
 /** Everything you've ever scored, newest first. */
 export function useMyScores(userId: string | undefined) {
   return useQuery({
