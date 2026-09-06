@@ -175,8 +175,12 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-wave": "text-uncommon",
   "badge-flask": "text-rare",
   "badge-orbit": "text-epic cos-glow-epic",
-  "badge-vault-key": "text-legendary cos-glow-gold",
-  "badge-obsidian-crown": "text-mythic cos-glow-mythos",
+  "badge-prism-shard": "cos-badge-prismatic",
+  "badge-chroma-star": "cos-badge-prismatic",
+  "badge-opal-eye": "cos-badge-prismatic",
+  "badge-kaleido-bloom": "cos-badge-prismatic",
+  "badge-iris-lotus": "cos-badge-prismatic cos-glow-prismatic",
+  "badge-spectrum-apex": "cos-badge-prismatic cos-glow-prismatic",
 };
 
 /**
