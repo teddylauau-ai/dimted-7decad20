@@ -4,10 +4,13 @@ import * as THREE from "three";
 import { Game3DCanvas } from "./Game3DCanvas";
 
 /**
- * Tower Stack — the classic stacker, now fully 3D. A slab sweeps in over the
- * tower on alternating axes; tap to drop it. Overhang is sliced off and tumbles
- * away, so sloppy drops shrink the next slab. Perfect drops regrow width, pay a
- * combo, and flash the tower.
+ * Tower Stack — build a skyscraper floor by floor. A steel floor plate swings in
+ * over the tower; tap to lock it down. Overhang shears off and falls to the
+ * street below, so sloppy work narrows the building. Perfect drops re-align the
+ * core, widen the plate and light up the whole facade.
+ *
+ * The camera stays on ONE fixed city-viewing angle and only rises with the
+ * tower — no orbiting, so aiming stays readable.
  */
 
 const SLAB_H = 0.55;
@@ -19,41 +22,71 @@ type Slab = { x: number; z: number; w: number; d: number };
 type Shard = { id: number; x: number; y: number; z: number; w: number; d: number; hue: number; vx: number; vz: number };
 
 function hueOf(i: number) {
-  return (168 + i * 9) % 360;
+  return (204 + i * 4) % 360;
 }
 
-function SlabMesh({
-  slab,
-  index,
-  emissive = 0.12,
-}: {
-  slab: Slab;
-  index: number;
-  emissive?: number;
-}) {
-  const color = useMemo(() => new THREE.Color(`hsl(${hueOf(index)}, 68%, 56%)`), [index]);
+/** Cached facade texture: dark glass curtain wall with lit office windows. */
+const facadeCache = new Map<number, THREE.Texture>();
+function facadeTexture(index: number) {
+  const bucket = index % 6;
+  const cached = facadeCache.get(bucket);
+  if (cached) return cached;
+  const c = document.createElement("canvas");
+  c.width = 128;
+  c.height = 64;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#0b1a28";
+  g.fillRect(0, 0, 128, 64);
+  const cols = 10;
+  const rows = 3;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const lit = Math.random();
+      g.fillStyle =
+        lit > 0.72 ? "#ffe8ad" : lit > 0.5 ? "#7fd7ff" : lit > 0.32 ? "#16405c" : "#0e2536";
+      g.fillRect(6 + x * 11.6, 8 + y * 17, 8.4, 12);
+    }
+  }
+  g.strokeStyle = "#22475f";
+  g.lineWidth = 2;
+  g.strokeRect(1, 1, 126, 62);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  facadeCache.set(bucket, tex);
+  return tex;
+}
+
+function FloorMesh({ slab, index, emissive = 0.1 }: { slab: Slab; index: number; emissive?: number }) {
+  const color = useMemo(() => new THREE.Color(`hsl(${hueOf(index)}, 34%, 44%)`), [index]);
+  const tex = useMemo(() => facadeTexture(index), [index]);
   return (
-    <mesh
-      position={[slab.x, index * SLAB_H + SLAB_H / 2, slab.z]}
-      castShadow
-      receiveShadow
-    >
-      <boxGeometry args={[slab.w, SLAB_H, slab.d]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={emissive}
-        roughness={0.28}
-        metalness={0.35}
-      />
-    </mesh>
+    <group position={[slab.x, index * SLAB_H + SLAB_H / 2, slab.z]}>
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[slab.w, SLAB_H, slab.d]} />
+        <meshStandardMaterial
+          map={tex}
+          color={color}
+          emissive={color}
+          emissiveIntensity={emissive}
+          emissiveMap={tex}
+          roughness={0.45}
+          metalness={0.45}
+        />
+      </mesh>
+      {/* concrete slab lip between floors */}
+      <mesh position={[0, SLAB_H / 2 + 0.03, 0]}>
+        <boxGeometry args={[slab.w + 0.08, 0.06, slab.d + 0.08]} />
+        <meshStandardMaterial color="#9fb3c2" roughness={0.8} metalness={0.1} />
+      </mesh>
+    </group>
   );
 }
 
 function ShardMesh({ shard, onDone }: { shard: Shard; onDone: (id: number) => void }) {
   const ref = useRef<THREE.Mesh>(null);
   const vel = useRef({ y: 0, rx: (Math.random() - 0.5) * 4, rz: (Math.random() - 0.5) * 4 });
-  const color = useMemo(() => new THREE.Color(`hsl(${shard.hue}, 68%, 56%)`), [shard.hue]);
+  const color = useMemo(() => new THREE.Color(`hsl(${shard.hue}, 30%, 46%)`), [shard.hue]);
   useEffect(() => {
     const t = window.setTimeout(() => onDone(shard.id), 2200);
     return () => window.clearTimeout(t);
@@ -75,13 +108,53 @@ function ShardMesh({ shard, onDone }: { shard: Shard; onDone: (id: number) => vo
       <meshStandardMaterial
         color={color}
         emissive={color}
-        emissiveIntensity={0.25}
-        roughness={0.3}
+        emissiveIntensity={0.2}
+        roughness={0.5}
         metalness={0.3}
         transparent
-        opacity={0.9}
+        opacity={0.92}
       />
     </mesh>
+  );
+}
+
+/** Static skyline of neighbouring towers, generated once. */
+function Skyline() {
+  const towers = useMemo(() => {
+    const out: { x: number; z: number; w: number; d: number; h: number; i: number }[] = [];
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+    for (let i = 0; i < 34; i++) {
+      const a = (i / 34) * Math.PI * 2 + rnd() * 0.12;
+      const r = 13 + rnd() * 12;
+      out.push({
+        x: Math.cos(a) * r,
+        z: Math.sin(a) * r,
+        w: 1.6 + rnd() * 2.4,
+        d: 1.6 + rnd() * 2.4,
+        h: 3 + rnd() * 13,
+        i,
+      });
+    }
+    return out;
+  }, []);
+  return (
+    <group>
+      {towers.map((t) => (
+        <mesh key={t.i} position={[t.x, t.h / 2, t.z]}>
+          <boxGeometry args={[t.w, t.h, t.d]} />
+          <meshStandardMaterial
+            map={facadeTexture(t.i)}
+            emissiveMap={facadeTexture(t.i)}
+            color="#0f2233"
+            emissive="#284b66"
+            emissiveIntensity={0.5}
+            roughness={0.6}
+            metalness={0.3}
+          />
+        </mesh>
+      ))}
+    </group>
   );
 }
 
@@ -95,7 +168,8 @@ function StackScene({
   onView: (v: { score: number; combo: number; height: number }) => void;
 }) {
   const { camera, gl } = useThree();
-  const movingRef = useRef<THREE.Mesh>(null);
+  const movingRef = useRef<THREE.Group>(null);
+  const craneRef = useRef<THREE.Group>(null);
   const [slabs, setSlabs] = useState<Slab[]>([{ x: 0, z: 0, w: BASE, d: BASE }]);
   const [shards, setShards] = useState<Shard[]>([]);
   const [flash, setFlash] = useState(0);
@@ -108,7 +182,7 @@ function StackScene({
     moving: { x: -SWEEP, z: 0, w: BASE, d: BASE } as Slab,
     axis: "x" as "x" | "z",
     dir: 1,
-    speed: 2.8,
+    speed: 2.6,
     score: 0,
     combo: 0,
     over: false,
@@ -186,7 +260,7 @@ function StackScene({
 
       st.axis = axis === "x" ? "z" : "x";
       st.dir = 1;
-      st.speed = Math.min(9, 2.8 + st.slabs.length * 0.18);
+      st.speed = Math.min(8.4, 2.6 + st.slabs.length * 0.16);
       st.moving =
         st.axis === "x"
           ? { x: -SWEEP, z: placed.z, w: placed.w, d: placed.d }
@@ -235,18 +309,15 @@ function StackScene({
       if (m) {
         m.position.set(mv.x, topY + SLAB_H * 1.5, mv.z);
         m.scale.set(mv.w / BASE, 1, mv.d / BASE);
-        m.rotation.y = Math.sin(state.clock.elapsedTime * 2) * 0.02;
       }
+      const crane = craneRef.current;
+      if (crane) crane.position.set(mv.x, topY + SLAB_H * 1.5, mv.z);
     }
 
-    // orbiting chase camera that rises with the tower
-    const t = state.clock.elapsedTime * 0.09;
+    // FIXED viewing angle — the camera only rises with the building.
     const focus = topY + 0.6;
-    const radius = 11;
-    camera.position.lerp(
-      new THREE.Vector3(Math.cos(t) * radius, focus + 6.4, Math.sin(t) * radius),
-      1 - Math.exp(-3 * dt),
-    );
+    const target = new THREE.Vector3(9.5, focus + 6.2, 12.5);
+    camera.position.lerp(target, 1 - Math.exp(-3.2 * dt));
     camera.lookAt(0, focus, 0);
   });
 
@@ -254,35 +325,51 @@ function StackScene({
 
   return (
     <>
-      <fog attach="fog" args={["#050a12", 16, 46]} />
-      {/* infinite reflective floor pad under the tower */}
+      <fog attach="fog" args={["#050a12", 22, 60]} />
+      {/* street plaza */}
       <mesh rotation-x={-Math.PI / 2} position={[0, -0.02, 0]} receiveShadow>
-        <circleGeometry args={[26, 64]} />
-        <meshStandardMaterial color="#08131f" roughness={0.55} metalness={0.5} />
+        <circleGeometry args={[30, 64]} />
+        <meshStandardMaterial color="#0a1420" roughness={0.85} metalness={0.15} />
       </mesh>
-      <gridHelper args={[52, 52, "#123043", "#0a1c28"]} position={[0, -0.01, 0]} />
+      <gridHelper args={[60, 30, "#14313f", "#0b1b26"]} position={[0, -0.01, 0]} />
+      <Skyline />
       {slabs.map((slab, i) => {
         const index = s.current.slabs.length - slabs.length + i;
         return (
-          <SlabMesh
+          <FloorMesh
             key={index}
             slab={slab}
             index={index}
-            emissive={flashOn && i === slabs.length - 1 ? 0.85 : 0.12}
+            emissive={flashOn && i === slabs.length - 1 ? 0.9 : 0.28}
           />
         );
       })}
       {!s.current.over ? (
-        <mesh ref={movingRef} castShadow>
-          <boxGeometry args={[BASE, SLAB_H, BASE]} />
-          <meshStandardMaterial
-            color="#f6c860"
-            emissive="#f6c860"
-            emissiveIntensity={0.55}
-            roughness={0.2}
-            metalness={0.55}
-          />
-        </mesh>
+        <>
+          {/* crane cable + hook holding the incoming floor plate */}
+          <group ref={craneRef}>
+            <mesh position={[0, 3.2, 0]}>
+              <cylinderGeometry args={[0.03, 0.03, 6, 6]} />
+              <meshStandardMaterial color="#5c6c7a" roughness={0.6} metalness={0.7} />
+            </mesh>
+          </group>
+          <group ref={movingRef}>
+            <mesh castShadow>
+              <boxGeometry args={[BASE, SLAB_H, BASE]} />
+              <meshStandardMaterial
+                color="#e8a93c"
+                emissive="#f6c860"
+                emissiveIntensity={0.35}
+                roughness={0.35}
+                metalness={0.7}
+              />
+            </mesh>
+            <mesh position={[0, SLAB_H / 2 + 0.03, 0]}>
+              <boxGeometry args={[BASE + 0.08, 0.06, BASE + 0.08]} />
+              <meshStandardMaterial color="#cfd8e0" roughness={0.7} metalness={0.3} />
+            </mesh>
+          </group>
+        </>
       ) : null}
       {shards.map((sh) => (
         <ShardMesh
@@ -315,13 +402,13 @@ export function TowerStack({
     <div className="flex flex-col items-center gap-3">
       <div className="text-muted-foreground flex w-full max-w-[360px] items-baseline justify-between font-mono text-[11px]">
         <span className="text-foreground numeral text-base">{view.score.toLocaleString()}</span>
-        <span className="text-primary">height {view.height}</span>
+        <span className="text-primary">floor {view.height}</span>
         <span className="text-gold">{view.combo > 0 ? `perfect ×${view.combo}` : "—"}</span>
       </div>
-      <Game3DCanvas camera={{ position: [11, 8, 11], fov: 42 }}>
+      <Game3DCanvas camera={{ position: [9.5, 8, 12.5], fov: 42 }}>
         <StackScene onScore={onScore} onEnd={onEnd} onView={setView} />
       </Game3DCanvas>
-      <p className="text-muted-foreground font-mono text-[10px]">Space / tap to drop</p>
+      <p className="text-muted-foreground font-mono text-[10px]">Space / tap to lock the floor</p>
     </div>
   );
 }
