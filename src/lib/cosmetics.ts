@@ -8,7 +8,8 @@ import type { Rarity } from "./dimted";
 export type CosmeticSlot = "nametag" | "badge" | "frame" | "banner" | "effect";
 
 /** Which shelf of the shop an item lives on. */
-export type CosmeticPool = "core" | "daily" | "weekly" | "limited" | "vault" | "admin" | "founder" | "owner" | "crew";
+export type CosmeticPool =
+  "core" | "daily" | "weekly" | "limited" | "vault" | "admin" | "founder" | "owner" | "crew";
 
 export const SLOTS: { slot: CosmeticSlot; label: string; blurb: string }[] = [
   { slot: "nametag", label: "Nametags", blurb: "How your name reads everywhere you speak." },
@@ -85,7 +86,6 @@ export const NAMETAG_CLASS: Record<string, string> = {
   "tag-obsidian-heist": "cos-gradient cos-gradient-obsidian-heist cos-shimmer cos-glow-mythos",
 };
 
-
 /** Badge → the glyph drawn after the name. */
 export const BADGE_GLYPH: Record<string, string> = {
   "badge-s1-comet": "✺",
@@ -129,7 +129,6 @@ export const BADGE_GLYPH: Record<string, string> = {
   "badge-obsidian-crown": "♛",
 };
 
-
 export const BADGE_CLASS: Record<string, string> = {
   "badge-s1-comet": "cos-gradient cos-gradient-s1-vector cos-shimmer",
   "badge-s1-crest": "cos-gradient cos-gradient-s1-apex cos-shimmer",
@@ -171,7 +170,6 @@ export const BADGE_CLASS: Record<string, string> = {
   "badge-vault-key": "text-legendary cos-glow-gold",
   "badge-obsidian-crown": "text-mythic cos-glow-mythos",
 };
-
 
 /**
  * Frame → classes on the avatar wrapper.
@@ -273,7 +271,7 @@ export const BANNER_STYLE: Record<string, string> = {
     "radial-gradient(70% 130% at 50% 135%, oklch(0.9 0.15 88 / 0.85), transparent 62%), radial-gradient(60% 110% at 12% -10%, oklch(0.7 0.13 300 / 0.45), transparent 70%), linear-gradient(180deg, oklch(0.16 0.04 268), oklch(0.3 0.09 40) 72%, oklch(0.62 0.14 66))",
   "banner-founder-vault":
     "repeating-linear-gradient(90deg, oklch(0.88 0.13 88 / 0.13) 0 1px, transparent 1px 26px), repeating-linear-gradient(0deg, oklch(0.88 0.13 88 / 0.1) 0 1px, transparent 1px 26px), radial-gradient(70% 120% at 50% 120%, oklch(0.78 0.13 84 / 0.45), transparent 68%), linear-gradient(120deg, oklch(0.17 0.035 262), oklch(0.12 0.025 258))",
-    
+
   "banner-admin-controlroom":
     "repeating-linear-gradient(0deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), repeating-linear-gradient(90deg, oklch(0.8 0.12 198 / 0.1) 0 1px, transparent 1px 18px), radial-gradient(60% 110% at 50% 120%, oklch(0.7 0.14 200 / 0.45), transparent 68%), linear-gradient(180deg, oklch(0.11 0.02 258), oklch(0.17 0.04 240))",
   "banner-eventide":
@@ -289,7 +287,6 @@ export const BANNER_STYLE: Record<string, string> = {
   "banner-obsidian-vault":
     "radial-gradient(70% 120% at 50% 120%, oklch(0.45 0.12 285 / 0.7), transparent 68%), radial-gradient(60% 100% at 20% 0%, oklch(0.85 0.12 85 / 0.2), transparent 70%), linear-gradient(120deg, oklch(0.14 0.04 285), oklch(0.1 0.03 258))",
 };
-
 
 export const DEFAULT_BANNER =
   "radial-gradient(60% 120% at 20% 120%, oklch(0.42 0.1 200 / 0.5), transparent 70%), linear-gradient(120deg, oklch(0.21 0.04 262), oklch(0.15 0.032 258))";
@@ -323,7 +320,6 @@ export const EFFECT_CLASS: Record<string, string> = {
   "fx-vault-goldwave": "cos-vault-goldwave-row",
   "fx-obsidian-surge": "cos-obsidian-surge-row",
 };
-
 
 export type WornCosmetics = {
   nametag?: string | null | undefined;
@@ -372,9 +368,7 @@ export function weekKey(now = new Date()): string {
  * no server state, nothing to drift out of sync.
  */
 export function rotate<T extends { slug: string }>(items: T[], key: string, count: number): T[] {
-  return [...items]
-    .sort((a, b) => hash(key + a.slug) - hash(key + b.slug))
-    .slice(0, count);
+  return [...items].sort((a, b) => hash(key + a.slug) - hash(key + b.slug)).slice(0, count);
 }
 
 /** Seconds until the current daily rotation flips (UTC midnight). */

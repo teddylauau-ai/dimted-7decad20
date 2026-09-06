@@ -57,9 +57,9 @@ function PreviewName({ slug, slot }: { slug: string; slot: CosmeticSlot }) {
   const preview = {
     username: profile?.username ?? "you",
     display_name: profile?.display_name ?? "You",
-    equipped_nametag: slot === "nametag" ? slug : profile?.equipped_nametag ?? null,
-    equipped_badge: slot === "badge" ? slug : profile?.equipped_badge ?? null,
-    equipped_frame: slot === "frame" ? slug : profile?.equipped_frame ?? null,
+    equipped_nametag: slot === "nametag" ? slug : (profile?.equipped_nametag ?? null),
+    equipped_badge: slot === "badge" ? slug : (profile?.equipped_badge ?? null),
+    equipped_frame: slot === "frame" ? slug : (profile?.equipped_frame ?? null),
   };
 
   if (slot === "banner") {
@@ -169,7 +169,6 @@ function ItemCard({
 }
 
 function ShopPage() {
-
   const { profile, level, sparks, refreshProfile } = useDimted();
   const cosmetics = useCosmetics();
   const inventory = useInventory(profile?.id);
@@ -183,8 +182,24 @@ function ShopPage() {
   // Rotations are derived from the date, not stored — everyone sees the same
   // daily/weekly shelf and it turns over on its own. Each shelf shows far fewer
   // items than its pool holds, so the stock genuinely changes every flip.
-  const daily = useMemo(() => rotate(all.filter((i) => i.pool === "daily"), dayKey(), 5), [all]);
-  const weekly = useMemo(() => rotate(all.filter((i) => i.pool === "weekly"), weekKey(), 5), [all]);
+  const daily = useMemo(
+    () =>
+      rotate(
+        all.filter((i) => i.pool === "daily"),
+        dayKey(),
+        5,
+      ),
+    [all],
+  );
+  const weekly = useMemo(
+    () =>
+      rotate(
+        all.filter((i) => i.pool === "weekly"),
+        weekKey(),
+        5,
+      ),
+    [all],
+  );
   const limited = useMemo(
     () =>
       rotate(
@@ -194,8 +209,15 @@ function ShopPage() {
       ),
     [all],
   );
-  const vaultDrops = useMemo(() => rotate(all.filter((i) => i.pool === "vault"), weekKey(), 3), [all]);
-
+  const vaultDrops = useMemo(
+    () =>
+      rotate(
+        all.filter((i) => i.pool === "vault"),
+        weekKey(),
+        3,
+      ),
+    [all],
+  );
 
   // The vaults are a secret shelf: normal accounts never learn they exist.
   // Owner sees both, admins see the staff vault only, everyone else sees neither.
@@ -254,9 +276,6 @@ function ShopPage() {
     }
   }
 
-
-
-
   return (
     <div className="space-y-5">
       <PageHeader
@@ -304,20 +323,18 @@ function ShopPage() {
       ) : null}
 
       {view === "shop" ? (
-      <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
-        <div>
-          <p className="eyebrow">Armory</p>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Everything you own lives in your locker — preview and equip it there.
-          </p>
-        </div>
-        <Button asChild size="sm" variant="outline">
-          <Link to="/armory">Open the Armory</Link>
-        </Button>
-      </Panel>
+        <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
+          <div>
+            <p className="eyebrow">Armory</p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Everything you own lives in your locker — preview and equip it there.
+            </p>
+          </div>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/armory">Open the Armory</Link>
+          </Button>
+        </Panel>
       ) : null}
-
-
 
       {view === "vault" && ownerVault.length ? (
         <Panel className="border-gold/45 relative overflow-hidden p-5">
@@ -457,7 +474,6 @@ function ShopPage() {
         </Panel>
       ) : null}
 
-
       {view === "shop" && daily.length ? (
         <Panel className="p-5" delay={40}>
           <PanelHead
@@ -507,84 +523,90 @@ function ShopPage() {
       ) : null}
 
       {view === "shop" ? (
-      <Panel className="p-5" delay={80}>
-        <PanelHead
-          eyebrow={`${owned.size} owned`}
-          title="Always in stock"
-          aside={
-            <div className="flex flex-wrap gap-1.5">
-              {(["all", ...SLOTS.map((s) => s.slot)] as const).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setSlot(s)}
-                  className={cn(
-                    "rounded-full border px-2.5 py-1 font-mono text-[10px] tracking-[0.12em] uppercase transition-colors",
-                    slot === s
-                      ? "border-primary/50 bg-primary/15 text-primary"
-                      : "border-border text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {s === "all" ? "All" : s}
-                </button>
+        <Panel className="p-5" delay={80}>
+          <PanelHead
+            eyebrow={`${owned.size} owned`}
+            title="Always in stock"
+            aside={
+              <div className="flex flex-wrap gap-1.5">
+                {(["all", ...SLOTS.map((s) => s.slot)] as const).map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSlot(s)}
+                    className={cn(
+                      "rounded-full border px-2.5 py-1 font-mono text-[10px] tracking-[0.12em] uppercase transition-colors",
+                      slot === s
+                        ? "border-primary/50 bg-primary/15 text-primary"
+                        : "border-border text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {s === "all" ? "All" : s}
+                  </button>
+                ))}
+              </div>
+            }
+          />
+
+          {cosmetics.isLoading ? (
+            <p className="text-muted-foreground mt-4 font-mono text-xs">Loading the catalogue…</p>
+          ) : (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {items.map((item) => (
+                <ItemCard
+                  key={item.slug}
+                  item={item}
+                  owned={owned.has(item.slug)}
+                  equipped={equippedSlug[item.slot] === item.slug}
+                  level={level}
+                  sparks={sparks}
+                  onBuy={() => void buy(item)}
+                  onEquip={() => void equip(item)}
+                />
               ))}
             </div>
-          }
-        />
-
-        {cosmetics.isLoading ? (
-          <p className="text-muted-foreground mt-4 font-mono text-xs">Loading the catalogue…</p>
-        ) : (
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {items.map((item) => (
-              <ItemCard
-                key={item.slug}
-                item={item}
-                owned={owned.has(item.slug)}
-                equipped={equippedSlug[item.slot] === item.slug}
-                level={level}
-                sparks={sparks}
-                onBuy={() => void buy(item)}
-                onEquip={() => void equip(item)}
-              />
-            ))}
-          </div>
-        )}
-      </Panel>
+          )}
+        </Panel>
       ) : null}
 
       {view === "shop" ? (
-      <Panel className="p-5" delay={120}>
-        <PanelHead eyebrow="How the slots work" title="One item per slot" />
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          {SLOTS.map((s) => {
-            const on = equippedSlug[s.slot];
-            const item = all.find((c) => c.slug === on);
-            return (
-              <div key={s.slot} className="border-border bg-background/40 rounded-xl border p-3.5">
-                <p className="eyebrow">{s.label}</p>
-                <p className="mt-1.5 text-sm">{item?.name ?? "Nothing equipped"}</p>
-                <p className="text-muted-foreground mt-1 text-xs">{s.blurb}</p>
-                {s.slot === "nametag" && on && NAMETAG_CLASS[on] ? (
-                  <p className={cn("mt-2 text-sm", NAMETAG_CLASS[on])}>
-                    {profile?.display_name ?? "You"}
-                  </p>
-                ) : null}
-                {s.slot === "badge" && on && BADGE_GLYPH[on] ? (
-                  <p className={cn("mt-2 text-sm", BADGE_CLASS[on])}>{BADGE_GLYPH[on]}</p>
-                ) : null}
-                {s.slot === "frame" && on && FRAME_CLASS[on] ? (
-                  <span
-                    style={{ ["--frame-w" as string]: "2px" }}
-                    className={cn("relative isolate mt-2 grid size-8 place-items-center rounded-full", FRAME_CLASS[on])}
-                  >
-                    <span className="bg-secondary block size-7 rounded-full" />
-                  </span>
-                ) : null}
-              </div>
-            );
-          })}
-        </div>
-      </Panel>
+        <Panel className="p-5" delay={120}>
+          <PanelHead eyebrow="How the slots work" title="One item per slot" />
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            {SLOTS.map((s) => {
+              const on = equippedSlug[s.slot];
+              const item = all.find((c) => c.slug === on);
+              return (
+                <div
+                  key={s.slot}
+                  className="border-border bg-background/40 rounded-xl border p-3.5"
+                >
+                  <p className="eyebrow">{s.label}</p>
+                  <p className="mt-1.5 text-sm">{item?.name ?? "Nothing equipped"}</p>
+                  <p className="text-muted-foreground mt-1 text-xs">{s.blurb}</p>
+                  {s.slot === "nametag" && on && NAMETAG_CLASS[on] ? (
+                    <p className={cn("mt-2 text-sm", NAMETAG_CLASS[on])}>
+                      {profile?.display_name ?? "You"}
+                    </p>
+                  ) : null}
+                  {s.slot === "badge" && on && BADGE_GLYPH[on] ? (
+                    <p className={cn("mt-2 text-sm", BADGE_CLASS[on])}>{BADGE_GLYPH[on]}</p>
+                  ) : null}
+                  {s.slot === "frame" && on && FRAME_CLASS[on] ? (
+                    <span
+                      style={{ ["--frame-w" as string]: "2px" }}
+                      className={cn(
+                        "relative isolate mt-2 grid size-8 place-items-center rounded-full",
+                        FRAME_CLASS[on],
+                      )}
+                    >
+                      <span className="bg-secondary block size-7 rounded-full" />
+                    </span>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </Panel>
       ) : null}
     </div>
   );
