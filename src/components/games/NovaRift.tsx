@@ -7,6 +7,8 @@ import {
   type LevelDef,
   type Rect,
 } from "@/lib/campaign";
+import { runnerBySlug, trailBySlug } from "@/lib/rift-skins";
+
 
 /**
  * Nova Rift — hand-designed precision platformer. Each level is a fixed layout
