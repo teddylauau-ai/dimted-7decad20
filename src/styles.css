@@ -1061,29 +1061,46 @@ html.light .glass-raised {
   }
 }
 
-/* Chroma Orbit — a dark graphite ring with two comet dots racing around it at
-   different speeds. */
+/* Chroma Orbit — a luminous rainbow ring with a bright spectrum sweep racing around it. */
 .cos-frame-chroma-orbit::before {
   background-image:
+    radial-gradient(closest-side, transparent 74%, oklch(0.2 0.02 258) 78%, transparent 82%),
     conic-gradient(
       from 0deg,
-      oklch(0.95 0.19 40) 0deg 14deg,
-      transparent 14deg 360deg
-    ),
-    radial-gradient(closest-side, transparent 76%, oklch(0.34 0.03 258) 78%, oklch(0.34 0.03 258) 100%);
-  animation: cos-spin 2.4s linear infinite;
+      oklch(0.95 0.22 10),
+      oklch(0.97 0.22 50),
+      oklch(0.97 0.22 100),
+      oklch(0.95 0.22 150),
+      oklch(0.93 0.22 200),
+      oklch(0.92 0.22 250),
+      oklch(0.9 0.22 300),
+      oklch(0.91 0.22 340),
+      oklch(0.95 0.22 10)
+    );
+  filter: drop-shadow(0 0 5px oklch(0.9 0.18 300 / 0.7));
+  animation: cos-spin 3s linear infinite;
 }
 .cos-frame-chroma-orbit::after {
   content: "";
   background-image: conic-gradient(
     from 180deg,
-    oklch(0.9 0.2 290) 0deg 10deg,
-    transparent 10deg 360deg
+    transparent 0deg 150deg,
+    oklch(1 0.16 30 / 0.95) 155deg 175deg,
+    oklch(1 0.16 90 / 0.95) 175deg 195deg,
+    oklch(1 0.16 160 / 0.95) 195deg 215deg,
+    oklch(1 0.16 250 / 0.95) 215deg 235deg,
+    oklch(1 0.16 310 / 0.95) 235deg 255deg,
+    transparent 260deg 360deg
   );
-  animation: cos-spin-back 3.8s linear infinite;
+  filter: blur(2.5px);
+  animation: cos-spin 1.8s linear infinite;
 }
 .cos-frame-chroma-orbit {
-  box-shadow: 0 0 20px -8px oklch(0.9 0.19 290 / 0.9);
+  box-shadow:
+    0 0 8px -3px oklch(0.95 0.18 20),
+    0 0 16px -5px oklch(0.9 0.18 90),
+    0 0 24px -7px oklch(0.85 0.18 190),
+    0 0 34px -9px oklch(0.8 0.18 300);
 }
 
 /* Opal Shell — pearlescent scalloped shell: soft off-axis pastel pools that
@@ -1106,31 +1123,59 @@ html.light .glass-raised {
   }
 }
 
-/* Kaleido Ring — hard-edged faceted gems with dark seams, plus an inner ring
-   of facets turning the other way. */
+/* Kaleido Ring — a full-spectrum kaleidoscope of bright rainbow facets with dark seams
+   and a counter-spinning inner rainbow ring, all wrapped in a rainbow aura. */
 .cos-frame-kaleido-ring::before {
-  background-image: repeating-conic-gradient(
+  background-image: conic-gradient(
     from 0deg,
-    oklch(0.92 0.19 25) 0deg 16deg,
-    oklch(0.2 0.03 258) 16deg 18deg,
-    oklch(0.9 0.19 130) 18deg 34deg,
-    oklch(0.2 0.03 258) 34deg 36deg,
-    oklch(0.88 0.18 215) 36deg 52deg,
-    oklch(0.2 0.03 258) 52deg 54deg,
-    oklch(0.87 0.2 310) 54deg 70deg,
-    oklch(0.2 0.03 258) 70deg 72deg
+    oklch(0.95 0.2 0) 0deg 26deg,
+    oklch(0.2 0.02 258) 26deg 30deg,
+    oklch(0.96 0.2 30) 30deg 56deg,
+    oklch(0.2 0.02 258) 56deg 60deg,
+    oklch(0.96 0.2 60) 60deg 86deg,
+    oklch(0.2 0.02 258) 86deg 90deg,
+    oklch(0.95 0.2 90) 90deg 116deg,
+    oklch(0.2 0.02 258) 116deg 120deg,
+    oklch(0.94 0.2 120) 120deg 146deg,
+    oklch(0.2 0.02 258) 146deg 150deg,
+    oklch(0.94 0.2 150) 150deg 176deg,
+    oklch(0.2 0.02 258) 176deg 180deg,
+    oklch(0.93 0.2 180) 180deg 206deg,
+    oklch(0.2 0.02 258) 206deg 210deg,
+    oklch(0.93 0.2 210) 210deg 236deg,
+    oklch(0.2 0.02 258) 236deg 240deg,
+    oklch(0.92 0.2 240) 240deg 266deg,
+    oklch(0.2 0.02 258) 266deg 270deg,
+    oklch(0.92 0.2 270) 270deg 296deg,
+    oklch(0.2 0.02 258) 296deg 300deg,
+    oklch(0.93 0.2 300) 300deg 326deg,
+    oklch(0.2 0.02 258) 326deg 330deg,
+    oklch(0.95 0.2 330) 330deg 356deg,
+    oklch(0.2 0.02 258) 356deg 360deg
   );
   animation: cos-spin 10s steps(24, end) infinite;
 }
 .cos-frame-kaleido-ring::after {
   content: "";
   inset: calc(var(--frame-w, 2px) * 1.6);
-  background-image: repeating-conic-gradient(
+  background-image: conic-gradient(
     from 9deg,
-    oklch(0.98 0.05 250 / 0.55) 0deg 6deg,
-    transparent 6deg 24deg
+    oklch(0.98 0.08 20 / 0.65) 0deg 50deg,
+    oklch(0.98 0.08 90 / 0.65) 50deg 110deg,
+    oklch(0.98 0.08 160 / 0.65) 110deg 170deg,
+    oklch(0.98 0.08 230 / 0.65) 170deg 230deg,
+    oklch(0.98 0.08 300 / 0.65) 230deg 290deg,
+    oklch(0.98 0.08 20 / 0.65) 290deg 360deg
   );
+  filter: blur(1px);
   animation: cos-spin-back 6s linear infinite;
+}
+.cos-frame-kaleido-ring {
+  box-shadow:
+    0 0 8px -3px oklch(0.95 0.18 30),
+    0 0 16px -5px oklch(0.9 0.18 120),
+    0 0 24px -7px oklch(0.85 0.18 210),
+    0 0 34px -9px oklch(0.8 0.18 300);
 }
 
 /* Iris Corona — rainbow petals that bloom outward, counter-spinning. */
