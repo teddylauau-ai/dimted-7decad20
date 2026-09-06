@@ -18,6 +18,7 @@ import {
   type Cosmetic,
   type CosmeticSlot,
 } from "@/lib/cosmetics";
+import { RARITY_ORDER } from "@/lib/dimted";
 import { rarityBorder } from "@/components/dimted/rarity";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
