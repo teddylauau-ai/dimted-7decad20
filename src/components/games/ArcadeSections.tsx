@@ -291,7 +291,138 @@ export function CampaignSection() {
           </div>
         )}
       </Panel>
+
+      {/* Runners + trails, earned with stars */}
+      <Panel className="p-4 sm:p-5">
+        <PanelHead
+          eyebrow="Rift wardrobe"
+          title="Runners & trails"
+          aside={
+            <span className="text-muted-foreground font-mono text-[11px]">{stars} stars earned</span>
+          }
+        />
+        <p className="text-muted-foreground mt-2 text-xs">
+          Earned by playing — collect stars to open new runners and trails.
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          {RIFT_RUNNERS.map((r) => {
+            const isLocked = stars < r.stars;
+            const on = skin.runner === r.slug;
+            return (
+              <button
+                key={r.slug}
+                type="button"
+                disabled={isLocked}
+                onClick={() => pickRunner(r.slug)}
+                className={cn(
+                  "glass rounded-xl p-3 text-left transition-colors",
+                  on && "ring-primary/60 ring-2",
+                  isLocked ? "cursor-not-allowed opacity-45" : "hover:bg-secondary/40",
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <span
+                    className="size-5 rounded-full"
+                    style={{ background: r.body, boxShadow: `0 0 10px ${r.body}` }}
+                  />
+                  <span className="truncate text-xs font-medium">{r.name}</span>
+                  {isLocked ? <Lock className="text-muted-foreground ml-auto size-3.5" /> : null}
+                </span>
+                <p className="text-muted-foreground mt-1 truncate text-[11px]">
+                  {isLocked ? `${r.stars} stars` : r.blurb}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+          {RIFT_TRAILS.map((t) => {
+            const isLocked = stars < t.stars;
+            const on = skin.trail === t.slug;
+            return (
+              <button
+                key={t.slug}
+                type="button"
+                disabled={isLocked}
+                onClick={() => pickTrail(t.slug)}
+                className={cn(
+                  "glass rounded-xl p-3 text-left transition-colors",
+                  on && "ring-primary/60 ring-2",
+                  isLocked ? "cursor-not-allowed opacity-45" : "hover:bg-secondary/40",
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <span
+                    className="h-1.5 w-8 rounded-full"
+                    style={{
+                      background:
+                        t.style === "prism"
+                          ? "linear-gradient(90deg,#7ce7ff,#c9a5ff,#ff8fb8)"
+                          : `linear-gradient(90deg, transparent, ${t.color})`,
+                    }}
+                  />
+                  <span className="truncate text-xs font-medium">{t.name}</span>
+                  {isLocked ? <Lock className="text-muted-foreground ml-auto size-3.5" /> : null}
+                </span>
+                <p className="text-muted-foreground mt-1 truncate text-[11px]">
+                  {isLocked ? `${t.stars} stars` : t.blurb}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </Panel>
+
+      {/* Nova Rift ladder */}
+      <Panel className="p-4 sm:p-5">
+        <PanelHead
+          eyebrow="Nova Rift ladder"
+          title="Top rift runners"
+          aside={<Trophy className="text-gold size-4" />}
+        />
+        <div className="mt-3 space-y-1">
+          {board.isLoading ? (
+            <p className="text-muted-foreground text-sm">Loading the ladder…</p>
+          ) : (board.data ?? []).length === 0 ? (
+            <p className="text-muted-foreground text-sm">No clears yet — set the first time.</p>
+          ) : (
+            (board.data ?? []).map((row, i) => (
+              <div
+                key={row.userId}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-2 py-2",
+                  row.userId === profile?.id ? "bg-primary/10" : "hover:bg-secondary/30",
+                )}
+              >
+                <span className="numeral text-muted-foreground w-6 text-xs">{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <IdentityRow
+                    profile={{
+                      id: row.userId,
+                      username: row.username,
+                      display_name: row.displayName,
+                      avatar_url: row.avatarUrl,
+                      equipped_nametag: row.equippedNametag,
+                      equipped_badge: row.equippedBadge,
+                      equipped_frame: row.equippedFrame,
+                      equipped_effect: row.equippedEffect,
+                    }}
+                  />
+                </div>
+                <span className="text-gold flex items-center gap-1 font-mono text-[11px]">
+                  <Star className="size-3 fill-current" />
+                  {row.stars}
+                </span>
+                <span className="text-muted-foreground font-mono text-[11px]">
+                  lvl {row.cleared} · {(row.totalMs / 1000).toFixed(0)}s
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </Panel>
     </div>
+
   );
 }
 
