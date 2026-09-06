@@ -25,31 +25,26 @@ function hueOf(i: number) {
   return (204 + i * 4) % 360;
 }
 
-/** Cached facade texture: dark glass curtain wall with lit office windows. */
+/** Cached facade texture: simple cartoon building with a few big windows. */
 const facadeCache = new Map<number, THREE.Texture>();
 function facadeTexture(index: number) {
-  const bucket = index % 6;
+  const bucket = index % 4;
   const cached = facadeCache.get(bucket);
   if (cached) return cached;
   const c = document.createElement("canvas");
   c.width = 128;
   c.height = 64;
   const g = c.getContext("2d")!;
-  g.fillStyle = "#0b1a28";
+  g.fillStyle = "#ffffff";
   g.fillRect(0, 0, 128, 64);
-  const cols = 10;
-  const rows = 3;
+  const cols = 5;
+  const rows = 2;
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
-      const lit = Math.random();
-      g.fillStyle =
-        lit > 0.72 ? "#ffe8ad" : lit > 0.5 ? "#7fd7ff" : lit > 0.32 ? "#16405c" : "#0e2536";
-      g.fillRect(6 + x * 11.6, 8 + y * 17, 8.4, 12);
+      g.fillStyle = (x + y + bucket) % 3 === 0 ? "#ffe9a8" : "#cfefff";
+      g.fillRect(12 + x * 21, 12 + y * 22, 14, 14);
     }
   }
-  g.strokeStyle = "#22475f";
-  g.lineWidth = 2;
-  g.strokeRect(1, 1, 126, 62);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
@@ -58,7 +53,7 @@ function facadeTexture(index: number) {
 }
 
 function FloorMesh({ slab, index, emissive = 0.1 }: { slab: Slab; index: number; emissive?: number }) {
-  const color = useMemo(() => new THREE.Color(`hsl(${hueOf(index)}, 34%, 44%)`), [index]);
+  const color = useMemo(() => new THREE.Color(`hsl(${hueOf(index)}, 52%, 56%)`), [index]);
   const tex = useMemo(() => facadeTexture(index), [index]);
   return (
     <group position={[slab.x, index * SLAB_H + SLAB_H / 2, slab.z]}>
@@ -69,19 +64,14 @@ function FloorMesh({ slab, index, emissive = 0.1 }: { slab: Slab; index: number;
           color={color}
           emissive={color}
           emissiveIntensity={emissive}
-          emissiveMap={tex}
-          roughness={0.45}
-          metalness={0.45}
+          roughness={0.65}
+          metalness={0.05}
         />
-      </mesh>
-      {/* concrete slab lip between floors */}
-      <mesh position={[0, SLAB_H / 2 + 0.03, 0]}>
-        <boxGeometry args={[slab.w + 0.08, 0.06, slab.d + 0.08]} />
-        <meshStandardMaterial color="#9fb3c2" roughness={0.8} metalness={0.1} />
       </mesh>
     </group>
   );
 }
+
 
 function ShardMesh({ shard, onDone }: { shard: Shard; onDone: (id: number) => void }) {
   const ref = useRef<THREE.Mesh>(null);
@@ -118,21 +108,27 @@ function ShardMesh({ shard, onDone }: { shard: Shard; onDone: (id: number) => vo
   );
 }
 
-/** Static skyline of neighbouring towers, generated once. */
+/** Static cartoon skyline, kept far away and clear of the camera's sightline. */
+const CITY_HUES = [200, 218, 176, 244, 190];
 function Skyline() {
   const towers = useMemo(() => {
     const out: { x: number; z: number; w: number; d: number; h: number; i: number }[] = [];
     let seed = 7;
     const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
-    for (let i = 0; i < 34; i++) {
-      const a = (i / 34) * Math.PI * 2 + rnd() * 0.12;
-      const r = 13 + rnd() * 12;
+    const camAngle = Math.atan2(12.5, 9.5);
+    for (let i = 0; i < 40; i++) {
+      const a = (i / 40) * Math.PI * 2 + rnd() * 0.1;
+      // keep the wedge between the camera and the tower completely empty
+      let diff = Math.abs(a - camAngle);
+      if (diff > Math.PI) diff = Math.PI * 2 - diff;
+      if (diff < 1.05) continue;
+      const r = 22 + rnd() * 14;
       out.push({
         x: Math.cos(a) * r,
         z: Math.sin(a) * r,
-        w: 1.6 + rnd() * 2.4,
-        d: 1.6 + rnd() * 2.4,
-        h: 3 + rnd() * 13,
+        w: 2 + rnd() * 2.6,
+        d: 2 + rnd() * 2.6,
+        h: 2.5 + rnd() * 7,
         i,
       });
     }
@@ -144,18 +140,17 @@ function Skyline() {
         <mesh key={t.i} position={[t.x, t.h / 2, t.z]}>
           <boxGeometry args={[t.w, t.h, t.d]} />
           <meshStandardMaterial
-            map={facadeTexture(t.i)}
-            emissiveMap={facadeTexture(t.i)}
-            color="#0f2233"
-            emissive="#284b66"
+            color={`hsl(${CITY_HUES[t.i % CITY_HUES.length]}, 38%, ${28 + (t.i % 4) * 5}%)`}
+            emissive={`hsl(${CITY_HUES[t.i % CITY_HUES.length]}, 45%, 22%)`}
             emissiveIntensity={0.5}
-            roughness={0.6}
-            metalness={0.3}
+            roughness={0.85}
+            metalness={0}
           />
         </mesh>
       ))}
     </group>
   );
+
 }
 
 function StackScene({
@@ -357,18 +352,16 @@ function StackScene({
             <mesh castShadow>
               <boxGeometry args={[BASE, SLAB_H, BASE]} />
               <meshStandardMaterial
-                color="#e8a93c"
-                emissive="#f6c860"
-                emissiveIntensity={0.35}
-                roughness={0.35}
-                metalness={0.7}
+                map={facadeTexture(s.current.slabs.length)}
+                color={new THREE.Color(`hsl(${hueOf(s.current.slabs.length)}, 52%, 56%)`)}
+                emissive={new THREE.Color(`hsl(${hueOf(s.current.slabs.length)}, 52%, 56%)`)}
+                emissiveIntensity={0.4}
+                roughness={0.65}
+                metalness={0.05}
               />
             </mesh>
-            <mesh position={[0, SLAB_H / 2 + 0.03, 0]}>
-              <boxGeometry args={[BASE + 0.08, 0.06, BASE + 0.08]} />
-              <meshStandardMaterial color="#cfd8e0" roughness={0.7} metalness={0.3} />
-            </mesh>
           </group>
+
         </>
       ) : null}
       {shards.map((sh) => (
