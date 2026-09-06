@@ -250,21 +250,24 @@ export function PulseRushSection() {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        eyebrow="Flagship"
-        title="Pulse Rush"
-        blurb="One button. Twenty-seven levels and an endless mountain. Memorise the beat, clear the run, take the coins."
-        aside={
-          <div className="flex items-center gap-3">
-            <span className="text-gold flex items-center gap-1.5 font-mono text-sm">
-              <Coins className="size-4" /> {coins}
-            </span>
-            <span className="text-muted-foreground flex items-center gap-1.5 font-mono text-sm">
-              <Trophy className="size-4" /> {cleared.length}/{LEVELS.length}
-            </span>
-          </div>
-        }
-      />
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="eyebrow">Flagship</p>
+          <h2 className="font-display text-lg font-semibold tracking-tight">Pulse Rush</h2>
+          <p className="text-muted-foreground mt-1 max-w-xl text-sm leading-relaxed">
+            One button. Twenty-seven levels and an endless mountain. Memorise the beat, clear the run,
+            take the coins.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-gold flex items-center gap-1.5 font-mono text-sm">
+            <Coins className="size-4" /> {coins}
+          </span>
+          <span className="text-muted-foreground flex items-center gap-1.5 font-mono text-sm">
+            <Trophy className="size-4" /> {cleared.length}/{LEVELS.length}
+          </span>
+        </div>
+      </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
         <Panel className="border-primary/25 flex flex-wrap items-center justify-between gap-3 p-4">
