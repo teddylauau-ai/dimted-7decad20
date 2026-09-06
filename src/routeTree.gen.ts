@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as ArmoryRouteImport } from './routes/armory'
 import { Route as CrewsRouteImport } from './routes/crews'
+import { Route as DevgamesRouteImport } from './routes/devgames'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as FriendsRouteImport } from './routes/friends'
 import { Route as GamesRouteImport } from './routes/games'
@@ -42,6 +43,11 @@ const ArmoryRoute = ArmoryRouteImport.update({
 const CrewsRoute = CrewsRouteImport.update({
   id: '/crews',
   path: '/crews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DevgamesRoute = DevgamesRouteImport.update({
+  id: '/devgames',
+  path: '/devgames',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -100,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/crews': typeof CrewsRoute
+  '/devgames': typeof DevgamesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/games': typeof GamesRoute
@@ -116,6 +123,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/crews': typeof CrewsRoute
+  '/devgames': typeof DevgamesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/games': typeof GamesRoute
@@ -133,6 +141,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/armory': typeof ArmoryRoute
   '/crews': typeof CrewsRoute
+  '/devgames': typeof DevgamesRoute
   '/discover': typeof DiscoverRoute
   '/friends': typeof FriendsRoute
   '/games': typeof GamesRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/armory'
     | '/crews'
+    | '/devgames'
     | '/discover'
     | '/friends'
     | '/games'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/armory'
     | '/crews'
+    | '/devgames'
     | '/discover'
     | '/friends'
     | '/games'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/armory'
     | '/crews'
+    | '/devgames'
     | '/discover'
     | '/friends'
     | '/games'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ArmoryRoute: typeof ArmoryRoute
   CrewsRoute: typeof CrewsRoute
+  DevgamesRoute: typeof DevgamesRoute
   DiscoverRoute: typeof DiscoverRoute
   FriendsRoute: typeof FriendsRoute
   GamesRoute: typeof GamesRoute
@@ -240,6 +253,13 @@ declare module '@tanstack/react-router' {
       path: '/crews'
       fullPath: '/crews'
       preLoaderRoute: typeof CrewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/devgames': {
+      id: '/devgames'
+      path: '/devgames'
+      fullPath: '/devgames'
+      preLoaderRoute: typeof DevgamesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -320,6 +340,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ArmoryRoute: ArmoryRoute,
   CrewsRoute: CrewsRoute,
+  DevgamesRoute: DevgamesRoute,
   DiscoverRoute: DiscoverRoute,
   FriendsRoute: FriendsRoute,
   GamesRoute: GamesRoute,
