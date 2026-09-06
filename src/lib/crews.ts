@@ -159,6 +159,10 @@ export const CREW_TEXT_EFFECTS: { key: CrewTextEffect; label: string; unlock: nu
   { key: "glitch", label: "Glitch", unlock: 55, cls: "crew-fx-glitch font-semibold" },
   { key: "prism", label: "Prism", unlock: 75, cls: "crew-fx-shimmer font-semibold tracking-tight" },
   { key: "flare", label: "Flare", unlock: 88, cls: "crew-fx-flare font-bold" },
+  { key: "quiet", label: "Quiet", unlock: 3, cls: "opacity-80" },
+  { key: "bold", label: "Bold", unlock: 6, cls: "font-bold" },
+  { key: "spaced", label: "Spaced", unlock: 12, cls: "tracking-[0.08em]" },
+  { key: "ghost", label: "Ghost", unlock: 30, cls: "italic opacity-75 drop-shadow-[0_0_10px_currentColor]" },
 ];
 
 /** Crew chat backgrounds. */
