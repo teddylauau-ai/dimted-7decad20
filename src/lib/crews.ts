@@ -183,6 +183,11 @@ export const CREW_CHAT_BGS: { key: CrewChatBg; label: string; unlock: number }[]
   { key: "eclipse", label: "Eclipse", unlock: 60 },
   { key: "prism", label: "Prism", unlock: 78 },
   { key: "sovereign", label: "Sovereign", unlock: 95 },
+  { key: "dunes", label: "Dunes", unlock: 8 },
+  { key: "orbit", label: "Orbit", unlock: 16 },
+  { key: "storm", label: "Storm", unlock: 24 },
+  { key: "shards", label: "Shards", unlock: 36 },
+  { key: "lattice", label: "Lattice", unlock: 50 },
 ];
 
 /** CSS for a chat background preset. Accent-tinted and clearly visible, but
