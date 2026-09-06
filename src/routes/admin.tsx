@@ -797,7 +797,7 @@ function AdminPage() {
                   className="border-border bg-secondary/40 focus-visible:ring-ring w-full rounded-xl border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:outline-none"
                 >
                   <option value="">Choose a rift item…</option>
-                  {(riftShop.data ?? []).map((i) => (
+                  {(riftShop.data ?? []).map((i: RiftItem) => (
                     <option key={i.slug} value={i.slug}>
                       {i.name} · {i.kind}
                     </option>
