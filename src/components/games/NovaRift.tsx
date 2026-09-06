@@ -69,6 +69,13 @@ export function NovaRift({
     const ctx = canvas.current?.getContext("2d");
     if (!ctx) return;
 
+    // A fresh run must never inherit keys/taps from the last one — a touch button
+    // that was still held when the runner died used to make the next attempt sprint
+    // straight into the first hazard.
+    keys.current = {};
+    jumpQueued.current = false;
+    dashQueued.current = false;
+
     const skin = runnerBySlug(runner);
     const tr = trailBySlug(trailSlug);
 
@@ -496,12 +503,26 @@ export function NovaRift({
     const up = (e: KeyboardEvent) => {
       keys.current[e.key] = false;
     };
+    // Releasing anywhere clears the touch d-pad, even if the button unmounted first.
+    const release = () => {
+      keys.current = {};
+    };
+    const blur = () => {
+      keys.current = {};
+    };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    window.addEventListener("blur", blur);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      window.removeEventListener("blur", blur);
+      keys.current = {};
       done = true;
     };
   }, [level, running, runner, trailSlug]);
@@ -536,6 +557,7 @@ export function NovaRift({
           className="border-border bg-secondary/50 flex-1 rounded-lg border py-3 text-sm"
           onPointerDown={() => held("ArrowLeft", true)}
           onPointerUp={() => held("ArrowLeft", false)}
+          onPointerCancel={() => held("ArrowLeft", false)}
           onPointerLeave={() => held("ArrowLeft", false)}
         >
           ←
@@ -552,6 +574,7 @@ export function NovaRift({
           className="border-border bg-secondary/50 flex-1 rounded-lg border py-3 text-sm"
           onPointerDown={() => held("ArrowRight", true)}
           onPointerUp={() => held("ArrowRight", false)}
+          onPointerCancel={() => held("ArrowRight", false)}
           onPointerLeave={() => held("ArrowRight", false)}
         >
           →
