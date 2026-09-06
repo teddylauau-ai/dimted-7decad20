@@ -34,12 +34,16 @@ export function NovaRift({
   onWin,
   onFail,
   onShards,
+  runner = "aurora",
+  trail: trailSlug = "ghost",
 }: {
   level: LevelDef;
   running: boolean;
   onWin: (shards: number, ms: number) => void;
   onFail: () => void;
   onShards?: (shards: number) => void;
+  runner?: string;
+  trail?: string;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const cbs = useRef({ onWin, onFail, onShards });
@@ -48,6 +52,7 @@ export function NovaRift({
   const jumpQueued = useRef(false);
   const dashQueued = useRef(false);
   const [hud, setHud] = useState({ shards: 0, ms: 0 });
+
 
   useEffect(() => {
     if (!running) return;
