@@ -460,7 +460,7 @@ export function NovaRift({
         width={VIEW_W}
         height={VIEW_H}
         className="border-border bg-background w-full rounded-xl border"
-        style={{ touchAction: "none", imageRendering: "pixelated" }}
+        style={{ touchAction: "none" }}
         onPointerDown={() => (jumpQueued.current = true)}
       />
       {/* Touch controls */}
