@@ -1136,17 +1136,24 @@ function CrewRewards({ level, xp, nextAt }: { level: number; xp: number; nextAt:
   );
 }
 
+/** First letter of a crew name, used when a crew hasn't uploaded a picture yet. */
+function crewInitial(name: string | null | undefined) {
+  return (name ?? "?").trim().charAt(0).toUpperCase() || "?";
+}
+
 function CrewMark({ crew, size = 32, rounded = "rounded-lg" }: { crew: CrewRow; size?: number; rounded?: string }) {
   const a = accentOf(crew.accent);
   return (
     <span
-      className={cn("grid shrink-0 place-items-center overflow-hidden ring-1", rounded, a.ring, "bg-secondary/50")}
+      className={cn("grid shrink-0 place-items-center overflow-hidden ring-1", rounded, a.ring, "bg-secondary/50", ACCENT_TEXT[crew.accent])}
       style={{ width: size, height: size }}
     >
       {crew.avatar_url ? (
         <img src={crew.avatar_url} alt={`${crew.name} picture`} className="size-full object-cover" />
       ) : (
-        <span style={{ fontSize: Math.round(size * 0.5) }}>{crew.badge_emoji}</span>
+        <span className="font-display font-semibold" style={{ fontSize: Math.round(size * 0.45) }}>
+          {crewInitial(crew.name)}
+        </span>
       )}
     </span>
   );
