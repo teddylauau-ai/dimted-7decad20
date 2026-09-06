@@ -844,6 +844,7 @@ export function PulseRush({
 
     return () => {
       disposed = true;
+      if (deathTimer) window.clearTimeout(deathTimer);
       cancelAnimationFrame(raf);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
