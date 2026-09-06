@@ -352,18 +352,16 @@ function StackScene({
             <mesh castShadow>
               <boxGeometry args={[BASE, SLAB_H, BASE]} />
               <meshStandardMaterial
-                color="#e8a93c"
-                emissive="#f6c860"
-                emissiveIntensity={0.35}
-                roughness={0.35}
-                metalness={0.7}
+                map={facadeTexture(s.current.slabs.length)}
+                color={new THREE.Color(`hsl(${hueOf(s.current.slabs.length)}, 52%, 56%)`)}
+                emissive={new THREE.Color(`hsl(${hueOf(s.current.slabs.length)}, 52%, 56%)`)}
+                emissiveIntensity={0.4}
+                roughness={0.65}
+                metalness={0.05}
               />
             </mesh>
-            <mesh position={[0, SLAB_H / 2 + 0.03, 0]}>
-              <boxGeometry args={[BASE + 0.08, 0.06, BASE + 0.08]} />
-              <meshStandardMaterial color="#cfd8e0" roughness={0.7} metalness={0.3} />
-            </mesh>
           </group>
+
         </>
       ) : null}
       {shards.map((sh) => (
