@@ -209,14 +209,25 @@ function ShopPage() {
       ),
     [all],
   );
-  const vaultDrops = useMemo(
-    () =>
-      rotate(
-        all.filter((i) => i.pool === "vault"),
-        weekKey(),
-        3,
-      ),
-    [all],
+  // Prismatic vault: six pieces in every slot, permanently stocked, priced high.
+  const vaultDrops = useMemo(() => {
+    const order: Record<string, number> = {
+      nametag: 0,
+      badge: 1,
+      frame: 2,
+      banner: 3,
+      effect: 4,
+    };
+    return all
+      .filter((i) => i.pool === "vault")
+      .sort(
+        (a, b) =>
+          (order[a.slot] ?? 9) - (order[b.slot] ?? 9) || a.price_sparks - b.price_sparks,
+      );
+  }, [all]);
+  const vaultShown = useMemo(
+    () => (slot === "all" ? vaultDrops : vaultDrops.filter((i) => i.slot === slot)),
+    [vaultDrops, slot],
   );
 
   // The vaults are a secret shelf: normal accounts never learn they exist.
