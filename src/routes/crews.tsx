@@ -11,7 +11,7 @@ import { Avatar, ProfileLink } from "@/components/dimted/Identity";
 import { CrestLadder, CrewCrestRow } from "@/components/dimted/CrewCrest";
 import {
   CREW_ACCENTS,
-  CREW_EMOJI,
+  accentsFor,
   ACCENT_TEXT,
   CREW_BADGE_STYLES,
   CREW_CHAT_BGS,
@@ -391,7 +391,7 @@ function CrewsPage() {
               <div className="mt-1 space-y-1">
                 {(myInvites.data ?? []).map((i) => (
                   <div key={i.id} className="bg-secondary/30 flex items-center gap-2 rounded-xl px-2 py-1.5">
-                    <span className="text-sm">{i.crew?.badge_emoji}</span>
+                    <span className="bg-secondary/60 grid size-5 place-items-center rounded-md text-[10px] font-semibold">{(i.crew?.name ?? "?").trim().charAt(0).toUpperCase()}</span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-medium">{i.crew?.name}</p>
                     </div>
@@ -873,7 +873,7 @@ function CrewBadgeChip({ crew }: { crew: CrewRow }) {
         shell.cls,
       )}
     >
-      {crew.avatar_url ? <img src={crew.avatar_url} alt="" className="size-full object-cover" /> : crew.badge_emoji}
+      {crew.avatar_url ? <img src={crew.avatar_url} alt="" className="size-full object-cover" /> : crewInitial(crew.name)}
     </span>
   );
 }
