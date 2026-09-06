@@ -139,6 +139,9 @@ export const CREW_NAMETAGS: { key: CrewNametag; label: string; unlock: number; c
   { key: "prism", label: "Prism", unlock: 40, cls: "font-bold bg-gradient-to-r from-current via-foreground to-current bg-clip-text text-transparent" },
   { key: "aurora", label: "Aurora", unlock: 65, cls: "font-bold drop-shadow-[0_0_10px_currentColor]" },
   { key: "sovereign", label: "Sovereign", unlock: 90, cls: "font-bold text-amber-200 drop-shadow-[0_0_10px_rgba(252,211,77,0.75)]" },
+  { key: "shadow", label: "Shadow", unlock: 6, cls: "font-semibold drop-shadow-[0_2px_2px_rgba(0,0,0,0.7)]" },
+  { key: "chrome", label: "Chrome", unlock: 30, cls: "font-bold bg-gradient-to-b from-white via-current to-foreground/70 bg-clip-text text-transparent" },
+  { key: "ember", label: "Ember", unlock: 50, cls: "font-bold bg-gradient-to-r from-amber-300 to-rose-400 bg-clip-text text-transparent" },
 ];
 
 /** Crew message text effects. */
