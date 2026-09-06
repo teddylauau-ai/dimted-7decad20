@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Lock, Play, RotateCcw, Star, Trophy } from "lucide-react";
+import { Coins, Lock, Play, RotateCcw, Star, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Panel, PanelHead } from "@/components/dimted/primitives";
@@ -39,6 +39,7 @@ import {
   useRiftEquip,
   useRiftShop,
   useRiftState,
+  type RiftCurrency,
 } from "@/lib/rift-queries";
 
 
@@ -76,8 +77,10 @@ export function CampaignSection() {
   const stars = totalStars(progress.data);
   const owned = riftState.data?.unlocks ?? [];
   const spendable = riftState.data?.starsAvailable ?? 0;
+  const coins = riftState.data?.coinsAvailable ?? 0;
   const skin = { runner: riftState.data?.runner ?? "aurora", trail: riftState.data?.trail ?? "ghost" };
   const priceOf = (slug: string) => shop.data?.find((i) => i.slug === slug)?.cost_stars ?? 0;
+  const coinPriceOf = (slug: string) => shop.data?.find((i) => i.slug === slug)?.cost_coins ?? 0;
   const isOpen = (n: number) => n <= cleared + 1 || owned.includes(levelSlug(n));
   const unlockedUpTo = Math.min(LEVELS.length, cleared + 1);
 
@@ -87,12 +90,13 @@ export function CampaignSection() {
   const [result, setResult] = useState<{ stars: number; ms: number; shards: number } | null>(null);
   const board = useRiftLeaderboard();
 
-  const purchase = async (slug: string, label: string) => {
+  const purchase = async (slug: string, label: string, currency: RiftCurrency = "stars") => {
+    const unit = currency === "coins" ? "coins" : "stars";
     try {
-      const res = await buy.mutateAsync(slug);
+      const res = await buy.mutateAsync({ slug, currency });
       if (res.status === "bought") toast.success(`${label} unlocked`);
       else if (res.status === "owned") toast(`You already own ${label}`);
-      else if (res.status === "poor") toast.error(`Need ${res.need} stars — you have ${res.have}`);
+      else if (res.status === "poor") toast.error(`Need ${res.need} ${unit} — you have ${res.have}`);
       else toast.error("Couldn't unlock that");
     } catch {
       toast.error("Couldn't unlock that");
@@ -239,15 +243,26 @@ export function CampaignSection() {
                 <p className="mt-1 truncate text-[11px] leading-tight">{l.name}</p>
               </button>
               {isLocked && price > 0 ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={buy.isPending || spendable < price}
-                  onClick={() => void purchase(levelSlug(l.n), `Level ${l.n}`)}
-                  className="mt-2 h-7 w-full px-2 text-[11px]"
-                >
-                  <Star className="size-3 fill-current" /> {price}
-                </Button>
+                <div className="mt-2 grid grid-cols-2 gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={buy.isPending || spendable < price}
+                    onClick={() => void purchase(levelSlug(l.n), `Level ${l.n}`)}
+                    className="h-7 w-full px-1.5 text-[11px]"
+                  >
+                    <Star className="size-3 fill-current" /> {price}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={buy.isPending || coins < coinPriceOf(levelSlug(l.n))}
+                    onClick={() => void purchase(levelSlug(l.n), `Level ${l.n}`, "coins")}
+                    className="h-7 w-full px-1.5 text-[11px]"
+                  >
+                    <Coins className="size-3" /> {coinPriceOf(levelSlug(l.n))}
+                  </Button>
+                </div>
               ) : null}
             </div>
           );
@@ -351,18 +366,25 @@ export function CampaignSection() {
       {/* Star shop: runners + trails bought with stars, saved to your account */}
       <Panel className="p-4 sm:p-5">
         <PanelHead
-          eyebrow="Star shop"
+          eyebrow="Rift shop"
           title="Runners & trails"
           aside={
-            <span className="text-gold flex items-center gap-1.5 font-mono text-[11px]">
-              <Star className="size-3.5 fill-current" />
-              {spendable} to spend
+            <span className="flex items-center gap-3 font-mono text-[11px]">
+              <span className="text-gold flex items-center gap-1.5">
+                <Star className="size-3.5 fill-current" />
+                {spendable}
+              </span>
+              <span className="text-primary flex items-center gap-1.5">
+                <Coins className="size-3.5" />
+                {coins}
+              </span>
             </span>
           }
         />
         <p className="text-muted-foreground mt-2 text-xs">
-          Stars you earn are your currency. Unlocks and your equipped look are saved to your account,
-          so they're waiting on every device. {stars} stars earned all time.
+          Two currencies: stars come from clearing levels well, coins come from every game run you
+          finish anywhere in the hub. Pay with whichever you have. Unlocks and your equipped look are
+          saved to your account, so they're waiting on every device. {stars} stars earned all time.
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {RIFT_RUNNERS.map((r) => {
@@ -395,15 +417,26 @@ export function CampaignSection() {
                   <p className="text-muted-foreground mt-1 truncate text-[11px]">{r.blurb}</p>
                 </button>
                 {isLocked ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={buy.isPending || spendable < price}
-                    onClick={() => void purchase(slug, r.name)}
-                    className="mt-2 h-7 w-full px-2 text-[11px]"
-                  >
-                    <Star className="size-3 fill-current" /> {price}
-                  </Button>
+                  <div className="mt-2 grid grid-cols-2 gap-1.5">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={buy.isPending || spendable < price}
+                      onClick={() => void purchase(slug, r.name)}
+                      className="h-7 w-full px-1.5 text-[11px]"
+                    >
+                      <Star className="size-3 fill-current" /> {price}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={buy.isPending || coins < coinPriceOf(slug)}
+                      onClick={() => void purchase(slug, r.name, "coins")}
+                      className="h-7 w-full px-1.5 text-[11px]"
+                    >
+                      <Coins className="size-3" /> {coinPriceOf(slug)}
+                    </Button>
+                  </div>
                 ) : null}
               </div>
             );
@@ -445,15 +478,26 @@ export function CampaignSection() {
                   <p className="text-muted-foreground mt-1 truncate text-[11px]">{t.blurb}</p>
                 </button>
                 {isLocked ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={buy.isPending || spendable < price}
-                    onClick={() => void purchase(slug, t.name)}
-                    className="mt-2 h-7 w-full px-2 text-[11px]"
-                  >
-                    <Star className="size-3 fill-current" /> {price}
-                  </Button>
+                  <div className="mt-2 grid grid-cols-2 gap-1.5">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={buy.isPending || spendable < price}
+                      onClick={() => void purchase(slug, t.name)}
+                      className="h-7 w-full px-1.5 text-[11px]"
+                    >
+                      <Star className="size-3 fill-current" /> {price}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={buy.isPending || coins < coinPriceOf(slug)}
+                      onClick={() => void purchase(slug, t.name, "coins")}
+                      className="h-7 w-full px-1.5 text-[11px]"
+                    >
+                      <Coins className="size-3" /> {coinPriceOf(slug)}
+                    </Button>
+                  </div>
                 ) : null}
               </div>
             );
