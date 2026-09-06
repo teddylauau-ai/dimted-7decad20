@@ -1577,7 +1577,12 @@ html.light .glass-raised {
   .cos-shimmer,
   .cos-frame-glitch::before,
   .cos-frame-prismatic::before,
+  .cos-frame-iris-corona::before,
+  .cos-badge-chroma-star,
+  .cos-badge-iris-lotus,
+  .cos-badge-spectrum-apex,
   .cos-ripple-row,
+
   .cos-static-row,
   .cos-wave-row,
   .cos-comet-row,
