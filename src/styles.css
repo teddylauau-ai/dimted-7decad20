@@ -963,6 +963,73 @@ html.light .glass-raised {
   );
   animation: cos-spin 6s linear infinite;
 }
+.cos-frame-prism-halo::before {
+  background-image: conic-gradient(
+    oklch(0.9 0.17 20),
+    oklch(0.9 0.17 110),
+    oklch(0.88 0.16 200),
+    oklch(0.86 0.18 300),
+    oklch(0.9 0.17 20)
+  );
+  animation: cos-spin 7s linear infinite;
+}
+.cos-frame-chroma-orbit::before {
+  background-image: conic-gradient(
+    from 0deg,
+    oklch(0.92 0.18 40) 0 22%,
+    transparent 22% 50%,
+    oklch(0.88 0.19 280) 50% 72%,
+    transparent 72% 100%
+  );
+  animation: cos-spin 3.6s linear infinite;
+}
+.cos-frame-opal-shell::before {
+  background-image: conic-gradient(
+    oklch(0.96 0.07 190),
+    oklch(0.95 0.09 320),
+    oklch(0.96 0.08 110),
+    oklch(0.96 0.07 190)
+  );
+  animation: cos-spin 12s linear infinite;
+}
+.cos-frame-kaleido-ring::before {
+  background-image: repeating-conic-gradient(
+    from 0deg,
+    oklch(0.9 0.18 20) 0 15deg,
+    oklch(0.9 0.18 110) 15deg 30deg,
+    oklch(0.88 0.17 200) 30deg 45deg,
+    oklch(0.86 0.19 300) 45deg 60deg
+  );
+  animation: cos-spin 8s linear infinite;
+}
+.cos-frame-iris-corona::before {
+  background-image: conic-gradient(
+    oklch(0.94 0.19 20),
+    oklch(0.94 0.19 95),
+    oklch(0.92 0.18 190),
+    oklch(0.9 0.2 300),
+    oklch(0.94 0.19 20)
+  );
+  animation: cos-spin 5s linear infinite;
+}
+.cos-frame-iris-corona {
+  box-shadow: 0 0 28px -6px oklch(0.9 0.18 300 / 0.8);
+}
+.cos-frame-spectrum-apex::before {
+  background-image: conic-gradient(
+    from 0deg,
+    oklch(1 0.03 250),
+    oklch(0.94 0.2 20),
+    oklch(0.95 0.2 95),
+    oklch(0.92 0.19 190),
+    oklch(0.9 0.21 300),
+    oklch(1 0.03 250)
+  );
+  animation: cos-spin 3s linear infinite;
+}
+.cos-frame-spectrum-apex {
+  box-shadow: 0 0 34px -4px oklch(0.93 0.19 300 / 0.9);
+}
 @keyframes cos-spin {
   to {
     transform: rotate(360deg);
