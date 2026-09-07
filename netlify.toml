@@ -1,0 +1,12 @@
+# Build settings for this TanStack Start app.
+#
+# The build runs Nitro (via @lovable.dev/vite-tanstack-config), which auto-detects
+# Netlify and uses its `netlify` preset. That preset emits:
+#   - dist/                            -> static client assets (the publish directory)
+#   - .netlify/functions-internal/     -> the SSR server handler (picked up automatically)
+#
+# It never creates `.output/public`, so the publish directory must be `dist`.
+# Values here override the Netlify UI build settings.
+[build]
+  command = "npm run build"
+  publish = "dist"
