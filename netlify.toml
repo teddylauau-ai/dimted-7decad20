@@ -1,0 +1,8 @@
+# Nitro's Netlify preset (configured via @lovable.dev/vite-tanstack-config) emits:
+#   - static client assets -> dist/
+#   - the SSR handler       -> .netlify/functions-internal/server/ (auto-detected by Netlify)
+# Keeping these settings in the repo means the deploy no longer depends on the
+# publish directory configured in the Netlify UI.
+[build]
+  command = "bun run build"
+  publish = "dist"
