@@ -317,7 +317,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="mx-auto flex min-h-0 w-full max-w-[1680px] flex-1 gap-3">
         <Rail />
         <Sidebar />
-        <main className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-2">
+        <main ref={mainRef} className="min-w-0 flex-1 overflow-y-auto pb-20 lg:pb-2">
           {banned || muted ? (
             <div
               className={
