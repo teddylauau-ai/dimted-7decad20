@@ -101,12 +101,18 @@ export function NovaRift({
     let collected = 0;
     const trail: { x: number; y: number; a: number }[] = [];
 
+    /**
+     * Returns true when the run actually ended (caller stops the frame).
+     * During the brief spawn grace it returns false so the loop keeps running —
+     * bailing out there used to kill the animation loop permanently, leaving a
+     * blank canvas with no runner and no way to play.
+     */
     const die = () => {
-      // Brief spawn grace: nothing can end the run in the first few frames.
-      if (performance.now() - started < 120) return;
-      if (done) return;
+      if (done) return true;
+      if (performance.now() - started < 120) return false;
       done = true;
       cbs.current.onFail();
+      return true;
     };
     const win = () => {
       if (done) return;
