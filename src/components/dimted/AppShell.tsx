@@ -15,7 +15,7 @@ import {
   UserRound,
   Zap,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { useDimted } from "@/lib/dimted-store";
 import { nextUnlock, xpLabel } from "@/lib/dimted";
 import { formatSparks } from "@/lib/cosmetics";
