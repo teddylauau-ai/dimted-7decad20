@@ -218,7 +218,7 @@ export function NovaRift({
       }
 
       // pit / goal
-      if (y > VIEW_H + 60) return die();
+      if (y > VIEW_H + 60 && die()) return;
       if (x + PW >= level.goalX) return win();
 
       // ---- camera
