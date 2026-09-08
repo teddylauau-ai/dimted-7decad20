@@ -278,6 +278,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const unread = useUnreadMessages(profile?.id);
   const crewUnread = useUnreadCrew(profile?.id);
   useMessageTabBadge(unread);
+  const mainRef = useRef<HTMLElement>(null);
+
+  // The app scrolls inside <main>, not the window, so the router's built-in
+  // scroll restoration never touches it. Snap every new page to the top.
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    if (main) main.scrollTop = 0;
+    if (typeof window !== "undefined") window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   if (loading) {
     return (
