@@ -199,12 +199,12 @@ export function NovaRift({
       for (const m of movers) {
         m.t += dt * (m.speed / m.range);
         m.x = m.cx + Math.sin(m.t) * (m.range / 2);
-        if (hit(x, y, PW, PH, m)) return die();
+        if (hit(x, y, PW, PH, m) && die()) return;
       }
 
       // spikes
       for (const sp of level.spikes) {
-        if (hit(x + 3, y + 3, PW - 6, PH - 4, sp)) return die();
+        if (hit(x + 3, y + 3, PW - 6, PH - 4, sp) && die()) return;
       }
 
       // shards
