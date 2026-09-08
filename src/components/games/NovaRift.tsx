@@ -101,12 +101,18 @@ export function NovaRift({
     let collected = 0;
     const trail: { x: number; y: number; a: number }[] = [];
 
+    /**
+     * Returns true when the run actually ended (caller stops the frame).
+     * During the brief spawn grace it returns false so the loop keeps running —
+     * bailing out there used to kill the animation loop permanently, leaving a
+     * blank canvas with no runner and no way to play.
+     */
     const die = () => {
-      // Brief spawn grace: nothing can end the run in the first few frames.
-      if (performance.now() - started < 120) return;
-      if (done) return;
+      if (done) return true;
+      if (performance.now() - started < 120) return false;
       done = true;
       cbs.current.onFail();
+      return true;
     };
     const win = () => {
       if (done) return;
@@ -193,12 +199,12 @@ export function NovaRift({
       for (const m of movers) {
         m.t += dt * (m.speed / m.range);
         m.x = m.cx + Math.sin(m.t) * (m.range / 2);
-        if (hit(x, y, PW, PH, m)) return die();
+        if (hit(x, y, PW, PH, m) && die()) return;
       }
 
       // spikes
       for (const sp of level.spikes) {
-        if (hit(x + 3, y + 3, PW - 6, PH - 4, sp)) return die();
+        if (hit(x + 3, y + 3, PW - 6, PH - 4, sp) && die()) return;
       }
 
       // shards
@@ -212,7 +218,7 @@ export function NovaRift({
       }
 
       // pit / goal
-      if (y > VIEW_H + 60) return die();
+      if (y > VIEW_H + 60 && die()) return;
       if (x + PW >= level.goalX) return win();
 
       // ---- camera
