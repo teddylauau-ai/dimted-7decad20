@@ -85,6 +85,9 @@ export function PulseRushSection() {
   const dailyBoard = usePulseDailyLeaderboard();
   const streak = usePulseDailyStreak(profile?.id);
   const [endless, setEndless] = useState(false);
+  /** Bumped on every start so the canvas remounts — replaying the same level or
+   * jumping to the next one always begins a genuinely fresh run. */
+  const [runKey, setRunKey] = useState(0);
 
   const skins: PulseSkins = {
     icon: state.data?.equipped_icon ?? "cube-origin",
@@ -101,6 +104,7 @@ export function PulseRushSection() {
     setPractice(prac);
     setEndless(isEndless);
     setResult(null);
+    setRunKey((k) => k + 1);
     setPhase("playing");
   };
 
@@ -182,6 +186,7 @@ export function PulseRushSection() {
           </Button>
         </div>
         <PulseRush
+          key={runKey}
           level={level}
           skins={skins}
           practice={practice}
